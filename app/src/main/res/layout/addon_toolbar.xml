@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@android:color/white"
+        app:title="@string/app_name"/>
+
+    <ImageView
+        android:id="@+id/toolbar_icon4"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:contentDescription="@string/app_name"
+        android:layout_marginEnd="@dimen/icon_padding"
+        android:layout_toStartOf="@id/toolbar_icon2"
+        android:layout_centerVertical="true"
+        android:onClick="clickRefresh"
+        android:scaleType="centerCrop"
+        android:clickable="true"
+        android:src="@drawable/ic_refresh"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/toolbar_icon2"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:contentDescription="@string/app_name"
+        android:layout_marginEnd="@dimen/icon_padding"
+        android:layout_toStartOf="@id/toolbar_icon5"
+        android:layout_centerVertical="true"
+        android:onClick="clickAutoManual"
+        android:scaleType="centerCrop"
+        android:clickable="true"
+        android:src="@drawable/ic_auto"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/toolbar_icon5"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:contentDescription="@string/app_name"
+        android:layout_marginEnd="@dimen/icon_padding"
+        android:layout_toStartOf="@id/toolbar_icon3"
+        android:layout_centerVertical="true"
+        android:onClick="clickTrash"
+        android:scaleType="centerCrop"
+        android:clickable="true"
+        android:src="@drawable/ic_trash"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/toolbar_icon3"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:contentDescription="@string/app_name"
+        android:layout_marginEnd="@dimen/icon_padding"
+        android:layout_toStartOf="@id/toolbar_icon"
+        android:layout_centerVertical="true"
+        android:onClick="clickConnect"
+        android:scaleType="centerCrop"
+        android:clickable="true"
+        android:src="@drawable/ic_bluetooth_connect"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/toolbar_icon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:contentDescription="@string/app_name"
+        android:layout_marginEnd="@dimen/icon_padding"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:scaleType="centerCrop"
+        android:clickable="true"
+        android:onClick="clickSettings"
+        android:src="@drawable/ic_settings"
+        android:visibility="gone" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/toolbar"
+        android:background="@color/toolbar_divider"/>
+</RelativeLayout>

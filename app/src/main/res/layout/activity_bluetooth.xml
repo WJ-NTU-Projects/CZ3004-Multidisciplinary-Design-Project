@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/window_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/addon_toolbar" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/bt_layout_swipe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/bt_layout_bonded"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/screen_padding"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/bt_bonded_devices"
+                        android:paddingLeft="@dimen/screen_padding"
+                        android:paddingRight="@dimen/screen_padding"
+                        android:textColor="@android:color/darker_gray" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/bt_recycler_bonded"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/element_padding"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never"
+                        tools:listitem="@layout/listitem_bluetooth"
+                        tools:itemCount="2" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/screen_padding"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="@dimen/screen_padding"
+                        android:paddingRight="@dimen/screen_padding"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/bt_label_others"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/bt_devices"
+                            android:textColor="@android:color/darker_gray" />
+
+                        <ProgressBar
+                            android:id="@+id/bt_progress"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="@dimen/element_padding"/>
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/bt_recycler_others"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/element_padding"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never"
+                        tools:listitem="@layout/listitem_bluetooth"
+                        tools:itemCount="5" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+</LinearLayout>

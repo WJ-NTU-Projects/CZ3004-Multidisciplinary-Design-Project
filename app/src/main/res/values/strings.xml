@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">MDP Test Kotlin</string>
+    <string name="app_pref_key">MDP_PREF_KEY</string>
+    <string name="app_pref_exploration">COMMAND_EXPLORATION</string>
+    <string name="app_pref_fastest">COMMAND_FASTEST</string>
+    <string name="app_pref_pause">COMMAND_PAUSE</string>
+    <string name="app_pref_forward">COMMAND_FORWARD</string>
+    <string name="app_pref_reverse">COMMAND_REVERSE</string>
+    <string name="app_pref_turn_left">COMMAND_TURN_LEFT</string>
+    <string name="app_pref_turn_right">COMMAND_TURN_RIGHT</string>
+    <string name="app_pref_label_f1">LABEL_F1</string>
+    <string name="app_pref_command_f1">COMMAND_F1</string>
+    <string name="app_pref_label_f2">LABEL_F2</string>
+    <string name="app_pref_command_f2">COMMAND_f2</string>
+
+
+
+    <string name="main_connect">Connect</string>
+    <string name="main_start">Start</string>
+    <string name="main_pause">Pause</string>
+    <string name="main_start_exploration">Exploration</string>
+    <string name="main_start_fastest">Fastest Path</string>
+    <string name="main_forward">Forward</string>
+    <string name="main_reverse">Reverse</string>
+    <string name="main_turn_left">Turn Left</string>
+    <string name="main_turn_right">Turn Right</string>
+    <string name="main_f1">F1</string>
+    <string name="main_f2">F2</string>
+
+    <string name="main_status">Status:</string>
+    <string name="main_start_point">Start Point</string>
+    <string name="main_way_point">Way Point</string>
+    <string name="main_clear_points">Clear</string>
+    <string name="ok">OK</string>
+
+    <string name="error_bluetooth_not_supported">Bluetooth is not supported on this device.</string>
+    <string name="error_bluetooth_not_connected">No bluetooth device connected.</string>
+    <string name="error_bluetooth_off">Bluetooth-related features are disabled until Bluetooth is turned on.</string>
+
+    <string name="settings_command_strings">Command Strings</string>
+    <string name="settings_command_strings_desc">These settings affect the command strings sent to the Raspberry Pi when the respective buttons are pressed.</string>
+    <string name="settings_button">Button</string>
+    <string name="settings_command">String Command Output</string>
+    <string name="settings_default_exploration">beginExploration</string>
+    <string name="settings_default_fastest">beginFastest</string>
+    <string name="settings_default_pause">pause</string>
+    <string name="settings_default_forward">f</string>
+    <string name="settings_default_reverse">r</string>
+    <string name="settings_default_turn_left">tl</string>
+    <string name="settings_default_turn_right">tr</string>
+
+    <string name="settings_customise_buttons">Customise Buttons</string>
+    <string name="settings_customise_buttons_desc">Changes the functionality and label of the two custom buttons, F1 and F2.</string>
+    <string name="settings_button_label">Button Label</string>
+
+    <string name="bt_bonded_devices">Paired Devices</string>
+    <string name="bt_other_devices">Other Devices</string>
+    <string name="bt_devices">Devices</string>
+</resources>
