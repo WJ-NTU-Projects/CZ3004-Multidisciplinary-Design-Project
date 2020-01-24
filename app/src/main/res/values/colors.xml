@@ -4,4 +4,10 @@
     <color name="colorPrimaryDark">#FFFFFF</color>
     <color name="colorAccent">#1E6AE1</color>
     <color name="toolbar_divider">#DDDDDD</color>
+
+    <color name="progressBarEnd">#011A5FC6</color>
+    <color name="arena_unexplored">#FB98A4</color>
+    <color name="arena_explored">#98FBEE</color>
+    <color name="arena_start_point">#A50CB3</color>
+    <color name="arena_way_point">#1AB30C</color>
 </resources>

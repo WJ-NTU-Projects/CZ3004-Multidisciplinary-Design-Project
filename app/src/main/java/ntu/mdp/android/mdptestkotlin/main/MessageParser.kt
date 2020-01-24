@@ -2,6 +2,8 @@ package ntu.mdp.android.mdptestkotlin.main
 
 import android.content.Context
 import android.util.Log
+import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.MainActivity
 
 class MessageParser(private val context: Context, private val callback: (status: Status, message: String) -> Unit) {
     enum class Status {
@@ -26,7 +28,7 @@ class MessageParser(private val context: Context, private val callback: (status:
             return
         }
 
-        if ((MainActivity.autoUpdate || MainActivity.isUpdating) && s[0] == "#grid") {
+        if ((App.autoUpdateArena || MainActivity.isUpdating) && s[0] == "#grid") {
             MainActivity.isUpdating = false
             callback(Status.ARENA, s[1])
             return

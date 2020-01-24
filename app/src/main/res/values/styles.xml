@@ -15,4 +15,14 @@
         <item name="android:textSize">@dimen/text_size_default</item>
     </style>
 
+    <style name="TextStatusTitle" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textColor">@android:color/darker_gray</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextStatusContent" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textSize">@dimen/text_size_big</item>
+    </style>
+
 </resources>

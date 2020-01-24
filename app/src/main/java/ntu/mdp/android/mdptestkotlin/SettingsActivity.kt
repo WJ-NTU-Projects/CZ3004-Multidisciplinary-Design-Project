@@ -1,38 +1,18 @@
 package ntu.mdp.android.mdptestkotlin
 
-import android.Manifest
-import android.bluetooth.BluetoothAdapter
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.view.children
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.google.android.material.textview.MaterialTextView
-import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothActivity
-import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothService
-import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothService.Companion.receiver
-import ntu.mdp.android.mdptestkotlin.main.ArenaController
-import ntu.mdp.android.mdptestkotlin.main.MessageParser
+import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var activityUtil: ActivityUtil
-    private lateinit var sharedPreferences: SharedPreferences
-
     private lateinit var explorationEditText: EditText
     private lateinit var fastestEditText: EditText
     private lateinit var pauseEditText: EditText
@@ -63,7 +43,6 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
         activityUtil = ActivityUtil(this)
         activityUtil.setTitle("Settings")
-        sharedPreferences = this.applicationContext.getSharedPreferences(getString(R.string.app_pref_key), Context.MODE_PRIVATE)
 
         explorationEditText = findViewById(R.id.settings_edittext_exploration)
         explorationEditText.setOnKeyListener(onEnter)
@@ -94,7 +73,10 @@ class SettingsActivity : AppCompatActivity() {
 
         f2CommandEditText = findViewById(R.id.settings_edittext_f2_command)
         f2CommandEditText.setOnKeyListener(onEnter)
+    }
 
+    override fun onResume() {
+        super.onResume()
         refreshHints()
     }
 
@@ -124,8 +106,8 @@ class SettingsActivity : AppCompatActivity() {
         turnLeftEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_turn_left), getString(R.string.settings_default_turn_left))
         turnRightEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_turn_right), getString(R.string.settings_default_turn_right))
         f1LabelEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_label_f1), getString(R.string.main_f1))
-        f1CommandEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_command_f1), getString(R.string.main_f2))
-        f2LabelEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.main_f1))
+        f1CommandEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_command_f1), getString(R.string.main_f1))
+        f2LabelEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.main_f2))
         f2CommandEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_command_f2), getString(R.string.main_f2))
     }
 }

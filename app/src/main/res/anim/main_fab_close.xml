@@ -2,15 +2,16 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:fillAfter="true">
     <scale
-        android:duration="300"
+        android:duration="150"
         android:fromXScale="1"
         android:fromYScale="1"
         android:interpolator="@android:anim/linear_interpolator"
         android:toXScale="0.0"
-        android:pivotX="50%"
+        android:pivotX="100%"
+        android:pivotY="50%"
         android:toYScale="0.0" />
-    <alpha android:fromAlpha="0.76"
+    <alpha android:fromAlpha="1"
         android:toAlpha="0.0"
         android:interpolator="@android:anim/accelerate_interpolator"
-        android:duration="300"/>
+        android:duration="150"/>
 </set>

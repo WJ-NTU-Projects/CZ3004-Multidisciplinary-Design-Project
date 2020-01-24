@@ -6,8 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:focusableInTouchMode="true"
     android:background="@color/toolbar_divider"
-    tools:context=".main.MainActivity">
+    tools:context=".MainActivity">
 
     <include layout="@layout/addon_toolbar" />
 
