@@ -9,7 +9,7 @@ import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothService.Companion.socket
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothService.Companion.uuid
 import java.io.IOException
 
-class BluetoothConnector(private val device: BluetoothDevice, private val callback: (status: BluetoothService.Status, message: String) -> Unit): Thread() {
+class BluetoothConnector(private val device: BluetoothDevice, private val callback: (status: BluetoothService.Status, message: String) -> Unit, private val connectedCallback: (connected: Boolean) -> Unit): Thread() {
     override fun run() {
         callback(BluetoothService.Status.CONNECTING, BluetoothService.Status.CONNECTING.message)
 
@@ -19,10 +19,11 @@ class BluetoothConnector(private val device: BluetoothDevice, private val callba
         }
 
         socket = device.createInsecureRfcommSocketToServiceRecord(uuid)
-        socket.use { socket ->
+        socket?.let { socket ->
             try {
-                socket?.connect()
+                socket.connect()
                 CoroutineScope(Dispatchers.Main).launch {
+                    connectedCallback(true)
                     callback(BluetoothService.Status.CONNECTED, BluetoothService.Status.CONNECTED.message)
                 }
             } catch (e: IOException) {

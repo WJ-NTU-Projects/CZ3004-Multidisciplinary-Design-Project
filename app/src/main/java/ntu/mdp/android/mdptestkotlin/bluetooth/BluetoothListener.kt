@@ -35,8 +35,8 @@ class BluetoothListener(private val callback: (status: BluetoothService.Status, 
             }
 
             if (socket != null && socket!!.isConnected) {
-                connectedCallback(true)
                 CoroutineScope(Dispatchers.Main).launch {
+                    connectedCallback(true)
                     callback(BluetoothService.Status.CONNECTED, BluetoothService.Status.CONNECTED.message)
                 }
             }

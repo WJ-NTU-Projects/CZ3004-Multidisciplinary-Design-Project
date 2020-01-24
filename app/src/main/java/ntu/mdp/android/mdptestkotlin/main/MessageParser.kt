@@ -37,6 +37,7 @@ class MessageParser(private val context: Context, private val callback: (status:
             "#robotposition" -> callback(Status.ROBOT_POSITION, s[1])
             "#robotstatus" -> callback(Status.ROBOT_STATUS, s[1])
             "#imageposition" -> callback(Status.IMAGE_POSITION, s[1])
+            "#waypoint" -> return
             else -> callback(Status.GARBAGE, s[1])
         }
     }

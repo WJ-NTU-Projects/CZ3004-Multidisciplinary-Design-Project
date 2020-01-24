@@ -134,6 +134,12 @@ class MainActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.main_button_f1).text = sharedPreferences.getString(getString(R.string.app_pref_label_f1), "F1")
         findViewById<MaterialButton>(R.id.main_button_f2).text = sharedPreferences.getString(getString(R.string.app_pref_label_f2), "F2")
 
+        if (BluetoothService.isConnected() == true) {
+            setConnectionStatus("Connected")
+        } else {
+            setConnectionStatus("Disconnected")
+        }
+
         if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled) {
             activityUtil.sendSnack(getString(R.string.error_bluetooth_off))
             return
@@ -459,7 +465,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun startBluetoothListener() {
         if (BluetoothService.isConnected() != true) {
-            Log.e("TEST", "TEST")
             BluetoothService.init(BluetoothService.State.SERVER, callback = callback)
         } else {
             BluetoothService.setCallback(callback)

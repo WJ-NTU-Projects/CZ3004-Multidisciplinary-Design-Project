@@ -43,7 +43,7 @@ class BluetoothService private constructor() {
         @Synchronized
         fun init(state: State, callback: (status: Status, message: String) -> Unit, device: BluetoothDevice? = null) {
             setCallback(callback)
-            reset()
+            //reset()
 
             when (state) {
                 State.SERVER -> {
@@ -56,7 +56,7 @@ class BluetoothService private constructor() {
                 State.CLIENT -> {
                     CoroutineScope(Dispatchers.Default).launch {
                         if (device != null) {
-                            connector = BluetoothConnector(device, callback)
+                            connector = BluetoothConnector(device, callback, { connected -> if (connected) connected() })
                             connector!!.start()
                         } else {
                             Log.e("Bluetooth", "Invalid device.")
@@ -92,7 +92,7 @@ class BluetoothService private constructor() {
 
         @Synchronized
         fun connected() {
-            reset()
+            //reset()
 
             if (socket != null) {
                 CoroutineScope(Dispatchers.Default).launch {
@@ -119,6 +119,7 @@ class BluetoothService private constructor() {
         @Synchronized
         fun setCallback(callback: (status: Status, message: String) -> Unit) {
             this.callback = callback
+            handler?.setCallback(callback)
         }
 
         val receiver = object : BroadcastReceiver() {
