@@ -16,7 +16,7 @@ Gradle plugin version may be modified in build.gradle (Project: MDP Test Kotlin)
 ```gradle
 dependencies {
     classpath 'com.android.tools.build:gradle:3.6.0-alpha12'
-   	...
+    ...
 }
 ```
 
