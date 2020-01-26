@@ -15,7 +15,7 @@ class App: Application() {
         var SEND_ARENA_COMMAND = "sendArena"
         var BLUETOOTH_CONNECTED_DEVICE = "-"
         const val ROBOT_FOOTPRINT = 3
-        const val ANIMATOR_DURATION = 250L
+        const val ANIMATOR_DURATION = 200L
         const val BUTTON_CLICK_DELAY_INTERVAL = 500
 
         var socket: BluetoothSocket? = null

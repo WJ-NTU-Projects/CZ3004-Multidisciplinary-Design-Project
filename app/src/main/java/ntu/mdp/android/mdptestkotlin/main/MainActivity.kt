@@ -339,7 +339,7 @@ class MainActivity : AppCompatActivity() {
         startFabOpened = !startFabOpened
         val animationId: Int = if (startFabOpened) R.anim.main_fab_open else R.anim.main_fab_close
         val animation: Animation =  AnimationUtils.loadAnimation(applicationContext, animationId)
-
+        animation.duration = App.ANIMATOR_DURATION
         // Also determines the animation behaviours based on the state of the fabs.
         animation.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationRepeat(p0: Animation?) {}

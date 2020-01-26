@@ -174,6 +174,7 @@ class ActivityUtil(private val context: Context) {
     fun scaleViews(viewList: List<View>, show: Boolean, callback: () -> Unit = {}) {
         val animationId: Int = if (show) R.anim.view_open else R.anim.view_close
         val animation: Animation =  AnimationUtils.loadAnimation(context.applicationContext, animationId)
+        animation.duration = App.ANIMATOR_DURATION
         animation.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationRepeat(p0: Animation?) {}
             override fun onAnimationStart(p0: Animation?) {
