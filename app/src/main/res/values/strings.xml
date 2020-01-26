@@ -14,6 +14,7 @@
     <string name="app_pref_command_f1">COMMAND_F1</string>
     <string name="app_pref_label_f2">LABEL_F2</string>
     <string name="app_pref_command_f2">COMMAND_f2</string>
+    <string name="app_pref_dark_mode">DARK_MODE</string>
 
     <string name="ok">OK</string>
     <string name="yes">YES</string>
@@ -31,14 +32,16 @@
     <string name="start">Start</string>
     <string name="pause">Pause</string>
     <string name="plot_mode">Plot Mode</string>
-    <string name="reset_arena">Reset Arena</string>
-    <string name="auto_update">Auto Update</string>
-    <string name="manual_update">Manual Update</string>
+    <string name="reset">Reset</string>
+    <string name="auto">Auto</string>
+    <string name="manual">Manual</string>
     <string name="f1_default">F1</string>
     <string name="f2_default">F2</string>
     <string name="status">Status</string>
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
+    <string name="mode">Mode</string>
+    <string name="none">None</string>
     <string name="coordinates">Coordinates</string>
     <string name="coordinates_default">-1, -1</string>
     <string name="timer">Timer</string>
@@ -54,9 +57,9 @@
     <string name="clear_all_obstacles">Clear All Obstacles</string>
     <string name="clear_message_log">Clear message log?</string>
     <string name="reset_arena_timer">Reset the arena and timer?</string>
-    <string name="prefix_system">[LOG] </string>
-    <string name="prefix_robot">[ROBOT] </string>
-    <string name="prefix_tablet">[ME] </string>
+    <string name="chat_prefix">[%1$s] %2$s</string>
+    <string name="prefix_robot">Robot:</string>
+    <string name="prefix_tablet">Me:</string>
     <string name="started_something">Started %s</string>
     <string name="timer_minute_second">%1$s:%2$s</string>
     <string name="exploration">Exploration</string>
@@ -69,6 +72,8 @@
     <string name="commands_description">Commands for communicating with the Raspberry Pi.</string>
     <string name="custom_buttons">Custom Buttons</string>
     <string name="custom_buttons_description">Customise buttons F1 and F2.</string>
+    <string name="display">Display</string>
+    <string name="display_description">Display modes &amp; dark mode.</string>
 
     <!-- BLUETOOTH ACTIVITY -->
     <string name="connected_device">Connected Device</string>
@@ -106,4 +111,12 @@
     <!-- SETTINGS CUSTOM BUTTONS ACTIVITY -->
     <string name="button_label">Button Label</string>
     <string name="settings_custom_buttons_description">Changes the functionality and label of the two custom buttons, F1 and F2.</string>
+
+    <!-- SETTINGS DISPLAY ACTIVITY -->
+    <string name="dark_mode">Dark Mode</string>
+    <string name="dark_mode_warning">WARNING! App restarts when toggled. NO POP-UP!</string>
+    <string name="dark_mode_description">For when your eyes are so tired and sleepy after hours of MDP but you have to push on.</string>
+    <string name="simple_advanced_display">Simple, yet Advanced Display! (SAD!)</string>
+    <string name="simple_advanced_display_description">A really simple display for advanced users. Experimental idea. Might scrap. Just a random thought. Who knows? Work in progress!</string>
+
 </resources>

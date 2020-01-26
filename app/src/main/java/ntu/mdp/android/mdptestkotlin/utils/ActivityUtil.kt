@@ -126,22 +126,6 @@ class ActivityUtil(private val context: Context) {
         dialog?.show()
     }
 
-    fun toggleToolbarIcons(show1: Boolean = false, show2: Boolean = false, show3: Boolean = false, show4: Boolean = false, show5: Boolean = false) {
-        (context as Activity).findViewById<ImageView>(R.id.toolbar_icon).visibility = if (show1) View.VISIBLE else View.GONE
-        context.findViewById<ImageView>(R.id.toolbar_icon2).visibility = if (show2) View.VISIBLE else View.GONE
-        context.findViewById<ImageView>(R.id.toolbar_icon3).visibility = if (show3) View.VISIBLE else View.GONE
-        context.findViewById<ImageView>(R.id.toolbar_icon4).visibility = if (show4) View.VISIBLE else View.GONE
-        context.findViewById<ImageView>(R.id.toolbar_icon5).visibility = if (show5) View.VISIBLE else View.GONE
-    }
-
-    fun enableToolbarIcons(show1: Boolean = false, show2: Boolean = false, show3: Boolean = false, show4: Boolean = false, show5: Boolean = false) {
-        (context as Activity).findViewById<ImageView>(R.id.toolbar_icon).isEnabled = show1
-        context.findViewById<ImageView>(R.id.toolbar_icon2).isEnabled = show2
-        context.findViewById<ImageView>(R.id.toolbar_icon3).isEnabled = show3
-        context.findViewById<ImageView>(R.id.toolbar_icon4).isEnabled = show4
-        context.findViewById<ImageView>(R.id.toolbar_icon5).isEnabled = show5
-    }
-
     fun getProgressStatus(): Int {
         return (context as Activity).findViewById<ProgressBar>(R.id.progress_bar).visibility
     }
@@ -151,7 +135,7 @@ class ActivityUtil(private val context: Context) {
      * @param visibility Visibility state to toggle to.
      * @param opaque If visibility is View.VISIBLE, flag whether to set the alpha value to 1.0f or 0.5f (opaque or translucent).
      */
-    fun toggleProgressBar(visibility: Int, opaque: Boolean = true, endCallback: () -> Unit = {}) {
+    fun toggleProgressBar(visibility: Int, opaque: Boolean = true, instant: Boolean = false, endCallback: () -> Unit = {}) {
         val windowTint: View = (context as Activity).findViewById(R.id.window_tint)
 
         val animatorListener: AnimatorListenerAdapter = object: AnimatorListenerAdapter() {
@@ -164,6 +148,10 @@ class ActivityUtil(private val context: Context) {
 
         if (visibility == View.VISIBLE) {
             windowTint.visibility = View.VISIBLE
+            if (instant) {
+                windowTint.alpha = if (opaque) 1.0f else 0.5f
+                return
+            }
             val end = if (opaque) 1.0f else 0.5f
             windowTint.animate().alpha(end).setDuration(App.ANIMATOR_DURATION).setListener(animatorListener)
         } else {

@@ -53,7 +53,7 @@ class ArenaController(private val context: Context, private val callback: (statu
         REMOVE_OBSTACLE
     }
 
-    private var plotMode: PlotMode = PlotMode.NONE
+    var plotMode: PlotMode = PlotMode.NONE
     private var lastRobotPosition: IntArray = intArrayOf(-1, -1, 0)
     private var lastStartPosition: IntArray = intArrayOf(-1, -1)
     private var lastWayPointPosition: IntArray = intArrayOf(-1, -1)
@@ -87,7 +87,7 @@ class ArenaController(private val context: Context, private val callback: (statu
             }
 
             Gesture.LONG_PRESS -> {
-                if (plotMode == PlotMode.NONE) {
+                if (true) {
                     val coordinates: Pair<Int, Int> = getCoordinates(view)
                     var x = coordinates.first
                     var y = coordinates.second
@@ -135,7 +135,7 @@ class ArenaController(private val context: Context, private val callback: (statu
             }
 
             Gesture.DOUBLE_TAP -> {
-                if (plotMode == PlotMode.NONE) {
+                if (true) {
                     val coordinates: Pair<Int, Int> = getCoordinates(view)
                     val x = coordinates.first
                     val y = coordinates.second
@@ -268,7 +268,18 @@ class ArenaController(private val context: Context, private val callback: (statu
 
         robotGridLayout.visibility = View.VISIBLE
         imageGridLayout.visibility = View.VISIBLE
-        updateRobot("0, 0, 0")
+
+        lastStartPosition[0] = 1
+        lastStartPosition[1] = 1
+        updateRobot("1, 1, 0")
+
+        for (Y in -1 until 2) {
+            for (X in -1 until 2) {
+                arenaArray[1 - Y][1 + X].setBackgroundColor(context.getColor(R.color.arena_start_point))
+            }
+        }
+
+        callback(Status.WRITE, "#startpoint::1, 1, 0")
     }
 
     fun resetArena() {
@@ -322,6 +333,22 @@ class ArenaController(private val context: Context, private val callback: (statu
                 arenaStateArray[y][x] = bit
                 counter++
             }
+        }
+    }
+
+    fun resetObstacles() {
+        for (s in savedStateMap) {
+            val index = s.key
+            val x = Math.floorMod(index, 15)
+            val y = Math.floorDiv(index, 15)
+            val bit = s.value
+
+            when (bit) {
+                -1 -> arenaArray[y][x].setBackgroundColor(context.getColor(R.color.arena_unexplored))
+                0 -> arenaArray[y][x].setBackgroundColor(context.getColor(R.color.arena_explored))
+            }
+
+            arenaStateArray[y][x] = bit
         }
     }
 

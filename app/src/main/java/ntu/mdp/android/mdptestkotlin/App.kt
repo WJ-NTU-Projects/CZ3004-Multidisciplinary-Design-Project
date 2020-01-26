@@ -18,6 +18,7 @@ class App: Application() {
         const val ANIMATOR_DURATION = 200L
         const val BUTTON_CLICK_DELAY_INTERVAL = 500
 
+        var appTheme: Int = R.style.AppTheme
         var socket: BluetoothSocket? = null
         var bluetoothServerThread: BluetoothServer? = null
         var bluetoothClientThread: BluetoothClient? = null
@@ -32,5 +33,7 @@ class App: Application() {
         super.onCreate()
         sharedPreferences = this.getSharedPreferences(getString(R.string.app_pref_key), Context.MODE_PRIVATE)
         SEND_ARENA_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_send_arena), getString(R.string.send_arena_default))!!
+        val darkMode: Boolean = sharedPreferences.getBoolean(getString(R.string.app_pref_dark_mode), false)
+        if (darkMode) appTheme = R.style.AppTheme_Dark
     }
 }

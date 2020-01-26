@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.settings_custom_buttons.*
+import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
@@ -19,6 +20,7 @@ class SettingsCustomButtonsActivity : AppCompatActivity() {
     private lateinit var activityUtil: ActivityUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(App.appTheme)
         super.onCreate(savedInstanceState)
         binding = SettingsCustomButtonsBinding.inflate(layoutInflater)
         setContentView(R.layout.settings_custom_buttons)

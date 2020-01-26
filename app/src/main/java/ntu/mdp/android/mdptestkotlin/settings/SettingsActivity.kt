@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.android.synthetic.main.activity_settings.*
+import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothActivity
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
@@ -28,6 +29,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var activityList: ArrayList<Class<*>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(App.appTheme)
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -42,33 +44,38 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         drawableList = arrayListOf(
-                getDrawable(R.drawable.ic_bluetooth_white)!!,
-                getDrawable(R.drawable.ic_pi_white)!!,
-                getDrawable(R.drawable.ic_f1_white)!!
+            getDrawable(R.drawable.ic_bluetooth_white)!!,
+            getDrawable(R.drawable.ic_pi_white)!!,
+            getDrawable(R.drawable.ic_f1_white)!!,
+            getDrawable(R.drawable.ic_tablet_white)!!
         )
 
         labelList = arrayListOf(
-                getString(R.string.bluetooth),
-                getString(R.string.commands),
-                getString(R.string.custom_buttons)
+            getString(R.string.bluetooth),
+            getString(R.string.commands),
+            getString(R.string.custom_buttons),
+            getString(R.string.display)
         )
 
         descriptionList = arrayListOf(
-                getString(R.string.bluetooth_description),
-                getString(R.string.commands_description),
-                getString(R.string.custom_buttons_description)
+            getString(R.string.bluetooth_description),
+            getString(R.string.commands_description),
+            getString(R.string.custom_buttons_description),
+            getString(R.string.display_description)
         )
 
         colorList = arrayListOf(
-                getColor(R.color.icon_bg_bluetooth),
-                getColor(R.color.icon_bg_commands),
-                getColor(R.color.icon_bg_custom_buttons)
+            getColor(R.color.icon_bg_bluetooth),
+            getColor(R.color.icon_bg_commands),
+            getColor(R.color.icon_bg_custom_buttons),
+            getColor(R.color.icon_bg_display)
         )
 
         activityList = arrayListOf(
-                BluetoothActivity::class.java,
-                SettingsCommandsActivity::class.java,
-                SettingsCustomButtonsActivity::class.java
+            BluetoothActivity::class.java,
+            SettingsCommandsActivity::class.java,
+            SettingsCustomButtonsActivity::class.java,
+            SettingsDisplayActivity::class.java
         )
     }
 

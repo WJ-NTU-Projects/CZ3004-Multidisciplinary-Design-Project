@@ -27,9 +27,9 @@
                 android:orientation="vertical">
 
                 <androidx.cardview.widget.CardView
+                    style="?attr/cardStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardElevation="2dp">
+                    android:layout_height="wrap_content">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -57,7 +57,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/device_name"
-                                android:textSize="@dimen/text_size_settings"/>
+                                android:textSize="@dimen/text_size_big"/>
                         </LinearLayout>
 
                         <com.google.android.material.button.MaterialButton
@@ -75,10 +75,10 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
+                    style="?attr/cardStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/screen_padding"
-                    app:cardElevation="2dp">
+                    android:layout_marginTop="@dimen/screen_padding">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -97,7 +97,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/enable_bluetooth_discovery"
-                                android:textSize="@dimen/text_size_settings"/>
+                                android:textSize="@dimen/text_size_big"/>
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/bluetoothMyNameLabel"
@@ -115,11 +115,11 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
+                    style="?attr/cardStyle"
                     android:id="@+id/bluetoothBondedCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/screen_padding"
-                    app:cardElevation="2dp">
+                    android:layout_marginTop="@dimen/screen_padding">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -149,10 +149,10 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
+                    style="?attr/cardStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/screen_padding"
-                    app:cardElevation="2dp">
+                    android:layout_marginTop="@dimen/screen_padding">
 
                     <LinearLayout
                         android:layout_width="match_parent"

@@ -12,15 +12,14 @@
     <include layout="@layout/addon_toolbar" />
 
     <androidx.cardview.widget.CardView
+        style="?attr/cardStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardElevation="2dp">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/screen_padding"
-            android:background="@android:color/white"
             android:orientation="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -67,13 +66,11 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <EditText
+                    style="?attr/editTextStyleCustom"
                     android:id="@+id/sendArenaEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ui_edittext"
-                    android:padding="@dimen/element_padding"
                     android:hint="@string/send_arena_default"
-                    android:textColorHint="@android:color/darker_gray"
                     android:inputType="text"
                     android:lines="1"
                     android:importantForAutofill="no"
@@ -98,13 +95,11 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <EditText
+                    style="?attr/editTextStyleCustom"
                     android:id="@+id/explorationEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ui_edittext"
-                    android:padding="@dimen/element_padding"
                     android:hint="@string/exploration_default"
-                    android:textColorHint="@android:color/darker_gray"
                     android:inputType="text"
                     android:lines="1"
                     android:importantForAutofill="no"
@@ -129,16 +124,14 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <EditText
+                    style="?attr/editTextStyleCustom"
                     android:id="@+id/fastestPathEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ui_edittext"
-                    android:padding="@dimen/element_padding"
                     app:layout_constraintWidth_percent="0.6"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     android:hint="@string/fastest_path_default"
-                    android:textColorHint="@android:color/darker_gray"
                     android:inputType="text"
                     android:lines="1"
                     android:importantForAutofill="no"/>
@@ -160,16 +153,14 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <EditText
+                    style="?attr/editTextStyleCustom"
                     android:id="@+id/pauseEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ui_edittext"
-                    android:padding="@dimen/element_padding"
                     app:layout_constraintWidth_percent="0.6"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     android:hint="@string/pause_default"
-                    android:textColorHint="@android:color/darker_gray"
                     android:inputType="text"
                     android:lines="1"
                     android:importantForAutofill="no"/>
@@ -191,16 +182,14 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <EditText
+                    style="?attr/editTextStyleCustom"
                     android:id="@+id/forwardEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ui_edittext"
-                    android:padding="@dimen/element_padding"
                     app:layout_constraintWidth_percent="0.6"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     android:hint="@string/forward_default"
-                    android:textColorHint="@android:color/darker_gray"
                     android:inputType="text"
                     android:lines="1"
                     android:importantForAutofill="no"/>
@@ -222,16 +211,14 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <EditText
+                    style="?attr/editTextStyleCustom"
                     android:id="@+id/reverseEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ui_edittext"
-                    android:padding="@dimen/element_padding"
                     app:layout_constraintWidth_percent="0.6"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     android:hint="@string/reverse_default"
-                    android:textColorHint="@android:color/darker_gray"
                     android:inputType="text"
                     android:lines="1"
                     android:importantForAutofill="no"/>
@@ -253,16 +240,14 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <EditText
+                    style="?attr/editTextStyleCustom"
                     android:id="@+id/turnLeftEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ui_edittext"
-                    android:padding="@dimen/element_padding"
                     app:layout_constraintWidth_percent="0.6"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     android:hint="@string/turn_left_default"
-                    android:textColorHint="@android:color/darker_gray"
                     android:inputType="text"
                     android:lines="1"
                     android:importantForAutofill="no"/>
@@ -284,16 +269,14 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <EditText
+                    style="?attr/editTextStyleCustom"
                     android:id="@+id/turnRightEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ui_edittext"
-                    android:padding="@dimen/element_padding"
                     app:layout_constraintWidth_percent="0.6"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     android:hint="@string/turn_right_default"
-                    android:textColorHint="@android:color/darker_gray"
                     android:inputType="text"
                     android:lines="1"
                     android:importantForAutofill="no" />
@@ -313,7 +296,7 @@
     <com.google.android.material.textview.MaterialTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/screen_padding"
+        android:layout_marginTop="@dimen/element_padding"
         android:paddingLeft="@dimen/screen_padding"
         android:paddingRight="@dimen/screen_padding"
         android:paddingBottom="@dimen/screen_padding"

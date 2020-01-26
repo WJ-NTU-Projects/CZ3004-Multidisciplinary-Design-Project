@@ -20,6 +20,7 @@ import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
@@ -27,6 +28,7 @@ import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import ntu.mdp.android.mdptestkotlin.settings.SettingsActivity
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
+import java.util.*
 import kotlin.math.abs
 
 
@@ -85,7 +87,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         // Sets the theme back to default as we changed the theme on startup to show the preview screen (the one with the app icon).
-        setTheme(R.style.AppTheme)
+        setTheme(appTheme)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -95,7 +97,7 @@ class MainActivity : AppCompatActivity() {
 
         activityUtil = ActivityUtil(this)
         // Overlays a white opaque layout on the activity to hide all the loading and animation of views on startup.
-        activityUtil.toggleProgressBar(View.VISIBLE, opaque = true)
+        activityUtil.toggleProgressBar(View.VISIBLE, opaque = true, instant = true)
 
         // Terminates the activity (and app by that extent) if the device does not support bluetooth.
         if (bluetoothAdapter == null) {
@@ -109,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         for (fab in startFabList) fab.startAnimation(animation)
 
         // Will come in handy later to cycle through most of the views.
-        viewList = listOf(settingsButton, startButton, plotButton, resetButton, autoManualButton, f1Button, f2Button, statusCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
+        viewList = listOf(settingsButton, startButton, plotButton, resetButton, autoManualButton, f1Button, f2Button, statusCard, modeCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
 
         // Plot mode buttons that pop up only in plot mode.
         plotModeButtonList = listOf(plotObstacleButton, removeObstacleButton, clearObstacleButton, doneButton)
@@ -180,7 +182,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
         if (bluetoothAdapter == null) {
             return
         }
@@ -245,7 +246,7 @@ class MainActivity : AppCompatActivity() {
 
             R.id.autoManualButton -> {
                 autoUpdateArena = !autoUpdateArena
-                sharedPreferences.edit().putBoolean(getString(R.string.auto_update), autoUpdateArena).apply()
+                sharedPreferences.edit().putBoolean(getString(R.string.auto), autoUpdateArena).apply()
                 toggleAutoManualMode()
             }
 
@@ -280,20 +281,20 @@ class MainActivity : AppCompatActivity() {
                 sendCommand(sharedPreferences.getString(getString(R.string.app_pref_exploration), getString(
                     R.string.exploration_default
                 ))!!)
-                onStartClicked()
-                toggleFabs()
                 currentMode = Mode.EXPLORATION
+                onStartClicked()
                 displayInChat(MessageType.SYSTEM, getString(R.string.started_something, "exploration."))
+                toggleFabs()
             }
 
             R.id.startFastestPathFab -> {
                 sendCommand(sharedPreferences.getString(getString(R.string.app_pref_fastest), getString(
                     R.string.fastest_path_default
                 ))!!)
-                onStartClicked()
-                toggleFabs()
                 currentMode = Mode.FASTEST_PATH
+                onStartClicked()
                 displayInChat(MessageType.SYSTEM, getString(R.string.started_something, "fastest path."))
+                toggleFabs()
             }
 
             R.id.controlModeButton -> {
@@ -312,7 +313,23 @@ class MainActivity : AppCompatActivity() {
     fun clickPlotButton(view: View) {
         when (view.id) {
             R.id.doneButton -> onPlotClicked()
-            else -> activityUtil.sendSnack(getString(R.string.coming_soon))
+            R.id.clearObstacleButton -> arenaController.resetObstacles()
+
+            R.id.plotObstacleButton -> {
+                if (arenaController.plotMode != ArenaController.PlotMode.PLOT_OBSTACLE) {
+                    plotModeButtonList.forEach { it.isEnabled = true }
+                    view.isEnabled = false
+                    arenaController.plotMode = ArenaController.PlotMode.PLOT_OBSTACLE
+                }
+            }
+
+            R.id.removeObstacleButton -> {
+                if (arenaController.plotMode != ArenaController.PlotMode.REMOVE_OBSTACLE) {
+                    plotModeButtonList.forEach { it.isEnabled = true }
+                    view.isEnabled = false
+                    arenaController.plotMode = ArenaController.PlotMode.REMOVE_OBSTACLE
+                }
+            }
         }
     }
 
@@ -365,10 +382,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun toggleAutoManualMode() {
         if (autoUpdateArena) {
-            autoManualButton.text = getString(R.string.auto_update)
+            autoManualButton.text = getString(R.string.auto)
             autoManualButton.icon = getDrawable(R.drawable.ic_auto)
         } else {
-            autoManualButton.text = getString(R.string.manual_update)
+            autoManualButton.text = getString(R.string.manual)
             autoManualButton.icon = getDrawable(R.drawable.ic_manual)
         }
     }
@@ -387,6 +404,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendCommand(command: String): Boolean {
+        displayInChat(MessageType.OUTGOING, command)
+
         if (!bluetoothAdapter!!.isEnabled) {
             activityUtil.sendSnack(getString(R.string.error_bluetooth_off))
             return false
@@ -398,7 +417,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (command.isNotEmpty()) {
-            displayInChat(MessageType.OUTGOING, command)
             BluetoothController.write(command)
             return true
         }
@@ -434,7 +452,10 @@ class MainActivity : AppCompatActivity() {
             displayInChat(MessageType.SYSTEM, "$type - ${timerLabel.text.toString().trim()}")
             timer.cancel()
             timerCounter = 0
+            currentMode = Mode.NONE
         }
+
+        setMode()
     }
 
     private fun onPlotClicked() {
@@ -464,14 +485,18 @@ class MainActivity : AppCompatActivity() {
 
     // Message log to display commands sent and strings with no specific purpose (debug messages, etc.).
     private fun displayInChat(messageType: MessageType, message: String) {
-        val prefix: String =
+        val prefixType: String =
             when (messageType) {
                 MessageType.INCOMING -> getString(R.string.prefix_robot)
                 MessageType.OUTGOING -> getString(R.string.prefix_tablet)
-                MessageType.SYSTEM -> getString(R.string.prefix_system)
+                MessageType.SYSTEM -> ""
             }
 
-        val displayMessage = "$prefix$message"
+        val calendar: Calendar = Calendar.getInstance()
+        val timeStamp = "${calendar[Calendar.HOUR_OF_DAY]}:${calendar[Calendar.MINUTE]}"
+
+        val prefix: String = getString(R.string.chat_prefix, timeStamp, prefixType).trim()
+        val displayMessage = "$prefix $message"
         val previousMessages = messagesTextView.text.toString().trim()
         val newMessage = "$previousMessages\n$displayMessage"
         messagesTextView.text = newMessage
@@ -508,6 +533,14 @@ class MainActivity : AppCompatActivity() {
         if (System.currentTimeMillis() - lastClickTime < App.BUTTON_CLICK_DELAY_INTERVAL) return false
         lastClickTime = System.currentTimeMillis()
         return true
+    }
+
+    private fun setMode() {
+        when (currentMode) {
+            Mode.NONE -> modeLabel.text = getString(R.string.none)
+            Mode.EXPLORATION -> modeLabel.text = getString(R.string.exploration)
+            Mode.FASTEST_PATH -> modeLabel.text = getString(R.string.fastest_path)
+        }
     }
 
     private val callback: (status: BluetoothController.Status, message: String) -> Unit = { status, message ->

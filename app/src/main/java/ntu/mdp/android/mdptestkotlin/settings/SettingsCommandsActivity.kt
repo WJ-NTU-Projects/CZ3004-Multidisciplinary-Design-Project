@@ -20,6 +20,7 @@ class SettingsCommandsActivity : AppCompatActivity() {
     private lateinit var activityUtil: ActivityUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(App.appTheme)
         super.onCreate(savedInstanceState)
         binding = SettingsCommandsBinding.inflate(layoutInflater)
         setContentView(binding.root)

@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/app_name"
-        android:textSize="@dimen/text_size_settings" />
+        android:textSize="@dimen/text_size_big" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/bt_listitem_connected"
@@ -23,6 +23,6 @@
         android:layout_height="match_parent"
         android:gravity="end|center_vertical"
         android:text="@string/app_name"
-        android:textSize="@dimen/text_size_settings"
+        android:textSize="@dimen/text_size_big"
         android:textColor="@android:color/darker_gray"/>
 </LinearLayout>

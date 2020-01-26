@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
-            android:textSize="@dimen/text_size_settings"/>
+            android:textSize="@dimen/text_size_big"/>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/settings_listitem_description"

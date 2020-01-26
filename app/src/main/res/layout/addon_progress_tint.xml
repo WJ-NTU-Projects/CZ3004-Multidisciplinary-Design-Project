@@ -6,10 +6,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
+        style="?attr/layoutCustom"
         android:id="@+id/window_tint"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white"
         android:orientation="vertical"
         android:clickable="true"
         android:alpha="0.0"
