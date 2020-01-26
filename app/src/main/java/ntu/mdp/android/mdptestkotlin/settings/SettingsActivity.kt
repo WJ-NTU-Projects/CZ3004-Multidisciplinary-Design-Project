@@ -18,7 +18,6 @@ import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivitySettingsBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
-
 class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var activityUtil: ActivityUtil
@@ -34,7 +33,8 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         activityUtil = ActivityUtil(this)
-        activityUtil.setTitle("Settings")
+        activityUtil.setTitle(getString(R.string.settings))
+
         settingsRecycler.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@SettingsActivity)

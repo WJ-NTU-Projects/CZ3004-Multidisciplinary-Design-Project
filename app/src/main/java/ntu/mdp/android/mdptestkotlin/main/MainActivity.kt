@@ -14,7 +14,6 @@ import android.view.animation.AnimationUtils
 import android.widget.GridLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -24,11 +23,10 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
-import ntu.mdp.android.mdptestkotlin.settings.SettingsActivity
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
+import ntu.mdp.android.mdptestkotlin.settings.SettingsActivity
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
-import java.util.*
 import kotlin.math.abs
 
 
@@ -56,6 +54,12 @@ class MainActivity : AppCompatActivity() {
         RIGHT
     }
 
+    private enum class Mode {
+        NONE,
+        EXPLORATION,
+        FASTEST_PATH
+    }
+
     private var bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private lateinit var activityUtil: ActivityUtil
     private lateinit var binding: ActivityMainBinding
@@ -67,6 +71,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var plotModeButtonList: List<View>
     private lateinit var viewList: List<View>
 
+    private var currentMode: Mode = Mode.NONE
     private var robotAutonomous = false
     private var startFabOpened = false
     private var isSwipeMode = false
@@ -223,7 +228,7 @@ class MainActivity : AppCompatActivity() {
                     toggleFabs()
                 } else {
                     sendCommand(sharedPreferences.getString(getString(R.string.app_pref_pause), getString(
-                        R.string.settings_default_pause
+                        R.string.pause_default
                     ))!!)
                     onStartClicked()
                 }
@@ -254,14 +259,14 @@ class MainActivity : AppCompatActivity() {
 
                 when (text) {
                     sharedPreferences.getString(getString(R.string.app_pref_forward), getString(
-                        R.string.settings_default_forward
+                        R.string.forward_default
                     )) -> {
                         arenaController.moveRobot(1, BluetoothController.isSocketConnected())
                         return
                     }
 
                     sharedPreferences.getString(getString(R.string.app_pref_reverse), getString(
-                        R.string.settings_default_reverse
+                        R.string.reverse_default
                     )) -> {
                         arenaController.moveRobot(-1, BluetoothController.isSocketConnected())
                         return
@@ -273,20 +278,22 @@ class MainActivity : AppCompatActivity() {
 
             R.id.startExplorationFab -> {
                 sendCommand(sharedPreferences.getString(getString(R.string.app_pref_exploration), getString(
-                    R.string.settings_default_exploration
+                    R.string.exploration_default
                 ))!!)
                 onStartClicked()
                 toggleFabs()
-                timerTitleLabel.text = getString(R.string.timer_exploration)
+                currentMode = Mode.EXPLORATION
+                displayInChat(MessageType.SYSTEM, getString(R.string.started_something, "exploration."))
             }
 
             R.id.startFastestPathFab -> {
                 sendCommand(sharedPreferences.getString(getString(R.string.app_pref_fastest), getString(
-                    R.string.settings_default_fastest
+                    R.string.fastest_path_default
                 ))!!)
                 onStartClicked()
                 toggleFabs()
-                timerTitleLabel.text = getString(R.string.timer_fastest_path)
+                currentMode = Mode.FASTEST_PATH
+                displayInChat(MessageType.SYSTEM, getString(R.string.started_something, "fastest path."))
             }
 
             R.id.controlModeButton -> {
@@ -339,7 +346,7 @@ class MainActivity : AppCompatActivity() {
         startFabOpened = !startFabOpened
         val animationId: Int = if (startFabOpened) R.anim.main_fab_open else R.anim.main_fab_close
         val animation: Animation =  AnimationUtils.loadAnimation(applicationContext, animationId)
-        animation.duration = App.ANIMATOR_DURATION
+        animation.duration = ANIMATOR_DURATION
         // Also determines the animation behaviours based on the state of the fabs.
         animation.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationRepeat(p0: Animation?) {}
@@ -423,8 +430,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             startButton.text = getString(R.string.start)
             startButton.icon = getDrawable(R.drawable.ic_start)
-            val type: String = if (timerTitleLabel.text.toString().toLowerCase(Locale.ENGLISH).contains("exploration")) getString(R.string.exploration) else getString(R.string.fastest_path)
-            timerTitleLabel.text = getString(R.string.timer)
+            val type: String = if (currentMode == Mode.EXPLORATION) getString(R.string.exploration) else getString(R.string.fastest_path)
             displayInChat(MessageType.SYSTEM, "$type - ${timerLabel.text.toString().trim()}")
             timer.cancel()
             timerCounter = 0
@@ -449,6 +455,8 @@ class MainActivity : AppCompatActivity() {
 
                 activityUtil.toggleProgressBar(View.GONE) {
                     activityUtil.scaleViews(secondList, true)
+
+                    if (!isPlotting) messagesScrollView.fullScroll(View.FOCUS_DOWN)
                 }
             }
         }
@@ -458,40 +466,37 @@ class MainActivity : AppCompatActivity() {
     private fun displayInChat(messageType: MessageType, message: String) {
         val prefix: String =
             when (messageType) {
-                MessageType.INCOMING -> "[ROBOT] "
-                MessageType.OUTGOING -> "[ME] "
-                else -> "[LOG] "
+                MessageType.INCOMING -> getString(R.string.prefix_robot)
+                MessageType.OUTGOING -> getString(R.string.prefix_tablet)
+                MessageType.SYSTEM -> getString(R.string.prefix_system)
             }
 
         val displayMessage = "$prefix$message"
         val previousMessages = messagesTextView.text.toString().trim()
         val newMessage = "$previousMessages\n$displayMessage"
         messagesTextView.text = newMessage
-        //messagesScrollView.fullScroll(View.FOCUS_DOWN)
-
-        // Do another scroll after a small delay (scrollview may not be fully updated initially).
         CoroutineScope(Dispatchers.Default).launch {
             delay(250)
 
             withContext(Dispatchers.Main) {
-                binding.messagesScrollView.fullScroll(View.FOCUS_DOWN)
+                messagesScrollView.fullScroll(View.FOCUS_DOWN)
             }
         }
     }
 
     private fun connectionChanged(status: BluetoothController.Status) {
         if (status == BluetoothController.Status.CONNECTED) {
-            binding.statusLabel.text = getString(R.string.connected)
+            statusLabel.text = getString(R.string.connected)
             isUpdating = true
             sendCommand(SEND_ARENA_COMMAND)
         } else {
-            binding.statusLabel.text = getString(R.string.disconnected)
+            statusLabel.text = getString(R.string.disconnected)
             startBluetoothListener()
         }
     }
 
     private fun resetArena() {
-        activityUtil.sendYesNoDialog("Reset the arena and timer?", { positive ->
+        activityUtil.sendYesNoDialog(getString(R.string.reset_arena_timer), { positive ->
             if (positive) {
                 arenaController.resetArena()
                 timerLabel.text = getString(R.string.timer_default)
@@ -503,13 +508,6 @@ class MainActivity : AppCompatActivity() {
         if (System.currentTimeMillis() - lastClickTime < App.BUTTON_CLICK_DELAY_INTERVAL) return false
         lastClickTime = System.currentTimeMillis()
         return true
-    }
-
-    @Deprecated("LOL")
-    fun triggerContinuousMovement() {
-        val downTime: Long = System.currentTimeMillis()
-        val eventTime = 10000L
-        binding.padForwardButton.dispatchTouchEvent(MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_DOWN, 0.0f, 0.0f, 0))
     }
 
     private val callback: (status: BluetoothController.Status, message: String) -> Unit = { status, message ->
@@ -548,7 +546,6 @@ class MainActivity : AppCompatActivity() {
                         val robotFacing = arenaController.getRobotFacing()
                         val facingOffset: Int = robotFacing - requestedFacing
 
-                        Log.e("TEST", "$robotFacing, $requestedFacing")
                         if (requestedFacing == robotFacing) {
                             arenaController.moveRobot(1, BluetoothController.isSocketConnected())
                         } else if (abs(requestedFacing - robotFacing) == 180) {
@@ -575,7 +572,6 @@ class MainActivity : AppCompatActivity() {
                     if (!continuousMovement) {
                         continuousOriginX = (view.width / 2.0f)
                         continuousOriginY = (view.height / 2.0f)
-                        Log.e("ORIGIN", "$continuousOriginX, $continuousOriginY")
                         continuousMovementThread.start()
                         continuousMovement = true
                     }

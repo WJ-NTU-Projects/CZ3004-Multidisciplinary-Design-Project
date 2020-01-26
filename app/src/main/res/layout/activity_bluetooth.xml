@@ -132,7 +132,7 @@
                             style="@style/TextStatusTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/bt_bonded_devices"
+                            android:text="@string/bonded_devices"
                             android:paddingLeft="@dimen/screen_padding"
                             android:paddingRight="@dimen/screen_padding"/>
 
@@ -173,7 +173,7 @@
                                 android:id="@+id/bluetoothOthersLabel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/bt_devices" />
+                                android:text="@string/devices" />
 
                             <ProgressBar
                                 android:id="@+id/bluetoothProgressBar"
@@ -193,7 +193,6 @@
                             tools:itemCount="5" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

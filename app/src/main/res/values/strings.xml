@@ -15,57 +15,6 @@
     <string name="app_pref_label_f2">LABEL_F2</string>
     <string name="app_pref_command_f2">COMMAND_f2</string>
 
-    <string name="timer_minute_second">%1$s:%2$s</string>
-    <string name="exit_the_app">Exit the app?</string>
-    <string name="coming_soon">Coming soon!</string>
-    <string name="clear_message_log">Clear message log?</string>
-    <string name="connect">Connect</string>
-    <string name="disconnect">Disconnect</string>
-    <string name="auto_update">Auto Update</string>
-    <string name="manual_update">Manual Update</string>
-    <string name="update">Update</string>
-    <string name="reset_arena">Reset Arena</string>
-    <string name="grid_guide">Grid Guide</string>
-    <string name="settings">Settings</string>
-    <string name="messages">Messages</string>
-    <string name="messages_send_hint">Say something…</string>
-    <string name="send">Send</string>
-    <string name="connected">Connected</string>
-    <string name="connected_idle">Connected - Idle</string>
-    <string name="disconnected">Disconnected</string>
-    <string name="timer_exploration">Timer - Exploration</string>
-    <string name="timer_fastest_path">Timer - Fastest Path</string>
-    <string name="status">Status</string>
-    <string name="status_default">Idle</string>
-    <string name="coordinates">Coordinates</string>
-    <string name="coordinates_default">-1, -1</string>
-    <string name="timer">Timer</string>
-    <string name="timer_default">00:00</string>
-    <string name="clear">Clear</string>
-    <string name="start">Start</string>
-    <string name="pause">Pause</string>
-    <string name="send_arena">Send Arena Info</string>
-    <string name="exploration">Exploration</string>
-    <string name="fastest_path">Fastest Path</string>
-    <string name="forward">Forward</string>
-    <string name="reverse">Reverse</string>
-    <string name="turn_left">Turn Left</string>
-    <string name="turn_right">Turn Right</string>
-    <string name="f1_default">F1</string>
-    <string name="f2_default">F2</string>
-
-    <string name="start_point">Start Point</string>
-    <string name="way_point">Way Point</string>
-    <string name="plot_mode">Plot Mode</string>
-    <string name="plot_obstacles">Plot Obstacles</string>
-    <string name="remove_obstacles">Remove Obstacles</string>
-    <string name="clear_all_obstacles">Clear All Obstacles</string>
-    <string name="done">Done</string>
-    <string name="finished_plotting">Finish Plotting</string>
-    <string name="clear_points">Clear</string>
-    <string name="control_pad">Control Pad</string>
-    <string name="d_pad">D-Pad</string>
-    <string name="swipe">Swipe</string>
     <string name="ok">OK</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
@@ -74,36 +23,87 @@
     <string name="error_bluetooth_not_connected">No bluetooth device connected.</string>
     <string name="error_bluetooth_off">Bluetooth-related features are disabled until Bluetooth is turned on.</string>
 
+    <string name="exit_the_app">Exit the app?</string>
+    <string name="coming_soon">Coming soon!</string>
 
+    <!-- MAIN ACTIVITY -->
+    <string name="settings">Settings</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="plot_mode">Plot Mode</string>
+    <string name="reset_arena">Reset Arena</string>
+    <string name="auto_update">Auto Update</string>
+    <string name="manual_update">Manual Update</string>
+    <string name="f1_default">F1</string>
+    <string name="f2_default">F2</string>
+    <string name="status">Status</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="coordinates">Coordinates</string>
+    <string name="coordinates_default">-1, -1</string>
+    <string name="timer">Timer</string>
+    <string name="timer_default">00:00</string>
+    <string name="messages">Messages</string>
+    <string name="clear">Clear</string>
+    <string name="messages_send_hint">Message to send…</string>
+    <string name="send">Send</string>
+    <string name="control_pad">Control Pad</string>
+    <string name="swipe">Swipe</string>
+    <string name="plot_obstacles">Plot Obstacles</string>
+    <string name="remove_obstacles">Remove Obstacles</string>
+    <string name="clear_all_obstacles">Clear All Obstacles</string>
+    <string name="clear_message_log">Clear message log?</string>
+    <string name="reset_arena_timer">Reset the arena and timer?</string>
+    <string name="prefix_system">[LOG] </string>
+    <string name="prefix_robot">[ROBOT] </string>
+    <string name="prefix_tablet">[ME] </string>
+    <string name="started_something">Started %s</string>
+    <string name="timer_minute_second">%1$s:%2$s</string>
+    <string name="exploration">Exploration</string>
+    <string name="fastest_path">Fastest Path</string>
+
+    <!-- SETTINGS ACTIVITY -->
     <string name="bluetooth">Bluetooth</string>
     <string name="bluetooth_description">Bluetooth discovery, pairing and connection.</string>
     <string name="commands">String Commands</string>
     <string name="commands_description">Commands for communicating with the Raspberry Pi.</string>
     <string name="custom_buttons">Custom Buttons</string>
     <string name="custom_buttons_description">Customise buttons F1 and F2.</string>
-    <string name="restore_defaults">Restore Defaults</string>
 
-    <string name="device_name">Device Name: %s</string>
+    <!-- BLUETOOTH ACTIVITY -->
     <string name="connected_device">Connected Device</string>
+    <string name="device_name">Device Name: %s</string>
+    <string name="disconnect">Disconnect</string>
     <string name="enable_bluetooth_discovery">Allow device to be discovered</string>
-    <string name="settings_command_strings">Command Strings</string>
-    <string name="settings_command_strings_desc">These settings affect the command strings sent to the Raspberry Pi when the respective buttons are pressed.</string>
-    <string name="settings_command">Command</string>
-    <string name="settings_command_output">String Output</string>
-    <string name="settings_default_send_arena">sendArena</string>
-    <string name="settings_default_exploration">beginExploration</string>
-    <string name="settings_default_fastest">beginFastest</string>
-    <string name="settings_default_pause">pause</string>
-    <string name="settings_default_forward">f</string>
-    <string name="settings_default_reverse">r</string>
-    <string name="settings_default_turn_left">tl</string>
-    <string name="settings_default_turn_right">tr</string>
+    <string name="devices">Devices</string>
+    <string name="bonded_devices">Paired Devices</string>
+    <string name="other_devices">Other Devices</string>
 
-    <string name="settings_customise_buttons">Custom Buttons</string>
-    <string name="settings_customise_buttons_desc">Changes the functionality and label of the two custom buttons, F1 and F2.</string>
-    <string name="settings_button_label">Button Label</string>
-
-    <string name="bt_bonded_devices">Paired Devices</string>
-    <string name="bt_other_devices">Other Devices</string>
-    <string name="bt_devices">Devices</string>
+    <!-- SETTINGS COMMANDS ACTIVITY -->
+    <string name="string_commands">String Commands</string>
+    <string name="command">Command</string>
+    <string name="command_output">String Output</string>
+    <string name="send_arena">Send Arena Info</string>
+    <string name="send_arena_default">sendArena</string>
+    <string name="exploration_default">beginExploration</string>
+    <string name="fastest_path_default">beginFastest</string>
+    <string name="pause_default">pause</string>
+    <string name="forward">Forward</string>
+    <string name="forward_default">f</string>
+    <string name="reverse">Reverse</string>
+    <string name="reverse_default">r</string>
+    <string name="turn_left">Turn Left</string>
+    <string name="turn_left_default">tl</string>
+    <string name="turn_right">Turn Right</string>
+    <string name="turn_right_default">tr</string>
+    <string name="restore_defaults">Restore Defaults</string>
+    <string name="restore_command_defaultsk">Restore commands to their default values?</string>
+    <string name="settings_command_description">These settings affect the command strings sent to the Raspberry Pi when the respective buttons are pressed.</string>
+    <string name="unsaved_changes">Unsaved changes. Save or discard?</string>
+    <string name="save">Save</string>
+    <string name="discard">Discard</string>
+    
+    <!-- SETTINGS CUSTOM BUTTONS ACTIVITY -->
+    <string name="button_label">Button Label</string>
+    <string name="settings_custom_buttons_description">Changes the functionality and label of the two custom buttons, F1 and F2.</string>
 </resources>

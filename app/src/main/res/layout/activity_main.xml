@@ -175,7 +175,7 @@
                     style="@style/TextStatusContent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/status_default"/>
+                    android:text="@string/disconnected"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -529,8 +529,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/screen_padding"
-            android:text="@string/done"
-            android:textSize="@dimen/text_size_small"
             android:onClick="clickPlotButton"
             android:visibility="gone"
             android:src="@drawable/ic_plot_finished"

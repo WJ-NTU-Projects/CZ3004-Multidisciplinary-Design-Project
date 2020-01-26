@@ -30,7 +30,7 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_button_label"
+                    android:text="@string/button_label"
                     android:textStyle="bold"
                     android:textSize="@dimen/text_size_small"
                     android:textAllCaps="true"
@@ -42,7 +42,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="@string/settings_command_output"
+                    android:text="@string/command_output"
                     android:textStyle="bold"
                     android:textSize="@dimen/text_size_small"
                     android:textAllCaps="true"
@@ -142,7 +142,7 @@
         android:paddingLeft="@dimen/screen_padding"
         android:paddingRight="@dimen/screen_padding"
         android:paddingBottom="@dimen/screen_padding"
-        android:text="@string/settings_customise_buttons_desc"
+        android:text="@string/settings_custom_buttons_description"
         android:textColor="@android:color/darker_gray"
         android:textSize="@dimen/text_size_small" />
 

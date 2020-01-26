@@ -8,8 +8,6 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.ScaleAnimation
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -531,12 +529,12 @@ class ArenaController(private val context: Context, private val callback: (statu
         if (dir == 1) callback(Status.STATUS, "Moving") else callback(Status.STATUS, "Reversing")
 
         if (dir == 1 && connected) {
-            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_forward), context.getString(R.string.settings_default_forward))!!)
+            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_forward), context.getString(R.string.forward_default))!!)
             return
         }
 
         if (dir == -1 && connected) {
-            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_reverse), context.getString(R.string.settings_default_reverse))!!)
+            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_reverse), context.getString(R.string.reverse_default))!!)
             return
         }
 
@@ -560,12 +558,12 @@ class ArenaController(private val context: Context, private val callback: (statu
         if (dir == 1) callback(Status.STATUS, "Turning Right") else callback(Status.STATUS, "Turning Left")
 
         if (dir == -1 && connected) {
-            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_turn_left), context.getString(R.string.settings_default_turn_left))!!)
+            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_turn_left), context.getString(R.string.turn_left_default))!!)
             return
         }
 
         if (dir == 1 && connected) {
-            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_turn_right), context.getString(R.string.settings_default_turn_right))!!)
+            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_turn_right), context.getString(R.string.turn_right_default))!!)
             return
         }
 

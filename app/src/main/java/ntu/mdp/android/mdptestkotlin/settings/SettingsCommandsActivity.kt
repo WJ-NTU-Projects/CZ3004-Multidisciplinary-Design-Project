@@ -10,7 +10,6 @@ import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
-import ntu.mdp.android.mdptestkotlin.databinding.ActivityBluetoothBinding
 import ntu.mdp.android.mdptestkotlin.databinding.SettingsCommandsBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
@@ -26,7 +25,7 @@ class SettingsCommandsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         activityUtil = ActivityUtil(this)
-        activityUtil.setTitle("String Commands")
+        activityUtil.setTitle(getString(R.string.string_commands))
 
         sendArenaEditText.setOnKeyListener(onEnter)
         sendArenaEditText.onFocusChangeListener = onFocusLost
@@ -101,59 +100,59 @@ class SettingsCommandsActivity : AppCompatActivity() {
 
     private fun refreshHints() {
         sendArenaEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_send_arena), getString(
-            R.string.settings_default_send_arena
+            R.string.send_arena_default
         ))
         explorationEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_exploration), getString(
-            R.string.settings_default_exploration
+            R.string.exploration_default
         ))
         fastestPathEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_fastest), getString(
-            R.string.settings_default_fastest
+            R.string.fastest_path_default
         ))
         pauseEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_pause), getString(
-            R.string.settings_default_pause
+            R.string.pause_default
         ))
         forwardEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_forward), getString(
-            R.string.settings_default_forward
+            R.string.forward_default
         ))
         turnLeftEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_turn_left), getString(
-            R.string.settings_default_turn_left
+            R.string.turn_left_default
         ))
         turnRightEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_turn_right), getString(
-            R.string.settings_default_turn_right
+            R.string.turn_right_default
         ))
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun clickRestore(view: View) {
-        activityUtil.sendYesNoDialog("Restore defaults?", { positive ->
+        activityUtil.sendYesNoDialog(getString(R.string.restore_command_defaultsk), { positive ->
             if (positive) {
                 sharedPreferences.edit().putString(getString(R.string.app_pref_send_arena), getString(
-                    R.string.settings_default_send_arena
+                    R.string.send_arena_default
                 )).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_exploration), getString(
-                    R.string.settings_default_exploration
+                    R.string.exploration_default
                 )).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_fastest), getString(
-                    R.string.settings_default_fastest
+                    R.string.fastest_path_default
                 )).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_pause), getString(
-                    R.string.settings_default_pause
+                    R.string.pause_default
                 )).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_forward), getString(
-                    R.string.settings_default_forward
+                    R.string.forward_default
                 )).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_reverse), getString(
-                    R.string.settings_default_reverse
+                    R.string.reverse_default
                 )).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_turn_left), getString(
-                    R.string.settings_default_turn_left
+                    R.string.turn_left_default
                 )).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_turn_right), getString(
-                    R.string.settings_default_turn_right
+                    R.string.turn_right_default
                 )).apply()
                 refreshHints()
                 App.SEND_ARENA_COMMAND = getString(
-                    R.string.settings_default_send_arena
+                    R.string.send_arena_default
                 )
             }
         })
@@ -171,7 +170,7 @@ class SettingsCommandsActivity : AppCompatActivity() {
 
     private val onFocusLost = View.OnFocusChangeListener { view, hasFocus ->
         if (!hasFocus && !enterPressed && (view as EditText).text.toString().isNotBlank()) {
-            activityUtil.sendYesNoDialog("Unsaved changes. Save or discard?", yesLabel = "Save", noLabel = "Discard", callback = { positive ->
+            activityUtil.sendYesNoDialog(getString(R.string.unsaved_changes), yesLabel = getString(R.string.save), noLabel = getString(R.string.discard), callback = { positive ->
                 if (positive) {
                     save(view)
                 }

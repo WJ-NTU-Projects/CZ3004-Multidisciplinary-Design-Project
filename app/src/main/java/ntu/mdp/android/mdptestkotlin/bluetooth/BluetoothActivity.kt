@@ -17,15 +17,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.android.synthetic.main.activity_bluetooth.*
-import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityBluetoothBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
-const val DISCOVERABILITY_REQUEST = 1 //arbitrary number...?
-
 class BluetoothActivity : AppCompatActivity() {
+
+    companion object {
+        const val DISCOVERABILITY_REQUEST: Int = 1
+    }
 
     private lateinit var binding: ActivityBluetoothBinding
     private lateinit var activityUtil: ActivityUtil
@@ -52,7 +53,7 @@ class BluetoothActivity : AppCompatActivity() {
                 if (BluetoothAdapter.getDefaultAdapter().scanMode != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
                     val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
                     discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 30)
-                    startActivityForResult(discoverableIntent, DISCOVERABILITY_REQUEST);
+                    startActivityForResult(discoverableIntent, DISCOVERABILITY_REQUEST)
                 }
             }
         }
@@ -84,6 +85,7 @@ class BluetoothActivity : AppCompatActivity() {
         unregisterReceiver(receiver)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun clickDisconnect(view: View) {
         BluetoothController.disconnect()
     }
@@ -101,7 +103,7 @@ class BluetoothActivity : AppCompatActivity() {
                 adapter = DeviceAdapter(ArrayList(pairedDevices))
             }
 
-            bluetoothOthersLabel.text = getString(R.string.bt_other_devices)
+            bluetoothOthersLabel.text = getString(R.string.other_devices)
         }
 
         otherDeviceList = ArrayList()
@@ -167,7 +169,6 @@ class BluetoothActivity : AppCompatActivity() {
             when(intent.action ?: "") {
                 BluetoothAdapter.ACTION_DISCOVERY_STARTED -> {
                     bluetoothProgressBar.visibility = View.VISIBLE
-                    //activityUtil.sendSnack("Scanning for devices...")
                 }
 
                 BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
