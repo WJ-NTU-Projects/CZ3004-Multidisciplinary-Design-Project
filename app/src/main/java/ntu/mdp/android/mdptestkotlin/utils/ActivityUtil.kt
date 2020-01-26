@@ -8,6 +8,9 @@ import android.content.Intent
 import android.os.Parcelable
 import android.util.Log
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
@@ -148,27 +151,52 @@ class ActivityUtil(private val context: Context) {
      * @param visibility Visibility state to toggle to.
      * @param opaque If visibility is View.VISIBLE, flag whether to set the alpha value to 1.0f or 0.5f (opaque or translucent).
      */
-    fun toggleProgressBar(visibility: Int, opaque: Boolean = true) {
-        val progressBar: ProgressBar = (context as Activity).findViewById(R.id.progress_bar)
-        val windowTint: View = context.findViewById(R.id.window_tint)
+    fun toggleProgressBar(visibility: Int, opaque: Boolean = true, endCallback: () -> Unit = {}) {
+        val windowTint: View = (context as Activity).findViewById(R.id.window_tint)
 
         val animatorListener: AnimatorListenerAdapter = object: AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator?) {
                 super.onAnimationEnd(animation)
-                progressBar.visibility = visibility
                 windowTint.visibility = visibility
+                endCallback()
             }
         }
 
         if (visibility == View.VISIBLE) {
-            //progressBar.visibility = View.VISIBLE
             windowTint.visibility = View.VISIBLE
-            //progressBar.alpha = 1.0f
-            windowTint.alpha = if (opaque) 1.0f else 0.5f
-            return
+            val end = if (opaque) 1.0f else 0.5f
+            windowTint.animate().alpha(end).setDuration(App.ANIMATOR_DURATION).setListener(animatorListener)
+        } else {
+            windowTint.animate().alpha(0.0f).setDuration(App.ANIMATOR_DURATION).setListener(animatorListener)
         }
+    }
 
-        progressBar.animate().alpha(0.0f).setDuration(App.ANIMATOR_DURATION).setListener(animatorListener)
-        windowTint.animate().alpha(0.0f).setDuration(App.ANIMATOR_DURATION).setListener(animatorListener)
+    fun scaleViews(viewList: List<View>, show: Boolean, callback: () -> Unit = {}) {
+        val animationId: Int = if (show) R.anim.view_open else R.anim.view_close
+        val animation: Animation =  AnimationUtils.loadAnimation(context.applicationContext, animationId)
+        animation.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(p0: Animation?) {}
+            override fun onAnimationStart(p0: Animation?) {
+                if (show) {
+                    viewList.forEach {
+                        it.isEnabled = true
+                        it.visibility = View.VISIBLE
+                    }
+                }
+            }
+
+            override fun onAnimationEnd(p0: Animation?) {
+                if (!show) {
+                    viewList.forEach {
+                        it.isEnabled = false
+                        it.visibility = View.GONE
+                    }
+                }
+
+                callback()
+            }
+        })
+
+        viewList.forEach { it.startAnimation(animation) }
     }
 }

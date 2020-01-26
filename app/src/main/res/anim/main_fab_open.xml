@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<set xmlns:android="http://schemas.android.com/apk/res/android"
-    android:fillAfter="true">
+<set xmlns:android="http://schemas.android.com/apk/res/android">
     <scale
-        android:duration="150"
+        android:duration="250"
         android:fromXScale="0.0"
         android:fromYScale="0.0"
         android:interpolator="@android:anim/linear_interpolator"
@@ -14,5 +13,5 @@
         android:fromAlpha="0.0"
         android:toAlpha="1"
         android:interpolator="@android:anim/accelerate_interpolator"
-        android:duration="150"/>
+        android:duration="250"/>
 </set>

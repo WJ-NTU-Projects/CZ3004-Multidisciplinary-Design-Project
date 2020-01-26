@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.GridLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.material.button.MaterialButton
@@ -18,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
@@ -27,7 +29,6 @@ import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 
@@ -37,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         var isUpdating = false
         var isPlotting = false
-        var isDeleting = false
     }
 
     // Message control.
@@ -63,14 +63,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var timer: CountDownTimer
     private lateinit var arenaController: ArenaController
     private lateinit var messageParser: MessageParser
-    private lateinit var plotFabList: ArrayList<FloatingActionButton>
-    private lateinit var startFabList: ArrayList<FloatingActionButton>
-    private lateinit var buttonList: ArrayList<MaterialButton>
-    private lateinit var padFabList: ArrayList<FloatingActionButton>
+    private lateinit var startFabList: List<FloatingActionButton>
+    private lateinit var plotModeButtonList: List<View>
+    private lateinit var viewList: List<View>
 
     private var robotAutonomous = false
     private var startFabOpened = false
-    private var wayPointFabOpened = false
     private var isSwipeMode = false
     private var timerCounter = 0
     private var lastClickTime: Long = 0L
@@ -102,14 +100,14 @@ class MainActivity : AppCompatActivity() {
 
         // Do a quick closing animation on the floating action buttons (fab) to initialise their position when we open them.
         val animation: Animation = AnimationUtils.loadAnimation(applicationContext, R.anim.main_fab_close_init)
-        plotFabList = arrayListOf(manualRemovePlotsFab, plotObstacleFab)
-        startFabList = arrayListOf(startExplorationFab, startFastestPathFab)
-        for (fab in plotFabList) fab.startAnimation(animation)
+        startFabList = listOf(startExplorationFab, startFastestPathFab)
         for (fab in startFabList) fab.startAnimation(animation)
 
-        // Will come in handy later to cycle most of the buttons.
-        buttonList = arrayListOf(settingsButton, startButton, resetButton, autoManualButton, f1Button, f2Button)
-        padFabList = arrayListOf(padForwardButton, padReverseButton, padLeftButton, padRightButton)
+        // Will come in handy later to cycle through most of the views.
+        viewList = listOf(settingsButton, startButton, plotButton, resetButton, autoManualButton, f1Button, f2Button, statusCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
+
+        // Plot mode buttons that pop up only in plot mode.
+        plotModeButtonList = listOf(plotObstacleButton, removeObstacleButton, clearObstacleButton, doneButton)
 
         // Overrides the static variable at application level if the grid map should auto update.
         // Toggles the auto / manual button text and icon as well.
@@ -157,10 +155,6 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Default).launch {
             delay(100)
             withContext(Dispatchers.Main) {
-                for (fab in plotFabList) {
-                    fab.visibility = View.GONE
-                }
-
                 for (fab in startFabList) {
                     fab.visibility = View.GONE
                 }
@@ -170,22 +164,29 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+
+        if (bluetoothAdapter == null) {
+            return
+        }
+
         // If bluetooth is turned off, asks to turn it on.
         if (!bluetoothAdapter!!.isEnabled) startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 1000)
     }
 
     override fun onResume() {
         super.onResume()
-        // Hide any opened fabs (presumably opened before switching activities).
-        if (startFabOpened) toggleFabs(false)
-        if (wayPointFabOpened) toggleFabs(true)
 
+        if (bluetoothAdapter == null) {
+            return
+        }
+        // Hide any opened fabs (presumably opened before switching activities).
+        if (startFabOpened) toggleFabs()
         // Resets the texts on the custom buttons in case it is changed in the settings.
         f1Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default))
         f2Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default))
 
         // Checks the connection status and update the status label accordingly.
-        statusLabel.text = if (BluetoothController.isSocketConnected()) getString(R.string.connected_idle) else getString(R.string.disconnected)
+        statusLabel.text = if (BluetoothController.isSocketConnected()) getString(R.string.connected) else getString(R.string.disconnected)
 
         // If bluetooth is still turned off, warns the user that bluetooth features will be disabled (do the features really not run? idk).
         // Otherwise, starts listening for incoming connections.
@@ -213,15 +214,13 @@ class MainActivity : AppCompatActivity() {
         when (view.id) {
             R.id.settingsButton -> activityUtil.startActivity(SettingsActivity::class.java)
             R.id.resetButton -> resetArena()
-            R.id.gridGuideButton -> activityUtil.sendSnack(getString(R.string.coming_soon))
             R.id.messagesClearButton -> activityUtil.sendYesNoDialog(getString(R.string.clear_message_log), { positive -> if (positive) messagesTextView.text = "" })
 
             // Opens up the fabs for sub-choices when the start button is pressed.
             // If already started, pauses and resets the views back to normal.
             R.id.startButton -> {
                 if (!robotAutonomous) {
-                    if (wayPointFabOpened) toggleFabs(true)
-                    toggleFabs(false)
+                    toggleFabs()
                 } else {
                     sendCommand(sharedPreferences.getString(getString(R.string.app_pref_pause), getString(
                         R.string.settings_default_pause
@@ -234,22 +233,15 @@ class MainActivity : AppCompatActivity() {
             R.id.plotButton -> {
                 if (isPlotting) {
                     arenaController.resetActions()
-                    onPlotClicked()
-                } else {
-                    if (startFabOpened) toggleFabs(false)
-                    toggleFabs(true)
                 }
+
+                onPlotClicked()
             }
 
             R.id.autoManualButton -> {
                 autoUpdateArena = !autoUpdateArena
                 sharedPreferences.edit().putBoolean(getString(R.string.auto_update), autoUpdateArena).apply()
                 toggleAutoManualMode()
-            }
-
-            R.id.updateButton -> {
-                isUpdating = true
-                sendCommand(SEND_ARENA_COMMAND)
             }
 
             // Sends the customised commands to the robot.
@@ -284,7 +276,7 @@ class MainActivity : AppCompatActivity() {
                     R.string.settings_default_exploration
                 ))!!)
                 onStartClicked()
-                toggleFabs(false)
+                toggleFabs()
                 timerTitleLabel.text = getString(R.string.timer_exploration)
             }
 
@@ -293,22 +285,8 @@ class MainActivity : AppCompatActivity() {
                     R.string.settings_default_fastest
                 ))!!)
                 onStartClicked()
-                toggleFabs(false)
+                toggleFabs()
                 timerTitleLabel.text = getString(R.string.timer_fastest_path)
-            }
-
-            R.id.manualRemovePlotsFab -> {
-                isDeleting = true
-                onPlotClicked()
-                toggleFabs(true)
-                activityUtil.sendSnack("Tap anywhere on the grid map to remove individual obstacles.")
-            }
-
-            R.id.plotObstacleFab -> {
-                isDeleting = false
-                onPlotClicked()
-                toggleFabs(true)
-                activityUtil.sendSnack("Tap anywhere on the grid map to plot obstacles.")
             }
 
             R.id.controlModeButton -> {
@@ -316,28 +294,18 @@ class MainActivity : AppCompatActivity() {
                 val color: Int = if (isSwipeMode) R.color.colorAccent else android.R.color.holo_blue_light
                 val visibility: Int = if (isSwipeMode) View.GONE else View.VISIBLE
                 controlModeButton.setTextColor(getColor(color))
-                for (fab in padFabList) fab.visibility = visibility
+                padForwardButton.visibility = visibility
+                padReverseButton.visibility = visibility
+                padLeftButton.visibility = visibility
+                padRightButton.visibility = visibility
             }
+        }
+    }
 
-            // These buttons have their features implemented elsewhere, but we keep it just in case we want them back (unlikely).
-            // The views are still in the XML but hidden (visibility = GONE).
-            /*
-            R.id.clearPlotsFab -> {
-                toggleFabs(true)
-                arenaController.resetGridColors()
-                activityUtil.sendSnack("All markers on the map has been cleared.")
-            }
-
-            R.id.plotWayPointFab -> {
-                toggleFabs(true)
-                activityUtil.sendSnack("Tap anywhere on the grid map to set the way point.")
-            }
-
-            R.id.plotStartPointFab -> {
-                toggleFabs(true)
-                activityUtil.sendSnack("Tap anywhere on the grid map to set starting point.")
-            }
-            */
+    fun clickPlotButton(view: View) {
+        when (view.id) {
+            R.id.doneButton -> onPlotClicked()
+            else -> activityUtil.sendSnack(getString(R.string.coming_soon))
         }
     }
 
@@ -367,15 +335,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun toggleFabs(isWayPoint: Boolean) {
-        // Toggles the flag.
-        if (isWayPoint)  wayPointFabOpened = !wayPointFabOpened
-        else startFabOpened = !startFabOpened
-
-        // Choose which group of fabs to deal with based on the input boolean isWayPoint (hackish).
-        val fabArrayList: ArrayList<FloatingActionButton> = if (isWayPoint) plotFabList else startFabList
-        val state: Boolean = if (isWayPoint) wayPointFabOpened else startFabOpened
-        val animationId: Int = if (state) R.anim.main_fab_open else R.anim.main_fab_close
+    private fun toggleFabs() {
+        startFabOpened = !startFabOpened
+        val animationId: Int = if (startFabOpened) R.anim.main_fab_open else R.anim.main_fab_close
         val animation: Animation =  AnimationUtils.loadAnimation(applicationContext, animationId)
 
         // Also determines the animation behaviours based on the state of the fabs.
@@ -383,26 +345,24 @@ class MainActivity : AppCompatActivity() {
             override fun onAnimationRepeat(p0: Animation?) {}
 
             override fun onAnimationStart(p0: Animation?) {
-                if (state) for (fab in fabArrayList) fab.visibility = View.VISIBLE
+                if (startFabOpened) for (fab in startFabList) fab.visibility = View.VISIBLE
             }
 
             override fun onAnimationEnd(p0: Animation?) {
-                if (!state) for (fab in fabArrayList) fab.visibility = View.GONE
+                if (!startFabOpened) for (fab in startFabList) fab.visibility = View.GONE
             }
         })
 
-        for (fab in fabArrayList) fab.startAnimation(animation)
+        for (fab in startFabList) fab.startAnimation(animation)
     }
 
     private fun toggleAutoManualMode() {
         if (autoUpdateArena) {
             autoManualButton.text = getString(R.string.auto_update)
             autoManualButton.icon = getDrawable(R.drawable.ic_auto)
-            //updateButton.startAnimation(AnimationUtils.loadAnimation(applicationContext, R.anim.main_fab_close_up))
         } else {
             autoManualButton.text = getString(R.string.manual_update)
             autoManualButton.icon = getDrawable(R.drawable.ic_manual)
-            //updateButton.startAnimation(AnimationUtils.loadAnimation(applicationContext, R.anim.main_fab_open_up))
         }
     }
 
@@ -473,22 +433,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun onPlotClicked() {
         isPlotting = !isPlotting
+        if (startFabOpened) toggleFabs()
+        val firstList = if (isPlotting) viewList else plotModeButtonList // to hide
+        val secondList = if (isPlotting) plotModeButtonList else viewList // to show
 
-        if (isPlotting) {
-            plotButton.text = getString(R.string.finished_plotting)
-            plotButton.icon = getDrawable(R.drawable.ic_plot_finished)
-        } else {
-            plotButton.text = getString(R.string.plot_obstacles)
-            plotButton.icon = getDrawable(R.drawable.ic_way_points)
-        }
+        activityUtil.scaleViews(firstList, false) {
+            activityUtil.toggleProgressBar(View.VISIBLE, opaque = true) {
+                val gridLayoutList: List<GridLayout> = arenaController.getGridLayouts()
+                gridLayoutList.forEach {
+                    it.pivotX = 0.0f
+                    it.pivotY = 0.0f
+                    it.scaleX = if (isPlotting) 1.44f else 1.0f
+                    it.scaleY = if (isPlotting) 1.44f else 1.0f
+                }
 
-        // Disables most of other buttons when in plotting mode.
-        for (button in buttonList) {
-            button.isEnabled = !isPlotting
-        }
-
-        for (fab in padFabList) {
-            fab.isEnabled = !isPlotting
+                activityUtil.toggleProgressBar(View.GONE) {
+                    activityUtil.scaleViews(secondList, true)
+                }
+            }
         }
     }
 
@@ -519,7 +481,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun connectionChanged(status: BluetoothController.Status) {
         if (status == BluetoothController.Status.CONNECTED) {
-            binding.statusLabel.text = getString(R.string.connected_idle)
+            binding.statusLabel.text = getString(R.string.connected)
             isUpdating = true
             sendCommand(SEND_ARENA_COMMAND)
         } else {
@@ -661,7 +623,7 @@ class MainActivity : AppCompatActivity() {
 
             MotionEvent.ACTION_UP -> {
                 continuousMovement = false
-                binding.statusLabel.text = getString(R.string.connected_idle)
+                binding.statusLabel.text = if (BluetoothController.isSocketConnected()) getString(R.string.connected) else getString(R.string.disconnected)
                 continuousMovementFlag =
                     MovementFlag.NONE
                 view?.performClick()

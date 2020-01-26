@@ -56,7 +56,11 @@
 
     <string name="start_point">Start Point</string>
     <string name="way_point">Way Point</string>
+    <string name="plot_mode">Plot Mode</string>
     <string name="plot_obstacles">Plot Obstacles</string>
+    <string name="remove_obstacles">Remove Obstacles</string>
+    <string name="clear_all_obstacles">Clear All Obstacles</string>
+    <string name="done">Done</string>
     <string name="finished_plotting">Finish Plotting</string>
     <string name="clear_points">Clear</string>
     <string name="control_pad">Control Pad</string>

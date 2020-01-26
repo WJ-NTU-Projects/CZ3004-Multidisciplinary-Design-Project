@@ -8,6 +8,8 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.ScaleAnimation
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -17,7 +19,6 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.ROBOT_FOOTPRINT
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.R
-import ntu.mdp.android.mdptestkotlin.main.MainActivity.Companion.isDeleting
 import ntu.mdp.android.mdptestkotlin.main.MainActivity.Companion.isPlotting
 import ntu.mdp.android.mdptestkotlin.utils.GestureImageView
 
@@ -48,6 +49,13 @@ class ArenaController(private val context: Context, private val callback: (statu
         RESET
     }
 
+    enum class PlotMode {
+        NONE,
+        PLOT_OBSTACLE,
+        REMOVE_OBSTACLE
+    }
+
+    private var plotMode: PlotMode = PlotMode.NONE
     private var lastRobotPosition: IntArray = intArrayOf(-1, -1, 0)
     private var lastStartPosition: IntArray = intArrayOf(-1, -1)
     private var lastWayPointPosition: IntArray = intArrayOf(-1, -1)
@@ -59,6 +67,7 @@ class ArenaController(private val context: Context, private val callback: (statu
     private val arenaGridLayout: GridLayout = (context as Activity).findViewById(R.id.main_grid_arena)
     private val robotGridLayout: GridLayout = (context as Activity).findViewById(R.id.main_grid_robot)
     private val imageGridLayout: GridLayout = (context as Activity).findViewById(R.id.main_grid_image)
+    private val gridLayoutList: List<GridLayout> = listOf(arenaGridLayout, robotGridLayout, imageGridLayout)
     private val arenaArray: Array<Array<GestureImageView>> = Array(20) { Array(15) { GestureImageView(context) } }
     private val robotArray: Array<Array<ImageView>> = Array(20) { Array(15) { ImageView(context) } }
     private val imageArray: Array<Array<TextView>> = Array(20) { Array(15) { TextView(context) } }
@@ -71,7 +80,7 @@ class ArenaController(private val context: Context, private val callback: (statu
     private val gestureCallback: (view: GestureImageView, gesture: Gesture) -> Unit = { view, gesture ->
         when (gesture) {
             Gesture.SINGLE_TAP -> {
-                if (isPlotting) {
+                if (isPlotting && (plotMode == PlotMode.PLOT_OBSTACLE || plotMode == PlotMode.REMOVE_OBSTACLE)) {
                     doObstaclePlot(view)
                     if (redoActionList.isNotEmpty()) {
                         redoActionList.clear()
@@ -80,12 +89,7 @@ class ArenaController(private val context: Context, private val callback: (statu
             }
 
             Gesture.LONG_PRESS -> {
-                if (isPlotting) {
-                    doObstaclePlot(view)
-                    if (redoActionList.isNotEmpty()) {
-                        redoActionList.clear()
-                    }
-                } else {
+                if (plotMode == PlotMode.NONE) {
                     val coordinates: Pair<Int, Int> = getCoordinates(view)
                     var x = coordinates.first
                     var y = coordinates.second
@@ -133,7 +137,7 @@ class ArenaController(private val context: Context, private val callback: (statu
             }
 
             Gesture.DOUBLE_TAP -> {
-                if (!isPlotting) {
+                if (plotMode == PlotMode.NONE) {
                     val coordinates: Pair<Int, Int> = getCoordinates(view)
                     val x = coordinates.first
                     val y = coordinates.second
@@ -161,29 +165,30 @@ class ArenaController(private val context: Context, private val callback: (statu
                             callback(Status.INFO, "Obstructed, cannot plot.")
                         }
                     }
-                } else {
-                    doObstaclePlot(view)
-                    if (redoActionList.isNotEmpty()) {
-                        redoActionList.clear()
-                    }
                 }
             }
 
             Gesture.FLING_LEFT, Gesture.FLING_RIGHT -> {
-                if (isPlotting) {
+                if (isPlotting && (plotMode == PlotMode.PLOT_OBSTACLE || plotMode == PlotMode.REMOVE_OBSTACLE)) {
                     if (gesture == Gesture.FLING_LEFT) {
                         if (undoActionList.isNotEmpty()) {
                             val index = undoActionList.size - 1
                             val action: Pair<Int, IntArray> = undoActionList.removeAt(index)
                             val x = action.second[0]
                             val y = action.second[1]
-                            val originalAction: Boolean = isDeleting
-                            isDeleting = action.first == 1
+                            val originalAction: PlotMode = plotMode
+
+                            plotMode = if (action.first == 1) {
+                                PlotMode.REMOVE_OBSTACLE
+                            } else {
+                                PlotMode.PLOT_OBSTACLE
+                            }
+
                             redoActionList.add(action)
                             isUndo = true
                             doObstaclePlot(x, y)
                             isUndo = false
-                            isDeleting = originalAction
+                            plotMode = originalAction
                         }
                     } else {
                         if (redoActionList.isNotEmpty()) {
@@ -191,10 +196,16 @@ class ArenaController(private val context: Context, private val callback: (statu
                             val action: Pair<Int, IntArray> = redoActionList.removeAt(index)
                             val x = action.second[0]
                             val y = action.second[1]
-                            val originalAction: Boolean = isDeleting
-                            isDeleting = action.first != 1
+                            val originalAction: PlotMode = plotMode
+
+                            plotMode = if (action.first != 1) {
+                                PlotMode.REMOVE_OBSTACLE
+                            } else {
+                                PlotMode.PLOT_OBSTACLE
+                            }
+
                             doObstaclePlot(x, y)
-                            isDeleting = originalAction
+                            plotMode = originalAction
                         }
                     }
                 } else {
@@ -639,7 +650,7 @@ class ArenaController(private val context: Context, private val callback: (statu
     private fun doObstaclePlot(x: Int, y: Int) {
         val index = getIndex(x, y)
 
-        if (isDeleting) {
+        if (plotMode == PlotMode.REMOVE_OBSTACLE) {
             if (x >= 0 && y >= 0) {
                 if (arenaStateArray[y][x] == 1) {
                     var bit = 0
@@ -662,7 +673,7 @@ class ArenaController(private val context: Context, private val callback: (statu
                     }
                 }
             }
-        } else {
+        } else if (plotMode == PlotMode.PLOT_OBSTACLE) {
             if (x >= 0 && y >= 0) {
                 if (isClear(x, y, PlotType.OBSTACLE)) {
                     if (!savedStateMap.containsKey(index)) {
@@ -690,5 +701,35 @@ class ArenaController(private val context: Context, private val callback: (statu
     fun resetActions() {
         undoActionList.clear()
         redoActionList.clear()
+    }
+
+    fun getGridLayouts(): List<GridLayout> = gridLayoutList
+
+    fun togglePlotMode() {
+
+
+        /*
+        val scaleAfter = if (isPlotting) 1.16f else 0.8333333333334f
+        val anim: Animation = ScaleAnimation(
+            1.0f, scaleAfter,  // Start and end values for the X axis scaling
+            1.0f, scaleAfter,  // Start and end values for the Y axis scaling
+            Animation.RELATIVE_TO_SELF, 0f,  // Pivot point of X scaling
+            Animation.RELATIVE_TO_SELF, 0f) // Pivot point of Y scaling
+        anim.duration = 350
+        anim.setAnimationListener(object: Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) {}
+            override fun onAnimationStart(animation: Animation?) {}
+            override fun onAnimationEnd(animation: Animation?) {
+                gridLayoutList.forEach {
+                    it.pivotX = 0.0f
+                    it.pivotY = 0.0f
+                    it.scaleX = if (isPlotting) 1.2f else 1.0f
+                    it.scaleY = if (isPlotting) 1.2f else 1.0f
+                }
+            }
+        })
+
+        gridLayoutList.forEach { it.startAnimation(anim) }
+         */
     }
 }
