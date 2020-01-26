@@ -381,11 +381,11 @@ class MainActivity : AppCompatActivity() {
             override fun onAnimationRepeat(p0: Animation?) {}
 
             override fun onAnimationStart(p0: Animation?) {
-                if (state) for (fab in fabArrayList) fab.visibility = View.GONE
+                if (state) for (fab in fabArrayList) fab.visibility = View.VISIBLE
             }
 
             override fun onAnimationEnd(p0: Animation?) {
-                if (!state) for (fab in fabArrayList) fab.visibility = View.VISIBLE
+                if (!state) for (fab in fabArrayList) fab.visibility = View.GONE
             }
         })
 
