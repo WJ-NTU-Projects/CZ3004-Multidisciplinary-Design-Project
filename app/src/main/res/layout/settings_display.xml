@@ -89,8 +89,7 @@
             <Switch
                 android:id="@+id/sadSwitch"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:enabled="false" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

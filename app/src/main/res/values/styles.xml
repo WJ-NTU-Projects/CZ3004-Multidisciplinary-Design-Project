@@ -96,6 +96,10 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
+    <style name="TextStatusTitle.Small">
+        <item name="android:textSize">@dimen/text_size_smaller</item>
+    </style>
+
     <style name="TextStatusContent" parent="Widget.MaterialComponents.TextView">
         <item name="android:textSize">@dimen/text_size_big</item>
     </style>

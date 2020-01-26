@@ -7,10 +7,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.EditText
 import android.widget.GridLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -19,9 +21,11 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
+import ntu.mdp.android.mdptestkotlin.App.Companion.MOVEMENT_PROCSES_INTERVAL
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
+import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
@@ -73,6 +77,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var plotModeButtonList: List<View>
     private lateinit var viewList: List<View>
 
+    private var isSadMode = false
     private var currentMode: Mode = Mode.NONE
     private var robotAutonomous = false
     private var startFabOpened = false
@@ -105,6 +110,12 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        isSadMode = sharedPreferences.getBoolean(getString(R.string.app_pref_sad_mode), false)
+        if (isSadMode) {
+            activityUtil.startActivity(MainSimpleActivity::class.java, startNew = true)
+            return
+        }
+
         // Do a quick closing animation on the floating action buttons (fab) to initialise their position when we open them.
         val animation: Animation = AnimationUtils.loadAnimation(applicationContext, R.anim.main_fab_close_init)
         startFabList = listOf(startExplorationFab, startFastestPathFab)
@@ -120,6 +131,7 @@ class MainActivity : AppCompatActivity() {
         // Toggles the auto / manual button text and icon as well.
         autoUpdateArena = sharedPreferences.getBoolean("AUTO_UPDATE", false)
         toggleAutoManualMode()
+        isSimple = false
 
         // Initialises the arena controller and defines the behaviour of the callback function in a lambda expression.
         // Note that one of the arguments of ArenaController is a callback variable of 'Unit' type (a.k.a. higher order function).
@@ -156,6 +168,7 @@ class MainActivity : AppCompatActivity() {
         padLeftButton.setOnTouchListener(touchListener)
         padRightButton.setOnTouchListener(touchListener)
         swipePadLayout.setOnTouchListener(touchListener)
+        messagesOutputEditText.setOnKeyListener(onEnter)
 
         // Need to wait for the fab closing animations to finish (from above) so we do a small hack here.
         // Launches a new coroutine (something like a new thread) and runs a delay of 100ms before switching back to the current context and hide the fabs.
@@ -171,10 +184,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-
-        if (bluetoothAdapter == null) {
-            return
-        }
+        if (bluetoothAdapter == null || isSadMode) return
 
         // If bluetooth is turned off, asks to turn it on.
         if (!bluetoothAdapter!!.isEnabled) startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 1000)
@@ -182,9 +192,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (bluetoothAdapter == null) {
-            return
-        }
+        if (bluetoothAdapter == null || isSadMode) return
+
         // Hide any opened fabs (presumably opened before switching activities).
         if (startFabOpened) toggleFabs()
         // Resets the texts on the custom buttons in case it is changed in the settings.
@@ -505,7 +514,7 @@ class MainActivity : AppCompatActivity() {
         val prefix: String = getString(R.string.chat_prefix, timeStamp, prefixType).trim()
         val displayMessage = "$prefix $message"
         val previousMessages = messagesTextView.text.toString().trim()
-        val newMessage = "$previousMessages\n$displayMessage"
+        val newMessage = if (previousMessages.isNotBlank()) "$previousMessages\n$displayMessage" else displayMessage
         messagesTextView.text = newMessage
         CoroutineScope(Dispatchers.Default).launch {
             delay(250)
@@ -563,44 +572,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val continuousMovementThread = object: Thread() {
-        override fun run() {
-            var lastMoveTime = 0L
-
-            while (continuousMovement) {
-                if (System.currentTimeMillis() - lastMoveTime >= 750) {
-                    lastMoveTime = System.currentTimeMillis()
-
-                    CoroutineScope(Dispatchers.Main).launch {
-                        if (continuousMovementFlag == MovementFlag.NONE) {
-                            return@launch
-                        }
-
-                        val requestedFacing: Int =
-                            when (continuousMovementFlag) {
-                                MovementFlag.REVERSE -> 180
-                                MovementFlag.LEFT -> 270
-                                MovementFlag.RIGHT -> 90
-                                else -> 0
-                            }
-                        val robotFacing = arenaController.getRobotFacing()
-                        val facingOffset: Int = robotFacing - requestedFacing
-
-                        if (requestedFacing == robotFacing) {
-                            arenaController.moveRobot(1, BluetoothController.isSocketConnected())
-                        } else if (abs(requestedFacing - robotFacing) == 180) {
-                            arenaController.moveRobot(-1, BluetoothController.isSocketConnected())
-                        } else if (facingOffset == 90 || facingOffset == -270) {
-                            arenaController.turnRobot(-1, BluetoothController.isSocketConnected())
-                        } else {
-                            arenaController.turnRobot(1, BluetoothController.isSocketConnected())
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private val touchListener = View.OnTouchListener { view, event ->
         if (isPlotting) {
             return@OnTouchListener true
@@ -612,7 +583,7 @@ class MainActivity : AppCompatActivity() {
                     if (!continuousMovement) {
                         continuousOriginX = (view.width / 2.0f)
                         continuousOriginY = (view.height / 2.0f)
-                        continuousMovementThread.start()
+                        ContinuousMovementThread().start()
                         continuousMovement = true
                     }
 
@@ -637,7 +608,7 @@ class MainActivity : AppCompatActivity() {
                             MovementFlag.RIGHT
                     }
 
-                    continuousMovementThread.start()
+                    ContinuousMovementThread().start()
                     continuousMovement = true
                 }
             }
@@ -659,12 +630,63 @@ class MainActivity : AppCompatActivity() {
 
             MotionEvent.ACTION_UP -> {
                 continuousMovement = false
-                binding.statusLabel.text = if (BluetoothController.isSocketConnected()) getString(R.string.connected) else getString(R.string.disconnected)
+                statusLabel.text = if (BluetoothController.isSocketConnected()) getString(R.string.connected) else getString(R.string.disconnected)
                 continuousMovementFlag = MovementFlag.NONE
                 view?.performClick()
             }
         }
 
         false
+    }
+
+    private val onEnter = View.OnKeyListener { view, keyCode, event ->
+        if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+            val message: String = (view as EditText).text.toString().trim()
+
+            if (message.isNotBlank()) {
+                sendCommand(message)
+                messagesOutputEditText.setText("")
+            }
+            return@OnKeyListener true
+        }
+
+        false
+    }
+
+    private inner class ContinuousMovementThread: Thread() {
+        override fun run() {
+            var lastMoveTime = 0L
+
+            while (continuousMovement) {
+                if (System.currentTimeMillis() - lastMoveTime >= MOVEMENT_PROCSES_INTERVAL) {
+                    lastMoveTime = System.currentTimeMillis()
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        if (continuousMovementFlag == MovementFlag.NONE) {
+                            return@launch
+                        }
+
+                        val requestedFacing: Int = when (continuousMovementFlag) {
+                            MovementFlag.REVERSE -> 180
+                            MovementFlag.LEFT -> 270
+                            MovementFlag.RIGHT -> 90
+                            else -> 0
+                        }
+                        val robotFacing = arenaController.getRobotFacing()
+                        val facingOffset: Int = robotFacing - requestedFacing
+
+                        if (requestedFacing == robotFacing) {
+                            arenaController.moveRobot(1, BluetoothController.isSocketConnected())
+                        } else if (abs(requestedFacing - robotFacing) == 180) {
+                            arenaController.moveRobot(-1, BluetoothController.isSocketConnected())
+                        } else if (facingOffset == 90 || facingOffset == -270) {
+                            arenaController.turnRobot(-1, BluetoothController.isSocketConnected())
+                        } else {
+                            arenaController.turnRobot(1, BluetoothController.isSocketConnected())
+                        }
+                    }
+                }
+            }
+        }
     }
 }

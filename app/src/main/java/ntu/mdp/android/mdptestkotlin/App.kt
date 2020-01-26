@@ -17,6 +17,7 @@ class App: Application() {
         const val ROBOT_FOOTPRINT = 3
         const val ANIMATOR_DURATION = 200L
         const val BUTTON_CLICK_DELAY_INTERVAL = 500
+        const val MOVEMENT_PROCSES_INTERVAL = 500
 
         var appTheme: Int = R.style.AppTheme
         var socket: BluetoothSocket? = null
@@ -27,6 +28,7 @@ class App: Application() {
         // Persistent Data
         lateinit var sharedPreferences: SharedPreferences
         var autoUpdateArena = false
+        var isSimple = false
     }
 
     override fun onCreate() {
@@ -35,5 +37,6 @@ class App: Application() {
         SEND_ARENA_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_send_arena), getString(R.string.send_arena_default))!!
         val darkMode: Boolean = sharedPreferences.getBoolean(getString(R.string.app_pref_dark_mode), false)
         if (darkMode) appTheme = R.style.AppTheme_Dark
+        isSimple = sharedPreferences.getBoolean(getString(R.string.app_pref_sad_mode), false)
     }
 }
