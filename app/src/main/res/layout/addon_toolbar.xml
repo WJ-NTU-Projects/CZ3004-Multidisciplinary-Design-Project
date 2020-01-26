@@ -65,7 +65,7 @@
         android:onClick="clickConnect"
         android:scaleType="centerCrop"
         android:clickable="true"
-        android:src="@drawable/ic_bluetooth_connect"
+        android:src="@drawable/ic_bluetooth_white"
         android:visibility="gone" />
 
     <ImageView

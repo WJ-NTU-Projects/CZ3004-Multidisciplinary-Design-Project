@@ -4,48 +4,62 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.animation.RotateAnimation
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.view.children
-import androidx.core.view.get
+import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.ROBOT_FOOTPRINT
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
-import ntu.mdp.android.mdptestkotlin.MainActivity
 import ntu.mdp.android.mdptestkotlin.R
-import kotlin.time.seconds
+import ntu.mdp.android.mdptestkotlin.main.MainActivity.Companion.isDeleting
+import ntu.mdp.android.mdptestkotlin.main.MainActivity.Companion.isPlotting
+import ntu.mdp.android.mdptestkotlin.utils.GestureImageView
+
 
 class ArenaController(private val context: Context, private val callback: (status: Status, message: String) -> Unit) {
-    enum class Op {
-        NONE,
-        SET_START_POINT,
-        SET_WAY_POINT
+    enum class Gesture {
+        SINGLE_TAP,
+        DOUBLE_TAP,
+        LONG_PRESS,
+        FLING_LEFT,
+        FLING_RIGHT,
+        FLING_DOWN
+    }
+
+    enum class PlotType {
+        ROBOT,
+        OBSTACLE,
+        WAY_POINT,
+        LIVE
     }
 
     enum class Status {
         WRITE,
         INFO,
         COORDINATES,
-        ROBOT
+        ROBOT,
+        STATUS,
+        RESET
     }
 
-    var currentOp: Op = Op.NONE
-    var lastRobotPosition: IntArray = intArrayOf(-1, -1, 0)
+    private var lastRobotPosition: IntArray = intArrayOf(-1, -1, 0)
     private var lastStartPosition: IntArray = intArrayOf(-1, -1)
     private var lastWayPointPosition: IntArray = intArrayOf(-1, -1)
+    private var isUndo = false
 
+    private val undoActionList: ArrayList<Pair<Int, IntArray>> = arrayListOf()
+    private val redoActionList: ArrayList<Pair<Int, IntArray>> = arrayListOf()
+    private val savedStateMap: HashMap<Int, Int> = hashMapOf()
     private val arenaGridLayout: GridLayout = (context as Activity).findViewById(R.id.main_grid_arena)
     private val robotGridLayout: GridLayout = (context as Activity).findViewById(R.id.main_grid_robot)
     private val imageGridLayout: GridLayout = (context as Activity).findViewById(R.id.main_grid_image)
-    private val arenaArray: Array<Array<ImageView>> = Array(20) { Array(15) { ImageView(context) } }
+    private val arenaArray: Array<Array<GestureImageView>> = Array(20) { Array(15) { GestureImageView(context) } }
     private val robotArray: Array<Array<ImageView>> = Array(20) { Array(15) { ImageView(context) } }
     private val imageArray: Array<Array<TextView>> = Array(20) { Array(15) { TextView(context) } }
     private val arenaStateArray: Array<Array<Int>> = Array(20) { Array(15) { -1 } }
@@ -53,110 +67,178 @@ class ArenaController(private val context: Context, private val callback: (statu
     private val dp: Int = (displayMetrics.widthPixels * 0.66).toInt()
     private val gridSize: Int = ((dp - 30) / 15)
     private val robotSize: Int = (dp / 15)
-    private val clickGrid = View.OnClickListener { view ->
-        if (currentOp == Op.NONE && !autoUpdateArena) {
-            MainActivity.isUpdating = true
-            callback(Status.WRITE, SEND_ARENA_COMMAND)
-            return@OnClickListener
-        }
 
-        if (currentOp == Op.SET_START_POINT || currentOp == Op.SET_WAY_POINT) {
-            var x = -1
-            var y = -1
-
-            for (testY in 0 until 20) {
-                x = arenaArray[testY].indexOf(view as ImageView)
-
-                if (x != -1) {
-                    y = testY
-                    break
+    private val gestureCallback: (view: GestureImageView, gesture: Gesture) -> Unit = { view, gesture ->
+        when (gesture) {
+            Gesture.SINGLE_TAP -> {
+                if (isPlotting) {
+                    doObstaclePlot(view)
+                    if (redoActionList.isNotEmpty()) {
+                        redoActionList.clear()
+                    }
                 }
             }
 
-            if (x == -1 || y == -1) return@OnClickListener
+            Gesture.LONG_PRESS -> {
+                if (isPlotting) {
+                    doObstaclePlot(view)
+                    if (redoActionList.isNotEmpty()) {
+                        redoActionList.clear()
+                    }
+                } else {
+                    val coordinates: Pair<Int, Int> = getCoordinates(view)
+                    var x = coordinates.first
+                    var y = coordinates.second
 
-            if (currentOp == Op.SET_START_POINT) {
-                val oldX = lastStartPosition[0]
-                val oldY = lastStartPosition[1]
+                    if (x >= 0 && y >= 0) {
+                        if (x > 13) x = 13
+                        if (x < 1) x = 1
+                        if (y > 18) y = 18
+                        if (y < 1) y = 1
 
-                if (oldX >= 0 && oldY >= 0) {
-                    for (Y in 0 until ROBOT_FOOTPRINT) {
-                        for (X in 0 until ROBOT_FOOTPRINT) {
-                            val color: Int = when (arenaStateArray[oldY - Y][oldX + X]) {
-                                -1 -> context.getColor(R.color.arena_unexplored)
-                                0 -> context.getColor(R.color.arena_explored)
-                                else -> Color.BLACK
+                        if (isClear(x, y, PlotType.ROBOT)) {
+                            val oldX = lastStartPosition[0]
+                            val oldY = lastStartPosition[1]
+
+                            if (oldX >= 0 && oldY >= 0) {
+                                for (Y in -1 until 2) {
+                                    for (X in -1 until 2) {
+                                        val color: Int = when (arenaStateArray[oldY - Y][oldX + X]) {
+                                            -1 -> context.getColor(R.color.arena_unexplored)
+                                            0 -> context.getColor(R.color.arena_explored)
+                                            else -> Color.BLACK
+                                        }
+
+                                        arenaArray[oldY - Y][oldX + X].setBackgroundColor(color)
+                                    }
+                                }
                             }
 
-                            arenaArray[oldY - Y][oldX + X].setBackgroundColor(color)
+                            lastStartPosition[0] = x
+                            lastStartPosition[1] = y
+                            updateRobot("$x, $y, 0")
+
+                            for (Y in -1 until 2) {
+                                for (X in -1 until 2) {
+                                    arenaArray[y - Y][x + X].setBackgroundColor(context.getColor(R.color.arena_start_point))
+                                }
+                            }
+
+                            callback(Status.WRITE, "#startpoint::$x, $y, 0")
+                        } else {
+                            callback(Status.INFO, "Obstructed, cannot plot.")
                         }
                     }
                 }
-
-                if (x > 12) x = 12
-                if (y < 2) y = 2
-
-                lastStartPosition[0] = x
-                lastStartPosition[1] = y
-
-                for (Y in 0 until ROBOT_FOOTPRINT) {
-                    for (X in 0 until ROBOT_FOOTPRINT) {
-                        arenaArray[y - Y][x + X].setBackgroundColor(context.getColor(R.color.arena_start_point))
-                    }
-                }
-
-                updateRobot("$x, $y, 0")
-            } else {
-                val oldX = lastWayPointPosition[0]
-                val oldY = lastWayPointPosition[1]
-
-                if (oldX >= 0 && oldY >= 0) {
-                    val color: Int = when (arenaStateArray[oldY][oldX]) {
-                        -1 -> context.getColor(R.color.arena_unexplored)
-                        0 -> context.getColor(R.color.arena_explored)
-                        else -> Color.BLACK
-                    }
-
-                    arenaArray[oldY][oldX].setBackgroundColor(color)
-                }
-
-                lastWayPointPosition[0] = x
-                lastWayPointPosition[1] = y
-                view.setBackgroundColor(context.getColor(R.color.arena_way_point))
             }
 
-            currentOp = Op.NONE
+            Gesture.DOUBLE_TAP -> {
+                if (!isPlotting) {
+                    val coordinates: Pair<Int, Int> = getCoordinates(view)
+                    val x = coordinates.first
+                    val y = coordinates.second
+
+                    if (x >= 0 && y >= 0) {
+                        if (isClear(x, y, PlotType.WAY_POINT)) {
+                            val oldX = lastWayPointPosition[0]
+                            val oldY = lastWayPointPosition[1]
+
+                            if (oldX >= 0 && oldY >= 0) {
+                                val color: Int = when (arenaStateArray[oldY][oldX]) {
+                                    -1 -> context.getColor(R.color.arena_unexplored)
+                                    0 -> context.getColor(R.color.arena_explored)
+                                    else -> Color.BLACK
+                                }
+
+                                arenaArray[oldY][oldX].setBackgroundColor(color)
+                            }
+
+                            lastWayPointPosition[0] = x
+                            lastWayPointPosition[1] = y
+                            view.setBackgroundColor(context.getColor(R.color.arena_way_point))
+                            callback(Status.WRITE, "#waypoint::$x, $y")
+                        } else {
+                            callback(Status.INFO, "Obstructed, cannot plot.")
+                        }
+                    }
+                } else {
+                    doObstaclePlot(view)
+                    if (redoActionList.isNotEmpty()) {
+                        redoActionList.clear()
+                    }
+                }
+            }
+
+            Gesture.FLING_LEFT, Gesture.FLING_RIGHT -> {
+                if (isPlotting) {
+                    if (gesture == Gesture.FLING_LEFT) {
+                        if (undoActionList.isNotEmpty()) {
+                            val index = undoActionList.size - 1
+                            val action: Pair<Int, IntArray> = undoActionList.removeAt(index)
+                            val x = action.second[0]
+                            val y = action.second[1]
+                            val originalAction: Boolean = isDeleting
+                            isDeleting = action.first == 1
+                            redoActionList.add(action)
+                            isUndo = true
+                            doObstaclePlot(x, y)
+                            isUndo = false
+                            isDeleting = originalAction
+                        }
+                    } else {
+                        if (redoActionList.isNotEmpty()) {
+                            val index = redoActionList.size - 1
+                            val action: Pair<Int, IntArray> = redoActionList.removeAt(index)
+                            val x = action.second[0]
+                            val y = action.second[1]
+                            val originalAction: Boolean = isDeleting
+                            isDeleting = action.first != 1
+                            doObstaclePlot(x, y)
+                            isDeleting = originalAction
+                        }
+                    }
+                } else {
+                    callback(Status.RESET, "")
+                }
+            }
+
+            Gesture.FLING_DOWN -> {
+                if (!autoUpdateArena && !isPlotting) {
+                    MainActivity.isUpdating = true
+                    callback(Status.WRITE, SEND_ARENA_COMMAND)
+                }
+            }
         }
     }
 
     init {
         for (y in 19 downTo 0) {
             for (x in 0 .. 14) {
-                var imageView = ImageView(context)
-                imageView.layoutParams = LinearLayout.LayoutParams(gridSize, gridSize).apply {
+                val gestureImageView = GestureImageView(context)
+                gestureImageView.setCallback(gestureCallback)
+                gestureImageView.layoutParams = LinearLayout.LayoutParams(gridSize, gridSize).apply {
                     bottomMargin = 1
                     leftMargin = 1
                     rightMargin = 1
                     topMargin = 1
                 }
 
-                imageView.setBackgroundColor(context.getColor(R.color.arena_unexplored))
-                imageView.isClickable = true
-                imageView.setOnClickListener(clickGrid)
-                arenaArray[y][x] = imageView
-                arenaGridLayout.addView(imageView)
+                gestureImageView.setBackgroundColor(context.getColor(R.color.arena_unexplored))
+                gestureImageView.isClickable = false
+                arenaArray[y][x] = gestureImageView
+                arenaGridLayout.addView(gestureImageView)
 
-                imageView = ImageView(context)
+                val imageView = ImageView(context)
                 imageView.layoutParams = LinearLayout.LayoutParams(robotSize, robotSize)
-                imageView.setBackgroundColor(Color.WHITE)
+                imageView.setBackgroundColor(Color.TRANSPARENT)
                 imageView.alpha = 0.0f
+                imageView.isClickable = false
+                imageView.isFocusable = false
                 robotArray[y][x] = imageView
                 robotGridLayout.addView(imageView)
 
                 val textView = TextView(context)
                 textView.layoutParams = LinearLayout.LayoutParams(gridSize, gridSize).apply {
-                    weight = 1.0f
-                    gravity = Gravity.CENTER
                     bottomMargin = 1
                     leftMargin = 1
                     rightMargin = 1
@@ -164,6 +246,7 @@ class ArenaController(private val context: Context, private val callback: (statu
                 }
 
                 textView.text = ""
+                textView.gravity = Gravity.CENTER
                 textView.setTextColor(Color.WHITE)
                 textView.setTypeface(textView.typeface, Typeface.BOLD)
                 textView.isClickable = false
@@ -176,6 +259,7 @@ class ArenaController(private val context: Context, private val callback: (statu
 
         robotGridLayout.visibility = View.VISIBLE
         imageGridLayout.visibility = View.VISIBLE
+        updateRobot("0, 0, 0")
     }
 
     fun resetArena() {
@@ -202,6 +286,7 @@ class ArenaController(private val context: Context, private val callback: (statu
         lastRobotPosition = intArrayOf(-1, -1, 0)
         lastStartPosition = intArrayOf(-1, -1)
         lastWayPointPosition = intArrayOf(-1, -1)
+        updateRobot("0, 0, 0")
     }
 
     fun updateArena(data: String) {
@@ -219,16 +304,9 @@ class ArenaController(private val context: Context, private val callback: (statu
                 if (bit == 1) {
                     arenaArray[y][x].setBackgroundColor(Color.BLACK)
                 } else {
-                    val startX = lastStartPosition[0]
-                    val clashArrayX = intArrayOf(startX, startX + 1, startX + 2)
-                    val startY = lastStartPosition[1]
-                    val clashArrayY = intArrayOf(startY, startY - 1, startY - 2)
-
-                    if (!(clashArrayX.contains(x) && clashArrayY.contains(y))) {
-                        if (x != lastWayPointPosition[0] || y != lastWayPointPosition[1]) {
-                            val color: Int = if (bit == 0) R.color.arena_explored else R.color.arena_unexplored
-                            arenaArray[y][x].setBackgroundColor(context.getColor(color))
-                        }
+                    if (isClear(x, y, PlotType.LIVE)) {
+                        val color: Int = if (bit == 0) R.color.arena_explored else R.color.arena_unexplored
+                        arenaArray[y][x].setBackgroundColor(context.getColor(color))
                     }
                 }
 
@@ -243,8 +321,8 @@ class ArenaController(private val context: Context, private val callback: (statu
         var oldY = lastStartPosition[1]
 
         if (oldX >= 0 && oldY >= 0) {
-            for (Y in 0 until ROBOT_FOOTPRINT) {
-                for (X in 0 until ROBOT_FOOTPRINT) {
+            for (Y in -1 until 2) {
+                for (X in -1 until 2) {
                     val color: Int = when (arenaStateArray[oldY - Y][oldX + X]) {
                         -1 -> context.getColor(R.color.arena_unexplored)
                         0 -> context.getColor(R.color.arena_explored)
@@ -313,14 +391,13 @@ class ArenaController(private val context: Context, private val callback: (statu
             var newX = s[0].toInt()
             var newY = s[1].toInt()
             val newR = s[2].toInt()
-            if (newX < 0) newX = 0
-            if (newX > 12) newX = 12
-            if (newY < 2) newY = 2
-            if (newY > 19) newY = 19
+            if (newX < 1) newX = 1
+            if (newX > 13) newX = 13
+            if (newY < 1) newY = 1
+            if (newY > 18) newY = 18
 
-            val oldX: Int = lastRobotPosition[0]
-            val oldY: Int = lastRobotPosition[1]
-            val oldR: Int = lastRobotPosition[2]
+            val oldX: Int = lastRobotPosition[0] - 1
+            val oldY: Int = lastRobotPosition[1] + 1
             var imageView: ImageView
 
             if (oldX >= 0 && oldY >= 0) {
@@ -339,15 +416,19 @@ class ArenaController(private val context: Context, private val callback: (statu
                 else -> R.drawable.ic_270
             }
 
+            lastRobotPosition[0] = newX
+            lastRobotPosition[1] = newY
+            lastRobotPosition[2] = newR
+            callback(Status.COORDINATES, "$newX, $newY")
+
+            newX -= 1
+            newY += 1
             imageView = robotArray[newY][newX]
             imageView.requestLayout()
             imageView.layoutParams.height = robotSize * ROBOT_FOOTPRINT
             imageView.layoutParams.width = robotSize * ROBOT_FOOTPRINT
             imageView.setImageResource(drawable)
             imageView.alpha = 1.0f
-            lastRobotPosition[0] = newX
-            lastRobotPosition[1] = newY
-            lastRobotPosition[2] = newR
 
             for (y in 0 until ROBOT_FOOTPRINT) {
                 for (x in 0 until ROBOT_FOOTPRINT) {
@@ -359,8 +440,6 @@ class ArenaController(private val context: Context, private val callback: (statu
                     }
                 }
             }
-
-            callback(Status.COORDINATES, "$newX, $newY")
         } catch (e: NumberFormatException) {
             Log.e(this::class.simpleName ?: "-", "Something went wrong.", e)
             callback(Status.INFO, "Something went wrong.")
@@ -368,42 +447,41 @@ class ArenaController(private val context: Context, private val callback: (statu
         }
     }
 
-    fun checkClear(dir: Int): Boolean {
+    private fun checkClear(dir: Int): Boolean {
         var x = lastRobotPosition[0]
         var y = lastRobotPosition[1]
         val r = lastRobotPosition[2]
+        Log.d(this::class.simpleName ?: "-", "Robot's current position: [$x, $y] facing $r.")
         val obstacleMessage = "Obstacle ahead. Cannot move."
         val edgeMessage = "At edge of arena. Cannot move."
 
         if (x == -1 || y == -1) {
-            callback(Status.ROBOT, "Robot position unknown. Cannot move.")
+            callback(Status.INFO, "Robot position unknown. Cannot move.")
             return false
         }
 
         if ((r % 180) == 0) {
             if (dir == 1) {
-                if ((r == 0 && y + 1 > 19) || (r == 180 && y - ROBOT_FOOTPRINT < 0)) {
+                if ((r == 0 && y + 2 > 19) || (r == 180 && y - 2 < 0)) {
                     callback(Status.ROBOT, edgeMessage)
+                    callback(Status.STATUS, "Blocked")
                     return false
                 }
 
-                if (r == 0) y += 1 else y -= ROBOT_FOOTPRINT
+                if (r == 0) y += 2 else y -= 2
             } else {
-                if ((r == 180 && y + 1 > 19) || (r == 0 && y - ROBOT_FOOTPRINT < 0)) {
+                if ((r == 180 && y + 2 > 19) || (r == 0 && y - 2 < 0)) {
                     callback(Status.ROBOT, edgeMessage)
+                    callback(Status.STATUS, "Blocked")
                     return false
                 }
 
-                if (r == 180) y += 1 else y -= ROBOT_FOOTPRINT
+                if (r == 180) y += 2 else y -= 2
             }
 
-            if (arenaStateArray[y][x] == 1 || arenaStateArray[y][x + 1] == 1) {
+            if (arenaStateArray[y][x] == 1 || arenaStateArray[y][x + 1] == 1 || arenaStateArray[y][x - 1] == 1) {
                 callback(Status.ROBOT, obstacleMessage)
-                return false
-            }
-
-            if (ROBOT_FOOTPRINT == 3 && arenaStateArray[y][x + 2] == 1) {
-                callback(Status.ROBOT, obstacleMessage)
+                callback(Status.STATUS, "Blocked")
                 return false
             }
 
@@ -411,31 +489,206 @@ class ArenaController(private val context: Context, private val callback: (statu
         }
 
         if (dir == 1) {
-            if ((r == 90 && x + ROBOT_FOOTPRINT > 14) || (r == 270 && x - 1 < 0)) {
+            if ((r == 90 && x + 2 > 14) || (r == 270 && x - 2 < 0)) {
                 callback(Status.ROBOT, edgeMessage)
+                callback(Status.STATUS, "Blocked")
                 return false
             }
 
-            if (r == 90) x += ROBOT_FOOTPRINT else x -= 1
+            if (r == 90) x += 2 else x -= 2
         } else {
-            if ((r == 270 && x + ROBOT_FOOTPRINT > 14) || (r == 90 && x - 1 < 0)) {
+            if ((r == 270 && x + 2 > 14) || (r == 90 && x - 2 < 0)) {
                 callback(Status.ROBOT, edgeMessage)
+                callback(Status.STATUS, "Blocked")
                 return false
             }
 
-            if (r == 270) x += ROBOT_FOOTPRINT else x -= 1
+            if (r == 270) x += 2 else x -= 2
         }
 
-        if (arenaStateArray[y][x] == 1 || arenaStateArray[y - 1][x] == 1) {
+        if (arenaStateArray[y][x] == 1 || arenaStateArray[y - 1][x] == 1 || arenaStateArray[y + 1][x] == 1) {
             callback(Status.ROBOT, obstacleMessage)
-            return false
-        }
-
-        if (ROBOT_FOOTPRINT == 3 && arenaStateArray[y - 2][x] == 1) {
-            callback(Status.ROBOT, obstacleMessage)
+            callback(Status.STATUS, "Blocked")
             return false
         }
 
         return true
+    }
+
+    fun moveRobot(dir: Int, connected: Boolean = false) {
+        if (!checkClear(dir)) return
+        if (dir == 1) callback(Status.STATUS, "Moving") else callback(Status.STATUS, "Reversing")
+
+        if (dir == 1 && connected) {
+            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_forward), context.getString(R.string.settings_default_forward))!!)
+            return
+        }
+
+        if (dir == -1 && connected) {
+            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_reverse), context.getString(R.string.settings_default_reverse))!!)
+            return
+        }
+
+        val x = lastRobotPosition[0]
+        val y = lastRobotPosition[1]
+        val move: Int = (1 * dir)
+
+        when (val r = lastRobotPosition[2]) {
+            0 -> updateRobot("$x, ${y + move}, $r")
+            90 -> updateRobot("${x + move}, $y, $r")
+            180 -> updateRobot("$x, ${y - move}, $r")
+            else -> updateRobot("${x - move}, $y, $r")
+        }
+    }
+
+    fun getRobotFacing(): Int {
+        return lastRobotPosition[2]
+    }
+
+    fun turnRobot(dir: Int, connected: Boolean = false) {
+        if (dir == 1) callback(Status.STATUS, "Turning Right") else callback(Status.STATUS, "Turning Left")
+
+        if (dir == -1 && connected) {
+            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_turn_left), context.getString(R.string.settings_default_turn_left))!!)
+            return
+        }
+
+        if (dir == 1 && connected) {
+            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_turn_right), context.getString(R.string.settings_default_turn_right))!!)
+            return
+        }
+
+
+        val x = lastRobotPosition[0]
+        val y = lastRobotPosition[1]
+        var r = lastRobotPosition[2]
+        val move: Int = (90 * dir)
+        r += move
+        r = Math.floorMod(r, 360)
+        updateRobot("$x, $y, $r")
+        Log.d(this::class.simpleName ?: "-", "Robot's current position: [$x, $y] facing $r.")
+    }
+
+    private fun getCoordinates(view: GestureImageView): Pair<Int, Int> {
+        var x = -1
+        var y = -1
+
+        for (testY in 0 until 20) {
+            x = arenaArray[testY].indexOf(view)
+
+            if (x != -1) {
+                y = testY
+                break
+            }
+        }
+
+        return Pair(x, y)
+    }
+
+    private fun isClear(x: Int, y: Int, type: PlotType): Boolean {
+        if (type == PlotType.ROBOT) {
+            for (Y in -1 until 2) {
+                for (X in -1 until 2) {
+                    if (arenaStateArray[y - Y][x + X] == 1) {
+                        return false
+                    }
+                }
+            }
+        } else {
+            if (type == PlotType.OBSTACLE) {
+                val startX = lastRobotPosition[0]
+                val clashArrayX = intArrayOf(startX, startX + 1, startX - 1)
+                val startY = lastRobotPosition[1]
+                val clashArrayY = intArrayOf(startY, startY - 1, startY + 1)
+
+                if (clashArrayX.contains(x) && clashArrayY.contains(y)) {
+                    return false
+                }
+            }
+
+            val startX = lastStartPosition[0]
+            val clashArrayX = intArrayOf(startX, startX + 1, startX - 1)
+            val startY = lastStartPosition[1]
+            val clashArrayY = intArrayOf(startY, startY - 1, startY + 1)
+
+            if (clashArrayX.contains(x) && clashArrayY.contains(y)) {
+                return false
+            }
+
+            if (x == lastWayPointPosition[0] && y == lastWayPointPosition[1]) {
+                return false
+            }
+
+            if (type != PlotType.LIVE) {
+                if (arenaStateArray[y][x] == 1) {
+                    return false
+                }
+            }
+        }
+
+        return true
+    }
+
+    private fun doObstaclePlot(view: GestureImageView) {
+        val coordinates: Pair<Int, Int> = getCoordinates(view)
+        val x = coordinates.first
+        val y = coordinates.second
+        doObstaclePlot(x, y)
+    }
+
+    private fun doObstaclePlot(x: Int, y: Int) {
+        val index = getIndex(x, y)
+
+        if (isDeleting) {
+            if (x >= 0 && y >= 0) {
+                if (arenaStateArray[y][x] == 1) {
+                    var bit = 0
+
+                    if (savedStateMap.containsKey(index)) {
+                        bit = savedStateMap[index] ?: 0
+                    }
+
+                    if (bit == -1) {
+                        arenaArray[y][x].setBackgroundColor(context.getColor(R.color.arena_unexplored))
+                    } else {
+                        bit = 0
+                        arenaArray[y][x].setBackgroundColor(context.getColor(R.color.arena_explored))
+                    }
+
+                    arenaStateArray[y][x] = bit
+
+                    if (!isUndo) {
+                        undoActionList.add(Pair(-1, intArrayOf(x, y)))
+                    }
+                }
+            }
+        } else {
+            if (x >= 0 && y >= 0) {
+                if (isClear(x, y, PlotType.OBSTACLE)) {
+                    if (!savedStateMap.containsKey(index)) {
+                        val bit: Int = arenaStateArray[y][x]
+                        savedStateMap[index] = bit
+                    }
+
+                    arenaArray[y][x].setBackgroundColor(Color.BLACK)
+                    arenaStateArray[y][x] = 1
+
+                    if (!isUndo) {
+                        undoActionList.add(Pair(1, intArrayOf(x, y)))
+                    }
+                } else {
+                    callback(Status.INFO, "Obstructed, cannot plot.")
+                }
+            }
+        }
+    }
+
+    private fun getIndex(x: Int, y: Int): Int {
+        return (15 * y + x)
+    }
+
+    fun resetActions() {
+        undoActionList.clear()
+        redoActionList.clear()
     }
 }

@@ -20,6 +20,7 @@ class BluetoothConnectionManager: Thread() {
             return
         }
 
+        App.BLUETOOTH_CONNECTED_DEVICE = App.socket?.remoteDevice?.name!!
         BluetoothController.broadcastStatus(BluetoothController.Status.CONNECTED)
 
         while (true) {
@@ -59,6 +60,7 @@ class BluetoothConnectionManager: Thread() {
     fun cancel() {
         try {
             App.socket?.close()
+            App.socket = null
         } catch (e: IOException) {
             Log.e(this::class.simpleName ?: "-", "Unable to close connection.", e)
         }

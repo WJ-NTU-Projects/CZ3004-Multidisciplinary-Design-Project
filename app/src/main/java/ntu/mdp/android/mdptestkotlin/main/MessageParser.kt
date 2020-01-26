@@ -3,7 +3,6 @@ package ntu.mdp.android.mdptestkotlin.main
 import android.content.Context
 import android.util.Log
 import ntu.mdp.android.mdptestkotlin.App
-import ntu.mdp.android.mdptestkotlin.MainActivity
 
 class MessageParser(private val context: Context, private val callback: (status: Status, message: String) -> Unit) {
     enum class Status {
@@ -11,7 +10,8 @@ class MessageParser(private val context: Context, private val callback: (status:
         ROBOT_POSITION,
         IMAGE_POSITION,
         ARENA,
-        GARBAGE
+        GARBAGE,
+        INFO
     }
 
     fun parse(message: String) {
@@ -20,7 +20,7 @@ class MessageParser(private val context: Context, private val callback: (status:
             return
         }
 
-        val s: List<String> = message.split("::")
+        val s: ArrayList<String> = ArrayList(message.split("::"))
         Log.e("MESSAGE", message)
 
         if (s.size != 2) {
@@ -32,6 +32,26 @@ class MessageParser(private val context: Context, private val callback: (status:
             MainActivity.isUpdating = false
             callback(Status.ARENA, s[1])
             return
+        }
+
+        if (s[0] == "#robotposition") {
+            val s1 = s[1].split(", ")
+
+            if (s1.size != 3) {
+                callback(Status.INFO, "Something went wrong.")
+                return
+            }
+
+            try {
+                val x = s1[0].toInt() + 1
+                val y = s1[1].toInt() - 1
+                val r = s1[2].toInt()
+                s[1] = "$x, $y, $r"
+            }  catch (e: NumberFormatException) {
+                Log.e(this::class.simpleName ?: "-", "Something went wrong.", e)
+                callback(Status.INFO, "Something went wrong.")
+                return
+            }
         }
 
         when (s[0]) {

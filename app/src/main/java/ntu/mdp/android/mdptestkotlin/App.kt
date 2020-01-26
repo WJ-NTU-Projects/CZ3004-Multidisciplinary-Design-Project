@@ -12,9 +12,12 @@ class App: Application() {
 
     companion object {
         const val BLUETOOTH_UUID = "00001101-0000-1000-8000-00805F9B34FB"
-        const val SEND_ARENA_COMMAND = "sendArena"
+        var SEND_ARENA_COMMAND = "sendArena"
+        var BLUETOOTH_CONNECTED_DEVICE = "-"
         const val ROBOT_FOOTPRINT = 3
-        const val ANIMATOR_DURATION = 50L
+        const val ANIMATOR_DURATION = 100L
+        const val BUTTON_CLICK_DELAY_INTERVAL = 500
+        const val SWIPE_DELAY_INTERVAL = 750
 
         var socket: BluetoothSocket? = null
         var bluetoothServerThread: BluetoothServer? = null
@@ -29,5 +32,6 @@ class App: Application() {
     override fun onCreate() {
         super.onCreate()
         sharedPreferences = this.getSharedPreferences(getString(R.string.app_pref_key), Context.MODE_PRIVATE)
+        SEND_ARENA_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_send_arena), getString(R.string.settings_default_send_arena))!!
     }
 }

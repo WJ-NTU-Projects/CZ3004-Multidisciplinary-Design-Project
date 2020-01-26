@@ -5,472 +5,558 @@
     android:id="@+id/window_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="@dimen/screen_padding"
-    tools:context=".MainActivity">
+    tools:context=".main.MainActivity">
 
-    <GridLayout
-        android:id="@+id/main_grid_arena"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/element_padding"
-        android:rowCount="20"
-        android:columnCount="15"
-        app:layout_constraintWidth_percent="0.7"
-        app:layout_constraintHeight_percent="0.62"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/screen_padding">
 
-    <GridLayout
-        android:id="@+id/main_grid_robot"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/element_padding"
-        android:rowCount="20"
-        android:columnCount="15"
-        android:visibility="invisible"
-        app:layout_constraintWidth_percent="0.7"
-        app:layout_constraintHeight_percent="0.62"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        <GridLayout
+            android:id="@+id/main_grid_arena"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="6dp"
+            android:rowCount="20"
+            android:columnCount="15"
+            app:layout_constraintWidth_percent="0.7"
+            app:layout_constraintHeight_percent="0.62"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"/>
 
-    <GridLayout
-        android:id="@+id/main_grid_image"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/element_padding"
-        android:rowCount="20"
-        android:columnCount="15"
-        android:visibility="invisible"
-        app:layout_constraintWidth_percent="0.7"
-        app:layout_constraintHeight_percent="0.62"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        <GridLayout
+            android:id="@+id/main_grid_robot"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="6dp"
+            android:rowCount="20"
+            android:columnCount="15"
+            android:visibility="invisible"
+            app:layout_constraintWidth_percent="0.7"
+            app:layout_constraintHeight_percent="0.62"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/main_button_settings"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="@dimen/button_padding"
-        android:textSize="@dimen/text_size_small"
-        android:text="@string/main_settings"
-        android:onClick="clickSettings"
-        app:icon="@drawable/ic_settings"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
+        <GridLayout
+            android:id="@+id/main_grid_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="6dp"
+            android:rowCount="20"
+            android:columnCount="15"
+            android:visibility="invisible"
+            app:layout_constraintWidth_percent="0.7"
+            app:layout_constraintHeight_percent="0.62"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/main_button_connect"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="@dimen/button_padding"
-        android:textSize="@dimen/text_size_small"
-        android:text="@string/main_connect"
-        android:onClick="clickConnect"
-        app:icon="@drawable/ic_connect"
-        app:layout_constraintTop_toBottomOf="@id/main_button_settings"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/settingsButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/main_button_height"
+            android:layout_marginStart="@dimen/button_padding"
+            android:textSize="@dimen/text_size_small"
+            android:text="@string/settings"
+            android:onClick="clickUiButton"
+            app:icon="@drawable/ic_settings"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/main_button_start"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="@dimen/button_padding"
-        android:textSize="@dimen/text_size_small"
-        android:text="@string/main_start"
-        android:onClick="clickStart"
-        app:icon="@drawable/ic_start"
-        app:layout_constraintTop_toBottomOf="@id/main_button_connect"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/startButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/main_button_height"
+            android:layout_marginStart="@dimen/button_padding"
+            android:textSize="@dimen/text_size_small"
+            android:text="@string/start"
+            android:onClick="clickUiButton"
+            app:icon="@drawable/ic_start"
+            app:layout_constraintTop_toBottomOf="@id/settingsButton"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/main_button_way_points"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="@dimen/button_padding"
-        android:textSize="@dimen/text_size_small"
-        android:text="@string/main_way_points"
-        android:onClick="clickWayPoints"
-        app:icon="@drawable/ic_way_points"
-        app:layout_constraintTop_toBottomOf="@id/main_button_start"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/plotButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/main_button_height"
+            android:layout_marginStart="@dimen/button_padding"
+            android:textSize="@dimen/text_size_small"
+            android:text="@string/plot_obstacles"
+            android:onClick="clickUiButton"
+            app:icon="@drawable/ic_way_points"
+            app:layout_constraintTop_toBottomOf="@id/startButton"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/main_button_update_mode"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="@dimen/button_padding"
-        android:textSize="@dimen/text_size_small"
-        android:text="@string/main_auto"
-        android:onClick="clickAutoManualToggle"
-        app:icon="@drawable/ic_auto"
-        app:layout_constraintTop_toBottomOf="@id/main_button_way_points"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/resetButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/main_button_height"
+            android:layout_marginStart="@dimen/button_padding"
+            android:textSize="@dimen/text_size_small"
+            android:text="@string/reset_arena"
+            android:onClick="clickUiButton"
+            app:icon="@drawable/ic_nuke"
+            app:layout_constraintTop_toBottomOf="@id/plotButton"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/main_button_reset_arena"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="@dimen/button_padding"
-        android:textSize="@dimen/text_size_small"
-        android:text="@string/main_reset_arena"
-        android:onClick="clickResetArena"
-        app:icon="@drawable/ic_delete"
-        app:layout_constraintTop_toBottomOf="@id/main_button_update_mode"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/autoManualButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/main_button_height"
+            android:layout_marginStart="@dimen/button_padding"
+            android:textSize="@dimen/text_size_small"
+            android:text="@string/auto_update"
+            android:onClick="clickUiButton"
+            app:icon="@drawable/ic_auto"
+            app:layout_constraintTop_toBottomOf="@id/resetButton"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/main_button_update"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="@dimen/button_padding"
-        android:textSize="@dimen/text_size_small"
-        android:text="@string/main_update_arena"
-        android:onClick="clickUpdateArena"
-        app:icon="@drawable/ic_update"
-        app:layout_constraintTop_toBottomOf="@id/main_button_reset_arena"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/updateButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/main_button_height"
+            android:layout_marginStart="@dimen/button_padding"
+            android:textSize="@dimen/text_size_small"
+            android:text="@string/update"
+            android:onClick="clickUiButton"
+            android:visibility="gone"
+            app:icon="@drawable/ic_update"
+            app:layout_constraintTop_toBottomOf="@id/autoManualButton"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/main_button_f1"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="@dimen/button_padding"
-        android:text="@string/main_f1"
-        android:textSize="@dimen/text_size_small"
-        android:onClick="clickCustomButton"
-        app:layout_constraintTop_toBottomOf="@id/main_button_update"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/main_grid_arena" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/gridGuideButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/main_button_height"
+            android:layout_marginStart="@dimen/button_padding"
+            android:text="@string/grid_guide"
+            android:textSize="@dimen/text_size_small"
+            android:onClick="clickUiButton"
+            app:icon="@drawable/ic_grid_guide"
+            app:layout_constraintTop_toBottomOf="@id/updateButton"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/main_grid_arena" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/main_button_f2"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="@dimen/button_padding"
-        android:text="@string/main_f2"
-        android:textSize="@dimen/text_size_small"
-        android:onClick="clickCustomButton"
-        app:layout_constraintTop_toBottomOf="@id/main_button_f1"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/main_grid_arena" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/f1Button"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/main_button_height"
+            android:layout_marginStart="@dimen/button_padding"
+            android:text="@string/f1_default"
+            android:textSize="@dimen/text_size_small"
+            android:onClick="clickUiButton"
+            app:icon="@drawable/ic_f1"
+            app:layout_constraintTop_toBottomOf="@id/gridGuideButton"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/main_grid_arena" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/main_card_status"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/screen_padding"
-        app:layout_constraintWidth_percent="0.4"
-        app:elevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/main_grid_arena"
-        app:layout_constraintLeft_toLeftOf="parent">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/f2Button"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/main_button_height"
+            android:layout_marginStart="@dimen/button_padding"
+            android:text="@string/f2_default"
+            android:textSize="@dimen/text_size_small"
+            android:onClick="clickUiButton"
+            app:icon="@drawable/ic_f2"
+            app:layout_constraintTop_toBottomOf="@id/f1Button"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/main_grid_arena" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/statusCard"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/screen_padding"
-            android:paddingRight="@dimen/screen_padding"
-            android:paddingTop="@dimen/element_padding"
-            android:paddingBottom="@dimen/element_padding"
-            android:orientation="vertical">
-
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/TextStatusTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/main_status"/>
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/main_status"
-                style="@style/TextStatusContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/main_default_status"/>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/main_card_coordinates"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/screen_padding"
-        app:layout_constraintWidth_percent="0.24"
-        app:elevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/main_grid_arena"
-        app:layout_constraintLeft_toRightOf="@id/main_card_status"
-        app:layout_constraintRight_toLeftOf="@id/main_card_timer">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/screen_padding"
-            android:paddingRight="@dimen/screen_padding"
-            android:paddingTop="@dimen/element_padding"
-            android:paddingBottom="@dimen/element_padding"
-            android:orientation="vertical">
-
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/TextStatusTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/main_coordinates"/>
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/main_label_coordinates"
-                style="@style/TextStatusContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/main_default_coordinates" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/main_card_timer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/screen_padding"
-        android:layout_marginEnd="2dp"
-        app:layout_constraintWidth_percent="0.32"
-        app:elevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/main_grid_arena"
-        app:layout_constraintRight_toRightOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/screen_padding"
-            android:paddingRight="@dimen/screen_padding"
-            android:paddingTop="@dimen/element_padding"
-            android:paddingBottom="@dimen/element_padding"
-            android:orientation="vertical">
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/main_label_timer_title"
-                style="@style/TextStatusTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/main_timer"/>
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/main_label_timer"
-                style="@style/TextStatusContent"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/main_default_timer"/>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/main_card_message_box"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/element_padding"
-        app:layout_constraintWidth_percent="0.66"
-        app:elevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/main_card_status"
-        app:layout_constraintLeft_toLeftOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/screen_padding"
-            android:paddingRight="@dimen/screen_padding"
-            android:paddingTop="@dimen/element_padding"
-            android:paddingBottom="@dimen/element_padding"
-            android:orientation="vertical">
-
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/TextStatusTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/element_padding"
-                android:text="@string/main_messages"/>
-
-            <ScrollView
-                android:id="@+id/main_chat_scrollview"
-                android:layout_width="match_parent"
-                android:layout_height="92dp">
-
-                <TextView
-                    android:id="@+id/main_chat_display"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
-                    android:gravity="top"
-                    android:focusable="false" />
-            </ScrollView>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/main_card_message_input"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/element_padding"
-        app:layout_constraintWidth_percent="0.66"
-        app:elevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/main_card_message_box"
-        app:layout_constraintLeft_toLeftOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:focusableInTouchMode="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/screen_padding"
-            android:paddingRight="@dimen/screen_padding"
-            android:paddingTop="@dimen/element_padding"
-            android:paddingBottom="@dimen/element_padding">
-
-            <EditText
-                android:id="@+id/main_chat_edittext_send"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:hint="@string/main_messages_input_hint"
-                app:layout_constraintWidth_percent="0.7"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:importantForAutofill="no" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/main_button_messages_send"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/main_messages_send"
-                android:textSize="@dimen/text_size_small"
-                android:onClick="clickSendMessage"
-                app:layout_constraintWidth_percent="0.28"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/element_padding"
-        android:layout_marginEnd="2dp"
-        app:layout_constraintWidth_percent="0.32"
-        app:layout_constraintTop_toBottomOf="@id/main_card_timer"
-        app:layout_constraintBottom_toBottomOf="@id/main_card_message_input"
-        app:layout_constraintRight_toRightOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/main_button_forward"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_forward"
-                android:onClick="clickForward"
-                app:elevation="0dp" />
+            android:layout_marginTop="@dimen/screen_padding"
+            android:layout_marginStart="2dp"
+            app:layout_constraintWidth_percent="0.4"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/main_grid_arena"
+            app:layout_constraintLeft_toLeftOf="parent">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/screen_padding"
+                android:paddingRight="@dimen/screen_padding"
+                android:paddingTop="@dimen/element_padding"
+                android:paddingBottom="@dimen/element_padding"
+                android:orientation="vertical">
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/main_button_turn_left"
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextStatusTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="24dp"
-                    android:src="@drawable/ic_left"
-                    android:onClick="clickTurnLeft"
-                    app:elevation="0dp" />
+                    android:text="@string/status"/>
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/main_button_turn_right"
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/statusLabel"
+                    style="@style/TextStatusContent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
-                    android:src="@drawable/ic_right"
-                    android:onClick="clickTurnRight"
-                    app:elevation="0dp" />
+                    android:text="@string/status_default"/>
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/coordinatesCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/screen_padding"
+            app:layout_constraintWidth_percent="0.24"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/main_grid_arena"
+            app:layout_constraintLeft_toRightOf="@id/statusCard"
+            app:layout_constraintRight_toLeftOf="@id/timerCard">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/screen_padding"
+                android:paddingRight="@dimen/screen_padding"
+                android:paddingTop="@dimen/element_padding"
+                android:paddingBottom="@dimen/element_padding"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextStatusTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/coordinates"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/coordinatesLabel"
+                    style="@style/TextStatusContent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/coordinates_default" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/timerCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/screen_padding"
+            android:layout_marginEnd="2dp"
+            app:layout_constraintWidth_percent="0.32"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/main_grid_arena"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/screen_padding"
+                android:paddingRight="@dimen/screen_padding"
+                android:paddingTop="@dimen/element_padding"
+                android:paddingBottom="@dimen/element_padding"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/timerTitleLabel"
+                    style="@style/TextStatusTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/timer"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/timerLabel"
+                    style="@style/TextStatusContent"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/timer_default"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/messagesCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/element_padding"
+            android:layout_marginStart="2dp"
+            app:layout_constraintWidth_percent="0.66"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/statusCard"
+            app:layout_constraintLeft_toLeftOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/screen_padding"
+                android:paddingRight="@dimen/screen_padding"
+                android:paddingTop="@dimen/element_padding"
+                android:paddingBottom="@dimen/element_padding"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/element_padding">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/TextStatusTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/messages"/>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/messagesClearButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/clear"
+                        android:textColor="@color/colorAccent"
+                        android:textAllCaps="true"
+                        android:textSize="@dimen/text_size_small"
+                        android:textStyle="bold"
+                        android:gravity="end"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:onClick="clickUiButton" />
+                </LinearLayout>
+
+                <ScrollView
+                    android:id="@+id/messagesScrollView"
+                    android:layout_width="match_parent"
+                    android:layout_height="110dp">
+
+                    <TextView
+                        android:id="@+id/messagesTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:gravity="top"
+                        android:focusable="false" />
+                </ScrollView>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/messagesInputCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/element_padding"
+            android:layout_marginStart="2dp"
+            app:layout_constraintWidth_percent="0.66"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/messagesCard"
+            app:layout_constraintLeft_toLeftOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:focusableInTouchMode="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/screen_padding"
+                android:paddingRight="@dimen/screen_padding"
+                android:paddingTop="@dimen/element_padding"
+                android:paddingBottom="@dimen/element_padding">
+
+                <EditText
+                    android:id="@+id/messagesOutputEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:hint="@string/messages_send_hint"
+                    app:layout_constraintWidth_percent="0.7"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:importantForAutofill="no" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/messagesSendButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/send"
+                    android:textSize="@dimen/text_size_small"
+                    android:onClick="clickSendMessage"
+                    app:layout_constraintWidth_percent="0.28"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/element_padding"
+            android:layout_marginEnd="2dp"
+            app:cardElevation="2dp"
+            app:layout_constraintWidth_percent="0.32"
+            app:layout_constraintTop_toBottomOf="@id/timerCard"
+            app:layout_constraintBottom_toBottomOf="@id/messagesInputCard"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <LinearLayout
+                android:id="@+id/swipePadLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingLeft="@dimen/screen_padding"
+                android:paddingRight="@dimen/screen_padding"
+                android:paddingTop="@dimen/element_padding"
+                android:paddingBottom="@dimen/element_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/element_padding">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/TextStatusTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/control_pad"/>
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/controlModeButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/swipe"
+                        android:textColor="@android:color/holo_blue_light"
+                        android:textAllCaps="true"
+                        android:textSize="@dimen/text_size_small"
+                        android:textStyle="bold"
+                        android:gravity="end"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:onClick="clickUiButton" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/padForwardButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_forward"
+                        app:fabCustomSize="50dp"
+                        app:elevation="0dp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/padLeftButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="24dp"
+                            android:src="@drawable/ic_left"
+                            app:fabCustomSize="50dp"
+                            app:elevation="0dp" />
+
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/padRightButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="24dp"
+                            android:src="@drawable/ic_right"
+                            app:fabCustomSize="50dp"
+                            app:elevation="0dp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/padReverseButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_reverse"
+                        app:fabCustomSize="50dp"
+                        app:elevation="0dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginEnd="@dimen/element_padding"
+            app:layout_constraintTop_toTopOf="@id/startButton"
+            app:layout_constraintBottom_toBottomOf="@id/startButton"
+            app:layout_constraintRight_toLeftOf="@id/startButton">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/main_button_reverse"
+                android:id="@+id/startFastestPathFab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_reverse"
-                android:onClick="clickReverse"
-                app:elevation="0dp" />
+                android:src="@drawable/ic_fastest"
+                android:onClick="clickUiButton" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/startExplorationFab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/element_padding"
+                android:src="@drawable/ic_explore"
+                android:onClick="clickUiButton" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginEnd="@dimen/element_padding"
-        app:layout_constraintTop_toTopOf="@id/main_button_start"
-        app:layout_constraintBottom_toBottomOf="@id/main_button_start"
-        app:layout_constraintRight_toLeftOf="@id/main_button_start">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/main_button_start_fastest"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_fastest"
-            android:onClick="clickStartFastestPath" />
+            android:orientation="horizontal"
+            android:layout_marginEnd="@dimen/element_padding"
+            app:layout_constraintTop_toTopOf="@id/plotButton"
+            app:layout_constraintBottom_toBottomOf="@id/plotButton"
+            app:layout_constraintRight_toLeftOf="@id/plotButton">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/main_button_start_exploration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/element_padding"
-            android:src="@drawable/ic_explore"
-            android:onClick="clickStartExploration" />
-    </LinearLayout>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/clearPlotsFab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:src="@drawable/ic_clear_plots"
+                android:onClick="clickUiButton" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginEnd="@dimen/element_padding"
-        app:layout_constraintTop_toTopOf="@id/main_button_way_points"
-        app:layout_constraintBottom_toBottomOf="@id/main_button_way_points"
-        app:layout_constraintRight_toLeftOf="@id/main_button_way_points">
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/manualRemovePlotsFab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/element_padding"
+                android:src="@drawable/ic_clear"
+                android:onClick="clickUiButton" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/main_button_way_points_clear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_clear"
-            android:onClick="clickWayPointsClear" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/plotObstacleFab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/element_padding"
+                android:src="@drawable/ic_plot_obstacles"
+                android:onClick="clickUiButton" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/main_button_way_points_point"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/element_padding"
-            android:src="@drawable/ic_way_point"
-            android:onClick="clickAddWayPoint" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/plotWayPointFab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/element_padding"
+                android:visibility="gone"
+                android:src="@drawable/ic_way_point"
+                android:onClick="clickUiButton" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/main_button_way_points_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/element_padding"
-            android:src="@drawable/ic_start_point"
-            android:onClick="clickAddStartPoint" />
-    </LinearLayout>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/plotStartPointFab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/element_padding"
+                android:visibility="gone"
+                android:src="@drawable/ic_start_point"
+                android:onClick="clickUiButton" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include layout="@layout/addon_progress_tint" />
 </androidx.constraintlayout.widget.ConstraintLayout>

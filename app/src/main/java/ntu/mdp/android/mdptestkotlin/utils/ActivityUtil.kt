@@ -4,15 +4,14 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Parcelable
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.R
@@ -57,17 +56,17 @@ class ActivityUtil(private val context: Context) {
 
         if (startNew) intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         (context as Activity).startActivity(intent)
-        //if (fade || startNew) context.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         if (startNew) context.finish()
+        if (fade || startNew) context.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     /**
      * Finishes an activity.
      * @param fade Flag to use fade animation.
      */
-    fun finishActivity(fade: Boolean = true) {
+    fun finishActivity(fade: Boolean = false) {
         (context as Activity).finish()
-        //if (fade) context.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        if (fade) context.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     /**
@@ -78,6 +77,7 @@ class ActivityUtil(private val context: Context) {
         val windowLayout: View = (context as Activity).findViewById(R.id.window_layout)
         val snackBar: Snackbar = Snackbar.make(windowLayout, message, Snackbar.LENGTH_LONG)
         snackBar.show()
+        Log.e(this::class.simpleName ?: "-", "Broadcasted from ${context::class.simpleName}")
     }
 
     fun setTitle(title: String) {
@@ -91,12 +91,32 @@ class ActivityUtil(private val context: Context) {
         }
 
         builder?.setMessage(message)
-        builder?.setPositiveButton(R.string.ok) { dialog, id ->
+        builder?.setPositiveButton(R.string.ok) { dialog, _ ->
             dialog.dismiss()
 
             if (finish) {
                 finishActivity()
             }
+        }
+
+        val dialog: AlertDialog? = builder?.create()
+        dialog?.show()
+    }
+
+    fun sendYesNoDialog(message: String, callback: (positive: Boolean) -> Unit, yesLabel: String = "YES", noLabel: String = "NO") {
+        val builder: AlertDialog.Builder? = (context as Activity).let {
+            AlertDialog.Builder(it)
+        }
+
+        builder?.setMessage(message)
+        builder?.setPositiveButton(yesLabel) { dialog, _ ->
+            dialog.dismiss()
+            callback(true)
+        }
+
+        builder?.setNegativeButton(noLabel) { dialog, _ ->
+            dialog.dismiss()
+            callback(false)
         }
 
         val dialog: AlertDialog? = builder?.create()
@@ -141,9 +161,9 @@ class ActivityUtil(private val context: Context) {
         }
 
         if (visibility == View.VISIBLE) {
-            progressBar.visibility = View.VISIBLE
+            //progressBar.visibility = View.VISIBLE
             windowTint.visibility = View.VISIBLE
-            progressBar.alpha = 1.0f
+            //progressBar.alpha = 1.0f
             windowTint.alpha = if (opaque) 1.0f else 0.5f
             return
         }

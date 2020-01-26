@@ -5,6 +5,10 @@
     <color name="colorAccent">#1E6AE1</color>
     <color name="toolbar_divider">#DDDDDD</color>
 
+    <color name="icon_bg_bluetooth">#370FCF</color>
+    <color name="icon_bg_commands">#970FCF</color>
+    <color name="icon_bg_custom_buttons">#CF0FA7</color>
+
     <color name="progressBarEnd">#011A5FC6</color>
     <color name="arena_unexplored">#FB98A4</color>
     <color name="arena_explored">#98FBEE</color>

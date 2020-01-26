@@ -72,10 +72,10 @@ class BluetoothController {
                 val message: String = when (status) {
                     Status.ERROR -> "Unexpected error occurred."
                     Status.CONNECTING -> "Attempting to connect to $extra."
-                    Status.CONNECTED -> "Successfully connected to ${App.socket?.remoteDevice?.name}."
-                    Status.DISCONNECTED -> "Disconnected from ${App.socket?.remoteDevice?.name}."
-                    Status.WRITE_FAILED -> "Failed to write data to ${App.socket?.remoteDevice?.name}."
-                    Status.WRITE_SUCCESS -> "Successfully written data to ${App.socket?.remoteDevice?.name}."
+                    Status.CONNECTED -> "Successfully connected to ${App.BLUETOOTH_CONNECTED_DEVICE}."
+                    Status.DISCONNECTED -> "Disconnected from ${App.BLUETOOTH_CONNECTED_DEVICE}."
+                    Status.WRITE_FAILED -> "Failed to write data to ${App.BLUETOOTH_CONNECTED_DEVICE}."
+                    Status.WRITE_SUCCESS -> "Successfully written data to ${App.BLUETOOTH_CONNECTED_DEVICE}."
                     Status.CONNECT_FAILED -> "Failed to connect to $extra."
                     else -> ""
                 }
