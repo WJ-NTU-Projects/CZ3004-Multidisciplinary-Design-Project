@@ -1,5 +1,6 @@
 package ntu.mdp.android.mdptestkotlin.bluetooth
 
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.BroadcastReceiver
@@ -22,12 +23,15 @@ import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityBluetoothBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
+const val DISCOVERABILITY_REQUEST = 1 //arbitrary number...?
+
 class BluetoothActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBluetoothBinding
     private lateinit var activityUtil: ActivityUtil
     private lateinit var otherDeviceList: ArrayList<BluetoothDevice>
     private lateinit var othersAdapter: DeviceAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +52,7 @@ class BluetoothActivity : AppCompatActivity() {
                 if (BluetoothAdapter.getDefaultAdapter().scanMode != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
                     val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
                     discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 30)
-                    startActivity(discoverableIntent)
+                    startActivityForResult(discoverableIntent, DISCOVERABILITY_REQUEST);
                 }
             }
         }
@@ -110,6 +114,22 @@ class BluetoothActivity : AppCompatActivity() {
 
         bluetoothAdapter.cancelDiscovery()
         bluetoothAdapter.startDiscovery()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
+    {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == DISCOVERABILITY_REQUEST)
+        {
+            if(resultCode == Activity.RESULT_OK)
+            {
+                bluetoothDiscoverySwitch.isChecked = true;
+            }
+            else if(resultCode == Activity.RESULT_CANCELED)
+            {
+                bluetoothDiscoverySwitch.isChecked = false;
+            }
+        }
     }
 
     private fun refresh() {
