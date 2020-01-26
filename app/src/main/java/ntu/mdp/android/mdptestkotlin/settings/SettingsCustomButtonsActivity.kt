@@ -23,7 +23,7 @@ class SettingsCustomButtonsActivity : AppCompatActivity() {
         binding = SettingsCustomButtonsBinding.inflate(layoutInflater)
         setContentView(R.layout.settings_custom_buttons)
         activityUtil = ActivityUtil(this)
-        activityUtil.setTitle("Custom Buttons")
+        activityUtil.setTitle(getString(R.string.custom_buttons))
 
         f1LabelEditText.setOnKeyListener(onEnter)
         f1LabelEditText.onFocusChangeListener = onFocusLost
@@ -121,7 +121,7 @@ class SettingsCustomButtonsActivity : AppCompatActivity() {
 
     private val onFocusLost = View.OnFocusChangeListener { view, hasFocus ->
         if (!hasFocus && !enterPressed && (view as EditText).text.toString().isNotBlank()) {
-            activityUtil.sendYesNoDialog("Unsaved changes. Save or discard?", yesLabel = "Save", noLabel = "Discard", callback = { positive ->
+            activityUtil.sendYesNoDialog(getString(R.string.unsaved_changes), yesLabel = getString(R.string.save), noLabel = getString(R.string.discard), callback = { positive ->
                 if (positive) save(view)
                 view.text.clear()
             })

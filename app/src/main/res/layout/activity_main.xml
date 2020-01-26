@@ -9,10 +9,7 @@
     android:layout_height="match_parent"
     tools:context=".main.MainActivity">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainConstraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -65,8 +62,6 @@
             android:text="@string/settings"
             android:onClick="clickUiButton"
             app:icon="@drawable/ic_settings"
-            android:paddingLeft="13dp"
-
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
@@ -80,8 +75,6 @@
             android:text="@string/start"
             android:onClick="clickUiButton"
             app:icon="@drawable/ic_start"
-            android:paddingLeft="13dp"
-
             app:layout_constraintTop_toBottomOf="@id/settingsButton"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
@@ -95,8 +88,6 @@
             android:text="@string/plot_mode"
             android:onClick="clickUiButton"
             app:icon="@drawable/ic_way_points"
-            android:paddingLeft="13dp"
-
             app:layout_constraintTop_toBottomOf="@id/startButton"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
@@ -110,8 +101,6 @@
             android:text="@string/reset_arena"
             android:onClick="clickUiButton"
             app:icon="@drawable/ic_nuke"
-            android:paddingLeft="13dp"
-
             app:layout_constraintTop_toBottomOf="@id/plotButton"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
@@ -125,8 +114,6 @@
             android:text="@string/auto_update"
             android:onClick="clickUiButton"
             app:icon="@drawable/ic_auto"
-            android:paddingLeft="13dp"
-
             app:layout_constraintTop_toBottomOf="@id/resetButton"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/main_grid_arena"/>
@@ -140,8 +127,6 @@
             android:textSize="@dimen/text_size_small"
             android:onClick="clickUiButton"
             app:icon="@drawable/ic_f1"
-            android:paddingLeft="13dp"
-
             app:layout_constraintTop_toBottomOf="@id/autoManualButton"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/main_grid_arena" />
@@ -155,8 +140,6 @@
             android:textSize="@dimen/text_size_small"
             android:onClick="clickUiButton"
             app:icon="@drawable/ic_f2"
-            android:paddingLeft="13dp"
-
             app:layout_constraintTop_toBottomOf="@id/f1Button"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/main_grid_arena" />
@@ -192,9 +175,7 @@
                     style="@style/TextStatusContent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/status_default"
-                    android:textSize="@dimen/text_size_settings" />
-
+                    android:text="@string/disconnected"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -203,7 +184,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/screen_padding"
-            app:layout_constraintWidth_percent="0.28"
+            app:layout_constraintWidth_percent="0.26"
             app:cardElevation="2dp"
             app:layout_constraintTop_toBottomOf="@id/main_grid_arena"
             app:layout_constraintLeft_toRightOf="@id/statusCard"
@@ -230,8 +211,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/coordinates_default"
-                    android:textSize="@dimen/text_size_settings" />
+                    android:text="@string/coordinates_default" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -241,7 +221,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/screen_padding"
             android:layout_marginEnd="2dp"
-            app:layout_constraintWidth_percent="0.32"
+            app:layout_constraintWidth_percent="0.34"
             app:cardElevation="2dp"
             app:layout_constraintTop_toBottomOf="@id/main_grid_arena"
             app:layout_constraintRight_toRightOf="parent">
@@ -268,8 +248,7 @@
                     android:layout_gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/timer_default"
-                    android:textSize="@dimen/text_size_settings" />
+                    android:text="@string/timer_default"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -279,7 +258,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/element_padding"
             android:layout_marginStart="2dp"
-            app:layout_constraintWidth_percent="0.66"
+            app:layout_constraintWidth_percent="0.64"
             app:cardElevation="2dp"
             app:layout_constraintTop_toBottomOf="@id/statusCard"
             app:layout_constraintLeft_toLeftOf="parent">
@@ -341,7 +320,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/element_padding"
             android:layout_marginStart="2dp"
-            app:layout_constraintWidth_percent="0.66"
+            app:layout_constraintWidth_percent="0.64"
             app:cardElevation="2dp"
             app:layout_constraintTop_toBottomOf="@id/messagesCard"
             app:layout_constraintLeft_toLeftOf="parent">
@@ -360,7 +339,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="text"
                     android:hint="@string/messages_send_hint"
-                    app:layout_constraintWidth_percent="0.68"
+                    app:layout_constraintWidth_percent="0.7"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -373,7 +352,7 @@
                     android:text="@string/send"
                     android:textSize="@dimen/text_size_small"
                     android:onClick="clickSendMessage"
-                    app:layout_constraintWidth_percent="0.3"
+                    app:layout_constraintWidth_percent="0.28"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintRight_toRightOf="parent"/>
@@ -388,7 +367,7 @@
             android:layout_marginTop="@dimen/element_padding"
             android:layout_marginEnd="2dp"
             app:cardElevation="2dp"
-            app:layout_constraintWidth_percent="0.32"
+            app:layout_constraintWidth_percent="0.34"
             app:layout_constraintTop_toBottomOf="@id/timerCard"
             app:layout_constraintBottom_toBottomOf="@id/messagesInputCard"
             app:layout_constraintRight_toRightOf="parent">
@@ -406,7 +385,6 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_marginBottom="@dimen/element_padding">
 
                     <com.google.android.material.textview.MaterialTextView
@@ -424,7 +402,7 @@
                         android:textAllCaps="true"
                         android:textSize="@dimen/text_size_small"
                         android:textStyle="bold"
-                        android:gravity="start"
+                        android:gravity="end"
                         android:clickable="true"
                         android:focusable="true"
                         android:onClick="clickUiButton" />
@@ -442,7 +420,6 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_forward"
                         app:fabCustomSize="50dp"
-                        android:layout_marginLeft="8dp"
                         app:elevation="0dp" />
 
                     <LinearLayout
@@ -474,8 +451,7 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_reverse"
                         app:fabCustomSize="50dp"
-                        app:elevation="0dp"
-                        android:layout_marginLeft="8dp" />
+                        app:elevation="0dp" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -553,8 +529,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/screen_padding"
-            android:text="@string/done"
-            android:textSize="@dimen/text_size_small"
             android:onClick="clickPlotButton"
             android:visibility="gone"
             android:src="@drawable/ic_plot_finished"
@@ -565,7 +539,6 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
-    
+
     <include layout="@layout/addon_progress_tint" />
 </androidx.constraintlayout.widget.ConstraintLayout>
