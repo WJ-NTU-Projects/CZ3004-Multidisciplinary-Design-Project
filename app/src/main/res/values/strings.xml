@@ -102,7 +102,7 @@
     <string name="unsaved_changes">Unsaved changes. Save or discard?</string>
     <string name="save">Save</string>
     <string name="discard">Discard</string>
-    
+
     <!-- SETTINGS CUSTOM BUTTONS ACTIVITY -->
     <string name="button_label">Button Label</string>
     <string name="settings_custom_buttons_description">Changes the functionality and label of the two custom buttons, F1 and F2.</string>

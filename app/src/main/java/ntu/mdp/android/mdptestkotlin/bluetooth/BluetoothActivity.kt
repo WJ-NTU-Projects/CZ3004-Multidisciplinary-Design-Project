@@ -228,7 +228,7 @@ class BluetoothActivity : AppCompatActivity() {
             holder.pos = position
             holder.nameLabel.text = bluetoothDevice.name
 
-            if (bluetoothDevice.address == App.socket?.remoteDevice?.address) {
+            if (App.socket?.isConnected == true && bluetoothDevice.address == App.socket?.remoteDevice?.address) {
                 holder.connectedLabel.text = getString(R.string.connected)
                 bluetoothNameLabel.text = bluetoothDevice.name
                 bluetoothDisconnectButton.isEnabled = true
