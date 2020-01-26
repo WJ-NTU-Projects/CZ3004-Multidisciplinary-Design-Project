@@ -500,7 +500,7 @@ class MainActivity : AppCompatActivity() {
             }
 
         val calendar: Calendar = Calendar.getInstance()
-        val timeStamp = "${calendar[Calendar.HOUR_OF_DAY]}:${calendar[Calendar.MINUTE]}"
+        val timeStamp = "${(calendar[Calendar.HOUR_OF_DAY]).toString().padStart(2, '0')}:${(calendar[Calendar.MINUTE]).toString().padEnd(2, '0')}"
 
         val prefix: String = getString(R.string.chat_prefix, timeStamp, prefixType).trim()
         val displayMessage = "$prefix $message"
