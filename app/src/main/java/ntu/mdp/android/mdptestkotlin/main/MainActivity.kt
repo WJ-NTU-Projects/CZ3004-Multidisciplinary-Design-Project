@@ -301,12 +301,14 @@ class MainActivity : AppCompatActivity() {
                 isDeleting = true
                 onPlotClicked()
                 toggleFabs(true)
+                activityUtil.sendSnack("Tap anywhere on the grid map to remove individual obstacles.")
             }
 
             R.id.plotObstacleFab -> {
                 isDeleting = false
                 onPlotClicked()
                 toggleFabs(true)
+                activityUtil.sendSnack("Tap anywhere on the grid map to plot obstacles.")
             }
 
             R.id.controlModeButton -> {
