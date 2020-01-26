@@ -476,8 +476,15 @@ class MainActivity : AppCompatActivity() {
 
                 activityUtil.toggleProgressBar(View.GONE) {
                     activityUtil.scaleViews(secondList, true)
+                    if (!isPlotting) {
+                        CoroutineScope(Dispatchers.Default).launch {
+                            delay(250)
 
-                    if (!isPlotting) messagesScrollView.fullScroll(View.FOCUS_DOWN)
+                            withContext(Dispatchers.Main) {
+                                messagesScrollView.fullScroll(View.FOCUS_DOWN)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -653,8 +660,7 @@ class MainActivity : AppCompatActivity() {
             MotionEvent.ACTION_UP -> {
                 continuousMovement = false
                 binding.statusLabel.text = if (BluetoothController.isSocketConnected()) getString(R.string.connected) else getString(R.string.disconnected)
-                continuousMovementFlag =
-                    MovementFlag.NONE
+                continuousMovementFlag = MovementFlag.NONE
                 view?.performClick()
             }
         }
