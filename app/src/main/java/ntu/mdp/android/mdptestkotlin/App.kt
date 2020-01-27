@@ -38,5 +38,6 @@ class App: Application() {
         val darkMode: Boolean = sharedPreferences.getBoolean(getString(R.string.app_pref_dark_mode), false)
         if (darkMode) appTheme = R.style.AppTheme_Dark
         isSimple = sharedPreferences.getBoolean(getString(R.string.app_pref_sad_mode), false)
+        autoUpdateArena = sharedPreferences.getBoolean(getString(R.string.app_pref_auto_update), true)
     }
 }

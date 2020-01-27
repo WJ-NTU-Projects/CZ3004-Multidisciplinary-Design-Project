@@ -15,6 +15,7 @@
         android:id="@+id/settingsRecycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/element_padding"
         tools:listitem="@layout/listitem_settings"/>
 
 </LinearLayout>

@@ -34,8 +34,6 @@
     <string name="pause">Pause</string>
     <string name="plot_mode">Plot Mode</string>
     <string name="reset">Reset</string>
-    <string name="auto">Auto</string>
-    <string name="manual">Manual</string>
     <string name="f1_default">F1</string>
     <string name="f2_default">F2</string>
     <string name="status">Status</string>
@@ -69,8 +67,8 @@
     <!-- SETTINGS ACTIVITY -->
     <string name="bluetooth">Bluetooth</string>
     <string name="bluetooth_description">Bluetooth discovery, pairing and connection.</string>
-    <string name="commands">String Commands</string>
-    <string name="commands_description">Commands for communicating with the Raspberry Pi.</string>
+    <string name="robot_communication">Robot Communication</string>
+    <string name="robot_communication_description">Arena update mode &amp; communication commands.</string>
     <string name="custom_buttons">Custom Buttons</string>
     <string name="custom_buttons_description">Customise buttons F1 and F2.</string>
     <string name="display">Display</string>
@@ -85,8 +83,9 @@
     <string name="bonded_devices">Paired Devices</string>
     <string name="other_devices">Other Devices</string>
 
-    <!-- SETTINGS COMMANDS ACTIVITY -->
-    <string name="string_commands">String Commands</string>
+    <!-- SETTINGS COMMUNICATION ACTIVITY -->
+    <string name="arena_update_mode">Arena Update Mode</string>
+    <string name="automatic_update">Automatic Update</string>
     <string name="command">Command</string>
     <string name="command_output">String Output</string>
     <string name="send_arena">Send Arena Info</string>
@@ -114,9 +113,10 @@
     <string name="settings_custom_buttons_description">Changes the functionality and label of the two custom buttons, F1 and F2.</string>
 
     <!-- SETTINGS DISPLAY ACTIVITY -->
+    <string name="display_warning">WARNING! App restarts when these settings are changed! NO POP UP!</string>
     <string name="dark_mode">Dark Mode</string>
-    <string name="dark_mode_warning">WARNING! App restarts when toggled. NO POP-UP!</string>
     <string name="dark_mode_description">For when your eyes are so tired and sleepy after hours of MDP but you have to push on.</string>
+    <string name="display_mode">Display Mode</string>
     <string name="simple_advanced_display">Simple, yet Advanced Display Mode (SAD Mode)</string>
     <string name="simple_advanced_display_description">Minimal display for advanced users.</string>
 </resources>

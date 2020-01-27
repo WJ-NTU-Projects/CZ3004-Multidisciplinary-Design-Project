@@ -51,14 +51,14 @@ class SettingsActivity : AppCompatActivity() {
 
         labelList = arrayListOf(
             getString(R.string.bluetooth),
-            getString(R.string.commands),
+            getString(R.string.robot_communication),
             getString(R.string.custom_buttons),
             getString(R.string.display)
         )
 
         descriptionList = arrayListOf(
             getString(R.string.bluetooth_description),
-            getString(R.string.commands_description),
+            getString(R.string.robot_communication_description),
             getString(R.string.custom_buttons_description),
             getString(R.string.display_description)
         )
@@ -72,7 +72,7 @@ class SettingsActivity : AppCompatActivity() {
 
         activityList = arrayListOf(
             SettingsBluetoothActivity::class.java,
-            SettingsCommandsActivity::class.java,
+            SettingsCommunicationActivity::class.java,
             SettingsCustomButtonsActivity::class.java,
             SettingsDisplayActivity::class.java
         )

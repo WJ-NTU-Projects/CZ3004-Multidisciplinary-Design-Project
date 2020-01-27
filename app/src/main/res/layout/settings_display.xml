@@ -11,6 +11,55 @@
 
     <include layout="@layout/addon_toolbar" />
 
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/settings_padding"
+        android:layout_marginLeft="@dimen/screen_padding"
+        android:layout_marginRight="@dimen/screen_padding"
+        android:text="@string/display_warning"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="@dimen/text_size_small"/>
+
+    <androidx.cardview.widget.CardView
+        style="?attr/cardStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/settings_padding">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/screen_padding"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dark_mode"
+                    android:textSize="@dimen/text_size_big"/>
+            </LinearLayout>
+
+            <Switch
+                android:id="@+id/darkModeSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/TextStatusTitle.Settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/display_mode" />
+
     <androidx.cardview.widget.CardView
         style="?attr/cardStyle"
         android:layout_width="match_parent"
@@ -32,58 +81,15 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/dark_mode"
-                    android:textSize="@dimen/text_size_big"/>
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/dark_mode_warning"
-                    android:textColor="@android:color/darker_gray" />
-            </LinearLayout>
-
-            <Switch
-                android:id="@+id/darkModeSwitch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/element_padding"
-        android:paddingLeft="@dimen/screen_padding"
-        android:paddingRight="@dimen/screen_padding"
-        android:paddingBottom="@dimen/screen_padding"
-        android:text="@string/dark_mode_description"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="@dimen/text_size_small"/>
-
-    <androidx.cardview.widget.CardView
-        style="?attr/cardStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/screen_padding">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/screen_padding"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="vertical">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/simple_advanced_display"
                     android:textSize="@dimen/text_size_big"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/simple_advanced_display_description"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="@dimen/text_size_small" />
             </LinearLayout>
 
             <Switch
@@ -92,15 +98,4 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/element_padding"
-        android:paddingLeft="@dimen/screen_padding"
-        android:paddingRight="@dimen/screen_padding"
-        android:paddingBottom="@dimen/screen_padding"
-        android:text="@string/simple_advanced_display_description"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="@dimen/text_size_small"/>
 </LinearLayout>

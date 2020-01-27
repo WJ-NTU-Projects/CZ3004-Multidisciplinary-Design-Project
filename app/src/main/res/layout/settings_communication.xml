@@ -7,14 +7,53 @@
     android:layout_height="wrap_content"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".settings.SettingsCommandsActivity">
+    tools:context=".settings.SettingsCommunicationActivity">
 
     <include layout="@layout/addon_toolbar" />
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/TextStatusTitle.Settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/arena_update_mode" />
 
     <androidx.cardview.widget.CardView
         style="?attr/cardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/screen_padding"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/automatic_update"
+                    android:textSize="@dimen/text_size_big"/>
+            </LinearLayout>
+
+            <Switch
+                android:id="@+id/autoSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        style="?attr/cardStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/settings_padding">
 
         <LinearLayout
             android:layout_width="match_parent"

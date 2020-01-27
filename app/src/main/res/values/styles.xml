@@ -22,7 +22,6 @@
         <item name="editTextStyleCustom">@style/EditTextCustom</item>
         <item name="toolbarStyleCustom">@style/ToolbarCustom</item>
         <item name="layoutCustom">@style/LayoutCustom</item>
-        <item name="bgColor">@color/colorPrimary</item>
     </style>
 
     <style name="AppTheme.Dark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -42,7 +41,6 @@
         <item name="editTextStyleCustom">@style/EditTextCustom.Dark</item>
         <item name="toolbarStyleCustom">@style/ToolbarCustom.Dark</item>
         <item name="layoutCustom">@style/LayoutCustom.Dark</item>
-        <item name="bgColor">@color/colorPrimaryDark</item>
     </style>
 
     <style name="LayoutCustom">
@@ -85,15 +83,25 @@
         <item name="android:textColor">@color/textColorDark</item>
     </style>
 
-    <style name="AppTheme.Launcher">
+    <style name="AppTheme.Launcher" parent="AppTheme">
         <item name="android:windowBackground">@drawable/bg_start</item>
-        <item name="colorPrimaryDark">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.Launcher.Dark" parent="AppTheme.Dark">
+        <item name="android:windowBackground">@drawable/bg_start_dark</item>
     </style>
 
     <style name="TextStatusTitle" parent="Widget.MaterialComponents.TextView">
         <item name="android:textSize">@dimen/text_size_small</item>
         <item name="android:textColor">@android:color/darker_gray</item>
         <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextStatusTitle.Settings">
+        <item name="android:layout_marginTop">@dimen/settings_padding</item>
+        <item name="android:layout_marginLeft">@dimen/screen_padding</item>
+        <item name="android:layout_marginRight">@dimen/screen_padding</item>
+        <item name="android:layout_marginBottom">@dimen/element_padding</item>
     </style>
 
     <style name="TextStatusTitle.Small">

@@ -125,15 +125,13 @@ class BackUpMainActivity : AppCompatActivity() {
         for (fab in startFabList) fab.startAnimation(animation)
 
         // Will come in handy later to cycle through most of the views.
-        viewList = listOf(settingsButton, startButton, plotButton, resetButton, autoManualButton, f1Button, f2Button, statusCard, modeCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
+        viewList = listOf(settingsButton, startButton, plotButton, resetButton, f1Button, f2Button, statusCard, modeCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
 
         // Plot mode buttons that pop up only in plot mode.
         plotModeButtonList = listOf(plotObstacleButton, removeObstacleButton, clearObstacleButton, doneButton)
 
         // Overrides the static variable at application level if the grid map should auto update.
         // Toggles the auto / manual button text and icon as well.
-        autoUpdateArena = sharedPreferences.getBoolean("AUTO_UPDATE", false)
-        toggleAutoManualMode()
         isSimple = false
 
         // Initialises the arena controller and defines the behaviour of the callback function in a lambda expression.
@@ -254,12 +252,6 @@ class BackUpMainActivity : AppCompatActivity() {
                 }
 
                 onPlotClicked()
-            }
-
-            R.id.autoManualButton -> {
-                autoUpdateArena = !autoUpdateArena
-                sharedPreferences.edit().putBoolean(getString(R.string.auto), autoUpdateArena).apply()
-                toggleAutoManualMode()
             }
 
             // Sends the customised commands to the robot.
@@ -386,16 +378,6 @@ class BackUpMainActivity : AppCompatActivity() {
         })
 
         for (fab in startFabList) fab.startAnimation(animation)
-    }
-
-    private fun toggleAutoManualMode() {
-        if (autoUpdateArena) {
-            autoManualButton.text = getString(R.string.auto)
-            autoManualButton.icon = getDrawable(R.drawable.ic_auto)
-        } else {
-            autoManualButton.text = getString(R.string.manual)
-            autoManualButton.icon = getDrawable(R.drawable.ic_manual)
-        }
     }
 
     private fun startBluetoothListener() {

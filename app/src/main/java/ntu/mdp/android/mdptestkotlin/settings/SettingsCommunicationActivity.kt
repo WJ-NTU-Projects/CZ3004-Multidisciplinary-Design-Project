@@ -5,28 +5,36 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.settings_commands.*
+import kotlinx.android.synthetic.main.settings_communication.*
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
-import ntu.mdp.android.mdptestkotlin.databinding.SettingsCommandsBinding
+import ntu.mdp.android.mdptestkotlin.databinding.SettingsCommunicationBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
 
-class SettingsCommandsActivity : AppCompatActivity() {
+class SettingsCommunicationActivity : AppCompatActivity() {
     private var enterPressed = false
-    private lateinit var binding: SettingsCommandsBinding
+    private lateinit var binding: SettingsCommunicationBinding
     private lateinit var activityUtil: ActivityUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(App.appTheme)
         super.onCreate(savedInstanceState)
-        binding = SettingsCommandsBinding.inflate(layoutInflater)
+        binding = SettingsCommunicationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         activityUtil = ActivityUtil(this)
-        activityUtil.setTitle(getString(R.string.string_commands))
+        activityUtil.setTitle(getString(R.string.robot_communication))
+
+        autoSwitch.isChecked = autoUpdateArena
+
+        autoSwitch.setOnCheckedChangeListener { _, isChecked ->
+            sharedPreferences.edit().putBoolean(getString(R.string.app_pref_auto_update), isChecked).apply()
+            autoUpdateArena = isChecked
+        }
 
         sendArenaEditText.setOnKeyListener(onEnter)
         sendArenaEditText.onFocusChangeListener = onFocusLost

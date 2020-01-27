@@ -3,6 +3,7 @@
     <dimen name="button_padding">12dp</dimen>
     <dimen name="card_padding">12dp</dimen>
     <dimen name="icon_padding">18dp</dimen>
+    <dimen name="settings_padding">32dp</dimen>
     <dimen name="screen_padding">16dp</dimen>
     <dimen name="element_padding">8dp</dimen>
     <dimen name="small_padding">4dp</dimen>

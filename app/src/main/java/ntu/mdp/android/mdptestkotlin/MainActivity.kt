@@ -16,18 +16,16 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
-import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
-import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
-import ntu.mdp.android.mdptestkotlin.arena.ArenaController
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.currentMode
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.isPlotting
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.robotAutonomous
-import ntu.mdp.android.mdptestkotlin.utils.TouchController.Companion.isSwipeMode
+import ntu.mdp.android.mdptestkotlin.arena.ArenaController
+import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 import ntu.mdp.android.mdptestkotlin.utils.TouchController
-
+import ntu.mdp.android.mdptestkotlin.utils.TouchController.Companion.isSwipeMode
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -36,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var touchController: TouchController
     private lateinit var normalModeViewList: List<View>
     private lateinit var plotModeViewList: List<View>
+    private lateinit var buttonList: List<View>
 
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var startFabOpened = false
@@ -72,22 +71,14 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        autoUpdateArena = sharedPreferences.getBoolean("AUTO_UPDATE", false)
-        toggleAutoManualMode()
         isPlotting = false
-
-        isSimple = sharedPreferences.getBoolean(getString(R.string.app_pref_sad_mode), false)
-        if (isSimple) {
-            activityUtil.startActivity(MainSimpleActivity::class.java, startNew = true)
-            return
-        }
-
         val animation: Animation = AnimationUtils.loadAnimation(applicationContext, R.anim.main_fab_close_init)
         startExplorationFab.startAnimation(animation)
         startFastestPathFab.startAnimation(animation)
 
-        normalModeViewList = listOf(settingsButton, startButton, plotButton, resetButton, autoManualButton, f1Button, f2Button, statusCard, modeCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
+        normalModeViewList = listOf(settingsButton, startButton, plotButton, resetButton, f1Button, f2Button, statusCard, modeCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
         plotModeViewList = listOf(plotObstacleButton, removeObstacleButton, clearObstacleButton, doneButton)
+        buttonList = listOf(settingsButton, plotButton, resetButton, f1Button, f2Button, padForwardButton, padReverseButton, padLeftButton, padRightButton, messagesSendButton)
 
         mainActivityController = MainActivityController(this, activityUtil, binding)
         touchController = TouchController(this, mainActivityController) { statusLabel.text = it }
@@ -109,13 +100,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (bluetoothAdapter == null || isSimple) return
+        if (bluetoothAdapter == null) return
         mainActivityController.onStart()
     }
 
     override fun onResume() {
         super.onResume()
-        if (bluetoothAdapter == null || isSimple) return
+        if (bluetoothAdapter == null) return
         if (startFabOpened) toggleFabs()
         f1Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default))
         f2Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default))
@@ -140,7 +131,7 @@ class MainActivity : AppCompatActivity() {
             R.id.startButton -> {
                 if (robotAutonomous) {
                     mainActivityController.sendCommand(sharedPreferences.getString(getString(R.string.app_pref_pause), getString(R.string.pause_default))!!)
-                    mainActivityController.onStartClicked()
+                    mainActivityController.onStartClicked(buttonList)
                 } else {
                     toggleFabs()
                 }
@@ -151,23 +142,17 @@ class MainActivity : AppCompatActivity() {
                 onPlotClicked()
             }
 
-            R.id.autoManualButton -> {
-                autoUpdateArena = !autoUpdateArena
-                sharedPreferences.edit().putBoolean(getString(R.string.auto), autoUpdateArena).apply()
-                toggleAutoManualMode()
-            }
-
             R.id.startExplorationFab -> {
                 mainActivityController.sendCommand(sharedPreferences.getString(getString(R.string.app_pref_exploration), getString(R.string.exploration_default))!!)
                 currentMode = MainActivityController.Mode.EXPLORATION
-                mainActivityController.onStartClicked()
+                mainActivityController.onStartClicked(buttonList)
                 toggleFabs()
             }
 
             R.id.startFastestPathFab -> {
                 mainActivityController.sendCommand(sharedPreferences.getString(getString(R.string.app_pref_fastest), getString(R.string.fastest_path_default))!!)
                 currentMode = MainActivityController.Mode.FASTEST_PATH
-                mainActivityController.onStartClicked()
+                mainActivityController.onStartClicked(buttonList)
                 toggleFabs()
             }
 
@@ -212,16 +197,6 @@ class MainActivity : AppCompatActivity() {
         if (message.isNotBlank()) {
             mainActivityController.sendCommand(message)
             messagesOutputEditText.setText("")
-        }
-    }
-
-    private fun toggleAutoManualMode() {
-        if (autoUpdateArena) {
-            autoManualButton.text = getString(R.string.auto)
-            autoManualButton.icon = getDrawable(R.drawable.ic_auto)
-        } else {
-            autoManualButton.text = getString(R.string.manual)
-            autoManualButton.icon = getDrawable(R.drawable.ic_manual)
         }
     }
 

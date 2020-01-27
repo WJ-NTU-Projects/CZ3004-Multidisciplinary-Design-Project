@@ -210,7 +210,7 @@ class MainActivityController(private val context: Context, private val activityU
         return true
     }
 
-    fun onStartClicked(buttonList: List<View> = listOf()) {
+    fun onStartClicked(buttonList: List<View>) {
         robotAutonomous = !robotAutonomous
         val startButton: MaterialButton? = binding?.startButton
 
@@ -227,9 +227,11 @@ class MainActivityController(private val context: Context, private val activityU
         } else {
             if (robotAutonomous) {
                 startTimer()
+                buttonList.forEach { it.isEnabled = false }
                 startButton?.text = context.getString(R.string.pause)
                 startButton?.icon = context.getDrawable(R.drawable.ic_pause)
             } else {
+                buttonList.forEach { it.isEnabled = true }
                 startButton?.text = context.getString(R.string.start)
                 startButton?.icon = context.getDrawable(R.drawable.ic_start)
                 stopTimer()
@@ -255,7 +257,7 @@ class MainActivityController(private val context: Context, private val activityU
 
     private fun startTimer() {
         timer = object: CountDownTimer(Long.MAX_VALUE, 1000) {
-            var timerCounter: Int = 0
+            var timerCounter: Int = -1
             override fun onTick(p0: Long) {
                 timerCounter++
                 val seconds: Int = timerCounter % 60
