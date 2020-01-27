@@ -1,13 +1,10 @@
 package ntu.mdp.android.mdptestkotlin.bluetooth
 
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothSocket
-import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ntu.mdp.android.mdptestkotlin.App
-import java.util.*
 
 class BluetoothController {
     enum class Status {

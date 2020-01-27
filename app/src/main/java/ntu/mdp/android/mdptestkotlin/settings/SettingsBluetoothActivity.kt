@@ -1,4 +1,4 @@
-package ntu.mdp.android.mdptestkotlin.bluetooth
+package ntu.mdp.android.mdptestkotlin.settings
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -19,10 +19,11 @@ import com.google.android.material.textview.MaterialTextView
 import kotlinx.android.synthetic.main.activity_bluetooth.*
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.R
+import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityBluetoothBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
-class BluetoothActivity : AppCompatActivity() {
+class SettingsBluetoothActivity : AppCompatActivity() {
 
     companion object {
         const val DISCOVERABILITY_REQUEST: Int = 1
@@ -100,7 +101,7 @@ class BluetoothActivity : AppCompatActivity() {
             bluetoothBondedCard.visibility = View.VISIBLE
             bluetoothBondedRecycler.apply {
                 setHasFixedSize(true)
-                layoutManager = LinearLayoutManager(this@BluetoothActivity)
+                layoutManager = LinearLayoutManager(this@SettingsBluetoothActivity)
                 adapter = DeviceAdapter(ArrayList(pairedDevices))
             }
 
@@ -111,7 +112,7 @@ class BluetoothActivity : AppCompatActivity() {
         othersAdapter = DeviceAdapter(ArrayList(otherDeviceList))
         bluetoothOthersRecycler.apply {
             setHasFixedSize(false)
-            layoutManager = LinearLayoutManager(this@BluetoothActivity)
+            layoutManager = LinearLayoutManager(this@SettingsBluetoothActivity)
             adapter = othersAdapter
         }
 
@@ -119,18 +120,14 @@ class BluetoothActivity : AppCompatActivity() {
         bluetoothAdapter.startDiscovery()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
-    {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == DISCOVERABILITY_REQUEST)
-        {
-            if(resultCode == Activity.RESULT_OK)
-            {
-                bluetoothDiscoverySwitch.isChecked = true;
+        if(requestCode == DISCOVERABILITY_REQUEST) {
+            if(resultCode == Activity.RESULT_OK) {
+                bluetoothDiscoverySwitch.isChecked = true
             }
-            else if(resultCode == Activity.RESULT_CANCELED)
-            {
-                bluetoothDiscoverySwitch.isChecked = false;
+            else if(resultCode == Activity.RESULT_CANCELED) {
+                bluetoothDiscoverySwitch.isChecked = false
             }
         }
     }

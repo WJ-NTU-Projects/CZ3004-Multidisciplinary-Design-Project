@@ -8,7 +8,7 @@
     android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.MainActivity">
+    tools:context=".MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainConstraintLayout"
@@ -84,7 +84,7 @@
                     android:text="@string/status"/>
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/statusLabel"
+                    android:id="@+id/statusLabel2"
                     style="@style/TextStatusContent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -119,7 +119,7 @@
                     android:text="@string/mode"/>
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/modeLabel"
+                    android:id="@+id/modeLabel2"
                     style="@style/TextStatusContent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -154,7 +154,7 @@
                     android:text="@string/coordinates"/>
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/coordinatesLabel"
+                    android:id="@+id/coordinatesLabel2"
                     style="@style/TextStatusContent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -184,14 +184,14 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/timerTitleLabel"
+                    android:id="@+id/timerTitleLabel2"
                     style="@style/TextStatusTitle.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/timer"/>
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/timerLabel"
+                    android:id="@+id/timerLabel2"
                     style="@style/TextStatusContent"
                     android:layout_gravity="center"
                     android:layout_width="wrap_content"

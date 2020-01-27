@@ -1,4 +1,4 @@
-package ntu.mdp.android.mdptestkotlin.main
+package ntu.mdp.android.mdptestkotlin.backup
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -12,10 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.coordinatesLabel
-import kotlinx.android.synthetic.main.activity_main.modeLabel
-import kotlinx.android.synthetic.main.activity_main.statusLabel
-import kotlinx.android.synthetic.main.activity_main.timerLabel
 import kotlinx.android.synthetic.main.activity_main_simple.*
 import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App
@@ -29,10 +25,12 @@ import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainSimpleBinding
 import ntu.mdp.android.mdptestkotlin.settings.SettingsActivity
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
+import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothMessageParser
+import ntu.mdp.android.mdptestkotlin.arena.ArenaController
 import java.util.*
 
 
-class MainSimpleActivity : AppCompatActivity() {
+class BackUpMainSimpleActivity : AppCompatActivity() {
     companion object {
         var isUpdating = false
         var isPlotting = false
@@ -57,7 +55,7 @@ class MainSimpleActivity : AppCompatActivity() {
 
     private lateinit var timer: CountDownTimer
     private lateinit var arenaController: ArenaController
-    private lateinit var messageParser: MessageParser
+    private lateinit var bluetoothMessageParser: BluetoothMessageParser
     private lateinit var buttonList: List<FloatingActionButton>
 
     private var currentMode: Mode = Mode.NONE
@@ -82,23 +80,23 @@ class MainSimpleActivity : AppCompatActivity() {
         buttonList = listOf(startExplorationButton2, startFastestPathButton2, settingsButton2, plotObstacleButton2, removeObstacleButton2, clearObstacleButton2, f1Button2, f2Button2)
         arenaController = ArenaController(this) { status, message ->
             when (status) {
-                ArenaController.Status.INFO -> activityUtil.sendSnack(message)
-                ArenaController.Status.WRITE -> sendCommand(message)
-                ArenaController.Status.ROBOT -> displayInChat(MessageType.INCOMING, message)
-                ArenaController.Status.COORDINATES -> coordinatesLabel.text = message
-                ArenaController.Status.STATUS -> statusLabel.text = message
-                ArenaController.Status.RESET -> resetArena()
+                ArenaController.ArenaStatus.INFO -> activityUtil.sendSnack(message)
+                ArenaController.ArenaStatus.WRITE -> sendCommand(message)
+                ArenaController.ArenaStatus.ROBOT -> displayInChat(MessageType.INCOMING, message)
+                ArenaController.ArenaStatus.COORDINATES -> coordinatesLabel2.text = message
+                ArenaController.ArenaStatus.STATUS -> statusLabel2.text = message
+                ArenaController.ArenaStatus.RESET -> resetArena()
             }
         }
 
-        messageParser = MessageParser(this) {status, message ->
+        bluetoothMessageParser = BluetoothMessageParser { status, message ->
             when (status) {
-                MessageParser.Status.GARBAGE -> displayInChat(MessageType.INCOMING, message)
-                MessageParser.Status.ARENA -> arenaController.updateArena(message)
-                MessageParser.Status.IMAGE_POSITION -> arenaController.updateImage(message)
-                MessageParser.Status.ROBOT_POSITION -> arenaController.updateRobot(message)
-                MessageParser.Status.ROBOT_STATUS -> statusLabel.text = message
-                MessageParser.Status.INFO -> activityUtil.sendSnack(message)
+                BluetoothMessageParser.MessageStatus.GARBAGE -> displayInChat(MessageType.INCOMING, message)
+                BluetoothMessageParser.MessageStatus.ARENA -> arenaController.updateArena(message)
+                BluetoothMessageParser.MessageStatus.IMAGE_POSITION -> arenaController.updateImage(message)
+                BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> arenaController.updateRobot(message)
+                BluetoothMessageParser.MessageStatus.ROBOT_STATUS -> statusLabel2.text = message
+                BluetoothMessageParser.MessageStatus.INFO -> activityUtil.sendSnack(message)
             }
         }
     }
@@ -110,7 +108,7 @@ class MainSimpleActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        statusLabel.text = if (BluetoothController.isSocketConnected()) getString(R.string.connected) else getString(R.string.disconnected)
+        statusLabel2.text = if (BluetoothController.isSocketConnected()) getString(R.string.connected) else getString(R.string.disconnected)
         if (bluetoothAdapter.isEnabled) startBluetoothListener()
 
         CoroutineScope(Dispatchers.Default).launch {
@@ -246,7 +244,7 @@ class MainSimpleActivity : AppCompatActivity() {
                     timerCounter++
                     val seconds: Int = timerCounter % 60
                     val minutes: Int = Math.floorDiv(timerCounter, 60)
-                    timerLabel.text = getString(R.string.timer_minute_second, minutes.toString().padStart(2, '0'), seconds.toString().padStart(2, '0'))
+                    timerLabel2.text = getString(R.string.timer_minute_second, minutes.toString().padStart(2, '0'), seconds.toString().padStart(2, '0'))
                 }
 
                 override fun onFinish() {}
@@ -256,7 +254,7 @@ class MainSimpleActivity : AppCompatActivity() {
         } else {
             buttonList.forEach { it.isEnabled = true }
             val type: String = if (currentMode == Mode.EXPLORATION) getString(R.string.exploration) else getString(R.string.fastest_path)
-            displayInChat(MessageType.SYSTEM, "$type - ${timerLabel.text.toString().trim()}")
+            displayInChat(MessageType.SYSTEM, "$type - ${timerLabel2.text.toString().trim()}")
             timer.cancel()
             timerCounter = 0
             currentMode = Mode.NONE
@@ -292,11 +290,11 @@ class MainSimpleActivity : AppCompatActivity() {
 
     private fun connectionChanged(status: BluetoothController.Status) {
         if (status == BluetoothController.Status.CONNECTED) {
-            statusLabel.text = getString(R.string.connected)
+            statusLabel2.text = getString(R.string.connected)
             isUpdating = true
             sendCommand(SEND_ARENA_COMMAND)
         } else {
-            statusLabel.text = getString(R.string.disconnected)
+            statusLabel2.text = getString(R.string.disconnected)
             startBluetoothListener()
         }
     }
@@ -305,7 +303,7 @@ class MainSimpleActivity : AppCompatActivity() {
         activityUtil.sendYesNoDialog(getString(R.string.reset_arena_timer), { positive ->
             if (positive) {
                 arenaController.resetArena()
-                timerLabel.text = getString(R.string.timer_default)
+                timerLabel2.text = getString(R.string.timer_default)
             }
         })
     }
@@ -318,9 +316,9 @@ class MainSimpleActivity : AppCompatActivity() {
 
     private fun setMode() {
         when (currentMode) {
-            Mode.NONE -> modeLabel.text = getString(R.string.none)
-            Mode.EXPLORATION -> modeLabel.text = getString(R.string.exploration)
-            Mode.FASTEST_PATH -> modeLabel.text = getString(R.string.fastest_path)
+            Mode.NONE -> modeLabel2.text = getString(R.string.none)
+            Mode.EXPLORATION -> modeLabel2.text = getString(R.string.exploration)
+            Mode.FASTEST_PATH -> modeLabel2.text = getString(R.string.fastest_path)
         }
     }
 
@@ -331,7 +329,7 @@ class MainSimpleActivity : AppCompatActivity() {
                 activityUtil.sendSnack(message)
             }
 
-            BluetoothController.Status.READ -> messageParser.parse(message)
+            BluetoothController.Status.READ -> bluetoothMessageParser.parse(message)
             BluetoothController.Status.WRITE_SUCCESS -> Log.d(this::class.simpleName ?: "-", message)
             else -> activityUtil.sendSnack(message)
         }

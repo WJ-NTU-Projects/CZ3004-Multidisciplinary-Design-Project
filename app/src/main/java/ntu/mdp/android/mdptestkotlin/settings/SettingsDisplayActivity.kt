@@ -7,7 +7,7 @@ import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.SettingsDisplayBinding
-import ntu.mdp.android.mdptestkotlin.main.MainActivity
+import ntu.mdp.android.mdptestkotlin.MainActivity
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
 class SettingsDisplayActivity : AppCompatActivity() {

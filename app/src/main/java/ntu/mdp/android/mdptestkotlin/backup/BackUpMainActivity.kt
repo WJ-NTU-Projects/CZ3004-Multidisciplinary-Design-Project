@@ -1,4 +1,4 @@
-package ntu.mdp.android.mdptestkotlin.main
+package ntu.mdp.android.mdptestkotlin.backup
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -27,16 +27,19 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
+import ntu.mdp.android.mdptestkotlin.MainSimpleActivity
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import ntu.mdp.android.mdptestkotlin.settings.SettingsActivity
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
+import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothMessageParser
+import ntu.mdp.android.mdptestkotlin.arena.ArenaController
 import java.util.*
 import kotlin.math.abs
 
 
-class MainActivity : AppCompatActivity() {
+class BackUpMainActivity : AppCompatActivity() {
     // Static variables that are accessed by other classes for control purposes.
     // May have a better way of doing it?
     companion object {
@@ -72,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var timer: CountDownTimer
     private lateinit var arenaController: ArenaController
-    private lateinit var messageParser: MessageParser
+    private lateinit var bluetoothMessageParser: BluetoothMessageParser
     private lateinit var startFabList: List<FloatingActionButton>
     private lateinit var plotModeButtonList: List<View>
     private lateinit var viewList: List<View>
@@ -141,24 +144,24 @@ class MainActivity : AppCompatActivity() {
         // Therefore, there is a status variable and a message variable, and we can decide what to do with the message depending on the status.
         arenaController = ArenaController(this) { status, message ->
             when (status) {
-                ArenaController.Status.INFO -> activityUtil.sendSnack(message)
-                ArenaController.Status.WRITE -> sendCommand(message)
-                ArenaController.Status.ROBOT -> displayInChat(MessageType.INCOMING, message)
-                ArenaController.Status.COORDINATES -> coordinatesLabel.text = message
-                ArenaController.Status.STATUS -> statusLabel.text = message
-                ArenaController.Status.RESET -> resetArena()
+                ArenaController.ArenaStatus.INFO -> activityUtil.sendSnack(message)
+                ArenaController.ArenaStatus.WRITE -> sendCommand(message)
+                ArenaController.ArenaStatus.ROBOT -> displayInChat(MessageType.INCOMING, message)
+                ArenaController.ArenaStatus.COORDINATES -> coordinatesLabel.text = message
+                ArenaController.ArenaStatus.STATUS -> statusLabel.text = message
+                ArenaController.ArenaStatus.RESET -> resetArena()
             }
         }
 
         // Initialises the message parser similarly to the arena controller.
-        messageParser = MessageParser(this) {status, message ->
+        bluetoothMessageParser = BluetoothMessageParser { status, message ->
             when (status) {
-                MessageParser.Status.GARBAGE -> displayInChat(MessageType.INCOMING, message)
-                MessageParser.Status.ARENA -> arenaController.updateArena(message)
-                MessageParser.Status.IMAGE_POSITION -> arenaController.updateImage(message)
-                MessageParser.Status.ROBOT_POSITION -> arenaController.updateRobot(message)
-                MessageParser.Status.ROBOT_STATUS -> statusLabel.text = message
-                MessageParser.Status.INFO -> activityUtil.sendSnack(message)
+                BluetoothMessageParser.MessageStatus.GARBAGE -> displayInChat(MessageType.INCOMING, message)
+                BluetoothMessageParser.MessageStatus.ARENA -> arenaController.updateArena(message)
+                BluetoothMessageParser.MessageStatus.IMAGE_POSITION -> arenaController.updateImage(message)
+                BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> arenaController.updateRobot(message)
+                BluetoothMessageParser.MessageStatus.ROBOT_STATUS -> statusLabel.text = message
+                BluetoothMessageParser.MessageStatus.INFO -> activityUtil.sendSnack(message)
             }
         }
 
@@ -316,11 +319,7 @@ class MainActivity : AppCompatActivity() {
                 padLeftButton.visibility = visibility
                 padRightButton.visibility = visibility
             }
-        }
-    }
 
-    fun clickPlotButton(view: View) {
-        when (view.id) {
             R.id.doneButton -> onPlotClicked()
             R.id.clearObstacleButton -> arenaController.resetObstacles()
 
@@ -566,7 +565,7 @@ class MainActivity : AppCompatActivity() {
                 activityUtil.sendSnack(message)
             }
 
-            BluetoothController.Status.READ -> messageParser.parse(message)
+            BluetoothController.Status.READ -> bluetoothMessageParser.parse(message)
             BluetoothController.Status.WRITE_SUCCESS -> Log.d(this::class.simpleName ?: "-", message)
             else -> activityUtil.sendSnack(message)
         }
@@ -598,14 +597,10 @@ class MainActivity : AppCompatActivity() {
 
                 if (!continuousMovement) {
                     when (view.id) {
-                        R.id.padForwardButton -> continuousMovementFlag =
-                            MovementFlag.FORWARD
-                        R.id.padReverseButton -> continuousMovementFlag =
-                            MovementFlag.REVERSE
-                        R.id.padLeftButton -> continuousMovementFlag =
-                            MovementFlag.LEFT
-                        R.id.padRightButton -> continuousMovementFlag =
-                            MovementFlag.RIGHT
+                        R.id.padForwardButton -> continuousMovementFlag = MovementFlag.FORWARD
+                        R.id.padReverseButton -> continuousMovementFlag = MovementFlag.REVERSE
+                        R.id.padLeftButton -> continuousMovementFlag = MovementFlag.LEFT
+                        R.id.padRightButton -> continuousMovementFlag = MovementFlag.RIGHT
                     }
 
                     ContinuousMovementThread().start()

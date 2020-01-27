@@ -14,7 +14,6 @@ import com.google.android.material.textview.MaterialTextView
 import kotlinx.android.synthetic.main.activity_settings.*
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.R
-import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothActivity
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivitySettingsBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
@@ -72,7 +71,7 @@ class SettingsActivity : AppCompatActivity() {
         )
 
         activityList = arrayListOf(
-            BluetoothActivity::class.java,
+            SettingsBluetoothActivity::class.java,
             SettingsCommandsActivity::class.java,
             SettingsCustomButtonsActivity::class.java,
             SettingsDisplayActivity::class.java

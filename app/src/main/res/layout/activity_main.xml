@@ -8,7 +8,7 @@
     android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.MainActivity">
+    tools:context=".MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainConstraintLayout"
@@ -527,7 +527,7 @@
             android:layout_marginBottom="@dimen/screen_padding"
             android:text="@string/plot_obstacles"
             android:textSize="@dimen/text_size_small"
-            android:onClick="clickPlotButton"
+            android:onClick="clickUiButton"
             android:visibility="gone"
             app:icon="@drawable/ic_plot_obstacles"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -542,7 +542,7 @@
             android:layout_marginStart="@dimen/screen_padding"
             android:text="@string/remove_obstacles"
             android:textSize="@dimen/text_size_small"
-            android:onClick="clickPlotButton"
+            android:onClick="clickUiButton"
             android:visibility="gone"
             app:icon="@drawable/ic_remove_obstacles"
             app:layout_constraintTop_toTopOf="@id/plotObstacleButton"
@@ -558,7 +558,7 @@
             android:layout_marginStart="@dimen/screen_padding"
             android:text="@string/clear_all_obstacles"
             android:textSize="@dimen/text_size_small"
-            android:onClick="clickPlotButton"
+            android:onClick="clickUiButton"
             android:visibility="gone"
             app:icon="@drawable/ic_clear_plots"
             app:layout_constraintTop_toTopOf="@id/plotObstacleButton"
@@ -572,7 +572,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/screen_padding"
             android:layout_marginStart="@dimen/screen_padding"
-            android:onClick="clickPlotButton"
+            android:onClick="clickUiButton"
             android:visibility="gone"
             android:src="@drawable/ic_done"
             app:elevation="0dp"

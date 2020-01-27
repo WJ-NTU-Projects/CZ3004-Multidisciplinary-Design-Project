@@ -16,7 +16,7 @@ class App: Application() {
         var BLUETOOTH_CONNECTED_DEVICE = "-"
         const val ROBOT_FOOTPRINT = 3
         const val ANIMATOR_DURATION = 200L
-        const val BUTTON_CLICK_DELAY_INTERVAL = 500
+        const val BUTTON_CLICK_DELAY_INTERVAL = 250
         const val MOVEMENT_PROCSES_INTERVAL = 500
 
         var appTheme: Int = R.style.AppTheme

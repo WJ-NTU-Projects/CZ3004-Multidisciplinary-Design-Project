@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     android:padding="@dimen/screen_padding"
     android:background="?android:attr/selectableItemBackground"
-    tools:context=".bluetooth.BluetoothActivity">
+    tools:context=".settings.SettingsBluetoothActivity">
 
 
 

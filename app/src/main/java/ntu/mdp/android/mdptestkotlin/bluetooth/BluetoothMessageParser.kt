@@ -1,11 +1,11 @@
-package ntu.mdp.android.mdptestkotlin.main
+package ntu.mdp.android.mdptestkotlin.bluetooth
 
-import android.content.Context
 import android.util.Log
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.MainActivityController
 
-class MessageParser(private val context: Context, private val callback: (status: Status, message: String) -> Unit) {
-    enum class Status {
+class BluetoothMessageParser(private val callback: (status: MessageStatus, message: String) -> Unit) {
+    enum class MessageStatus {
         ROBOT_STATUS,
         ROBOT_POSITION,
         IMAGE_POSITION,
@@ -16,7 +16,7 @@ class MessageParser(private val context: Context, private val callback: (status:
 
     fun parse(message: String) {
         if (!message.contains("::") || !message.contains("#")) {
-            callback(Status.GARBAGE, message)
+            callback(MessageStatus.GARBAGE, message)
             return
         }
 
@@ -24,13 +24,13 @@ class MessageParser(private val context: Context, private val callback: (status:
         Log.e("MESSAGE", message)
 
         if (s.size != 2) {
-            callback(Status.GARBAGE, "Something went wrong.")
+            callback(MessageStatus.GARBAGE, "Something went wrong.")
             return
         }
 
-        if ((App.autoUpdateArena || MainActivity.isUpdating) && s[0] == "#grid") {
-            MainActivity.isUpdating = false
-            callback(Status.ARENA, s[1])
+        if ((App.autoUpdateArena || MainActivityController.isUpdating) && s[0] == "#grid") {
+            MainActivityController.isUpdating = false
+            callback(MessageStatus.ARENA, s[1])
             return
         }
 
@@ -38,7 +38,7 @@ class MessageParser(private val context: Context, private val callback: (status:
             val s1 = s[1].split(", ")
 
             if (s1.size != 3) {
-                callback(Status.INFO, "Something went wrong.")
+                callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
 
@@ -49,18 +49,18 @@ class MessageParser(private val context: Context, private val callback: (status:
                 s[1] = "$x, $y, $r"
             }  catch (e: NumberFormatException) {
                 Log.e(this::class.simpleName ?: "-", "Something went wrong.", e)
-                callback(Status.INFO, "Something went wrong.")
+                callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
         }
 
         when (s[0]) {
             "#grid" -> return
-            "#robotposition" -> callback(Status.ROBOT_POSITION, s[1])
-            "#robotstatus" -> callback(Status.ROBOT_STATUS, s[1])
-            "#imageposition" -> callback(Status.IMAGE_POSITION, s[1])
+            "#robotposition" -> callback(MessageStatus.ROBOT_POSITION, s[1])
+            "#robotstatus" -> callback(MessageStatus.ROBOT_STATUS, s[1])
+            "#imageposition" -> callback(MessageStatus.IMAGE_POSITION, s[1])
             "#waypoint" -> return
-            else -> callback(Status.GARBAGE, s[1])
+            else -> callback(MessageStatus.GARBAGE, s[1])
         }
     }
 }

@@ -32,13 +32,4 @@ class BluetoothClient(private val device: BluetoothDevice, private val connected
             }
         }
     }
-
-    fun cancel() {
-        try {
-            App.socket?.close()
-        } catch (e: IOException) {
-            Log.e(this::class.simpleName ?: "-", "Failed to close the connecting socket.", e)
-            BluetoothController.broadcastStatus(BluetoothController.Status.ERROR)
-        }
-    }
 }

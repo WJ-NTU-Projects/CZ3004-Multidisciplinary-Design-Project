@@ -2,7 +2,6 @@ package ntu.mdp.android.mdptestkotlin.bluetooth
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,15 +33,6 @@ class BluetoothServer(private val connectedCallback: (Boolean) -> Unit): Thread(
                     connectedCallback(true)
                 }
             }
-        }
-    }
-
-    fun cancel() {
-        try {
-            serverSocket?.close()
-        } catch (e: IOException) {
-            Log.e(this::class.simpleName ?: "-", "Failed to cancel server socket.", e)
-            BluetoothController.broadcastStatus(BluetoothController.Status.ERROR)
         }
     }
 }

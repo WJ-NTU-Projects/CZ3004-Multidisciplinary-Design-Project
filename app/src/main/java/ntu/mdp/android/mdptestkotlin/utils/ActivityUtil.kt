@@ -10,9 +10,6 @@ import android.util.Log
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.view.animation.ScaleAnimation
-import android.widget.ImageView
-import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
@@ -124,10 +121,6 @@ class ActivityUtil(private val context: Context) {
 
         val dialog: AlertDialog? = builder?.create()
         dialog?.show()
-    }
-
-    fun getProgressStatus(): Int {
-        return (context as Activity).findViewById<ProgressBar>(R.id.progress_bar).visibility
     }
 
     /**

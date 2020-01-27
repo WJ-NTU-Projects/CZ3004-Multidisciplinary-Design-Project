@@ -1,4 +1,4 @@
-package ntu.mdp.android.mdptestkotlin.main
+package ntu.mdp.android.mdptestkotlin.arena
 
 import android.app.Activity
 import android.content.Context
@@ -17,11 +17,12 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.ROBOT_FOOTPRINT
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
+import ntu.mdp.android.mdptestkotlin.MainActivityController
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.utils.GestureImageView
 
 
-class ArenaController(private val context: Context, private val callback: (status: Status, message: String) -> Unit) {
+class ArenaController(private val context: Context, private val callback: (status: ArenaStatus, message: String) -> Unit) {
     enum class Gesture {
         SINGLE_TAP,
         DOUBLE_TAP,
@@ -38,7 +39,7 @@ class ArenaController(private val context: Context, private val callback: (statu
         LIVE
     }
 
-    enum class Status {
+    enum class ArenaStatus {
         WRITE,
         INFO,
         COORDINATES,
@@ -79,7 +80,7 @@ class ArenaController(private val context: Context, private val callback: (statu
     private val gestureCallback: (view: GestureImageView, gesture: Gesture) -> Unit = { view, gesture ->
         when (gesture) {
             Gesture.SINGLE_TAP -> {
-                if (getIsPlotting() && (plotMode == PlotMode.PLOT_OBSTACLE || plotMode == PlotMode.REMOVE_OBSTACLE)) {
+                if (MainActivityController.isPlotting && (plotMode == PlotMode.PLOT_OBSTACLE || plotMode == PlotMode.REMOVE_OBSTACLE)) {
                     doObstaclePlot(view)
                     if (redoActionList.isNotEmpty()) {
                         redoActionList.clear()
@@ -88,100 +89,96 @@ class ArenaController(private val context: Context, private val callback: (statu
             }
 
             Gesture.LONG_PRESS -> {
-                if (true) {
-                    val coordinates: Pair<Int, Int> = getCoordinates(view)
-                    var x = coordinates.first
-                    var y = coordinates.second
+                val coordinates: Pair<Int, Int> = getCoordinates(view)
+                var x = coordinates.first
+                var y = coordinates.second
 
-                    if (x >= 0 && y >= 0) {
-                        if (x > 13) x = 13
-                        if (x < 1) x = 1
-                        if (y > 18) y = 18
-                        if (y < 1) y = 1
+                if (x >= 0 && y >= 0) {
+                    if (x > 13) x = 13
+                    if (x < 1) x = 1
+                    if (y > 18) y = 18
+                    if (y < 1) y = 1
 
-                        if (isClear(x, y, PlotType.ROBOT)) {
-                            val oldX = lastStartPosition[0]
-                            val oldY = lastStartPosition[1]
+                    if (isClear(x, y, PlotType.ROBOT)) {
+                        val oldX = lastStartPosition[0]
+                        val oldY = lastStartPosition[1]
 
-                            if (oldX >= 0 && oldY >= 0) {
-                                for (Y in -1 until 2) {
-                                    for (X in -1 until 2) {
-                                        val color: Int = when (arenaStateArray[oldY - Y][oldX + X]) {
-                                            -1 -> context.getColor(R.color.arena_unexplored)
-                                            0 -> context.getColor(R.color.arena_explored)
-                                            else -> Color.BLACK
-                                        }
-
-                                        arenaArray[oldY - Y][oldX + X].setBackgroundColor(color)
-                                    }
-                                }
-                            }
-
-                            lastStartPosition[0] = x
-                            lastStartPosition[1] = y
-                            updateRobot("$x, $y, 0")
-
+                        if (oldX >= 0 && oldY >= 0) {
                             for (Y in -1 until 2) {
                                 for (X in -1 until 2) {
-                                    arenaArray[y - Y][x + X].setBackgroundColor(context.getColor(R.color.arena_start_point))
+                                    val color: Int = when (arenaStateArray[oldY - Y][oldX + X]) {
+                                        -1 -> context.getColor(R.color.arena_unexplored)
+                                        0 -> context.getColor(R.color.arena_explored)
+                                        else -> Color.BLACK
+                                    }
+
+                                    arenaArray[oldY - Y][oldX + X].setBackgroundColor(color)
                                 }
                             }
-
-                            callback(Status.WRITE, "#startpoint::$x, $y, 0")
-                        } else {
-                            callback(Status.INFO, "Obstructed, cannot plot.")
                         }
+
+                        lastStartPosition[0] = x
+                        lastStartPosition[1] = y
+                        updateRobot("$x, $y, 0")
+
+                        for (Y in -1 until 2) {
+                            for (X in -1 until 2) {
+                                arenaArray[y - Y][x + X].setBackgroundColor(context.getColor(R.color.arena_start_point))
+                            }
+                        }
+
+                        callback(ArenaStatus.WRITE, "#startpoint::$x, $y, 0")
+                    } else {
+                        callback(ArenaStatus.INFO, "Obstructed, cannot plot.")
                     }
                 }
             }
 
             Gesture.DOUBLE_TAP -> {
-                if (true) {
-                    val coordinates: Pair<Int, Int> = getCoordinates(view)
-                    val x = coordinates.first
-                    val y = coordinates.second
+                val coordinates: Pair<Int, Int> = getCoordinates(view)
+                val x = coordinates.first
+                val y = coordinates.second
 
-                    if (x >= 0 && y >= 0) {
-                        if (isClear(x, y, PlotType.WAY_POINT)) {
-                            val oldX = lastWayPointPosition[0]
-                            val oldY = lastWayPointPosition[1]
+                if (x >= 0 && y >= 0) {
+                    if (isClear(x, y, PlotType.WAY_POINT)) {
+                        val oldX = lastWayPointPosition[0]
+                        val oldY = lastWayPointPosition[1]
 
-                            if (oldX >= 0 && oldY >= 0) {
-                                val color: Int = when (arenaStateArray[oldY][oldX]) {
-                                    -1 -> context.getColor(R.color.arena_unexplored)
-                                    0 -> context.getColor(R.color.arena_explored)
-                                    else -> Color.BLACK
-                                }
-
-                                arenaArray[oldY][oldX].setBackgroundColor(color)
+                        if (oldX >= 0 && oldY >= 0) {
+                            val color: Int = when (arenaStateArray[oldY][oldX]) {
+                                -1 -> context.getColor(R.color.arena_unexplored)
+                                0 -> context.getColor(R.color.arena_explored)
+                                else -> Color.BLACK
                             }
 
-                            lastWayPointPosition[0] = x
-                            lastWayPointPosition[1] = y
-                            view.setBackgroundColor(context.getColor(R.color.arena_way_point))
-                            callback(Status.WRITE, "#waypoint::$x, $y")
+                            arenaArray[oldY][oldX].setBackgroundColor(color)
+                        }
+
+                        lastWayPointPosition[0] = x
+                        lastWayPointPosition[1] = y
+                        view.setBackgroundColor(context.getColor(R.color.arena_way_point))
+                        callback(ArenaStatus.WRITE, "#waypoint::$x, $y")
+                    } else {
+                        if (x == lastWayPointPosition[0] && y == lastWayPointPosition[1]) {
+                            val color: Int = when (arenaStateArray[y][x]) {
+                                -1 -> context.getColor(R.color.arena_unexplored)
+                                0 -> context.getColor(R.color.arena_explored)
+                                else -> Color.BLACK
+                            }
+
+                            lastWayPointPosition[0] = -1
+                            lastWayPointPosition[1] = -1
+                            view.setBackgroundColor(color)
+                            callback(ArenaStatus.WRITE, "#waypoint::-1, -1")
                         } else {
-                            if (x == lastWayPointPosition[0] && y == lastWayPointPosition[1]) {
-                                val color: Int = when (arenaStateArray[y][x]) {
-                                    -1 -> context.getColor(R.color.arena_unexplored)
-                                    0 -> context.getColor(R.color.arena_explored)
-                                    else -> Color.BLACK
-                                }
-
-                                lastWayPointPosition[0] = -1
-                                lastWayPointPosition[1] = -1
-                                view.setBackgroundColor(color)
-                                callback(Status.WRITE, "#waypoint::-1, -1")
-                            } else {
-                                callback(Status.INFO, "Obstructed, cannot plot.")
-                            }
+                            callback(ArenaStatus.INFO, "Obstructed, cannot plot.")
                         }
                     }
                 }
             }
 
             Gesture.FLING_LEFT, Gesture.FLING_RIGHT -> {
-                if (getIsPlotting() && (plotMode == PlotMode.PLOT_OBSTACLE || plotMode == PlotMode.REMOVE_OBSTACLE)) {
+                if (MainActivityController.isPlotting && (plotMode == PlotMode.PLOT_OBSTACLE || plotMode == PlotMode.REMOVE_OBSTACLE)) {
                     if (gesture == Gesture.FLING_LEFT) {
                         if (undoActionList.isNotEmpty()) {
                             val index = undoActionList.size - 1
@@ -221,14 +218,14 @@ class ArenaController(private val context: Context, private val callback: (statu
                         }
                     }
                 } else {
-                    callback(Status.RESET, "")
+                    callback(ArenaStatus.RESET, "")
                 }
             }
 
             Gesture.FLING_DOWN -> {
-                if (!autoUpdateArena && !getIsPlotting()) {
-                    MainActivity.isUpdating = true
-                    callback(Status.WRITE, SEND_ARENA_COMMAND)
+                if (!autoUpdateArena && !MainActivityController.isPlotting) {
+                    MainActivityController.isUpdating = true
+                    callback(ArenaStatus.WRITE, SEND_ARENA_COMMAND)
                 }
             }
         }
@@ -293,7 +290,7 @@ class ArenaController(private val context: Context, private val callback: (statu
             }
         }
 
-        callback(Status.WRITE, "#startpoint::1, 1, 0")
+        callback(ArenaStatus.WRITE, "#startpoint::1, 1, 0")
     }
 
     fun resetArena() {
@@ -330,7 +327,7 @@ class ArenaController(private val context: Context, private val callback: (statu
             }
         }
 
-        callback(Status.WRITE, "#startpoint::1, 1, 0")
+        callback(ArenaStatus.WRITE, "#startpoint::1, 1, 0")
     }
 
     fun updateArena(data: String) {
@@ -376,48 +373,11 @@ class ArenaController(private val context: Context, private val callback: (statu
         }
     }
 
-    fun resetGridColors() {
-        var oldX = lastStartPosition[0]
-        var oldY = lastStartPosition[1]
-
-        if (oldX >= 0 && oldY >= 0) {
-            for (Y in -1 until 2) {
-                for (X in -1 until 2) {
-                    val color: Int = when (arenaStateArray[oldY - Y][oldX + X]) {
-                        -1 -> context.getColor(R.color.arena_unexplored)
-                        0 -> context.getColor(R.color.arena_explored)
-                        else -> Color.BLACK
-                    }
-
-                    arenaArray[oldY - Y][oldX + X].setBackgroundColor(color)
-                }
-            }
-        }
-
-        oldX = lastWayPointPosition[0]
-        oldY = lastWayPointPosition[1]
-
-        if (oldX >= 0 && oldY >= 0) {
-            val color: Int = when (arenaStateArray[oldY][oldX]) {
-                -1 -> context.getColor(R.color.arena_unexplored)
-                0 -> context.getColor(R.color.arena_explored)
-                else -> Color.BLACK
-            }
-
-            arenaArray[oldY][oldX].setBackgroundColor(color)
-        }
-
-        lastStartPosition = intArrayOf(-1, -1)
-        lastWayPointPosition = intArrayOf(-1, -1)
-        callback(Status.WRITE, "#startpoint::[-1, -1]")
-        callback(Status.WRITE, "#waypoint::[-1, -1]")
-    }
-
     fun updateImage(data: String) {
         val s = data.split(", ")
 
         if (s.size != 3) {
-            callback(Status.INFO, "Something went wrong.")
+            callback(ArenaStatus.INFO, "Something went wrong.")
             return
         }
 
@@ -430,11 +390,11 @@ class ArenaController(private val context: Context, private val callback: (statu
             textView.alpha = 1.0f
 
             if (bit != 1) {
-                callback(Status.INFO, "Image not on an obstacle???")
+                callback(ArenaStatus.INFO, "Image not on an obstacle???")
             }
         } catch (e: NumberFormatException) {
             Log.e(this::class.simpleName ?: "-", "Something went wrong.", e)
-            callback(Status.INFO, "Something went wrong.")
+            callback(ArenaStatus.INFO, "Something went wrong.")
             return
         }
     }
@@ -443,7 +403,7 @@ class ArenaController(private val context: Context, private val callback: (statu
         val s = data.split(", ")
 
         if (s.size != 3) {
-            callback(Status.INFO, "Something went wrong.")
+            callback(ArenaStatus.INFO, "Something went wrong.")
             return
         }
 
@@ -479,7 +439,7 @@ class ArenaController(private val context: Context, private val callback: (statu
             lastRobotPosition[0] = newX
             lastRobotPosition[1] = newY
             lastRobotPosition[2] = newR
-            callback(Status.COORDINATES, "$newX, $newY")
+            callback(ArenaStatus.COORDINATES, "$newX, $newY")
 
             newX -= 1
             newY += 1
@@ -505,7 +465,7 @@ class ArenaController(private val context: Context, private val callback: (statu
             }
         } catch (e: NumberFormatException) {
             Log.e(this::class.simpleName ?: "-", "Something went wrong.", e)
-            callback(Status.INFO, "Something went wrong.")
+            callback(ArenaStatus.INFO, "Something went wrong.")
             return
         }
     }
@@ -519,23 +479,23 @@ class ArenaController(private val context: Context, private val callback: (statu
         val edgeMessage = "At edge of arena. Cannot move."
 
         if (x == -1 || y == -1) {
-            callback(Status.INFO, "Robot position unknown. Cannot move.")
+            callback(ArenaStatus.INFO, "Robot position unknown. Cannot move.")
             return false
         }
 
         if ((r % 180) == 0) {
             if (dir == 1) {
                 if ((r == 0 && y + 2 > 19) || (r == 180 && y - 2 < 0)) {
-                    callback(Status.ROBOT, edgeMessage)
-                    callback(Status.STATUS, "Blocked")
+                    callback(ArenaStatus.ROBOT, edgeMessage)
+                    callback(ArenaStatus.STATUS, "Blocked")
                     return false
                 }
 
                 if (r == 0) y += 2 else y -= 2
             } else {
                 if ((r == 180 && y + 2 > 19) || (r == 0 && y - 2 < 0)) {
-                    callback(Status.ROBOT, edgeMessage)
-                    callback(Status.STATUS, "Blocked")
+                    callback(ArenaStatus.ROBOT, edgeMessage)
+                    callback(ArenaStatus.STATUS, "Blocked")
                     return false
                 }
 
@@ -543,8 +503,8 @@ class ArenaController(private val context: Context, private val callback: (statu
             }
 
             if (arenaStateArray[y][x] == 1 || arenaStateArray[y][x + 1] == 1 || arenaStateArray[y][x - 1] == 1) {
-                callback(Status.ROBOT, obstacleMessage)
-                callback(Status.STATUS, "Blocked")
+                callback(ArenaStatus.ROBOT, obstacleMessage)
+                callback(ArenaStatus.STATUS, "Blocked")
                 return false
             }
 
@@ -553,16 +513,16 @@ class ArenaController(private val context: Context, private val callback: (statu
 
         if (dir == 1) {
             if ((r == 90 && x + 2 > 14) || (r == 270 && x - 2 < 0)) {
-                callback(Status.ROBOT, edgeMessage)
-                callback(Status.STATUS, "Blocked")
+                callback(ArenaStatus.ROBOT, edgeMessage)
+                callback(ArenaStatus.STATUS, "Blocked")
                 return false
             }
 
             if (r == 90) x += 2 else x -= 2
         } else {
             if ((r == 270 && x + 2 > 14) || (r == 90 && x - 2 < 0)) {
-                callback(Status.ROBOT, edgeMessage)
-                callback(Status.STATUS, "Blocked")
+                callback(ArenaStatus.ROBOT, edgeMessage)
+                callback(ArenaStatus.STATUS, "Blocked")
                 return false
             }
 
@@ -570,8 +530,8 @@ class ArenaController(private val context: Context, private val callback: (statu
         }
 
         if (arenaStateArray[y][x] == 1 || arenaStateArray[y - 1][x] == 1 || arenaStateArray[y + 1][x] == 1) {
-            callback(Status.ROBOT, obstacleMessage)
-            callback(Status.STATUS, "Blocked")
+            callback(ArenaStatus.ROBOT, obstacleMessage)
+            callback(ArenaStatus.STATUS, "Blocked")
             return false
         }
 
@@ -580,15 +540,15 @@ class ArenaController(private val context: Context, private val callback: (statu
 
     fun moveRobot(dir: Int, connected: Boolean = false) {
         if (!checkClear(dir)) return
-        if (dir == 1) callback(Status.STATUS, "Moving") else callback(Status.STATUS, "Reversing")
+        if (dir == 1) callback(ArenaStatus.STATUS, "Moving") else callback(ArenaStatus.STATUS, "Reversing")
 
         if (dir == 1 && connected) {
-            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_forward), context.getString(R.string.forward_default))!!)
+            callback(ArenaStatus.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_forward), context.getString(R.string.forward_default))!!)
             return
         }
 
         if (dir == -1 && connected) {
-            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_reverse), context.getString(R.string.reverse_default))!!)
+            callback(ArenaStatus.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_reverse), context.getString(R.string.reverse_default))!!)
             return
         }
 
@@ -609,15 +569,15 @@ class ArenaController(private val context: Context, private val callback: (statu
     }
 
     fun turnRobot(dir: Int, connected: Boolean = false) {
-        if (dir == 1) callback(Status.STATUS, "Turning Right") else callback(Status.STATUS, "Turning Left")
+        if (dir == 1) callback(ArenaStatus.STATUS, "Turning Right") else callback(ArenaStatus.STATUS, "Turning Left")
 
         if (dir == -1 && connected) {
-            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_turn_left), context.getString(R.string.turn_left_default))!!)
+            callback(ArenaStatus.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_turn_left), context.getString(R.string.turn_left_default))!!)
             return
         }
 
         if (dir == 1 && connected) {
-            callback(Status.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_turn_right), context.getString(R.string.turn_right_default))!!)
+            callback(ArenaStatus.WRITE, App.sharedPreferences.getString(context.getString(R.string.app_pref_turn_right), context.getString(R.string.turn_right_default))!!)
             return
         }
 
@@ -740,7 +700,7 @@ class ArenaController(private val context: Context, private val callback: (statu
                         undoActionList.add(Pair(1, intArrayOf(x, y)))
                     }
                 } else {
-                    callback(Status.INFO, "Obstructed, cannot plot.")
+                    callback(ArenaStatus.INFO, "Obstructed, cannot plot.")
                 }
             }
         }
@@ -756,36 +716,4 @@ class ArenaController(private val context: Context, private val callback: (statu
     }
 
     fun getGridLayouts(): List<GridLayout> = gridLayoutList
-
-    fun getIsPlotting(): Boolean {
-        if (isSimple) return (MainSimpleActivity.isPlotting)
-        else return (MainActivity.isPlotting)
-    }
-    fun togglePlotMode() {
-
-
-        /*
-        val scaleAfter = if (isPlotting) 1.16f else 0.8333333333334f
-        val anim: Animation = ScaleAnimation(
-            1.0f, scaleAfter,  // Start and end values for the X axis scaling
-            1.0f, scaleAfter,  // Start and end values for the Y axis scaling
-            Animation.RELATIVE_TO_SELF, 0f,  // Pivot point of X scaling
-            Animation.RELATIVE_TO_SELF, 0f) // Pivot point of Y scaling
-        anim.duration = 350
-        anim.setAnimationListener(object: Animation.AnimationListener {
-            override fun onAnimationRepeat(animation: Animation?) {}
-            override fun onAnimationStart(animation: Animation?) {}
-            override fun onAnimationEnd(animation: Animation?) {
-                gridLayoutList.forEach {
-                    it.pivotX = 0.0f
-                    it.pivotY = 0.0f
-                    it.scaleX = if (isPlotting) 1.2f else 1.0f
-                    it.scaleY = if (isPlotting) 1.2f else 1.0f
-                }
-            }
-        })
-
-        gridLayoutList.forEach { it.startAnimation(anim) }
-         */
-    }
 }
