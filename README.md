@@ -3,6 +3,9 @@ Written in Kotlin.
 
 Interopable with Java if necessary.
 
+## Grid Map User Manual
+https://github.com/101011101001010/MDP-Android/wiki/Grid-Map-User-Manual
+
 ## Project Requirements (Updated 26 Jan 2020)
 | Stuff          | Minimum Requirement |	
 | -------------- | ------------------- |     
