@@ -3,6 +3,7 @@
     <attr format="reference" name="editTextStyleCustom"/>
     <attr format="reference" name="toolbarStyleCustom"/>
     <attr format="reference" name="layoutCustom"/>
+    <attr format="reference" name="recyclerCustom"/>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -21,6 +22,7 @@
         <item name="cardStyle">@style/CardViewCustom</item>
         <item name="editTextStyleCustom">@style/EditTextCustom</item>
         <item name="toolbarStyleCustom">@style/ToolbarCustom</item>
+        <item name="layoutCustom">@style/LayoutCustom</item>
         <item name="layoutCustom">@style/LayoutCustom</item>
     </style>
 

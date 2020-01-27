@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
@@ -105,6 +106,7 @@ class SettingsBluetoothActivity : AppCompatActivity() {
                 adapter = DeviceAdapter(ArrayList(pairedDevices))
             }
 
+            bluetoothBondedRecycler.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
             bluetoothOthersLabel.text = getString(R.string.other_devices)
         }
 
@@ -115,6 +117,8 @@ class SettingsBluetoothActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@SettingsBluetoothActivity)
             adapter = othersAdapter
         }
+
+        bluetoothOthersRecycler.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
 
         bluetoothAdapter.cancelDiscovery()
         bluetoothAdapter.startDiscovery()

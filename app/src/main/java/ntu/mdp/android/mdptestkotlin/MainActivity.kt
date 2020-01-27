@@ -11,6 +11,7 @@ import android.view.animation.AnimationUtils
 import android.widget.EditText
 import android.widget.GridLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -81,11 +82,15 @@ class MainActivity : AppCompatActivity() {
         buttonList = listOf(settingsButton, plotButton, resetButton, f1Button, f2Button, padForwardButton, padReverseButton, padLeftButton, padRightButton, messagesSendButton)
 
         mainActivityController = MainActivityController(this, activityUtil, binding)
-        touchController = TouchController(this, mainActivityController) { statusLabel.text = it }
-        padForwardButton.setOnTouchListener(touchController.touchListener)
-        padReverseButton.setOnTouchListener(touchController.touchListener)
-        padLeftButton.setOnTouchListener(touchController.touchListener)
-        padRightButton.setOnTouchListener(touchController.touchListener)
+        touchController = TouchController(this, mainActivityController, binding) { statusLabel.text = it }
+        //padForwardButton.setOnTouchListener(touchController.touchListener)
+        //padReverseButton.setOnTouchListener(touchController.touchListener)
+        //padLeftButton.setOnTouchListener(touchController.touchListener)
+        //padRightButton.setOnTouchListener(touchController.touchListener)
+        padForwardButton.isClickable = false
+        padReverseButton.isClickable = false
+        padLeftButton.isClickable = false
+        padRightButton.isClickable = false
         swipePadLayout.setOnTouchListener(touchController.touchListener)
         messagesOutputEditText.setOnKeyListener(onEnter)
 

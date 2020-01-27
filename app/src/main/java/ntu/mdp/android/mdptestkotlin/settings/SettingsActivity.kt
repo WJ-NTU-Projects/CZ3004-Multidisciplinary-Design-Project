@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
@@ -41,6 +42,8 @@ class SettingsActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@SettingsActivity)
             adapter = DeviceAdapter()
         }
+
+        settingsRecycler.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
 
         drawableList = arrayListOf(
             getDrawable(R.drawable.ic_bluetooth_white)!!,

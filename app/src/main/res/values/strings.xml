@@ -86,6 +86,7 @@
     <!-- SETTINGS COMMUNICATION ACTIVITY -->
     <string name="arena_update_mode">Arena Update Mode</string>
     <string name="automatic_update">Automatic Update</string>
+    <string name="string_commands">String Commands</string>
     <string name="command">Command</string>
     <string name="command_output">String Output</string>
     <string name="send_arena">Send Arena Info</string>
