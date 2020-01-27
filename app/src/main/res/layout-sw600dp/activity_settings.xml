@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/window_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:focusableInTouchMode="true"
+    tools:context=".settings.SettingsActivity">
+
+    <include layout="@layout/addon_toolbar" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/settingsRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/element_padding"
+        tools:listitem="@layout/listitem_settings"/>
+
+</LinearLayout>

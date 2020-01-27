@@ -56,7 +56,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/settingsButton"
-            android:layout_width="50dp"
+            android:layout_width="0dp"
             android:layout_height="@dimen/main_button_height"
             android:layout_marginStart="@dimen/button_padding"
             android:textSize="@dimen/text_size_small"

@@ -28,7 +28,6 @@ import ntu.mdp.android.mdptestkotlin.utils.TouchController
 import ntu.mdp.android.mdptestkotlin.utils.TouchController.Companion.isSwipeMode
 
 class AppStartActivity : AppCompatActivity() {
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isSimple)   ActivityUtil(this).startActivity(MainSimpleActivity::class.java, startNew = true)
