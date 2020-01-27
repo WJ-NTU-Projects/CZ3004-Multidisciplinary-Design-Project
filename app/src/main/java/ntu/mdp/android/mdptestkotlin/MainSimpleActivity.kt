@@ -98,6 +98,7 @@ class MainSimpleActivity : AppCompatActivity() {
                 } else {
                     buttonList.forEach { it.isEnabled = true }
                     mainActivityController.arenaController.plotMode = ArenaController.PlotMode.NONE
+                    mainActivityController.arenaController.resetActions()
                 }
             }
 
@@ -109,6 +110,7 @@ class MainSimpleActivity : AppCompatActivity() {
                 } else {
                     buttonList.forEach { it.isEnabled = true }
                     mainActivityController.arenaController.plotMode = ArenaController.PlotMode.NONE
+                    mainActivityController.arenaController.resetActions()
                 }
             }
 
