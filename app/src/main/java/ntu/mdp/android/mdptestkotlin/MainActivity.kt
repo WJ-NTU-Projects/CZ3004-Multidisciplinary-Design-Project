@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
+import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.currentMode
@@ -72,6 +73,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        autoUpdateArena = sharedPreferences.getBoolean(getString(R.string.app_pref_auto_update), true)
         isPlotting = false
         val animation: Animation = AnimationUtils.loadAnimation(applicationContext, R.anim.main_fab_close_init)
         startExplorationFab.startAnimation(animation)

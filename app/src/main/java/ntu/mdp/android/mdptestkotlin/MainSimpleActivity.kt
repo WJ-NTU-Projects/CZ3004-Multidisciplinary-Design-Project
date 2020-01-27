@@ -38,8 +38,6 @@ class MainSimpleActivity : AppCompatActivity() {
         activityUtil.toggleProgressBar(View.VISIBLE, opaque = true, instant = true)
         autoUpdateArena = true
         isSimple = true
-
-
         mainActivityController = MainActivityController(this, activityUtil, binding)
 
         MainActivityController.isPlotting = true

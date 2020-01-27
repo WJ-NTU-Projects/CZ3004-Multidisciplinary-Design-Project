@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.settings_communication.*
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
+import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
@@ -30,7 +31,7 @@ class SettingsCommunicationActivity : AppCompatActivity() {
         activityUtil.setTitle(getString(R.string.robot_communication))
 
         autoSwitch.isChecked = autoUpdateArena
-
+        autoSwitch.isEnabled = !isSimple
         autoSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean(getString(R.string.app_pref_auto_update), isChecked).apply()
             autoUpdateArena = isChecked
