@@ -55,7 +55,7 @@
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.textview.MaterialTextView
-        style="@style/TextStatusTitle.Settings"
+        style="@style/TextViewCustom.Status.Settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/display_mode" />

@@ -16,46 +16,20 @@
         android:layout_height="match_parent"
         android:padding="@dimen/screen_padding">
 
-        <GridLayout
-            android:id="@+id/main_grid_arena2"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:foregroundGravity="center"
-            android:rowCount="20"
-            android:columnCount="15"
-            app:layout_constraintWidth_percent="0.85"
-            app:layout_constraintHeight_percent="0.76"
+        <RelativeLayout
+            style="@style/ArenaGridLayout.Simple"
+            android:id="@+id/gridParent"
+            android:layout_marginBottom="@dimen/element_padding"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent">
 
-        <GridLayout
-            android:id="@+id/main_grid_robot2"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:foregroundGravity="center"
-            android:rowCount="20"
-            android:columnCount="15"
-            android:visibility="invisible"
-            app:layout_constraintWidth_percent="0.85"
-            app:layout_constraintHeight_percent="0.76"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
-
-        <GridLayout
-            android:id="@+id/main_grid_image2"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:foregroundGravity="center"
-            android:rowCount="20"
-            android:columnCount="15"
-            android:visibility="invisible"
-            app:layout_constraintWidth_percent="0.85"
-            app:layout_constraintHeight_percent="0.76"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            <GridLayout
+                style="@style/ArenaGridLayout.Simple"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/main_grid_arena" />
+        </RelativeLayout>
 
         <androidx.cardview.widget.CardView
             style="?attr/cardStyle"
@@ -68,26 +42,14 @@
             app:layout_constraintBottom_toTopOf="@id/messagesCard2"
             app:layout_constraintLeft_toLeftOf="parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/element_padding"
-                android:paddingBottom="@dimen/element_padding"
-                android:paddingLeft="@dimen/card_padding"
-                android:paddingRight="@dimen/card_padding"
-                android:orientation="vertical">
-
+            <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextStatusTitle.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/TextViewCustom.Status.Small"
                     android:text="@string/status"/>
 
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextViewCustom.Content"
                     android:id="@+id/statusLabel2"
-                    style="@style/TextStatusContent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/disconnected"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -103,26 +65,14 @@
             app:layout_constraintLeft_toRightOf="@id/statusCard2"
             app:layout_constraintRight_toLeftOf="@id/coordinatesCard2">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/element_padding"
-                android:paddingBottom="@dimen/element_padding"
-                android:paddingLeft="@dimen/card_padding"
-                android:paddingRight="@dimen/card_padding"
-                android:orientation="vertical">
-
+            <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextStatusTitle.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/TextViewCustom.Status.Small"
                     android:text="@string/mode"/>
 
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextViewCustom.Content"
                     android:id="@+id/modeLabel2"
-                    style="@style/TextStatusContent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/none"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -138,26 +88,14 @@
             app:layout_constraintLeft_toRightOf="@id/modeCard2"
             app:layout_constraintRight_toLeftOf="@id/timerCard2">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/element_padding"
-                android:paddingBottom="@dimen/element_padding"
-                android:paddingLeft="@dimen/card_padding"
-                android:paddingRight="@dimen/card_padding"
-                android:orientation="vertical">
-
+            <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextStatusTitle.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/TextViewCustom.Status.Small"
                     android:text="@string/coordinates"/>
 
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextViewCustom.Content"
                     android:id="@+id/coordinatesLabel2"
-                    style="@style/TextStatusContent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/coordinates_default" />
             </LinearLayout>
@@ -174,28 +112,16 @@
             app:layout_constraintBottom_toTopOf="@id/messagesCard2"
             app:layout_constraintRight_toRightOf="parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/element_padding"
-                android:paddingBottom="@dimen/element_padding"
-                android:paddingLeft="@dimen/card_padding"
-                android:paddingRight="@dimen/card_padding"
-                android:orientation="vertical">
-
+            <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextViewCustom.Status.Small"
                     android:id="@+id/timerTitleLabel2"
-                    style="@style/TextStatusTitle.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/timer"/>
 
                 <com.google.android.material.textview.MaterialTextView
+                    style="@style/TextViewCustom.Content"
                     android:id="@+id/timerLabel2"
-                    style="@style/TextStatusContent"
                     android:layout_gravity="center"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="@string/timer_default"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -212,39 +138,20 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/element_padding"
-                android:paddingBottom="@dimen/element_padding"
-                android:paddingLeft="@dimen/card_padding"
-                android:paddingRight="@dimen/card_padding"
-                android:orientation="vertical">
-
+            <LinearLayout style="@style/CardViewInnerLayout">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/element_padding">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/TextStatusTitle.Small"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        style="@style/TextViewCustom.Status.Small"
                         android:text="@string/messages"/>
 
                     <com.google.android.material.textview.MaterialTextView
+                        style="@style/TextButton.Simple"
                         android:id="@+id/messagesClearButton2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/clear"
-                        android:textColor="@color/colorAccent"
-                        android:textAllCaps="true"
-                        android:textSize="@dimen/text_size_smaller"
-                        android:textStyle="bold"
-                        android:gravity="end"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:onClick="clickUiButton" />
+                        android:text="@string/clear"/>
                 </LinearLayout>
 
                 <ScrollView
@@ -264,98 +171,74 @@
         </androidx.cardview.widget.CardView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            style="@style/FabCustom"
             android:id="@+id/f2Button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="2dp"
             android:layout_marginTop="@dimen/small_padding"
             android:src="@drawable/ic_f2"
-            android:onClick="clickUiButton"
-            app:elevation="2dp"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@id/messagesCard2"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            style="@style/FabCustom"
             android:id="@+id/f1Button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/element_padding"
             android:layout_marginTop="@dimen/small_padding"
             android:src="@drawable/ic_f1"
-            android:onClick="clickUiButton"
-            app:elevation="2dp"
             app:layout_constraintRight_toLeftOf="@id/f2Button2"
             app:layout_constraintTop_toTopOf="@id/messagesCard2" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            style="@style/FabCustom"
             android:id="@+id/startFastestPathButton2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/element_padding"
             android:layout_marginTop="@dimen/small_padding"
             android:src="@drawable/ic_fastest"
-            android:onClick="clickUiButton"
-            app:elevation="2dp"
             app:layout_constraintRight_toLeftOf="@id/f1Button2"
             app:layout_constraintTop_toTopOf="@id/messagesCard2" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            style="@style/FabCustom"
             android:id="@+id/startExplorationButton2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/element_padding"
             android:layout_marginTop="@dimen/small_padding"
             android:src="@drawable/ic_explore"
-            android:onClick="clickUiButton"
-            app:elevation="2dp"
             app:layout_constraintRight_toLeftOf="@id/startFastestPathButton2"
             app:layout_constraintTop_toTopOf="@id/messagesCard2" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            style="@style/FabCustom"
             android:id="@+id/settingsButton2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="2dp"
             android:layout_marginBottom="@dimen/small_padding"
             android:src="@drawable/ic_settings"
-            android:onClick="clickUiButton"
-            app:elevation="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            style="@style/FabCustom"
             android:id="@+id/clearObstacleButton2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/element_padding"
             android:layout_marginBottom="@dimen/small_padding"
             android:src="@drawable/ic_clear_plots"
-            android:onClick="clickUiButton"
-            app:elevation="2dp"
             app:layout_constraintRight_toLeftOf="@id/settingsButton2"
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            style="@style/FabCustom"
             android:id="@+id/removeObstacleButton2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/element_padding"
             android:layout_marginBottom="@dimen/small_padding"
             android:src="@drawable/ic_remove_obstacles"
-            android:onClick="clickUiButton"
-            app:elevation="2dp"
             app:layout_constraintRight_toLeftOf="@id/clearObstacleButton2"
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            style="@style/FabCustom"
             android:id="@+id/plotObstacleButton2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/element_padding"
             android:layout_marginBottom="@dimen/small_padding"
             android:src="@drawable/ic_plot_obstacles"
-            android:onClick="clickUiButton"
-            app:elevation="2dp"
             app:layout_constraintRight_toLeftOf="@id/removeObstacleButton2"
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>

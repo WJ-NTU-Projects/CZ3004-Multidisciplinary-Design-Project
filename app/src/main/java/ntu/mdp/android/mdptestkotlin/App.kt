@@ -14,7 +14,7 @@ class App: Application() {
         const val BLUETOOTH_UUID = "00001101-0000-1000-8000-00805F9B34FB"
         var SEND_ARENA_COMMAND = "sendArena"
         var BLUETOOTH_CONNECTED_DEVICE = "-"
-        const val ROBOT_FOOTPRINT = 3
+        //const val ROBOT_FOOTPRINT = 3
         const val ANIMATOR_DURATION = 200L
         const val BUTTON_CLICK_DELAY_INTERVAL = 250
         const val MOVEMENT_PROCSES_INTERVAL = 500
@@ -29,6 +29,7 @@ class App: Application() {
         lateinit var sharedPreferences: SharedPreferences
         var autoUpdateArena = false
         var isSimple = false
+        var usingAmd = true
     }
 
     override fun onCreate() {
@@ -39,5 +40,6 @@ class App: Application() {
         if (darkMode) appTheme = R.style.AppTheme_Dark
         isSimple = sharedPreferences.getBoolean(getString(R.string.app_pref_sad_mode), false)
         autoUpdateArena = sharedPreferences.getBoolean(getString(R.string.app_pref_auto_update), true)
+        //usingAmd = sharedPreferences.getBoolean(getString(R.string.app_pref_using_amd), true)
     }
 }

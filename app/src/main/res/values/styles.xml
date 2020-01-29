@@ -23,7 +23,8 @@
         <item name="editTextStyleCustom">@style/EditTextCustom</item>
         <item name="toolbarStyleCustom">@style/ToolbarCustom</item>
         <item name="layoutCustom">@style/LayoutCustom</item>
-        <item name="layoutCustom">@style/LayoutCustom</item>
+        <item name="colorAccentTheme">@color/colorAccent</item>
+        <item name="colorAccentLighterTheme">@color/colorAccentLighter</item>
     </style>
 
     <style name="AppTheme.Dark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -43,6 +44,8 @@
         <item name="editTextStyleCustom">@style/EditTextCustom.Dark</item>
         <item name="toolbarStyleCustom">@style/ToolbarCustom.Dark</item>
         <item name="layoutCustom">@style/LayoutCustom.Dark</item>
+        <item name="colorAccentTheme">@color/colorAccentDark</item>
+        <item name="colorAccentLighterTheme">@color/colorAccentLighterDark</item>
     </style>
 
     <style name="LayoutCustom">
@@ -74,8 +77,11 @@
     </style>
 
     <style name="EditTextCustom" parent="Widget.AppCompat.EditText">
-        <item name="android:background">@drawable/ui_edittext</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">@dimen/element_padding</item>
+        <item name="android:background">@drawable/ui_edittext</item>
+        <item name="android:inputType">text</item>
         <item name="android:textColorHint">@color/textColorHint</item>
         <item name="android:textColor">@color/textColor</item>
     </style>
@@ -93,25 +99,97 @@
         <item name="android:windowBackground">@drawable/bg_start_dark</item>
     </style>
 
-    <style name="TextStatusTitle" parent="Widget.MaterialComponents.TextView">
+    <style name="TextViewCustom" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="TextViewCustom.Status">
         <item name="android:textSize">@dimen/text_size_small</item>
         <item name="android:textColor">@android:color/darker_gray</item>
+    </style>
+
+    <style name="TextViewCustom.Status.Small">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/text_size_smaller</item>
+    </style>
+
+    <style name="TextViewCustom.Status.Title">
         <item name="android:textAllCaps">true</item>
     </style>
 
-    <style name="TextStatusTitle.Settings">
+    <style name="TextViewCustom.Status.Settings">
+        <item name="android:textAllCaps">true</item>
         <item name="android:layout_marginTop">@dimen/settings_padding</item>
         <item name="android:layout_marginLeft">@dimen/screen_padding</item>
         <item name="android:layout_marginRight">@dimen/screen_padding</item>
         <item name="android:layout_marginBottom">@dimen/element_padding</item>
     </style>
 
-    <style name="TextStatusTitle.Small">
+    <style name="TextViewCustom.Content">
+        <item name="android:textSize">@dimen/text_size_big</item>
+    </style>
+
+    <style name="ArenaGridLayout">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:rowCount">20</item>
+        <item name="android:columnCount">15</item>
+        <item name="layout_constraintWidth_percent">0.7</item>
+        <item name="layout_constraintHeight_percent">0.61</item>
+    </style>
+
+    <style name="ArenaGridLayout.Simple">
+        <item name="android:foregroundGravity">center</item>
+        <item name="layout_constraintWidth_percent">0.85</item>
+        <item name="layout_constraintHeight_percent">0.76</item>
+    </style>
+
+    <style name="UIButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/main_button_height</item>
+        <item name="android:layout_marginStart">@dimen/button_padding</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:onClick">clickUiButton</item>
+    </style>
+
+    <style name="UIButton.Bottom">
+        <item name="android:layout_marginBottom">@dimen/screen_padding</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="TextButton" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">end</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">?attr/colorAccentTheme</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:onClick">clickUiButton</item>
+    </style>
+
+    <style name="TextButton.Simple">
         <item name="android:textSize">@dimen/text_size_smaller</item>
     </style>
 
-    <style name="TextStatusContent" parent="Widget.MaterialComponents.TextView">
-        <item name="android:textSize">@dimen/text_size_big</item>
+    <style name="CardViewInnerLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingLeft">@dimen/card_padding</item>
+        <item name="android:paddingRight">@dimen/card_padding</item>
+        <item name="android:paddingTop">@dimen/element_padding</item>
+        <item name="android:paddingBottom">@dimen/element_padding</item>
+    </style>
+
+    <style name="FabCustom" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:onClick">clickUiButton</item>
+        <item name="elevation">2dp</item>
     </style>
 
 </resources>

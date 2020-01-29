@@ -2,6 +2,7 @@ package ntu.mdp.android.mdptestkotlin.bluetooth
 
 import android.util.Log
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.App.Companion.usingAmd
 import ntu.mdp.android.mdptestkotlin.MainActivityController
 
 class BluetoothMessageParser(private val callback: (status: MessageStatus, message: String) -> Unit) {
@@ -30,7 +31,17 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
 
         if ((App.autoUpdateArena || MainActivityController.isUpdating) && s[0] == "#grid") {
             MainActivityController.isUpdating = false
-            callback(MessageStatus.ARENA, s[1])
+
+            if (usingAmd) {
+                var s2: String = "f".padEnd(75, 'f')
+                s2 = "$s2//${s[1]}"
+                Log.e("TEST", s[1])
+                Log.e("TEST", s2)
+                callback(MessageStatus.ARENA, s2)
+            } else {
+                callback(MessageStatus.ARENA, s[1])
+            }
+
             return
         }
 

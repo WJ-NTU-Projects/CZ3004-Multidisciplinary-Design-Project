@@ -11,14 +11,23 @@ import kotlin.math.abs
 
 
 class GestureImageView(c: Context): AppCompatImageView(c) {
-    private lateinit var callback: (view: GestureImageView, gesture: ArenaController.Gesture) -> Unit
+    enum class Gesture {
+        SINGLE_TAP,
+        DOUBLE_TAP,
+        LONG_PRESS,
+        FLING_LEFT,
+        FLING_RIGHT,
+        FLING_DOWN
+    }
+
+    private lateinit var callback: (view: GestureImageView, gesture: Gesture) -> Unit
     private val gestureDetector: GestureDetector
 
     init {
         gestureDetector = GestureDetector(c, GestureListener())
     }
 
-    fun setCallback(callback: (view: GestureImageView, gesture: ArenaController.Gesture) -> Unit) {
+    fun setCallback(callback: (view: GestureImageView, gesture: Gesture) -> Unit) {
         this.callback = callback
     }
 
@@ -39,17 +48,17 @@ class GestureImageView(c: Context): AppCompatImageView(c) {
         }
 
         override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-            callback(this@GestureImageView, ArenaController.Gesture.SINGLE_TAP)
+            callback(this@GestureImageView, Gesture.SINGLE_TAP)
             return true
         }
 
         override fun onDoubleTap(e: MotionEvent?): Boolean {
-            callback(this@GestureImageView, ArenaController.Gesture.DOUBLE_TAP)
+            callback(this@GestureImageView, Gesture.DOUBLE_TAP)
             return true
         }
 
         override fun onLongPress(e: MotionEvent?) {
-            callback(this@GestureImageView, ArenaController.Gesture.LONG_PRESS)
+            callback(this@GestureImageView, Gesture.LONG_PRESS)
         }
 
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
@@ -57,17 +66,17 @@ class GestureImageView(c: Context): AppCompatImageView(c) {
             Log.e("FLING", "$velocityX, $velocityY")
 
             if (abs(velocityX) > abs(velocityY)) {
-                if (velocityX >= 500) {
-                    callback(this@GestureImageView, ArenaController.Gesture.FLING_RIGHT)
+                if (velocityX >= 300) {
+                    callback(this@GestureImageView, Gesture.FLING_RIGHT)
                 } else {
-                    callback(this@GestureImageView, ArenaController.Gesture.FLING_LEFT)
+                    callback(this@GestureImageView, Gesture.FLING_LEFT)
                 }
 
                 return true
             }
 
-            if (abs(velocityY) > abs(velocityX) && velocityY >= 2000) {
-                callback(this@GestureImageView, ArenaController.Gesture.FLING_DOWN)
+            if (abs(velocityY) > abs(velocityX) && velocityY >= 1500) {
+                callback(this@GestureImageView, Gesture.FLING_DOWN)
                 return true
             }
 

@@ -10,6 +10,7 @@ import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
+import ntu.mdp.android.mdptestkotlin.App.Companion.usingAmd
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.SettingsCommunicationBinding
@@ -35,6 +36,13 @@ class SettingsCommunicationActivity : AppCompatActivity() {
         autoSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean(getString(R.string.app_pref_auto_update), isChecked).apply()
             autoUpdateArena = isChecked
+        }
+
+        amdSwitch.isChecked = usingAmd
+        amdSwitch.isEnabled = false
+        amdSwitch.setOnCheckedChangeListener { _, isChecked ->
+            sharedPreferences.edit().putBoolean(getString(R.string.app_pref_using_amd), isChecked).apply()
+            usingAmd = isChecked
         }
 
         sendArenaEditText.setOnKeyListener(onEnter)
@@ -134,7 +142,7 @@ class SettingsCommunicationActivity : AppCompatActivity() {
 
     @Suppress("UNUSED_PARAMETER")
     fun clickRestore(view: View) {
-        activityUtil.sendYesNoDialog(getString(R.string.restore_command_defaultsk), { positive ->
+        activityUtil.sendYesNoDialog(getString(R.string.restore_command_defaultsk)) { positive ->
             if (positive) {
                 sharedPreferences.edit().putString(getString(R.string.app_pref_send_arena), getString(
                     R.string.send_arena_default
@@ -165,7 +173,7 @@ class SettingsCommunicationActivity : AppCompatActivity() {
                     R.string.send_arena_default
                 )
             }
-        })
+        }
     }
 
     private val onEnter = View.OnKeyListener { view, keyCode, event ->
@@ -180,13 +188,13 @@ class SettingsCommunicationActivity : AppCompatActivity() {
 
     private val onFocusLost = View.OnFocusChangeListener { view, hasFocus ->
         if (!hasFocus && !enterPressed && (view as EditText).text.toString().isNotBlank()) {
-            activityUtil.sendYesNoDialog(getString(R.string.unsaved_changes), yesLabel = getString(R.string.save), noLabel = getString(R.string.discard), callback = { positive ->
+            activityUtil.sendYesNoDialog(getString(R.string.unsaved_changes), getString(R.string.save), getString(R.string.discard)) { positive ->
                 if (positive) {
                     save(view)
                 }
 
                 view.text.clear()
-            })
+            }
         }
 
         enterPressed = false

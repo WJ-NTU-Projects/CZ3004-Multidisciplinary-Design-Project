@@ -103,20 +103,20 @@ class ActivityUtil(private val context: Context) {
         dialog?.show()
     }
 
-    fun sendYesNoDialog(message: String, callback: (positive: Boolean) -> Unit, yesLabel: String = "YES", noLabel: String = "NO") {
+    fun sendYesNoDialog(message: String, leftLabel: String = "YES", rightLabel: String = "NO", callback: (positive: Boolean) -> Unit) {
         val builder: AlertDialog.Builder? = (context as Activity).let {
             AlertDialog.Builder(it)
         }
 
         builder?.setMessage(message)
-        builder?.setPositiveButton(yesLabel) { dialog, _ ->
-            dialog.dismiss()
-            callback(true)
-        }
-
-        builder?.setNegativeButton(noLabel) { dialog, _ ->
+        builder?.setPositiveButton(rightLabel) { dialog, _ ->
             dialog.dismiss()
             callback(false)
+        }
+
+        builder?.setNegativeButton(leftLabel) { dialog, _ ->
+            dialog.dismiss()
+            callback(true)
         }
 
         val dialog: AlertDialog? = builder?.create()

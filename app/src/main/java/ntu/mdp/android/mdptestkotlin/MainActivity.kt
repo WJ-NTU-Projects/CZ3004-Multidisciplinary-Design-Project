@@ -3,22 +3,22 @@ package ntu.mdp.android.mdptestkotlin
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
+import android.content.res.Resources.Theme
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.EditText
-import android.widget.GridLayout
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
-import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.currentMode
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.isPlotting
@@ -28,6 +28,7 @@ import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 import ntu.mdp.android.mdptestkotlin.utils.TouchController
 import ntu.mdp.android.mdptestkotlin.utils.TouchController.Companion.isSwipeMode
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -81,14 +82,10 @@ class MainActivity : AppCompatActivity() {
 
         normalModeViewList = listOf(settingsButton, startButton, plotButton, resetButton, f1Button, f2Button, statusCard, modeCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
         plotModeViewList = listOf(plotObstacleButton, removeObstacleButton, clearObstacleButton, doneButton)
-        buttonList = listOf(settingsButton, plotButton, resetButton, f1Button, f2Button, padForwardButton, padReverseButton, padLeftButton, padRightButton, messagesSendButton)
+        buttonList = listOf(settingsButton, plotButton, resetButton, f1Button, f2Button, messagesSendButton)
 
         mainActivityController = MainActivityController(this, activityUtil, binding)
         touchController = TouchController(this, mainActivityController, binding) { statusLabel.text = it }
-        //padForwardButton.setOnTouchListener(touchController.touchListener)
-        //padReverseButton.setOnTouchListener(touchController.touchListener)
-        //padLeftButton.setOnTouchListener(touchController.touchListener)
-        //padRightButton.setOnTouchListener(touchController.touchListener)
         padForwardButton.isClickable = false
         padReverseButton.isClickable = false
         padLeftButton.isClickable = false
@@ -165,30 +162,44 @@ class MainActivity : AppCompatActivity() {
 
             R.id.controlModeButton -> {
                 isSwipeMode = !isSwipeMode
-                val color: Int = if (isSwipeMode) R.color.colorAccent else android.R.color.holo_blue_light
-                val visibility: Int = if (isSwipeMode) View.GONE else View.VISIBLE
-                controlModeButton.setTextColor(getColor(color))
+                val typedValue = TypedValue()
+                theme.resolveAttribute(if (isSwipeMode) R.attr.colorAccentTheme else R.attr.colorAccentLighterTheme, typedValue, true)
+                @ColorInt val color = typedValue.data
+                val visibility: Int = if (isSwipeMode) View.INVISIBLE else View.VISIBLE
+                controlModeButton.setTextColor(color)
                 padForwardButton.visibility = visibility
                 padReverseButton.visibility = visibility
                 padLeftButton.visibility = visibility
                 padRightButton.visibility = visibility
             }
 
-            R.id.doneButton -> onPlotClicked()
+            R.id.doneButton -> {
+                plotModeViewList.forEach { it.isEnabled = true }
+                mainActivityController.arenaController.resetActions()
+                onPlotClicked()
+            }
 
             R.id.plotObstacleButton -> {
                 if (mainActivityController.arenaController.plotMode != ArenaController.PlotMode.PLOT_OBSTACLE) {
-                    plotModeViewList.forEach { it.isEnabled = true }
-                    view.isEnabled = false
+                    plotModeViewList.forEach { it.isEnabled = false }
+                    view.isEnabled = true
                     mainActivityController.arenaController.plotMode = ArenaController.PlotMode.PLOT_OBSTACLE
+                } else {
+                    plotModeViewList.forEach { it.isEnabled = true }
+                    mainActivityController.arenaController.plotMode = ArenaController.PlotMode.NONE
+                    mainActivityController.arenaController.resetActions()
                 }
             }
 
             R.id.removeObstacleButton -> {
                 if (mainActivityController.arenaController.plotMode != ArenaController.PlotMode.REMOVE_OBSTACLE) {
-                    plotModeViewList.forEach { it.isEnabled = true }
-                    view.isEnabled = false
+                    plotModeViewList.forEach { it.isEnabled = false }
+                    view.isEnabled = true
                     mainActivityController.arenaController.plotMode = ArenaController.PlotMode.REMOVE_OBSTACLE
+                } else {
+                    plotModeViewList.forEach { it.isEnabled = true }
+                    mainActivityController.arenaController.plotMode = ArenaController.PlotMode.NONE
+                    mainActivityController.arenaController.resetActions()
                 }
             }
 
@@ -242,13 +253,10 @@ class MainActivity : AppCompatActivity() {
 
         activityUtil.scaleViews(firstList, false) {
             activityUtil.toggleProgressBar(View.VISIBLE, opaque = true) {
-                val gridLayoutList: List<GridLayout> = mainActivityController.arenaController.getGridLayouts()
-                gridLayoutList.forEach {
-                    it.pivotX = 0.0f
-                    it.pivotY = 0.0f
-                    it.scaleX = if (isPlotting) 1.44f else 1.0f
-                    it.scaleY = if (isPlotting) 1.44f else 1.0f
-                }
+                gridParent.pivotX = 0.0f
+                gridParent.pivotY = 0.0f
+                gridParent.scaleX = if (isPlotting) 1.44f else 1.0f
+                gridParent.scaleY = if (isPlotting) 1.44f else 1.0f
 
                 activityUtil.toggleProgressBar(View.GONE) {
                     activityUtil.scaleViews(secondList, true)

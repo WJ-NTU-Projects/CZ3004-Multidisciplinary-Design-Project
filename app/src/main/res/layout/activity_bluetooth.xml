@@ -27,7 +27,7 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextStatusTitle.Settings"
+                    style="@style/TextViewCustom.Status.Settings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/connected_device"/>
@@ -109,7 +109,7 @@
                 </androidx.cardview.widget.CardView>
 
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextStatusTitle.Settings"
+                    style="@style/TextViewCustom.Status.Settings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/bonded_devices" />
@@ -141,7 +141,7 @@
                     android:gravity="center_vertical">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/TextStatusTitle"
+                        style="@style/TextViewCustom.Status"
                         android:id="@+id/bluetoothOthersLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

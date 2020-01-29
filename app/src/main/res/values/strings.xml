@@ -16,6 +16,7 @@
     <string name="app_pref_command_f2">COMMAND_f2</string>
     <string name="app_pref_dark_mode">DARK_MODE</string>
     <string name="app_pref_sad_mode">SAD_MODE</string>
+    <string name="app_pref_using_amd">USING_AMD</string>
 
     <string name="ok">OK</string>
     <string name="yes">YES</string>
@@ -42,7 +43,7 @@
     <string name="mode">Mode</string>
     <string name="none">None</string>
     <string name="coordinates">Coordinates</string>
-    <string name="coordinates_default">-1, -1</string>
+    <string name="coordinates_default">1, 1</string>
     <string name="timer">Timer</string>
     <string name="timer_default">00:00</string>
     <string name="messages">Messages</string>
@@ -84,8 +85,11 @@
     <string name="other_devices">Other Devices</string>
 
     <!-- SETTINGS COMMUNICATION ACTIVITY -->
-    <string name="arena_update_mode">Arena Update Mode</string>
-    <string name="automatic_update">Automatic Update</string>
+    <string name="arena_communication">Arena Communication</string>
+    <string name="automatic_update">Automatically Update Arena</string>
+    <string name="automatic_update_description">Arena will be updated without user input. If disabled, swipe down on the grid map to update.</string>
+    <string name="using_amd">Using AMDTool</string>
+    <string name="using_amd_description">Please check this option if using AMDTool due to communication differences.</string>
     <string name="string_commands">String Commands</string>
     <string name="command">Command</string>
     <string name="command_output">String Output</string>
@@ -120,4 +124,13 @@
     <string name="display_mode">Display Mode</string>
     <string name="simple_advanced_display">Simple, yet Advanced Display Mode (SAD Mode)</string>
     <string name="simple_advanced_display_description">Minimal display for advanced users.</string>
+
+    <!-- ARENA -->
+    <string name="obstructed">Obstructed. Cannot plot.</string>
+    <string name="idle">Idle</string>
+    <string name="moving">Moving</string>
+    <string name="reversing">Reversing</string>
+    <string name="turning_left">Turning Left</string>
+    <string name="turning_right">Turning Right</string>
+    <string name="waypoint_touched">Waypoint touched.</string>
 </resources>

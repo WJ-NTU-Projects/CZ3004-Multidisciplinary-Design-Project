@@ -80,10 +80,10 @@ class TouchController(private val context: Context, private val mainActivityCont
 
             MotionEvent.ACTION_UP -> {
                 continuousMovement = false
-                callback(if (BluetoothController.isSocketConnected()) context.getString(R.string.connected) else context.getString(R.string.disconnected))
+                callback(context.getString(R.string.idle))
                 movementFlag = MovementFlag.NONE
-                view?.performClick()
                 if (!isSwipeMode) releasePadButtons()
+                return@OnTouchListener true
             }
         }
 

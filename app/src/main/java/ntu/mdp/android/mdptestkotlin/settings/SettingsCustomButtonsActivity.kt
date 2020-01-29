@@ -92,7 +92,7 @@ class SettingsCustomButtonsActivity : AppCompatActivity() {
 
     @Suppress("UNUSED_PARAMETER")
     fun clickRestore(view: View) {
-        activityUtil.sendYesNoDialog("Restore defaults?", { positive ->
+        activityUtil.sendYesNoDialog("Restore defaults?") { positive ->
             if (positive) {
                 sharedPreferences.edit().putString(getString(R.string.app_pref_label_f1), getString(
                     R.string.f1_default
@@ -108,7 +108,7 @@ class SettingsCustomButtonsActivity : AppCompatActivity() {
                 )).apply()
                 refreshHints()
             }
-        })
+        }
     }
 
     private val onEnter = View.OnKeyListener { view, keyCode, event ->
@@ -123,10 +123,10 @@ class SettingsCustomButtonsActivity : AppCompatActivity() {
 
     private val onFocusLost = View.OnFocusChangeListener { view, hasFocus ->
         if (!hasFocus && !enterPressed && (view as EditText).text.toString().isNotBlank()) {
-            activityUtil.sendYesNoDialog(getString(R.string.unsaved_changes), yesLabel = getString(R.string.save), noLabel = getString(R.string.discard), callback = { positive ->
+            activityUtil.sendYesNoDialog(getString(R.string.unsaved_changes), getString(R.string.save), getString(R.string.discard)) { positive ->
                 if (positive) save(view)
                 view.text.clear()
-            })
+            }
         }
 
         enterPressed = false
