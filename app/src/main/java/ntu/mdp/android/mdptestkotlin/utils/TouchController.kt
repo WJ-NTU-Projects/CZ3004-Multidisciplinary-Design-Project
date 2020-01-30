@@ -2,13 +2,11 @@ package ntu.mdp.android.mdptestkotlin.utils
 
 import android.content.Context
 import android.graphics.Rect
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ntu.mdp.android.mdptestkotlin.App.Companion.MOVEMENT_PROCSES_INTERVAL
 import ntu.mdp.android.mdptestkotlin.MainActivityController
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
@@ -37,9 +35,9 @@ class TouchController(private val context: Context, private val mainActivityCont
     private var reverseRect = Rect(80, 190, 150, 260)
     private var leftRect = Rect(20, 125, 90, 195)
     private var rightRect = Rect(150, 125, 220, 195)
+    var lastMoveTime = 0L
 
     val touchListener = View.OnTouchListener { view, event ->
-        Log.e("EVENT", "${event.x}, ${event.y}")
 
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -91,14 +89,11 @@ class TouchController(private val context: Context, private val mainActivityCont
     }
 
     private fun checkIntersect(event: MotionEvent) {
-        val x: Int = event.x.roundToInt()
-        val y: Int = event.y.roundToInt()
-
         when {
-            forwardRect.contains(x, y) -> pressPadButton(MovementFlag.FORWARD)
-            reverseRect.contains(x, y) -> pressPadButton(MovementFlag.REVERSE)
-            leftRect.contains(x, y) -> pressPadButton(MovementFlag.LEFT)
-            rightRect.contains(x, y) -> pressPadButton(MovementFlag.RIGHT)
+            forwardRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(MovementFlag.FORWARD)
+            reverseRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(MovementFlag.REVERSE)
+            leftRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(MovementFlag.LEFT)
+            rightRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(MovementFlag.RIGHT)
             else -> releasePadButtons()
         }
     }
@@ -135,10 +130,9 @@ class TouchController(private val context: Context, private val mainActivityCont
 
     private inner class ContinuousMovementThread: Thread() {
         override fun run() {
-            var lastMoveTime = 0L
 
             while (continuousMovement) {
-                if (System.currentTimeMillis() - lastMoveTime >= MOVEMENT_PROCSES_INTERVAL) {
+                if (System.currentTimeMillis() - lastMoveTime >= 500L) {
                     lastMoveTime = System.currentTimeMillis()
 
                     CoroutineScope(Dispatchers.Main).launch {

@@ -13,10 +13,10 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.*
-import ntu.mdp.android.mdptestkotlin.App.Companion.BUTTON_CLICK_DELAY_INTERVAL
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
+import ntu.mdp.android.mdptestkotlin.App.Companion.testExplore
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainSimpleBinding
@@ -108,7 +108,7 @@ class MainActivityController(private val context: Context, private val activityU
     private val timerLabel: MaterialTextView? = if (isSimple) binding2?.timerLabel2 else binding?.timerLabel
     private val messagesTextView: TextView? = if (isSimple) binding2?.messagesTextView2 else binding?.messagesTextView
     private val messagesScrollView: ScrollView? = if (isSimple) binding2?.messagesScrollView2 else binding?.messagesScrollView
-    private val scratchPad = ScratchPad(context, this)
+    private val scratchPad = ScratchPad(this)
 
     private var lastClickTime = 0L
     private lateinit var timer: CountDownTimer
@@ -215,13 +215,24 @@ class MainActivityController(private val context: Context, private val activityU
     }
 
     fun isClickDelayOver(): Boolean {
-        if (System.currentTimeMillis() - lastClickTime < BUTTON_CLICK_DELAY_INTERVAL) return false
+        if (System.currentTimeMillis() - lastClickTime < 250L) return false
         lastClickTime = System.currentTimeMillis()
         return true
     }
 
     fun onStartClicked(buttonList: List<View>) {
         robotAutonomous = !robotAutonomous
+
+        if (testExplore) {
+            if (robotAutonomous) {
+                if (currentMode == Mode.EXPLORATION) scratchPad.exploration()
+                if (currentMode == Mode.FASTEST_PATH) scratchPad.fastestPath()
+                arenaController.resetGoalPoint()
+            } else {
+                scratchPad.stop()
+            }
+        }
+
         val startButton: MaterialButton? = binding?.startButton
 
         if (isSimple) {

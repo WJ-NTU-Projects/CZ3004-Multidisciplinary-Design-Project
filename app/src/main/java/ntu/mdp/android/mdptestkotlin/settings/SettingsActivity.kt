@@ -77,7 +77,7 @@ class SettingsActivity : AppCompatActivity() {
             SettingsBluetoothActivity::class.java,
             SettingsCommunicationActivity::class.java,
             SettingsCustomButtonsActivity::class.java,
-            SettingsDisplayActivity::class.java
+            SettingsExperimentalActivity::class.java
         )
     }
 

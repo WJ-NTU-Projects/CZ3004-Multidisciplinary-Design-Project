@@ -2,7 +2,6 @@ package ntu.mdp.android.mdptestkotlin.arena
 
 import android.content.Context
 import android.util.Log
-import android.widget.GridLayout
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
@@ -13,7 +12,7 @@ import ntu.mdp.android.mdptestkotlin.arena.Arena.Companion.exploredBit
 import ntu.mdp.android.mdptestkotlin.utils.GestureImageView
 
 
-class ArenaController(private val context: Context, private val activityCallback: (callback: Callback, message: String) -> Unit) {
+class ArenaController(private val context: Context, val activityCallback: (callback: Callback, message: String) -> Unit) {
     enum class PlotMode {
         NONE,
         PLOT_OBSTACLE,
@@ -60,7 +59,11 @@ class ArenaController(private val context: Context, private val activityCallback
     private val dp: Int = (context.resources.displayMetrics.widthPixels * scale).toInt()
     private val gridSize: Int = ((dp - 30) / 15)
     private val robotSize: Int = (dp / 15)
-    private val arena: Arena = Arena(context, gridSize, robotSize, gestureCallback) { status, message ->
+    private val undoActionList: ArrayList<Pair<Int, Pair<Int, Int>>> = arrayListOf()
+    private val redoActionList: ArrayList<Pair<Int, Pair<Int, Int>>> = arrayListOf()
+    private var viewOnHold: GestureImageView = GestureImageView(context)
+
+    val arena: Arena = Arena(context, gridSize, robotSize, gestureCallback) { status, message ->
         when (status) {
             Arena.Callback.INFO -> activityCallback(Callback.INFO, message)
             Arena.Callback.WRITE -> activityCallback(Callback.WRITE, message)
@@ -68,10 +71,6 @@ class ArenaController(private val context: Context, private val activityCallback
             Arena.Callback.ROBOT -> activityCallback(Callback.ROBOT, message)
         }
     }
-
-    private val undoActionList: ArrayList<Pair<Int, Pair<Int, Int>>> = arrayListOf()
-    private val redoActionList: ArrayList<Pair<Int, Pair<Int, Int>>> = arrayListOf()
-    private var viewOnHold: GestureImageView = GestureImageView(context)
 
     init {
         arena.setRobotStartGoalPoint(1, 1, true)
@@ -185,13 +184,14 @@ class ArenaController(private val context: Context, private val activityCallback
         var x = robotCoordinates[0]
         var y = robotCoordinates[1]
         val r = robotCoordinates[2]
-        Log.d(this::class.simpleName ?: "-", "Robot's current position: [$x, $y] facing $r.")
+        val check = direction * 2
+        //Log.d(this::class.simpleName ?: "-", "Robot's current position: [$x, $y] facing $r.")
 
         when (r) {
-            0 -> for (xOffset in -1 .. 1) if (!arena.isGridMovable(x + xOffset, y + 2)) return
-            90 -> for (yOffset in -1 .. 1) if (!arena.isGridMovable(x + 2, y + yOffset)) return
-            180 -> for (xOffset in -1 .. 1) if (!arena.isGridMovable(x + xOffset, y - 2)) return
-            else -> for (yOffset in -1 .. 1) if (!arena.isGridMovable(x - 2, y + yOffset)) return
+            0 -> for (xOffset in -1..1) if (!arena.isGridMovable(x + xOffset, y + check)) return
+            90 -> for (yOffset in -1..1) if (!arena.isGridMovable(x + check, y + yOffset)) return
+            180 -> for (xOffset in -1..1) if (!arena.isGridMovable(x + xOffset, y - check)) return
+            else -> for (yOffset in -1..1) if (!arena.isGridMovable(x - check, y + yOffset)) return
         }
 
         if (direction == 1) {
@@ -327,4 +327,11 @@ class ArenaController(private val context: Context, private val activityCallback
     fun updateRobotImage() {
         arena.setRobotImage(getRobotFacing())
     }
+
+    fun saveObstacles() {
+        arena.saveObstacles()
+    }
+
+    fun isWaypointSet(): Boolean = arena.isWaypointSet()
+    fun resetGoalPoint() = arena.resetGoalPoint()
 }

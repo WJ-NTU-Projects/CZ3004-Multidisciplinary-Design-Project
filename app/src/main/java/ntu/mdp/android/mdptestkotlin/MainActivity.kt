@@ -3,7 +3,6 @@ package ntu.mdp.android.mdptestkotlin
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
-import android.content.res.Resources.Theme
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.KeyEvent
@@ -20,12 +19,14 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
+import ntu.mdp.android.mdptestkotlin.App.Companion.testExplore
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.currentMode
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.isPlotting
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.robotAutonomous
 import ntu.mdp.android.mdptestkotlin.arena.ArenaController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
+import ntu.mdp.android.mdptestkotlin.utils.ScratchPad
 import ntu.mdp.android.mdptestkotlin.utils.TouchController
 import ntu.mdp.android.mdptestkotlin.utils.TouchController.Companion.isSwipeMode
 
@@ -82,7 +83,7 @@ class MainActivity : AppCompatActivity() {
 
         normalModeViewList = listOf(settingsButton, startButton, plotButton, resetButton, f1Button, f2Button, statusCard, modeCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
         plotModeViewList = listOf(plotObstacleButton, removeObstacleButton, clearObstacleButton, doneButton)
-        buttonList = listOf(settingsButton, plotButton, resetButton, f1Button, f2Button, messagesSendButton)
+        buttonList = listOf(settingsButton, plotButton, resetButton, f1Button, f2Button, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
 
         mainActivityController = MainActivityController(this, activityUtil, binding)
         touchController = TouchController(this, mainActivityController, binding) { statusLabel.text = it }
@@ -128,6 +129,7 @@ class MainActivity : AppCompatActivity() {
         mainActivityController.onBackPressed()
     }
 
+    @Suppress("unused")
     fun clickUiButton(view: View) {
         if (!mainActivityController.isClickDelayOver()) return
 
@@ -154,6 +156,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.startFastestPathFab -> {
+                if (!mainActivityController.arenaController.isWaypointSet()) {
+                    activityUtil.sendSnack("Please set a waypoint first.")
+                    return
+                }
+
                 mainActivityController.sendCommand(sharedPreferences.getString(getString(R.string.app_pref_fastest), getString(R.string.fastest_path_default))!!)
                 currentMode = MainActivityController.Mode.FASTEST_PATH
                 mainActivityController.onStartClicked(buttonList)
@@ -176,6 +183,7 @@ class MainActivity : AppCompatActivity() {
             R.id.doneButton -> {
                 plotModeViewList.forEach { it.isEnabled = true }
                 mainActivityController.arenaController.resetActions()
+                if (testExplore) mainActivityController.arenaController.saveObstacles()
                 onPlotClicked()
             }
 

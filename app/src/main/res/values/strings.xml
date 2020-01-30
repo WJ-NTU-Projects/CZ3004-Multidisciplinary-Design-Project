@@ -17,6 +17,7 @@
     <string name="app_pref_dark_mode">DARK_MODE</string>
     <string name="app_pref_sad_mode">SAD_MODE</string>
     <string name="app_pref_using_amd">USING_AMD</string>
+    <string name="app_pref_test_explore">TEST_EXPLORE</string>
 
     <string name="ok">OK</string>
     <string name="yes">YES</string>
@@ -117,13 +118,14 @@
     <string name="button_label">Button Label</string>
     <string name="settings_custom_buttons_description">Changes the functionality and label of the two custom buttons, F1 and F2.</string>
 
-    <!-- SETTINGS DISPLAY ACTIVITY -->
-    <string name="display_warning">WARNING! App restarts when these settings are changed! NO POP UP!</string>
+    <!-- SETTINGS EXPERIMENTAL ACTIVITY -->
+    <string name="experimental_warning">WARNING! App restarts when these settings are changed! NO POP UP!</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="dark_mode_description">For when your eyes are so tired and sleepy after hours of MDP but you have to push on.</string>
-    <string name="display_mode">Display Mode</string>
     <string name="simple_advanced_display">Simple, yet Advanced Display Mode (SAD Mode)</string>
     <string name="simple_advanced_display_description">Minimal display for advanced users.</string>
+    <string name="test_explore">Test Exploration Mode</string>
+    <string name="test_explore_description">[HIGHLY EXPERIMENTAL] Activates features that allow for mock automated runs.</string>
 
     <!-- ARENA -->
     <string name="obstructed">Obstructed. Cannot plot.</string>

@@ -13,11 +13,13 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
+import ntu.mdp.android.mdptestkotlin.App.Companion.testExplore
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainSimpleBinding
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.currentMode
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.robotAutonomous
 import ntu.mdp.android.mdptestkotlin.arena.ArenaController
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
+import ntu.mdp.android.mdptestkotlin.utils.ScratchPad
 
 
 class MainSimpleActivity : AppCompatActivity() {
@@ -74,6 +76,7 @@ class MainSimpleActivity : AppCompatActivity() {
                 if (!robotAutonomous) {
                     mainActivityController.sendCommand(sharedPreferences.getString(getString(R.string.app_pref_exploration), getString(R.string.exploration_default))!!)
                     currentMode = MainActivityController.Mode.EXPLORATION
+                    if (testExplore) mainActivityController.arenaController.saveObstacles()
                 }
 
                 mainActivityController.onStartClicked(buttonList)
@@ -81,6 +84,11 @@ class MainSimpleActivity : AppCompatActivity() {
 
             R.id.startFastestPathButton2 -> {
                 if (!robotAutonomous) {
+                    if (!mainActivityController.arenaController.isWaypointSet()) {
+                        activityUtil.sendSnack("Please set a waypoint first.")
+                        return
+                    }
+
                     mainActivityController.sendCommand(sharedPreferences.getString(getString(R.string.app_pref_fastest), getString(R.string.fastest_path_default))!!)
                     currentMode = MainActivityController.Mode.FASTEST_PATH
                 }

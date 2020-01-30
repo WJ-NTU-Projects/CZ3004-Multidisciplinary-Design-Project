@@ -39,7 +39,6 @@ class SettingsCommunicationActivity : AppCompatActivity() {
         }
 
         amdSwitch.isChecked = usingAmd
-        amdSwitch.isEnabled = false
         amdSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean(getString(R.string.app_pref_using_amd), isChecked).apply()
             usingAmd = isChecked
