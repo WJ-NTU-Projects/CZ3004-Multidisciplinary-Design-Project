@@ -33,7 +33,7 @@ class App: Application() {
         var plotSearch = false
         var allowDiagonalExploration = false
         var fastSimulation = false
-        var simulationDelay = 750L
+        var simulationDelay = 500L
     }
 
     override fun onCreate() {
@@ -50,6 +50,6 @@ class App: Application() {
         plotSearch = sharedPreferences.getBoolean(getString(R.string.app_pref_plot_search), false)
         allowDiagonalExploration = sharedPreferences.getBoolean(getString(R.string.app_pref_diagonal_exploration), false)
         fastSimulation = sharedPreferences.getBoolean(getString(R.string.app_pref_fast_simulation), false)
-        simulationDelay = if (fastSimulation)  100L else 750L
+        simulationDelay = if (fastSimulation)  50L else 500L
     }
 }
