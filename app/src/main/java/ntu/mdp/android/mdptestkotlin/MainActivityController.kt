@@ -66,6 +66,7 @@ class MainActivityController(private val context: Context, private val activityU
             ArenaController.Callback.WRITE -> sendCommand(message)
             ArenaController.Callback.RESET -> resetArena()
             ArenaController.Callback.ROBOT -> displayInChat(MessageType.INCOMING, message)
+            ArenaController.Callback.MESSAGE -> displayInChat(MessageType.SYSTEM, message)
 
             ArenaController.Callback.COORDINATES -> {
                 if (isSimple) binding2?.coordinatesLabel2?.text = message
@@ -108,7 +109,8 @@ class MainActivityController(private val context: Context, private val activityU
     private val timerLabel: MaterialTextView? = if (isSimple) binding2?.timerLabel2 else binding?.timerLabel
     private val messagesTextView: TextView? = if (isSimple) binding2?.messagesTextView2 else binding?.messagesTextView
     private val messagesScrollView: ScrollView? = if (isSimple) binding2?.messagesScrollView2 else binding?.messagesScrollView
-    private val scratchPad = ScratchPad(this)
+    private var buttonListCache: List<View> = listOf()
+    private val scratchPad = ScratchPad(this) { if (it) onStartClicked(buttonListCache) }
 
     private var lastClickTime = 0L
     private lateinit var timer: CountDownTimer
@@ -151,8 +153,8 @@ class MainActivityController(private val context: Context, private val activityU
                 if (it) messagesTextView?.text = ""
             }
 
-            R.id.f1Button, R.id.f2Button, R.id.f1Button2, R.id.f2Button2 -> {
-                val text = if (view.id == R.id.f1Button || view.id == R.id.f1Button2) sharedPreferences.getString(context.getString(R.string.app_pref_command_f1), context.getString(R.string.f1_default))
+            R.id.f1Button, R.id.f2Button -> {
+                val text = if (view.id == R.id.f1Button) sharedPreferences.getString(context.getString(R.string.app_pref_command_f1), context.getString(R.string.f1_default))
                 else sharedPreferences.getString(context.getString(R.string.app_pref_command_f2), context.getString(R.string.f2_default))
 
                 when (text) {
@@ -222,10 +224,15 @@ class MainActivityController(private val context: Context, private val activityU
 
     fun onStartClicked(buttonList: List<View>) {
         robotAutonomous = !robotAutonomous
+        buttonListCache = buttonList
 
         if (testExplore) {
             if (robotAutonomous) {
-                if (currentMode == Mode.EXPLORATION) scratchPad.exploration()
+                if (currentMode == Mode.EXPLORATION) {
+                    if (testExplore) arenaController.saveObstacles()
+                    scratchPad.exploration()
+                }
+
                 if (currentMode == Mode.FASTEST_PATH) scratchPad.fastestPath()
                 arenaController.resetGoalPoint()
             } else {
@@ -272,6 +279,30 @@ class MainActivityController(private val context: Context, private val activityU
             Mode.FASTEST_PATH -> {
                 modeLabel?.text = context.getString(R.string.fastest_path)
                 displayInChat(MessageType.SYSTEM, context.getString(R.string.started_something, "fastest path."))
+            }
+        }
+    }
+
+    fun onMapSaveClicked() {
+        activityUtil.sendYesNoDialog(context.getString(R.string.save_map_prompt), leftLabel = context.getString(R.string.yes), rightLabel = context.getString(R.string.no)) {
+            if (it) {
+                val save: String = arenaController.getMapDescriptor()
+                sharedPreferences.edit().putString(context.getString(R.string.app_pref_map_descriptor_1), save).apply()
+                activityUtil.sendSnack(context.getString(R.string.map_saved))
+            }
+        }
+    }
+
+    fun onMapLoadClicked() {
+        activityUtil.sendYesNoDialog(context.getString(R.string.load_map_prompt), leftLabel = context.getString(R.string.yes), rightLabel = context.getString(R.string.no)) {
+            if (it) {
+                val load: String = sharedPreferences.getString(context.getString(R.string.app_pref_map_descriptor_1), "") ?: ""
+                if (load.isEmpty()) {
+                    activityUtil.sendSnack(context.getString(R.string.no_save_data))
+                } else {
+                    arenaController.resetArena()
+                    arenaController.updateArena(load)
+                }
             }
         }
     }

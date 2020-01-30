@@ -6,6 +6,8 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
+import ntu.mdp.android.mdptestkotlin.App.Companion.testExplore
+import ntu.mdp.android.mdptestkotlin.App.Companion.usingAmd
 import ntu.mdp.android.mdptestkotlin.MainActivityController
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.arena.Arena.Companion.exploredBit
@@ -26,6 +28,7 @@ class ArenaController(private val context: Context, val activityCallback: (callb
         COORDINATES,
         LONG_PRESS_CHOICE,
         ROBOT,
+        MESSAGE,
         RESET
     }
 
@@ -90,14 +93,23 @@ class ArenaController(private val context: Context, val activityCallback: (callb
             s = ArrayList(explorationData.split("//"))
         }
 
+        var skip = 2
+
         for (i in s[0].indices) {
             var binary: String = s[0][i].toString().toInt(16).toString(2)
             binary = binary.padStart(4, '0')
 
             for (j in binary.indices) {
+                if (!usingAmd && skip > 0) {
+                    skip--
+                    continue
+                }
+
+                if (!usingAmd && i >= s[0].length - 2) continue
                 val bit: Int = binary[j].toString().toInt()
                 val y = Math.floorDiv(counter, 15)
                 val x = (counter % 15)
+                Log.e("PLOT", "$x, $y, $bit")
                 arena.plot(x, y, if (bit == exploredBit) Arena.GridType.EXPLORED else Arena.GridType.UNEXPLORED)
                 if (bit == exploredBit) exploredIndices.add(Pair(x, y))
                 counter++
@@ -119,14 +131,14 @@ class ArenaController(private val context: Context, val activityCallback: (callb
             for (j in binary.indices) {
                 val bit: Int = binary[j].toString().toInt()
 
-                if (counter < extraLength) {
+                if (!testExplore && counter < extraLength) {
                     extraLength--
                     continue
                 }
 
-                val coordinates = exploredIndices[counter]
-                val x = coordinates.first
-                val y = coordinates.second
+                val coordinates = if (testExplore) Pair(0, 0) else exploredIndices[counter]
+                val x = if (testExplore) (counter % 15) else coordinates.first
+                val y = if (testExplore) Math.floorDiv(counter, 15) else coordinates.second
 
                 if (bit == 1) {
                     arena.plot(x, y, Arena.GridType.OBSTACLE)
@@ -334,4 +346,60 @@ class ArenaController(private val context: Context, val activityCallback: (callb
 
     fun isWaypointSet(): Boolean = arena.isWaypointSet()
     fun resetGoalPoint() = arena.resetGoalPoint()
+
+    fun getMapDescriptor(): String {
+        var tempString = "11"
+        arena.gridStateArray.forEach { it.forEach { state -> tempString += state.toString() }}
+        tempString += "11"
+
+        if (tempString.length % 4 != 0) {
+            activityCallback(Callback.INFO, context.getString(R.string.something_went_wrong))
+            return ""
+        }
+
+        var explorationDescriptor = ""
+        var hex = ""
+        var counter = 0
+
+        tempString.indices.forEach { i ->
+            hex += tempString[i]
+            counter++
+
+            if (counter == 4) {
+                hex = hex.toInt(2).toString(16)
+                explorationDescriptor += hex
+                hex = ""
+                counter = 0
+            }
+        }
+
+        tempString = ""
+        arena.obstacleArray.forEach { it.forEach { state -> tempString += state.toString() }}
+        Log.e("tempString", "$tempString, ${tempString.length}")
+        val pad = Math.floorMod(tempString.length, 4)
+        tempString = "".padEnd(pad, '0') + tempString
+        Log.e("tempString", "$tempString, ${tempString.length}")
+
+        var obstacleDescriptor = ""
+        hex = ""
+        counter = 0
+
+        tempString.indices.forEach { i ->
+            hex += tempString[i]
+            counter++
+
+            if (counter == 4) {
+                hex = hex.toInt(2).toString(16)
+                obstacleDescriptor += hex
+                hex = ""
+                counter = 0
+            }
+        }
+
+        explorationDescriptor = "f8007000e0000000000000000000000000000000000000000000000000000000000000000003"
+        Log.e(this::class.simpleName, "\n")
+        Log.e(this::class.simpleName, "Exploration Descriptor: $explorationDescriptor")
+        Log.e(this::class.simpleName, "Obstacle Descriptor: $obstacleDescriptor")
+        return "$explorationDescriptor//$obstacleDescriptor"
+    }
 }

@@ -50,12 +50,12 @@ class Arena (private val context: Context,
     var startPointCoordinates: Pair<Int, Int> = Pair(-1, -1)
     var goalPointCoordinates: Pair<Int, Int> = Pair(-1, -1)
     val gridStateArray: Array<Array<Int>> = Array(20) { Array(15) { unexploredBit } }
+    val obstacleArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
 
     private val gridLayout: GridLayout = (context as Activity).findViewById(R.id.main_grid_arena)
     private val gridParent: RelativeLayout = (context as Activity).findViewById(R.id.gridParent)
     private var robot: ImageView = ImageView(context)
     private val gridArray: Array<Array<GestureImageView>> = Array(20) { Array(15) { GestureImageView(context) } }
-    private val obstacleArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
 
     init {
         for (y in 19 downTo 0) {
@@ -102,9 +102,11 @@ class Arena (private val context: Context,
     fun resetObstacles() {
         for (y in 19 downTo 0) {
             for (x in 0..14) {
-                if (gridArray[y][x].tag == GridType.OBSTACLE)
-                if (gridStateArray[y][x] == exploredBit) setGridColor(x, y, GridType.EXPLORED)
-                else setGridColor(x, y, GridType.UNEXPLORED)
+                if (gridArray[y][x].tag == GridType.OBSTACLE) {
+                    obstacleArray[y][x] = 0
+                    if (gridStateArray[y][x] == exploredBit) setGridColor(x, y, GridType.EXPLORED)
+                    else setGridColor(x, y, GridType.UNEXPLORED)
+                }
             }
         }
     }
@@ -134,6 +136,7 @@ class Arena (private val context: Context,
                 val xNew = x + xOffset
                 val yNew = y + yOffset
                 gridStateArray[yNew][xNew] = exploredBit
+                obstacleArray[yNew][xNew] = 0
                 plot(xNew, yNew, GridType.EXPLORED)
             }
         }
@@ -164,7 +167,7 @@ class Arena (private val context: Context,
                 if (isValidCoordinates(xNew, yNew)) {
                     if (obstacleArray[yNew][xNew] == 1) {
                         plot(xNew, yNew, GridType.OBSTACLE)
-                        gridStateArray[yNew][xNew] = 1
+                        gridStateArray[yNew][xNew] = exploredBit
                     }
                 }
             }
@@ -179,7 +182,7 @@ class Arena (private val context: Context,
                 if (isValidCoordinates(xNew, yNew)) {
                     if (obstacleArray[yNew][xNew] == 1) {
                         plot(xNew, yNew, GridType.OBSTACLE)
-                        gridStateArray[yNew][xNew] = 1
+                        gridStateArray[yNew][xNew] = exploredBit
                     }
                 }
             }
@@ -210,7 +213,6 @@ class Arena (private val context: Context,
                     val xOld: Int = if (isStart) startPointCoordinates.first + xOffset else goalPointCoordinates.first + xOffset
                     val yOld: Int = if (isStart) startPointCoordinates.second + yOffset else goalPointCoordinates.second + yOffset
                     if (isStart) {
-                        //setGridColor(xOld, yOld, GridType.UNEXPLORED)
                         setGridColor(xOld, yOld, if (gridStateArray[yOld][xOld] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
                     } else {
                         setGridColor(xOld, yOld, if (gridStateArray[yOld][xOld] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
@@ -261,7 +263,7 @@ class Arena (private val context: Context,
                 val xNew = x + xOffset
                 val yNew = y + yOffset
 
-                if (!isGridOfType(xNew, yNew, GridType.WAYPOINT) && isGridOccupied(xNew, yNew)) {
+                if (!isGridOfType(xNew, yNew, GridType.WAYPOINT) && !isGridOfType(xNew, yNew, GridType.WAYPOINT_TOUCHED) && isGridOccupied(xNew, yNew)) {
                     controllerCallback(Callback.INFO, context.getString(R.string.obstructed))
                     return
                 }
@@ -298,6 +300,7 @@ class Arena (private val context: Context,
 
         when (gridType) {
             GridType.UNEXPLORED, GridType.EXPLORED -> {
+                gridStateArray[y][x] = if (gridType == GridType.EXPLORED) exploredBit else unexploredBit
                 if (isGridOccupied(x, y)) return
                 setGridColor(x, y, gridType)
             }
@@ -319,7 +322,7 @@ class Arena (private val context: Context,
             }
 
             GridType.SEARCH_ADJACENT, GridType.SEARCH_PICKED -> {
-                if (isGridOfType(x, y, GridType.OBSTACLE)) {
+                if (isGridOccupied(x, y)) {
                     return
                 }
 
@@ -335,6 +338,7 @@ class Arena (private val context: Context,
         val x = coordinates.first
         val y = coordinates.second
         if (!isGridOfType(x, y, GridType.OBSTACLE)) return
+        obstacleArray[y][x] = 0
         setGridColor(x, y, if (gridStateArray[y][x] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
     }
 
@@ -407,17 +411,23 @@ class Arena (private val context: Context,
             GridType.START_POINT -> grid.setBackgroundColor(context.getColor(R.color.arena_start_point))
             GridType.GOAL_POINT -> grid.setBackgroundColor(context.getColor(R.color.arena_goal_point))
             GridType.WAYPOINT -> grid.setBackgroundColor(context.getColor(R.color.arena_way_point))
-            GridType.OBSTACLE -> grid.setBackgroundColor(context.getColor(R.color.arena_obstacle))
             GridType.WAYPOINT_TOUCHED -> grid.setBackgroundColor(context.getColor(R.color.arena_way_point_touched))
             GridType.GOAL_POINT_TOUCHED -> grid.setBackgroundColor(context.getColor(R.color.arena_goal_point_touched))
 
+            GridType.OBSTACLE -> {
+                obstacleArray[y][x] = 1
+                grid.setBackgroundColor(context.getColor(R.color.arena_obstacle))
+            }
+
             GridType.UNEXPLORED -> {
                 gridStateArray[y][x] = unexploredBit
+                //obstacleArray[y][x] = 0
                 grid.setBackgroundColor(context.getColor(R.color.arena_unexplored))
             }
 
             GridType.EXPLORED -> {
                 gridStateArray[y][x] = exploredBit
+                //obstacleArray[y][x] = 0
                 grid.setBackgroundColor(context.getColor(R.color.arena_explored))
             }
 
@@ -469,10 +479,14 @@ class Arena (private val context: Context,
 
     fun setRobotImage(facing: Int) {
         val drawable: Int = when (facing) {
-            0 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_0_connected else R.drawable.ic_0
+            45 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_45_connected else R.drawable.ic_45
             90 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_90_connected else R.drawable.ic_90
+            135 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_135_connected else R.drawable.ic_135
             180 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_180_connected else R.drawable.ic_180
-            else -> if (BluetoothController.isSocketConnected()) R.drawable.ic_270_connected else R.drawable.ic_270
+            225 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_225_connected else R.drawable.ic_225
+            270 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_270_connected else R.drawable.ic_270
+            315 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_315_connected else R.drawable.ic_315
+            else -> if (BluetoothController.isSocketConnected()) R.drawable.ic_0_connected else R.drawable.ic_0
         }
 
         robot.setImageResource(drawable)
@@ -504,9 +518,9 @@ class Arena (private val context: Context,
                 if (!isValidCoordinates(x + offset, y)) return true
 
                 if (checkSingle) {
-                    if (gridStateArray[y][x + offset] == 0) return false
+                    if (gridStateArray[y][x + offset] == unexploredBit) return false
                 } else {
-                    if (gridStateArray[y][x + offset] == 1) return true
+                    if (gridStateArray[y][x + offset] == exploredBit) return true
                 }
             }
 
@@ -516,9 +530,9 @@ class Arena (private val context: Context,
                 if (!isValidCoordinates(x, y + offset)) return true
 
                 if (checkSingle) {
-                    if (gridStateArray[y + offset][x] == 0) return false
+                    if (gridStateArray[y + offset][x] == unexploredBit) return false
                 } else {
-                    if (gridStateArray[y + offset][x] == 1) return true
+                    if (gridStateArray[y + offset][x] == exploredBit) return true
                 }
             }
 
@@ -541,7 +555,7 @@ class Arena (private val context: Context,
 
     private fun isGridOccupied(x: Int, y: Int): Boolean {
         val grid: GestureImageView = gridArray[y][x]
-        return !(grid.tag == GridType.UNEXPLORED || grid.tag == GridType.EXPLORED)
+        return !(grid.tag == GridType.UNEXPLORED || grid.tag == GridType.EXPLORED || grid.tag == GridType.SEARCH_PICKED || grid.tag == GridType.SEARCH_ADJACENT)
     }
 
     private fun isGridOfType(x: Int, y: Int, gridType: GridType): Boolean = (gridArray[y][x].tag == gridType)

@@ -44,7 +44,7 @@ class MainSimpleActivity : AppCompatActivity() {
 
         MainActivityController.isPlotting = true
         MainActivityController.isUpdating = true
-        buttonList = listOf(startExplorationButton2, startFastestPathButton2, settingsButton2, plotObstacleButton2, removeObstacleButton2, clearObstacleButton2, f1Button2, f2Button2)
+        buttonList = listOf(startExplorationButton2, startFastestPathButton2, settingsButton2, plotObstacleButton2, removeObstacleButton2, clearObstacleButton2, saveMapButton2, loadMapButton2)
     }
 
     override fun onStart() {
@@ -72,11 +72,13 @@ class MainSimpleActivity : AppCompatActivity() {
         if (!mainActivityController.isClickDelayOver()) return
 
         when (view.id) {
+            R.id.loadMapButton2 -> mainActivityController.onMapLoadClicked()
+            R.id.saveMapButton2 -> mainActivityController.onMapSaveClicked()
+
             R.id.startExplorationButton2 -> {
                 if (!robotAutonomous) {
                     mainActivityController.sendCommand(sharedPreferences.getString(getString(R.string.app_pref_exploration), getString(R.string.exploration_default))!!)
                     currentMode = MainActivityController.Mode.EXPLORATION
-                    if (testExplore) mainActivityController.arenaController.saveObstacles()
                 }
 
                 mainActivityController.onStartClicked(buttonList)

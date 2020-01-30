@@ -56,14 +56,14 @@ class SettingsActivity : AppCompatActivity() {
             getString(R.string.bluetooth),
             getString(R.string.robot_communication),
             getString(R.string.custom_buttons),
-            getString(R.string.display)
+            getString(R.string.experimental)
         )
 
         descriptionList = arrayListOf(
             getString(R.string.bluetooth_description),
             getString(R.string.robot_communication_description),
             getString(R.string.custom_buttons_description),
-            getString(R.string.display_description)
+            getString(R.string.experimental_description)
         )
 
         colorList = arrayListOf(

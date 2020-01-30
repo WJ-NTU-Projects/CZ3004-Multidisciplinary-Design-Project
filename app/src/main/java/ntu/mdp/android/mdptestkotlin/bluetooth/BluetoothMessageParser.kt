@@ -22,7 +22,6 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
         }
 
         val s: ArrayList<String> = ArrayList(message.split("::"))
-        Log.e("MESSAGE", message)
 
         if (s.size != 2) {
             callback(MessageStatus.GARBAGE, "Something went wrong.")

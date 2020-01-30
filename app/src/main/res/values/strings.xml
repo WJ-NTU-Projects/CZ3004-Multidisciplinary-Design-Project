@@ -18,6 +18,11 @@
     <string name="app_pref_sad_mode">SAD_MODE</string>
     <string name="app_pref_using_amd">USING_AMD</string>
     <string name="app_pref_test_explore">TEST_EXPLORE</string>
+    <string name="app_pref_map_descriptor_1">MAP_DESCRIPTOR_1</string>
+    <string name="app_pref_plot_path_chosen">PLOT_PATH_CHOSEN</string>
+    <string name="app_pref_plot_search">PLOT_SEARCH</string>
+    <string name="app_pref_diagonal_exploration">DIAGONAL_EXPLORATION</string>
+    <string name="app_pref_fast_simulation">FAST_SIMULATION</string>
 
     <string name="ok">OK</string>
     <string name="yes">YES</string>
@@ -29,13 +34,15 @@
 
     <string name="exit_the_app">Exit the app?</string>
     <string name="coming_soon">Coming soon!</string>
+    <string name="something_went_wrong">Something went wrong.</string>
 
     <!-- MAIN ACTIVITY -->
     <string name="settings">Settings</string>
     <string name="start">Start</string>
     <string name="pause">Pause</string>
     <string name="plot_mode">Plot Mode</string>
-    <string name="reset">Reset</string>
+    <string name="map_options">Map Options</string>
+    <string name="reset">Reset Arena</string>
     <string name="f1_default">F1</string>
     <string name="f2_default">F2</string>
     <string name="status">Status</string>
@@ -65,6 +72,10 @@
     <string name="timer_minute_second">%1$s:%2$s</string>
     <string name="exploration">Exploration</string>
     <string name="fastest_path">Fastest Path</string>
+    <string name="save_map_prompt">Save this map? Any existing saved map will be overwritten.</string>
+    <string name="load_map_prompt">Load saved map? Existing grid map will be replaced.</string>
+    <string name="no_save_data">No save data found.</string>
+    <string name="map_saved">Map saved successfully.</string>
 
     <!-- SETTINGS ACTIVITY -->
     <string name="bluetooth">Bluetooth</string>
@@ -75,6 +86,8 @@
     <string name="custom_buttons_description">Customise buttons F1 and F2.</string>
     <string name="display">Display</string>
     <string name="display_description">Display modes &amp; dark mode.</string>
+    <string name="experimental">Experimental</string>
+    <string name="experimental_description">Bunch of test stuff.</string>
 
     <!-- BLUETOOTH ACTIVITY -->
     <string name="connected_device">Connected Device</string>
@@ -125,7 +138,10 @@
     <string name="simple_advanced_display">Simple, yet Advanced Display Mode (SAD Mode)</string>
     <string name="simple_advanced_display_description">Minimal display for advanced users.</string>
     <string name="test_explore">Test Exploration Mode</string>
-    <string name="test_explore_description">[HIGHLY EXPERIMENTAL] Activates features that allow for mock automated runs.</string>
+    <string name="plot_path_chosen">Plot Path</string>
+    <string name="plot_search">Plot Search</string>
+    <string name="diagonal_exploration">Allow Diagonal Exploration</string>
+    <string name="fast_simulation">Fast Simulation</string>
 
     <!-- ARENA -->
     <string name="obstructed">Obstructed. Cannot plot.</string>

@@ -59,10 +59,19 @@
 
         <com.google.android.material.button.MaterialButton
             style="@style/UIButton"
+            android:id="@+id/mapButton"
+            android:text="@string/map_options"
+            app:icon="@drawable/ic_map"
+            app:layout_constraintTop_toBottomOf="@id/plotButton"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/gridParent"/>
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/UIButton"
             android:id="@+id/resetButton"
             android:text="@string/reset"
             app:icon="@drawable/ic_nuke"
-            app:layout_constraintTop_toBottomOf="@id/plotButton"
+            app:layout_constraintTop_toBottomOf="@id/mapButton"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toRightOf="@id/gridParent"/>
 
@@ -357,6 +366,28 @@
                 android:id="@+id/startExplorationFab"
                 android:layout_marginStart="@dimen/element_padding"
                 android:src="@drawable/ic_explore" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/mapFabLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginEnd="@dimen/element_padding"
+            app:layout_constraintTop_toTopOf="@id/mapButton"
+            app:layout_constraintBottom_toBottomOf="@id/mapButton"
+            app:layout_constraintRight_toLeftOf="@id/mapButton">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                style="@style/FabCustom"
+                android:id="@+id/loadMapButton"
+                android:src="@drawable/ic_load" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                style="@style/FabCustom"
+                android:id="@+id/saveMapButton"
+                android:layout_marginStart="@dimen/element_padding"
+                android:src="@drawable/ic_save" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var startFabOpened = false
+    private var mapButtonsOpened = false
 
     private val onEnter = View.OnKeyListener { view, keyCode, event ->
         if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
@@ -80,10 +81,12 @@ class MainActivity : AppCompatActivity() {
         val animation: Animation = AnimationUtils.loadAnimation(applicationContext, R.anim.main_fab_close_init)
         startExplorationFab.startAnimation(animation)
         startFastestPathFab.startAnimation(animation)
+        saveMapButton.startAnimation(animation)
+        loadMapButton.startAnimation(animation)
 
-        normalModeViewList = listOf(settingsButton, startButton, plotButton, resetButton, f1Button, f2Button, statusCard, modeCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
+        normalModeViewList = listOf(settingsButton, startButton, plotButton, mapButton, resetButton, f1Button, f2Button, statusCard, modeCard, coordinatesCard, timerCard, messagesCard, messagesInputCard, controlPadCard)
         plotModeViewList = listOf(plotObstacleButton, removeObstacleButton, clearObstacleButton, doneButton)
-        buttonList = listOf(settingsButton, plotButton, resetButton, f1Button, f2Button, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
+        buttonList = listOf(settingsButton, plotButton, mapButton, resetButton, f1Button, f2Button, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
 
         mainActivityController = MainActivityController(this, activityUtil, binding)
         touchController = TouchController(this, mainActivityController, binding) { statusLabel.text = it }
@@ -99,6 +102,8 @@ class MainActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 startExplorationFab.visibility = View.GONE
                 startFastestPathFab.visibility = View.GONE
+                saveMapButton.visibility = View.GONE
+                loadMapButton.visibility = View.GONE
             }
         }
     }
@@ -134,11 +139,17 @@ class MainActivity : AppCompatActivity() {
         if (!mainActivityController.isClickDelayOver()) return
 
         when (view.id) {
+            R.id.mapButton -> {
+                if (startFabOpened) toggleFabs()
+                toggleMapButtons()
+            }
+
             R.id.startButton -> {
                 if (robotAutonomous) {
                     mainActivityController.sendCommand(sharedPreferences.getString(getString(R.string.app_pref_pause), getString(R.string.pause_default))!!)
                     mainActivityController.onStartClicked(buttonList)
                 } else {
+                    if (mapButtonsOpened) toggleMapButtons()
                     toggleFabs()
                 }
             }
@@ -183,7 +194,6 @@ class MainActivity : AppCompatActivity() {
             R.id.doneButton -> {
                 plotModeViewList.forEach { it.isEnabled = true }
                 mainActivityController.arenaController.resetActions()
-                if (testExplore) mainActivityController.arenaController.saveObstacles()
                 onPlotClicked()
             }
 
@@ -209,6 +219,16 @@ class MainActivity : AppCompatActivity() {
                     mainActivityController.arenaController.plotMode = ArenaController.PlotMode.NONE
                     mainActivityController.arenaController.resetActions()
                 }
+            }
+
+            R.id.saveMapButton -> {
+                toggleMapButtons()
+                mainActivityController.onMapSaveClicked()
+            }
+
+            R.id.loadMapButton -> {
+                toggleMapButtons()
+                mainActivityController.onMapLoadClicked()
             }
 
             else -> mainActivityController.clickUiButton(view)
@@ -251,6 +271,33 @@ class MainActivity : AppCompatActivity() {
 
         startExplorationFab.startAnimation(animation)
         startFastestPathFab.startAnimation(animation)
+    }
+
+    private fun toggleMapButtons() {
+        mapButtonsOpened = !mapButtonsOpened
+        val animationId: Int = if (mapButtonsOpened) R.anim.main_fab_open else R.anim.main_fab_close
+        val animation: Animation =  AnimationUtils.loadAnimation(applicationContext, animationId)
+        animation.duration = ANIMATOR_DURATION
+        animation.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(p0: Animation?) {}
+
+            override fun onAnimationStart(p0: Animation?) {
+                if (mapButtonsOpened) {
+                    saveMapButton.visibility = View.VISIBLE
+                    loadMapButton.visibility = View.VISIBLE
+                }
+            }
+
+            override fun onAnimationEnd(p0: Animation?) {
+                if (!mapButtonsOpened) {
+                    saveMapButton.visibility = View.GONE
+                    loadMapButton.visibility = View.GONE
+                }
+            }
+        })
+
+        saveMapButton.startAnimation(animation)
+        loadMapButton.startAnimation(animation)
     }
 
     private fun onPlotClicked() {

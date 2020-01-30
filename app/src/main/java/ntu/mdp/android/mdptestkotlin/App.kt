@@ -29,6 +29,11 @@ class App: Application() {
         var isSimple = false
         var usingAmd = true
         var testExplore = false
+        var plotPathChosen = false
+        var plotSearch = false
+        var allowDiagonalExploration = false
+        var fastSimulation = false
+        var simulationDelay = 750L
     }
 
     override fun onCreate() {
@@ -41,5 +46,10 @@ class App: Application() {
         autoUpdateArena = sharedPreferences.getBoolean(getString(R.string.app_pref_auto_update), true)
         usingAmd = sharedPreferences.getBoolean(getString(R.string.app_pref_using_amd), true)
         testExplore = sharedPreferences.getBoolean(getString(R.string.app_pref_test_explore), false)
+        plotPathChosen = sharedPreferences.getBoolean(getString(R.string.app_pref_plot_path_chosen), false)
+        plotSearch = sharedPreferences.getBoolean(getString(R.string.app_pref_plot_search), false)
+        allowDiagonalExploration = sharedPreferences.getBoolean(getString(R.string.app_pref_diagonal_exploration), false)
+        fastSimulation = sharedPreferences.getBoolean(getString(R.string.app_pref_fast_simulation), false)
+        simulationDelay = if (fastSimulation)  100L else 750L
     }
 }

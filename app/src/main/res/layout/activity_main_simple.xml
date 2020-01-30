@@ -172,20 +172,20 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             style="@style/FabCustom"
-            android:id="@+id/f2Button2"
+            android:id="@+id/loadMapButton2"
             android:layout_marginEnd="2dp"
             android:layout_marginTop="@dimen/small_padding"
-            android:src="@drawable/ic_f2"
+            android:src="@drawable/ic_load"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@id/messagesCard2"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             style="@style/FabCustom"
-            android:id="@+id/f1Button2"
+            android:id="@+id/saveMapButton2"
             android:layout_marginEnd="@dimen/element_padding"
             android:layout_marginTop="@dimen/small_padding"
-            android:src="@drawable/ic_f1"
-            app:layout_constraintRight_toLeftOf="@id/f2Button2"
+            android:src="@drawable/ic_save"
+            app:layout_constraintRight_toLeftOf="@id/loadMapButton2"
             app:layout_constraintTop_toTopOf="@id/messagesCard2" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -194,7 +194,7 @@
             android:layout_marginEnd="@dimen/element_padding"
             android:layout_marginTop="@dimen/small_padding"
             android:src="@drawable/ic_fastest"
-            app:layout_constraintRight_toLeftOf="@id/f1Button2"
+            app:layout_constraintRight_toLeftOf="@id/saveMapButton2"
             app:layout_constraintTop_toTopOf="@id/messagesCard2" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
