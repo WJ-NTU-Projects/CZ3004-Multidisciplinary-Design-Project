@@ -9,7 +9,6 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.simulationDelay
 import ntu.mdp.android.mdptestkotlin.MainActivityController
 import ntu.mdp.android.mdptestkotlin.arena.Arena
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
@@ -119,7 +118,7 @@ class ScratchPad(activityController: MainActivityController, private val activit
 
     fun fastestPath() {
         stop = false
-        fastestPath = true
+        fastestPath = allowDiagonalExploration
         var startX = arena.startPointCoordinates.first
         var startY = arena.startPointCoordinates.second
         var endX = arena.wayPointCoordinates.first
@@ -159,9 +158,9 @@ class ScratchPad(activityController: MainActivityController, private val activit
 
         // ALWAYS CHECK RIGHT FIRST
         val bestFacing = when {
+            arena.isRobotMovable(x, y + 1)  -> 0
             arena.isRobotMovable(x + 1, y)  -> 90
             arena.isRobotMovable(x, y - 1)  -> 180
-            arena.isRobotMovable(x, y + 1)  -> 0
             else                            -> 270
         }
 
@@ -171,48 +170,122 @@ class ScratchPad(activityController: MainActivityController, private val activit
     private fun attemptMove(x: Int, y: Int, r: Int): Boolean {
         // CHECK IN CURRENT DIRECTION FIRST
         if (r == 0 || r == 180) {
-            if (checkUp(x, y)) {
-                handleMove(0)
-                return true
-            }
+            if (y <= 1) {
+                if (checkBottom(x, y)) {
+                    handleMove(180)
+                    return true
+                }
 
-            if (checkBottom(x, y)) {
-                handleMove(180)
-                return true
+                if (checkUp(x, y)) {
+                    handleMove(0)
+                    return true
+                }
+            } else {
+                if (checkUp(x, y)) {
+                    handleMove(0)
+                    return true
+                }
+
+                if (checkBottom(x, y)) {
+                    handleMove(180)
+                    return true
+                }
             }
         }
 
         if (r == 90 || r == 270) {
-            if (checkRight(x, y)) {
-                handleMove(90)
+            if (x >= 7) {
+                if (checkRight(x, y)) {
+                    handleMove(90)
+                    return true
+                }
+
+                if (checkLeft(x, y)) {
+                    handleMove(270)
+                    return true
+                }
+            } else {
+                if (checkLeft(x, y)) {
+                    handleMove(270)
+                    return true
+                }
+
+                if (checkRight(x, y)) {
+                    handleMove(90)
+                    return true
+                }
+            }
+        }
+
+        if (y <= 1) {
+            // CHECK IN OTHER DIRECTIONS, WITH PRIORITY
+            if (x >= 7) {
+                if (r != 90 && checkRight(x, y)) {
+                    handleMove(90)
+                    return true
+                }
+            } else {
+                if (r != 270 && checkLeft(x, y)) {
+                    handleMove(270)
+                    return true
+                }
+            }
+
+            if (r != 180 && checkBottom(x, y)) {
+                handleMove(180)
                 return true
             }
 
-            if (checkLeft(x, y)) {
-                handleMove(270)
+            if (x < 7) {
+                if (r != 90 && checkRight(x, y)) {
+                    handleMove(90)
+                    return true
+                }
+            } else {
+                if (r != 270 && checkLeft(x, y)) {
+                    handleMove(270)
+                    return true
+                }
+            }
+
+            if (r != 0 && checkUp(x, y)) {
+                handleMove(0)
                 return true
             }
-        }
+        } else {
+            if (x >= 7) {
+                if (r != 90 && checkRight(x, y)) {
+                    handleMove(90)
+                    return true
+                }
+            } else {
+                if (r != 270 && checkLeft(x, y)) {
+                    handleMove(270)
+                    return true
+                }
+            }
 
-        // CHECK IN OTHER DIRECTIONS, WITH PRIORITY
-        if (r != 90 && checkRight(x, y)) {
-            handleMove(90)
-            return true
-        }
+            if (r != 0 && checkUp(x, y)) {
+                handleMove(0)
+                return true
+            }
 
-        if (r != 0 && checkUp(x, y)) {
-            handleMove(0)
-            return true
-        }
+            if (x < 7) {
+                if (r != 90 && checkRight(x, y)) {
+                    handleMove(90)
+                    return true
+                }
+            } else {
+                if (r != 270 && checkLeft(x, y)) {
+                    handleMove(270)
+                    return true
+                }
+            }
 
-        if (r != 270 && checkLeft(x, y)) {
-            handleMove(270)
-            return true
-        }
-
-        if (r != 180 && checkBottom(x, y)) {
-            handleMove(180)
-            return true
+            if (r != 180 && checkBottom(x, y)) {
+                handleMove(180)
+                return true
+            }
         }
 
         return false
@@ -410,6 +483,7 @@ class ScratchPad(activityController: MainActivityController, private val activit
     private fun goHome() {
         CoroutineScope(Dispatchers.Main).launch {
             while (true) {
+                if (stop) return@launch
                 val startX = arena.robotCoordinates[0]
                 val startY = arena.robotCoordinates[1]
                 val startR = arena.robotCoordinates[2]
