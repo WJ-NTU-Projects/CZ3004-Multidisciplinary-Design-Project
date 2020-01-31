@@ -17,7 +17,9 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.testExplore
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainSimpleBinding
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.currentMode
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.robotAutonomous
-import ntu.mdp.android.mdptestkotlin.arena.ArenaController
+import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
+import ntu.mdp.android.mdptestkotlin.arena.ArenaV2.Companion.isPlotting
+import ntu.mdp.android.mdptestkotlin.arena.ArenaV2.Companion.isWaitingUpdate
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 import ntu.mdp.android.mdptestkotlin.utils.ScratchPad
 
@@ -42,8 +44,8 @@ class MainSimpleActivity : AppCompatActivity() {
         isSimple = true
         mainActivityController = MainActivityController(this, activityUtil, binding)
 
-        MainActivityController.isPlotting = true
-        MainActivityController.isUpdating = true
+        isPlotting = true
+        isWaitingUpdate = true
         buttonList = listOf(startExplorationButton2, startFastestPathButton2, settingsButton2, plotObstacleButton2, removeObstacleButton2, clearObstacleButton2, saveMapButton2, loadMapButton2)
     }
 
@@ -86,7 +88,7 @@ class MainSimpleActivity : AppCompatActivity() {
 
             R.id.startFastestPathButton2 -> {
                 if (!robotAutonomous) {
-                    if (!mainActivityController.arenaController.isWaypointSet()) {
+                    if (!mainActivityController.getArena().isWaypointSet()) {
                         activityUtil.sendSnack("Please set a waypoint first.")
                         return
                     }
@@ -99,26 +101,26 @@ class MainSimpleActivity : AppCompatActivity() {
             }
 
             R.id.plotObstacleButton2 -> {
-                if (mainActivityController.arenaController.plotMode != ArenaController.PlotMode.PLOT_OBSTACLE) {
+                if (ArenaV2.currentPlotFunction != ArenaV2.PlotFunction.PLOT_OBSTACLE) {
                     buttonList.forEach { it.isEnabled = false }
                     view.isEnabled = true
-                    mainActivityController.arenaController.plotMode = ArenaController.PlotMode.PLOT_OBSTACLE
+                    ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.PLOT_OBSTACLE
                 } else {
                     buttonList.forEach { it.isEnabled = true }
-                    mainActivityController.arenaController.plotMode = ArenaController.PlotMode.NONE
-                    mainActivityController.arenaController.resetActions()
+                    ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.NONE
+                    mainActivityController.getArena().resetActions()
                 }
             }
 
             R.id.removeObstacleButton2 -> {
-                if (mainActivityController.arenaController.plotMode != ArenaController.PlotMode.REMOVE_OBSTACLE) {
+                if (ArenaV2.currentPlotFunction != ArenaV2.PlotFunction.REMOVE_OBSTACLE) {
                     buttonList.forEach { it.isEnabled = false }
                     view.isEnabled = true
-                    mainActivityController.arenaController.plotMode = ArenaController.PlotMode.REMOVE_OBSTACLE
+                    ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.REMOVE_OBSTACLE
                 } else {
                     buttonList.forEach { it.isEnabled = true }
-                    mainActivityController.arenaController.plotMode = ArenaController.PlotMode.NONE
-                    mainActivityController.arenaController.resetActions()
+                    ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.NONE
+                    mainActivityController.getArena().resetActions()
                 }
             }
 

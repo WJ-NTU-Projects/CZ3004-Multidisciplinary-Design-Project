@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatImageView
-import ntu.mdp.android.mdptestkotlin.arena.ArenaController
 import kotlin.math.abs
 
 

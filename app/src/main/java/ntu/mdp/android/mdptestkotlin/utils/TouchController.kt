@@ -130,6 +130,30 @@ class TouchController(private val context: Context, private val mainActivityCont
 
     private inner class ContinuousMovementThread: Thread() {
         override fun run() {
+            while (continuousMovement) {
+                if (System.currentTimeMillis() - lastMoveTime >= 500L) {
+                    lastMoveTime = System.currentTimeMillis()
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val robotPosition: IntArray = mainActivityController.getArena().getRobotPosition()
+                        val x: Int = robotPosition[0]
+                        val y: Int = robotPosition[1]
+
+                        when (movementFlag) {
+                            MovementFlag.FORWARD -> mainActivityController.getArena().moveRobot(x, y + 1)
+                            MovementFlag.REVERSE -> mainActivityController.getArena().moveRobot(x, y - 1)
+                            MovementFlag.LEFT -> mainActivityController.getArena().moveRobot(x - 1, y)
+                            MovementFlag.RIGHT -> mainActivityController.getArena().moveRobot(x + 1, y)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+    private inner class ContinuousMovementThread: Thread() {
+        override fun run() {
 
             while (continuousMovement) {
                 if (System.currentTimeMillis() - lastMoveTime >= 500L) {
@@ -163,4 +187,5 @@ class TouchController(private val context: Context, private val mainActivityCont
             }
         }
     }
+     */
 }

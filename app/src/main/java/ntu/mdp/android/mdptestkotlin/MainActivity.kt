@@ -19,14 +19,12 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
-import ntu.mdp.android.mdptestkotlin.App.Companion.testExplore
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.currentMode
-import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.isPlotting
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.robotAutonomous
-import ntu.mdp.android.mdptestkotlin.arena.ArenaController
+import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
+import ntu.mdp.android.mdptestkotlin.arena.ArenaV2.Companion.isPlotting
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
-import ntu.mdp.android.mdptestkotlin.utils.ScratchPad
 import ntu.mdp.android.mdptestkotlin.utils.TouchController
 import ntu.mdp.android.mdptestkotlin.utils.TouchController.Companion.isSwipeMode
 
@@ -155,7 +153,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.plotButton -> {
-                if (isPlotting) mainActivityController.arenaController.resetActions()
+                if (isPlotting) mainActivityController.getArena().resetActions()
                 onPlotClicked()
             }
 
@@ -167,7 +165,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.startFastestPathFab -> {
-                if (!mainActivityController.arenaController.isWaypointSet()) {
+                if (!mainActivityController.getArena().isWaypointSet()) {
                     activityUtil.sendSnack("Please set a waypoint first.")
                     return
                 }
@@ -193,31 +191,31 @@ class MainActivity : AppCompatActivity() {
 
             R.id.doneButton -> {
                 plotModeViewList.forEach { it.isEnabled = true }
-                mainActivityController.arenaController.resetActions()
+                mainActivityController.getArena().resetActions()
                 onPlotClicked()
             }
 
             R.id.plotObstacleButton -> {
-                if (mainActivityController.arenaController.plotMode != ArenaController.PlotMode.PLOT_OBSTACLE) {
+                if (ArenaV2.currentPlotFunction != ArenaV2.PlotFunction.PLOT_OBSTACLE) {
                     plotModeViewList.forEach { it.isEnabled = false }
                     view.isEnabled = true
-                    mainActivityController.arenaController.plotMode = ArenaController.PlotMode.PLOT_OBSTACLE
+                    ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.PLOT_OBSTACLE
                 } else {
                     plotModeViewList.forEach { it.isEnabled = true }
-                    mainActivityController.arenaController.plotMode = ArenaController.PlotMode.NONE
-                    mainActivityController.arenaController.resetActions()
+                    ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.NONE
+                    mainActivityController.getArena().resetActions()
                 }
             }
 
             R.id.removeObstacleButton -> {
-                if (mainActivityController.arenaController.plotMode != ArenaController.PlotMode.REMOVE_OBSTACLE) {
+                if (ArenaV2.currentPlotFunction != ArenaV2.PlotFunction.REMOVE_OBSTACLE) {
                     plotModeViewList.forEach { it.isEnabled = false }
                     view.isEnabled = true
-                    mainActivityController.arenaController.plotMode = ArenaController.PlotMode.REMOVE_OBSTACLE
+                    ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.REMOVE_OBSTACLE
                 } else {
                     plotModeViewList.forEach { it.isEnabled = true }
-                    mainActivityController.arenaController.plotMode = ArenaController.PlotMode.NONE
-                    mainActivityController.arenaController.resetActions()
+                    ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.NONE
+                    mainActivityController.getArena().resetActions()
                 }
             }
 

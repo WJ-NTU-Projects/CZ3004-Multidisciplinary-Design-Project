@@ -76,6 +76,7 @@
     <string name="load_map_prompt">Load saved map? Existing grid map will be replaced.</string>
     <string name="no_save_data">No save data found.</string>
     <string name="map_saved">Map saved successfully.</string>
+    <string name="illegal_command">Illegal command.</string>
 
     <!-- SETTINGS ACTIVITY -->
     <string name="bluetooth">Bluetooth</string>
@@ -144,10 +145,11 @@
     <string name="fast_simulation">Fast Simulation</string>
 
     <!-- ARENA -->
-    <string name="obstructed">Obstructed. Cannot plot.</string>
+    <string name="obstructed">Unable to plot. Something is in the way.</string>
     <string name="idle">Idle</string>
     <string name="moving">Moving</string>
     <string name="reversing">Reversing</string>
+    <string name="turning">Turning</string>
     <string name="turning_left">Turning Left</string>
     <string name="turning_right">Turning Right</string>
     <string name="waypoint_touched">Waypoint touched.</string>

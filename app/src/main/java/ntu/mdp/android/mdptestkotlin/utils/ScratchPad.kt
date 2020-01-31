@@ -7,8 +7,6 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.plotPathChosen
 import ntu.mdp.android.mdptestkotlin.App.Companion.plotSearch
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationDelay
 import ntu.mdp.android.mdptestkotlin.MainActivityController
-import ntu.mdp.android.mdptestkotlin.arena.Arena
-import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
@@ -22,8 +20,7 @@ import kotlin.math.sqrt
  */
 
 class ScratchPad(activityController: MainActivityController, private val activityCallback: (stop: Boolean) -> Unit) {
-    private val arenaController = activityController.arenaController
-    private val arena = arenaController.arena
+    private val arena = activityController.getArena()
     private var stop = false
     private var fastestPath = false
 
@@ -31,164 +28,161 @@ class ScratchPad(activityController: MainActivityController, private val activit
         stop = true
     }
 
-    fun exploration() {
+    suspend fun exploration() = withContext(Dispatchers.Main) {
         stop = false
         fastestPath = allowDiagonalExploration
+        var robotPosition: IntArray
         var x: Int
         var y: Int
         var r: Int
         var counter = 0
         var haveDelay = true
-        findBestStartFacing()
 
-        CoroutineScope(Dispatchers.Main).launch {
-            while (true) {
-                if (haveDelay) delay(simulationDelay)
-                if (stop) return@launch
+        robotPosition = arena.getRobotPosition()
+        x = robotPosition[0]
+        y = robotPosition[1]
 
-                haveDelay = true
-                x = arena.robotCoordinates[0]
-                y = arena.robotCoordinates[1]
-                r = arena.robotCoordinates[2]
-                if (attemptMove(x, y, r)) continue
-                if (!hasUnexploredGrid()) break
+        arena.turnRobot(
+            when {
+                arena.isRobotMovable(x, y + 1) -> 0
+                arena.isRobotMovable(x + 1, y) -> 90
+                arena.isRobotMovable(x, y - 1) -> 180
+                else -> 270
+            }
+        )
 
-                val nearestUnexplored = nearestUnexploredGrid()
-                val xTarget = nearestUnexplored.first
-                val yTarget = nearestUnexplored.second
-                if (counter >= 15) break
+        while (true) {
+            if (haveDelay) delay(simulationDelay)
+            if (stop) return@withContext
 
-                if (!arena.isValidCoordinates(xTarget, yTarget)) {
-                    if (xTarget == -1) {
-                        x = (yTarget % 15)
-                        y = (yTarget / 15)
-                        if (arena.isValidCoordinates(x, y)) arena.plot(x, y, Arena.GridType.EXPLORED)
-                        haveDelay = false
-                    }
+            haveDelay = true
+            robotPosition = arena.getRobotPosition()
+            x = robotPosition[0]
+            y = robotPosition[1]
+            r = robotPosition[2]
+            if (attemptMove(x, y, r)) continue
+            if (!arena.hasUnexploredGrid()) break
 
-                    counter++
-                    continue
+            val nearestUnexplored = nearestUnexploredGrid()
+            val xTarget = nearestUnexplored.first
+            val yTarget = nearestUnexplored.second
+            if (counter >= 15) break
+
+            if (!arena.isValidCoordinates(xTarget, yTarget)) {
+                if (xTarget == -1) {
+                    x = (yTarget % 15)
+                    y = (yTarget / 15)
+                    if (arena.isValidCoordinates(x, y)) arena.setExplored(x, y)
+                    haveDelay = false
                 }
 
-                counter = 0
-                arena.resetPathing()
-                val path: List<IntArray> = findShortestPath(x, y, r, xTarget, yTarget).second
-
-                if (path.isEmpty()) {
-                    counter++
-                    continue
-                }
-
-                for ((i, p) in path.withIndex()) {
-                    if (i != 0) delay(simulationDelay)
-                    if (stop) return@launch
-
-                    x = arena.robotCoordinates[0]
-                    y = arena.robotCoordinates[1]
-                    r = arena.robotCoordinates[2]
-                    if (attemptMove(x, y, r)) break
-
-                    val requestedFacing: Int = getRequestedFacing(p[0], p[1])
-                    if (requestedFacing == -1) {
-                        goHome()
-                        return@launch
-                    } // gg
-
-                    val robotFacing = arenaController.getRobotFacing()
-                    if (plotPathChosen) arena.plot(p[0], p[1], Arena.GridType.SEARCH_PICKED)
-
-                    if ((requestedFacing - robotFacing) % 90 == 0 && requestedFacing != robotFacing && abs(requestedFacing - robotFacing) != 180) {
-                        handleMove(requestedFacing)
-                        delay(simulationDelay)
-                    } else if ((requestedFacing - robotFacing) % 90 != 0 && requestedFacing != robotFacing && abs(requestedFacing - robotFacing) != 180) {
-                        handleMove(requestedFacing)
-                        delay((simulationDelay * 0.5).toLong())
-                    }
-
-                    handleMove(requestedFacing)
-                    break
-                }
-
+                counter++
+                continue
             }
 
+            counter = 0
             arena.resetPathing()
-            goHome()
+            val path: List<IntArray> = findShortestPath(x, y, r, xTarget, yTarget).second
+
+            if (path.isEmpty()) {
+                counter++
+                continue
+            }
+
+            for ((i, p) in path.withIndex()) {
+                if (i != 0) delay(simulationDelay)
+                if (stop) return@withContext
+                robotPosition = arena.getRobotPosition()
+                x = robotPosition[0]
+                y = robotPosition[1]
+                r = robotPosition[2]
+                if (attemptMove(x, y, r)) break
+                arena.moveRobot(p[0], p[1])
+                break
+            }
+
         }
+
+        arena.resetPathing()
+        goHome()
     }
 
-    fun fastestPath() {
+    suspend fun fastestPath() = withContext(Dispatchers.Main) {
         stop = false
         fastestPath = allowDiagonalExploration
-        var startX = arena.startPointCoordinates.first
-        var startY = arena.startPointCoordinates.second
-        var endX = arena.wayPointCoordinates.first
-        var endY = arena.wayPointCoordinates.second
-        var smallestCost = 99999.0
+
+        val startPosition: IntArray = arena.getStartPosition()
+        var startX = startPosition[0]
+        var startY = startPosition[1]
+        val waypointPosition: IntArray = arena.getWaypointPosition()
+        var endX = waypointPosition[0]
+        var endY = waypointPosition[1]
         var bestWaypointPath: List<IntArray> = listOf()
 
-        for (i in 0 .. 90 step 45) {
-            arena.resetPathing()
-            val pathToWaypoint: Pair<Double, List<IntArray>> = findShortestPath(startX, startY, i, endX, endY)
-            val cost = pathToWaypoint.first
-
-            if (cost < smallestCost) {
-                smallestCost = cost
-                bestWaypointPath = pathToWaypoint.second
-            }
-        }
+        val pathToWaypoint1: Pair<Double, List<IntArray>> = findShortestPath(startX, startY, 0, endX, endY)
+        var cost1 = pathToWaypoint1.first
+        var path1 = pathToWaypoint1.second
+        val pathToWaypoint2: Pair<Double, List<IntArray>> = findShortestPath(startX, startY, 90, endX, endY)
+        var cost2 = pathToWaypoint2.first
+        var path2 = pathToWaypoint2.second
 
         startX = endX
         startY = endY
         val startR = if (bestWaypointPath.isEmpty()) 0 else bestWaypointPath.last()[2]
-        endX = arena.goalPointCoordinates.first
-        endY = arena.goalPointCoordinates.second
+        val goalPosition: IntArray = arena.getGoalPosition()
+        endX = goalPosition[0]
+        endY = goalPosition[1]
         val goalPointPath = findShortestPath(startX, startY, startR, endX, endY).second
 
-        CoroutineScope(Dispatchers.Main).launch {
-            tracePath(bestWaypointPath)
-            delay(simulationDelay)
-            tracePath(goalPointPath)
-            activityCallback(true)
-        }
-    }
+        path1 = path1 + goalPointPath
+        path2 = path2 + goalPointPath
+        var turns1 = 0
+        var turns2 = 0
+        var previousPathFacing = path1.first()[2]
 
-    private fun findBestStartFacing() {
-        val x = arena.robotCoordinates[0]
-        val y = arena.robotCoordinates[1]
-
-        // ALWAYS CHECK RIGHT FIRST
-        val bestFacing = when {
-            arena.isRobotMovable(x, y + 1)  -> 0
-            arena.isRobotMovable(x + 1, y)  -> 90
-            arena.isRobotMovable(x, y - 1)  -> 180
-            else                            -> 270
+        for (p in path1) {
+            if (p[2] != previousPathFacing) turns1++
+            previousPathFacing = p[2]
         }
 
-        arena.moveRobot(x, y, bestFacing)
+        previousPathFacing = path2.first()[2]
+
+        for (p in path2) {
+            if (p[2] != previousPathFacing) turns2++
+            previousPathFacing = p[2]
+        }
+
+        if (turns2 > turns1) cost2 += 100
+        else if (turns1 > turns2) cost1 += 100
+        bestWaypointPath = if (turns2 <= turns1) path2 else path1
+        Log.e("TEST", "$turns1, $turns2, $cost1, $cost2")
+
+        tracePath(bestWaypointPath)
+        if (!stop) activityCallback(true)
     }
 
-    private fun attemptMove(x: Int, y: Int, r: Int): Boolean {
+    private suspend fun attemptMove(x: Int, y: Int, r: Int): Boolean = withContext(Dispatchers.Main) {
         // CHECK IN CURRENT DIRECTION FIRST
         if (r == 0 || r == 180) {
             if (y <= 1) {
                 if (checkBottom(x, y)) {
                     handleMove(180)
-                    return true
+                    return@withContext true
                 }
 
                 if (checkUp(x, y)) {
                     handleMove(0)
-                    return true
+                    return@withContext true
                 }
             } else {
                 if (checkUp(x, y)) {
                     handleMove(0)
-                    return true
+                    return@withContext true
                 }
 
                 if (checkBottom(x, y)) {
                     handleMove(180)
-                    return true
+                    return@withContext true
                 }
             }
         }
@@ -197,22 +191,22 @@ class ScratchPad(activityController: MainActivityController, private val activit
             if (x >= 7) {
                 if (checkRight(x, y)) {
                     handleMove(90)
-                    return true
+                    return@withContext true
                 }
 
                 if (checkLeft(x, y)) {
                     handleMove(270)
-                    return true
+                    return@withContext true
                 }
             } else {
                 if (checkLeft(x, y)) {
                     handleMove(270)
-                    return true
+                    return@withContext true
                 }
 
                 if (checkRight(x, y)) {
                     handleMove(90)
-                    return true
+                    return@withContext true
                 }
             }
         }
@@ -222,73 +216,73 @@ class ScratchPad(activityController: MainActivityController, private val activit
             if (x >= 7) {
                 if (r != 90 && checkRight(x, y)) {
                     handleMove(90)
-                    return true
+                    return@withContext true
                 }
             } else {
                 if (r != 270 && checkLeft(x, y)) {
                     handleMove(270)
-                    return true
+                    return@withContext true
                 }
             }
 
             if (r != 180 && checkBottom(x, y)) {
                 handleMove(180)
-                return true
+                return@withContext true
             }
 
             if (x < 7) {
                 if (r != 90 && checkRight(x, y)) {
                     handleMove(90)
-                    return true
+                    return@withContext true
                 }
             } else {
                 if (r != 270 && checkLeft(x, y)) {
                     handleMove(270)
-                    return true
+                    return@withContext true
                 }
             }
 
             if (r != 0 && checkUp(x, y)) {
                 handleMove(0)
-                return true
+                return@withContext true
             }
         } else {
             if (x >= 7) {
                 if (r != 90 && checkRight(x, y)) {
                     handleMove(90)
-                    return true
+                    return@withContext true
                 }
             } else {
                 if (r != 270 && checkLeft(x, y)) {
                     handleMove(270)
-                    return true
+                    return@withContext true
                 }
             }
 
             if (r != 0 && checkUp(x, y)) {
                 handleMove(0)
-                return true
+                return@withContext true
             }
 
             if (x < 7) {
                 if (r != 90 && checkRight(x, y)) {
                     handleMove(90)
-                    return true
+                    return@withContext true
                 }
             } else {
                 if (r != 270 && checkLeft(x, y)) {
                     handleMove(270)
-                    return true
+                    return@withContext true
                 }
             }
 
             if (r != 180 && checkBottom(x, y)) {
                 handleMove(180)
-                return true
+                return@withContext true
             }
         }
 
-        return false
+        return@withContext false
     }
 
     private fun checkRight(x: Int, y: Int): Boolean {
@@ -331,91 +325,21 @@ class ScratchPad(activityController: MainActivityController, private val activit
         return false
     }
 
-    private fun getRequestedFacing(endX: Int, endY: Int): Int {
-        val startX = arena.robotCoordinates[0]
-        val startY = arena.robotCoordinates[1]
-        val xDiff = startX - endX
-        val yDiff = startY - endY
-        var requestedFacing = 0
+    private suspend fun handleMove(r: Int) = withContext(Dispatchers.Main) {
+        val robotPosition: IntArray = arena.getRobotPosition()
+        val x = robotPosition[0]
+        val y = robotPosition[1]
 
-        if (xDiff != 0 && yDiff != 0) {
-            return  if (xDiff == -1 && yDiff == -1)     45
-                    else if (xDiff == -1 && yDiff == 1) 135
-                    else if (xDiff == 1 && yDiff == -1) 315
-                    else if (xDiff == 1 && yDiff == 1)  225
-                    else                                -1
+        when (r) {
+            0 -> arena.moveRobot(x, y + 1)
+            45  -> arena.moveRobot(x + 1, y + 1)
+            90 -> arena.moveRobot(x + 1, y)
+            135 -> arena.moveRobot(x + 1, y - 1)
+            180 -> arena.moveRobot(x, y - 1)
+            225 -> arena.moveRobot(x - 1, y - 1)
+            270 -> arena.moveRobot(x - 1, y)
+            315 -> arena.moveRobot(x - 1, y + 1)
         }
-
-        if (xDiff == 1) requestedFacing = 270
-        if (xDiff == -1) requestedFacing = 90
-        if (yDiff == 1) requestedFacing = 180
-        if (yDiff == -1) requestedFacing = 0
-        return requestedFacing
-    }
-
-    private fun handleMove(r: Int) {
-        Log.e("R", r.toString())
-        var requestedFacing: Int = r
-        val robotFacing = arenaController.getRobotFacing()
-        var facingOffset: Int = abs(robotFacing - requestedFacing)
-
-        if (Math.floorMod(facingOffset, 90) != 0) {
-            val x = arena.robotCoordinates[0]
-            val y = arena.robotCoordinates[1]
-
-            if (facingOffset in 91..314) requestedFacing += 180
-            requestedFacing = Math.floorMod(requestedFacing, 360)
-
-            when (requestedFacing) {
-                0 -> arena.moveRobot(x, y, requestedFacing)
-                90 -> arena.moveRobot(x, y, requestedFacing)
-                180 -> arena.moveRobot(x, y, requestedFacing)
-                270 -> arena.moveRobot(x, y, requestedFacing)
-                45  -> arena.moveRobot(x, y, requestedFacing)
-                135 -> arena.moveRobot(x, y, requestedFacing)
-                225 -> arena.moveRobot(x, y, requestedFacing)
-                315 -> arena.moveRobot(x, y, requestedFacing)
-            }
-
-            return
-        }
-
-        if (Math.floorMod(requestedFacing, 90) != 0) {
-            val x = arena.robotCoordinates[0]
-            val y = arena.robotCoordinates[1]
-            var facingDirection = requestedFacing
-            if (facingOffset == 180)  facingDirection += 180
-            facingDirection = Math.floorMod(facingDirection, 360)
-
-            when (requestedFacing) {
-                0 -> arena.moveRobot(x, y + 1, facingDirection)
-                90 -> arena.moveRobot(x + 1, y, facingDirection)
-                180 -> arena.moveRobot(x, y - 1, facingDirection)
-                270 -> arena.moveRobot(x - 1, y, facingDirection)
-                45  -> arena.moveRobot(x + 1, y + 1, facingDirection)
-                135 -> arena.moveRobot(x + 1, y - 1, facingDirection)
-                225 -> arena.moveRobot(x - 1, y - 1, facingDirection)
-                315 -> arena.moveRobot(x - 1, y + 1, facingDirection)
-            }
-
-            return
-        }
-
-        facingOffset = robotFacing - requestedFacing
-        if (requestedFacing == robotFacing)                     arenaController.moveRobot(1, BluetoothController.isSocketConnected())
-        else if (abs(requestedFacing - robotFacing) == 180)     arenaController.moveRobot(-1, BluetoothController.isSocketConnected())
-        else if (facingOffset == 90 || facingOffset == -270)    arenaController.turnRobot(-1, BluetoothController.isSocketConnected())
-        else                                                    arenaController.turnRobot(1, BluetoothController.isSocketConnected())
-    }
-
-    private fun hasUnexploredGrid(): Boolean {
-        for (y in 19 downTo 0) {
-            for (x in 0..14) {
-                if (arena.gridStateArray[y][x] == 0) return true
-            }
-        }
-
-        return false
     }
 
     private fun nearestUnexploredGrid(): Pair<Int, Int> {
@@ -424,8 +348,9 @@ class ScratchPad(activityController: MainActivityController, private val activit
 
         for (y in 19 downTo 0) {
             for (x in 0 .. 14) {
-                if (arena.gridStateArray[y][x] != 0) continue
-                val distance = abs(x - arena.robotCoordinates[0]) + abs(y - arena.robotCoordinates[1])
+                if (arena.isGridExplored(x, y)) continue
+                val robotPosition: IntArray = arena.getRobotPosition()
+                val distance = abs(x - robotPosition[0]) + abs(y - robotPosition[1])
                 if (distance >= shortestDistance) continue
                 shortestDistance = distance
                 coordinates = Pair(x, y)
@@ -444,7 +369,8 @@ class ScratchPad(activityController: MainActivityController, private val activit
             for (xOffset in -1..1) {
                 val xNew: Int = x + xOffset
                 val yNew: Int = y + yOffset
-                val distance = abs(xNew -  arena.robotCoordinates[0]) + abs(yNew - arena.robotCoordinates[1])
+                val robotPosition: IntArray = arena.getRobotPosition()
+                val distance = abs(xNew - robotPosition[0]) + abs(yNew - robotPosition[1])
 
                 if (arena.isRobotMovable(xNew, yNew) && distance < shortestDistance) {
                     shortestDistance = distance
@@ -462,43 +388,30 @@ class ScratchPad(activityController: MainActivityController, private val activit
         for ((i, p) in path.withIndex()) {
             if (i != 0) delay(simulationDelay)
             if (stop) return@withContext
-            val requestedFacing: Int = getRequestedFacing(p[0], p[1])
-            if (requestedFacing == -1) return@withContext // gg
-
-            val robotFacing = arenaController.getRobotFacing()
-            if (plotPathChosen) arena.plot(p[0], p[1], Arena.GridType.SEARCH_PICKED)
-
-            if ((requestedFacing - robotFacing) % 90 == 0 && requestedFacing != robotFacing && abs(requestedFacing - robotFacing) != 180) {
-                handleMove(requestedFacing)
-                delay(simulationDelay)
-            } else if ((requestedFacing - robotFacing) % 90 != 0 && requestedFacing != robotFacing) {
-                handleMove(requestedFacing)
-                delay((simulationDelay * 0.5).toLong())
-            }
-
-            handleMove(requestedFacing)
+            if (plotPathChosen) arena.setSelectedPath(p[0], p[1])
+            arena.moveRobot(p[0], p[1])
         }
     }
 
-    private fun goHome() {
-        CoroutineScope(Dispatchers.Main).launch {
-            while (true) {
-                if (stop) return@launch
-                val startX = arena.robotCoordinates[0]
-                val startY = arena.robotCoordinates[1]
-                val startR = arena.robotCoordinates[2]
-                val endX = arena.startPointCoordinates.first
-                val endY = arena.startPointCoordinates.second
-                val pathHome: Pair<Double, List<IntArray>> = findShortestPath(startX, startY, startR, endX, endY)
-                val list = pathHome.second
-                tracePath(list)
-                val currentPosition = arena.robotCoordinates
-                if (currentPosition[0] != endX || currentPosition[1] != endY) continue
-                break
-            }
-
-            activityCallback(true)
+    private suspend fun goHome() = withContext(Dispatchers.Main) {
+        while (true) {
+            if (stop) return@withContext
+            val robotPosition: IntArray = arena.getRobotPosition()
+            val startX = robotPosition[0]
+            val startY = robotPosition[1]
+            val startR = robotPosition[2]
+            val startPosition: IntArray = arena.getStartPosition()
+            val endX = startPosition[0]
+            val endY = startPosition[1]
+            val pathHome: Pair<Double, List<IntArray>> = findShortestPath(startX, startY, startR, endX, endY)
+            val list = pathHome.second
+            tracePath(list)
+            val currentPosition = arena.getRobotPosition()
+            if (currentPosition[0] != endX || currentPosition[1] != endY) continue
+            break
         }
+
+        if (!stop) activityCallback(true)
     }
 
     private fun findShortestPath(startX: Int, startY: Int, startR: Int, endX: Int, endY: Int): Pair<Double, List<IntArray>> {
@@ -517,13 +430,13 @@ class ScratchPad(activityController: MainActivityController, private val activit
             successors.clear()
 
             for (node in openList) {
-                if (node.f < smallestF) {
+                if (node.f <= smallestF) {
                     smallestF = node.f
                     parentNode = node
                 }
             }
 
-            if (plotSearch) arena.plot(parentNode.x, parentNode.y, Arena.GridType.SEARCH_ADJACENT)
+            if (plotSearch) arena.setSearchPath(parentNode.x, parentNode.y)
             openList.remove(parentNode)
             closedList.add(parentNode)
 
@@ -564,7 +477,7 @@ class ScratchPad(activityController: MainActivityController, private val activit
                         var continueToNext = false
                         var facing = if (offset == -1) (180 + (count * 90)) else (0 + (count * 90))
                         val direction = facing
-                        if (facing - parentNode.facing == 180) facing = Math.floorMod(facing + 180, 360)
+                        if (abs(facing - parentNode.facing) == 180) facing = Math.floorMod(facing + 180, 360)
                         val gridNode =
                             if (count == 0) GridNode(parentNode.x, parentNode.y + offset, 0.0, 0.0, 0.0, parentNode.x, parentNode.y, facing, direction)
                             else            GridNode(parentNode.x + offset, parentNode.y, 0.0, 0.0, 0.0, parentNode.x, parentNode.y, facing, direction)
@@ -592,12 +505,12 @@ class ScratchPad(activityController: MainActivityController, private val activit
                 }
 
                 val penalty: Double = when {
-                    parentNode.facing == successor.facing               -> 0.0
-                    abs(parentNode.facing - successor.facing) <= 45     -> 2.0
-                    abs(parentNode.facing - successor.facing) >= 315    -> 2.0
-                    abs(parentNode.facing - successor.facing) == 90     -> 3.5
-                    abs(parentNode.facing - successor.facing) == 270    -> 3.5
-                    else                                                -> 3.5
+                    parentNode.facing == successor.facing               -> 1.0
+                    abs(parentNode.facing - successor.facing) <= 45     -> 10.0
+                    abs(parentNode.facing - successor.facing) >= 315    -> 10.0
+                    abs(parentNode.facing - successor.facing) == 90     -> 10.0
+                    abs(parentNode.facing - successor.facing) == 270    -> 10.0
+                    else                                                -> 10.0
                 }
 
                 if (fastestPath) {
@@ -605,7 +518,7 @@ class ScratchPad(activityController: MainActivityController, private val activit
                     successor.h = max(abs(successor.x - endX), abs(successor.y - endY)).toDouble()
                     //successor.h = sqrt((1.0 * successor.x - endX).pow(2) + (1.0 * successor.y - endY).pow(2))
                 } else {
-                    successor.g = abs(successor.x - successor.parentX) + abs(successor.y - successor.parentY) + parentNode.g + penalty
+                    successor.g = (abs(successor.x - successor.parentX) + abs(successor.y - successor.parentY) * penalty) + parentNode.g + (penalty - 1)
                     successor.h = 1.0 * (abs(successor.x - endX) + abs(successor.y - endY))
                 }
 
@@ -636,7 +549,7 @@ class ScratchPad(activityController: MainActivityController, private val activit
             while (true) {
                 val x = parentNode.x
                 val y = parentNode.y
-                if (plotPathChosen) arena.plot(x, y, Arena.GridType.SEARCH_PICKED)
+                if (plotPathChosen) arena.setSelectedPath(x, y)
 
                 if (parentNode.parentX == -1 || parentNode.parentY == -1) break
                 pathList.add(intArrayOf(x, y, parentNode.facing, parentNode.direction))

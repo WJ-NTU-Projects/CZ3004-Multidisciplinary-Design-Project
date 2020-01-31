@@ -96,18 +96,30 @@ class SettingsCommunicationActivity : AppCompatActivity() {
             R.id.pauseEditText -> sharedPreferences.edit().putString(getString(
                 R.string.app_pref_pause
             ), input).apply()
-            R.id.forwardEditText -> sharedPreferences.edit().putString(getString(
-                R.string.app_pref_forward
-            ), input).apply()
-            R.id.reverseEditText -> sharedPreferences.edit().putString(getString(
-                R.string.app_pref_reverse
-            ), input).apply()
-            R.id.turnLeftEditText -> sharedPreferences.edit().putString(getString(
-                R.string.app_pref_turn_left
-            ), input).apply()
-            R.id.turnRightEditText -> sharedPreferences.edit().putString(getString(
-                R.string.app_pref_turn_right
-            ), input).apply()
+
+            R.id.forwardEditText -> {
+                sharedPreferences.edit().putString(getString(
+                    R.string.app_pref_forward
+                ), input).apply()
+            }
+
+            R.id.reverseEditText -> {
+                sharedPreferences.edit().putString(getString(
+                    R.string.app_pref_reverse
+                ), input).apply()
+            }
+
+            R.id.turnLeftEditText -> {
+                sharedPreferences.edit().putString(getString(
+                    R.string.app_pref_turn_left
+                ), input).apply()
+            }
+
+            R.id.turnRightEditText -> {
+                sharedPreferences.edit().putString(getString(
+                    R.string.app_pref_turn_right
+                ), input).apply()
+            }
         }
 
         view.text.clear()

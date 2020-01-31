@@ -13,6 +13,10 @@ class App: Application() {
     companion object {
         const val BLUETOOTH_UUID = "00001101-0000-1000-8000-00805F9B34FB"
         var SEND_ARENA_COMMAND = "sendArena"
+        var FORWARD_COMMAND = "f"
+        var REVERSE_COMMAND = "r"
+        var TURN_LEFT_COMMAND = "tl"
+        var TURN_RIGHT_COMMAND = "tr"
         var BLUETOOTH_CONNECTED_DEVICE = "-"
         const val ANIMATOR_DURATION = 200L
 
@@ -40,6 +44,11 @@ class App: Application() {
         super.onCreate()
         sharedPreferences = this.getSharedPreferences(getString(R.string.app_pref_key), Context.MODE_PRIVATE)
         SEND_ARENA_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_send_arena), getString(R.string.send_arena_default))!!
+        FORWARD_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_forward), getString(R.string.forward_default))!!
+        REVERSE_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_reverse), getString(R.string.reverse_default))!!
+        TURN_LEFT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_turn_left), getString(R.string.turn_left_default))!!
+        TURN_RIGHT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_turn_right), getString(R.string.turn_right_default))!!
+
         darkMode = sharedPreferences.getBoolean(getString(R.string.app_pref_dark_mode), false)
         if (darkMode) appTheme = R.style.AppTheme_Dark
         isSimple = sharedPreferences.getBoolean(getString(R.string.app_pref_sad_mode), false)

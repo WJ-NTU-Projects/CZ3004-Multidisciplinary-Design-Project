@@ -23,14 +23,12 @@ import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainSimpleBinding
 import ntu.mdp.android.mdptestkotlin.settings.SettingsActivity
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothMessageParser
-import ntu.mdp.android.mdptestkotlin.arena.ArenaController
+import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
 import ntu.mdp.android.mdptestkotlin.utils.ScratchPad
 import java.util.*
 
 class MainActivityController(private val context: Context, private val activityUtil: ActivityUtil, tempBinding: ViewBinding) {
     companion object {
-        var isPlotting = false
-        var isUpdating = false
         var robotAutonomous = false
         var currentMode: Mode = Mode.NONE
     }
@@ -60,38 +58,36 @@ class MainActivityController(private val context: Context, private val activityU
         }
     }
 
-    private val arenaControllerCallback: (status: ArenaController.Callback, message: String) -> Unit = { status, message ->
+    private val arenaV2Callback: (status: ArenaV2.Callback, message: String) -> Unit = { status, message ->
         when (status) {
-            ArenaController.Callback.INFO -> activityUtil.sendSnack(message)
-            ArenaController.Callback.WRITE -> sendCommand(message)
-            ArenaController.Callback.RESET -> resetArena()
-            ArenaController.Callback.ROBOT -> displayInChat(MessageType.INCOMING, message)
-            ArenaController.Callback.MESSAGE -> displayInChat(MessageType.SYSTEM, message)
-
-            ArenaController.Callback.COORDINATES -> {
+            ArenaV2.Callback.MESSAGE -> activityUtil.sendSnack(message)
+            ArenaV2.Callback.SEND_COMMAND -> sendCommand(message)
+            ArenaV2.Callback.UPDATE_COORDINATES -> {
                 if (isSimple) binding2?.coordinatesLabel2?.text = message
                 else binding?.coordinatesLabel?.text = message
             }
 
-            ArenaController.Callback.STATUS -> {
+            ArenaV2.Callback.UPDATE_STATUS -> {
                 if (isSimple) binding2?.statusLabel2?.text = message
                 else binding?.statusLabel?.text = message
             }
 
-            ArenaController.Callback.LONG_PRESS_CHOICE -> {
+            ArenaV2.Callback.LONG_PRESS_CHOICE -> {
                 activityUtil.sendYesNoDialog("Plot which?", "START", "GOAL") {
-                    arenaController.selectPoint(it)
+                    arenaV2.selectPoint(it)
                 }
             }
+
+            ArenaV2.Callback.RESET_ARENA -> resetArena()
         }
     }
 
     private val messageParserCallback: (status: BluetoothMessageParser.MessageStatus, message: String) -> Unit = { status, message ->
         when (status) {
             BluetoothMessageParser.MessageStatus.GARBAGE -> displayInChat(MessageType.INCOMING, message)
-            BluetoothMessageParser.MessageStatus.ARENA -> arenaController.updateArena(message)
-            BluetoothMessageParser.MessageStatus.IMAGE_POSITION -> arenaController.updateImage(message)
-            BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> arenaController.updateRobot(message)
+            BluetoothMessageParser.MessageStatus.ARENA -> arenaV2.updateArena(message)
+            BluetoothMessageParser.MessageStatus.IMAGE_POSITION -> updateImage(message)
+            BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> updateRobot(message)
             BluetoothMessageParser.MessageStatus.INFO -> activityUtil.sendSnack(message)
             BluetoothMessageParser.MessageStatus.ROBOT_STATUS -> {
                 if (isSimple) binding2?.statusLabel2?.text = message
@@ -100,7 +96,7 @@ class MainActivityController(private val context: Context, private val activityU
         }
     }
 
-    val arenaController: ArenaController = ArenaController(context, arenaControllerCallback)
+    private val arenaV2: ArenaV2 = ArenaV2(context, arenaV2Callback)
     private val bluetoothMessageParser: BluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private val binding: ActivityMainBinding? = if (!isSimple && tempBinding is ActivityMainBinding) tempBinding else null
@@ -110,7 +106,10 @@ class MainActivityController(private val context: Context, private val activityU
     private val messagesTextView: TextView? = if (isSimple) binding2?.messagesTextView2 else binding?.messagesTextView
     private val messagesScrollView: ScrollView? = if (isSimple) binding2?.messagesScrollView2 else binding?.messagesScrollView
     private var buttonListCache: List<View> = listOf()
-    private val scratchPad = ScratchPad(this) { if (it) onStartClicked(buttonListCache) }
+    private val scratchPad = ScratchPad(this) {
+        if (it) onStartClicked(buttonListCache)
+        arenaV2.resetPathing()
+    }
 
     private var lastClickTime = 0L
     private lateinit var timer: CountDownTimer
@@ -120,8 +119,6 @@ class MainActivityController(private val context: Context, private val activityU
     }
 
     fun onResume() {
-        //statusLabel?.text = if (BluetoothController.isSocketConnected()) context.getString(R.string.connected) else context.getString(R.string.disconnected)
-        arenaController.updateRobotImage()
         statusLabel?.text = context.getString(R.string.idle)
         if (!bluetoothAdapter.isEnabled) activityUtil.sendSnack(context.getString(R.string.error_bluetooth_off))
         else startBluetoothListener()
@@ -138,7 +135,7 @@ class MainActivityController(private val context: Context, private val activityU
 
         else {
             BluetoothController.callback = bluetoothCallback
-            isUpdating = true
+            ArenaV2.isWaitingUpdate = true
             sendCommand(SEND_ARENA_COMMAND)
         }
     }
@@ -147,7 +144,7 @@ class MainActivityController(private val context: Context, private val activityU
         when (view.id) {
             R.id.settingsButton, R.id.settingsButton2 -> activityUtil.startActivity(SettingsActivity::class.java)
             R.id.resetButton -> resetArena()
-            R.id.clearObstacleButton, R.id.clearObstacleButton2 -> arenaController.resetObstacles()
+            R.id.clearObstacleButton, R.id.clearObstacleButton2 -> arenaV2.clearObstacles()
 
             R.id.messagesClearButton, R.id.messagesClearButton2 -> activityUtil.sendYesNoDialog(context.getString(R.string.clear_message_log)) {
                 if (it) messagesTextView?.text = ""
@@ -158,13 +155,11 @@ class MainActivityController(private val context: Context, private val activityU
                 else sharedPreferences.getString(context.getString(R.string.app_pref_command_f2), context.getString(R.string.f2_default))
 
                 when (text) {
-                    sharedPreferences.getString(context.getString(R.string.app_pref_forward), context.getString(R.string.forward_default)) -> {
-                        arenaController.moveRobot(1, BluetoothController.isSocketConnected())
-                        return
-                    }
-
-                    sharedPreferences.getString(context.getString(R.string.app_pref_reverse), context.getString(R.string.reverse_default)) -> {
-                        arenaController.moveRobot(-1, BluetoothController.isSocketConnected())
+                    sharedPreferences.getString(context.getString(R.string.app_pref_forward), context.getString(R.string.forward_default)),
+                    sharedPreferences.getString(context.getString(R.string.app_pref_reverse), context.getString(R.string.reverse_default)),
+                    sharedPreferences.getString(context.getString(R.string.app_pref_turn_left), context.getString(R.string.turn_left_default)),
+                    sharedPreferences.getString(context.getString(R.string.app_pref_turn_right), context.getString(R.string.turn_right_default)) -> {
+                        activityUtil.sendSnack(context.getString(R.string.illegal_command))
                         return
                     }
                 }
@@ -191,7 +186,7 @@ class MainActivityController(private val context: Context, private val activityU
         if (command.isNotEmpty()) BluetoothController.write(command)
     }
 
-    fun displayInChat(messageType: MessageType, message: String) {
+    private fun displayInChat(messageType: MessageType, message: String) {
         val prefixType: String =
             when (messageType) {
                 MessageType.INCOMING -> context.getString(R.string.prefix_robot)
@@ -217,7 +212,7 @@ class MainActivityController(private val context: Context, private val activityU
     }
 
     fun isClickDelayOver(): Boolean {
-        if (System.currentTimeMillis() - lastClickTime < 250L) return false
+        if (System.currentTimeMillis() - lastClickTime < 100L) return false
         lastClickTime = System.currentTimeMillis()
         return true
     }
@@ -228,13 +223,21 @@ class MainActivityController(private val context: Context, private val activityU
 
         if (testExplore) {
             if (robotAutonomous) {
+                arenaV2.resetGoalPoint()
+
                 if (currentMode == Mode.EXPLORATION) {
-                    if (testExplore) arenaController.saveObstacles()
-                    scratchPad.exploration()
+                    if (testExplore) arenaV2.saveObstacles()
+                    CoroutineScope(Dispatchers.Main).launch {
+                        scratchPad.exploration()
+                    }
                 }
 
-                if (currentMode == Mode.FASTEST_PATH) scratchPad.fastestPath()
-                arenaController.resetGoalPoint()
+                if (currentMode == Mode.FASTEST_PATH) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        arenaV2.moveRobot(arenaV2.getStartPosition())
+                        scratchPad.fastestPath()
+                    }
+                }
             } else {
                 scratchPad.stop()
             }
@@ -286,7 +289,7 @@ class MainActivityController(private val context: Context, private val activityU
     fun onMapSaveClicked() {
         activityUtil.sendYesNoDialog(context.getString(R.string.save_map_prompt), leftLabel = context.getString(R.string.yes), rightLabel = context.getString(R.string.no)) {
             if (it) {
-                val save: String = arenaController.getMapDescriptor()
+                val save: String = arenaV2.getMapDescriptor()
                 sharedPreferences.edit().putString(context.getString(R.string.app_pref_map_descriptor_1), save).apply()
                 activityUtil.sendSnack(context.getString(R.string.map_saved))
             }
@@ -300,8 +303,8 @@ class MainActivityController(private val context: Context, private val activityU
                 if (load.isEmpty()) {
                     activityUtil.sendSnack(context.getString(R.string.no_save_data))
                 } else {
-                    arenaController.resetArena()
-                    arenaController.updateArena(load)
+                    arenaV2.resetArena()
+                    arenaV2.updateArena(load)
                 }
             }
         }
@@ -333,7 +336,7 @@ class MainActivityController(private val context: Context, private val activityU
     private fun resetArena() {
         activityUtil.sendYesNoDialog(context.getString(R.string.reset_arena_timer)) {
             if (it) {
-                arenaController.resetArena()
+                arenaV2.resetArena()
                 timerLabel?.text = context.getString(R.string.timer_default)
             }
         }
@@ -341,12 +344,54 @@ class MainActivityController(private val context: Context, private val activityU
 
     private fun connectionChanged(status: BluetoothController.Status) {
         if (status == BluetoothController.Status.CONNECTED) {
-            isUpdating = true
+            ArenaV2.isWaitingUpdate = true
             sendCommand(SEND_ARENA_COMMAND)
         } else {
             startBluetoothListener()
         }
 
-        arenaController.updateRobotImage()
+        arenaV2.updateRobotImage()
     }
+
+    fun updateImage(data: String) {
+        val s = data.split(", ")
+
+        try {
+            val x = s[0].toInt()
+            val y = s[1].toInt()
+            val id = s[2].toInt()
+            arenaV2.setImage(x, y, id)
+        } catch (e: NumberFormatException) {
+            activityUtil.sendSnack(context.getString(R.string.something_went_wrong))
+            return
+        }
+    }
+
+    fun updateRobot(data: String) {
+        val s = data.split(", ")
+
+        try {
+            val x = s[0].toInt()
+            val y = s[1].toInt()
+            val r = s[2].toInt()
+            val robotPosition = arenaV2.getRobotPosition()
+            val currentX = robotPosition[0]
+            val currentY = robotPosition[1]
+
+            if (x == currentX && y == currentY) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    arenaV2.turnRobot(r)
+                }
+            } else {
+                CoroutineScope(Dispatchers.Main).launch {
+                    arenaV2.moveRobot(x, y)
+                }
+            }
+        } catch (e: NumberFormatException) {
+            activityUtil.sendSnack(context.getString(R.string.something_went_wrong))
+            return
+        }
+    }
+
+    fun getArena(): ArenaV2 = arenaV2
 }
