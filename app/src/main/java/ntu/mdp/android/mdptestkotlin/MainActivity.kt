@@ -23,17 +23,16 @@ import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.currentMod
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.robotAutonomous
 import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
 import ntu.mdp.android.mdptestkotlin.arena.ArenaV2.Companion.isPlotting
+import ntu.mdp.android.mdptestkotlin.arena.RobotController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
-import ntu.mdp.android.mdptestkotlin.utils.TouchController
-import ntu.mdp.android.mdptestkotlin.utils.TouchController.Companion.isSwipeMode
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var activityUtil: ActivityUtil
     private lateinit var mainActivityController: MainActivityController
-    private lateinit var touchController: TouchController
+    private lateinit var robotController: RobotController
     private lateinit var normalModeViewList: List<View>
     private lateinit var plotModeViewList: List<View>
     private lateinit var buttonList: List<View>
@@ -87,12 +86,13 @@ class MainActivity : AppCompatActivity() {
         buttonList = listOf(settingsButton, plotButton, mapButton, resetButton, f1Button, f2Button, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
 
         mainActivityController = MainActivityController(this, activityUtil, binding)
-        touchController = TouchController(this, mainActivityController, binding) { statusLabel.text = it }
+        robotController = mainActivityController.getRobotController()
+
         padForwardButton.isClickable = false
         padReverseButton.isClickable = false
         padLeftButton.isClickable = false
         padRightButton.isClickable = false
-        swipePadLayout.setOnTouchListener(touchController.touchListener)
+        swipePadLayout.setOnTouchListener(robotController.getTouchListener())
         messagesOutputEditText.setOnKeyListener(onEnter)
 
         CoroutineScope(Dispatchers.Default).launch {
@@ -153,7 +153,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.plotButton -> {
-                if (isPlotting) mainActivityController.getArena().resetActions()
+                if (isPlotting) mainActivityController.getRobotController().resetActions()
                 onPlotClicked()
             }
 
@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.startFastestPathFab -> {
-                if (!mainActivityController.getArena().isWaypointSet()) {
+                if (!mainActivityController.getRobotController().isWaypointSet()) {
                     activityUtil.sendSnack("Please set a waypoint first.")
                     return
                 }
@@ -177,11 +177,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.controlModeButton -> {
-                isSwipeMode = !isSwipeMode
+                robotController.toggleSwipeMode()
                 val typedValue = TypedValue()
-                theme.resolveAttribute(if (isSwipeMode) R.attr.colorAccentTheme else R.attr.colorAccentLighterTheme, typedValue, true)
+                theme.resolveAttribute(if (robotController.getSwipeMode()) R.attr.colorAccentTheme else R.attr.colorAccentLighterTheme, typedValue, true)
                 @ColorInt val color = typedValue.data
-                val visibility: Int = if (isSwipeMode) View.INVISIBLE else View.VISIBLE
+                val visibility: Int = if (robotController.getSwipeMode()) View.INVISIBLE else View.VISIBLE
                 controlModeButton.setTextColor(color)
                 padForwardButton.visibility = visibility
                 padReverseButton.visibility = visibility
@@ -191,7 +191,7 @@ class MainActivity : AppCompatActivity() {
 
             R.id.doneButton -> {
                 plotModeViewList.forEach { it.isEnabled = true }
-                mainActivityController.getArena().resetActions()
+                mainActivityController.getRobotController().resetActions()
                 onPlotClicked()
             }
 
@@ -203,7 +203,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     plotModeViewList.forEach { it.isEnabled = true }
                     ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.NONE
-                    mainActivityController.getArena().resetActions()
+                    mainActivityController.getRobotController().resetActions()
                 }
             }
 
@@ -215,7 +215,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     plotModeViewList.forEach { it.isEnabled = true }
                     ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.NONE
-                    mainActivityController.getArena().resetActions()
+                    mainActivityController.getRobotController().resetActions()
                 }
             }
 

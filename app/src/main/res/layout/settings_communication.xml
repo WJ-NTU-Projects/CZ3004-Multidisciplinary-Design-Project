@@ -21,7 +21,7 @@
             android:orientation="vertical">
 
             <com.google.android.material.textview.MaterialTextView
-                style="@style/TextViewCustom.Status.Settings"
+                style="@style/TextViewCustom.Gray.Settings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/arena_communication" />
@@ -84,7 +84,7 @@
                             android:textSize="@dimen/text_size_big"/>
 
                         <com.google.android.material.textview.MaterialTextView
-                            style="@style/TextViewCustom.Status"
+                            style="@style/TextViewCustom.Gray"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/using_amd_description"/>
@@ -98,7 +98,7 @@
             </androidx.cardview.widget.CardView>
 
             <com.google.android.material.textview.MaterialTextView
-                style="@style/TextViewCustom.Status.Settings"
+                style="@style/TextViewCustom.Gray.Settings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/string_commands" />

@@ -4,6 +4,10 @@
     <attr format="reference" name="toolbarStyleCustom"/>
     <attr format="reference" name="layoutCustom"/>
     <attr format="reference" name="recyclerCustom"/>
+    <attr format="reference" name="speedSlowIconSrc"/>
+    <attr format="reference" name="speedFastIconSrc"/>
+    <attr format="reference" name="coverageLessIconSrc"/>
+    <attr format="reference" name="coverageMoreIconSrc"/>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -25,6 +29,10 @@
         <item name="layoutCustom">@style/LayoutCustom</item>
         <item name="colorAccentTheme">@color/colorAccent</item>
         <item name="colorAccentLighterTheme">@color/colorAccentLighter</item>
+        <item name="speedSlowIconSrc">@drawable/ic_speed_slow</item>
+        <item name="speedFastIconSrc">@drawable/ic_speed_fast</item>
+        <item name="coverageLessIconSrc">@drawable/ic_coverage_less</item>
+        <item name="coverageMoreIconSrc">@drawable/ic_coverage_more</item>
     </style>
 
     <style name="AppTheme.Dark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -46,6 +54,10 @@
         <item name="layoutCustom">@style/LayoutCustom.Dark</item>
         <item name="colorAccentTheme">@color/colorAccentDark</item>
         <item name="colorAccentLighterTheme">@color/colorAccentLighterDark</item>
+        <item name="speedSlowIconSrc">@drawable/ic_speed_slow_dark</item>
+        <item name="speedFastIconSrc">@drawable/ic_speed_fast_dark</item>
+        <item name="coverageLessIconSrc">@drawable/ic_coverage_less_dark</item>
+        <item name="coverageMoreIconSrc">@drawable/ic_coverage_more_dark</item>
     </style>
 
     <style name="LayoutCustom">
@@ -104,21 +116,34 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="TextViewCustom.Status">
+    <style name="TextViewCustom.Settings">
+        <item name="android:textSize">@dimen/text_size_big</item>
+    </style>
+
+    <style name="TextViewCustom.Gray">
         <item name="android:textSize">@dimen/text_size_small</item>
         <item name="android:textColor">@android:color/darker_gray</item>
     </style>
 
-    <style name="TextViewCustom.Status.Small">
+    <style name="TextViewCustom.Gray.Bottom">
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textColor">@android:color/darker_gray</item>
+        <item name="android:layout_marginTop">@dimen/element_padding</item>
+        <item name="android:layout_marginLeft">@dimen/screen_padding</item>
+        <item name="android:layout_marginRight">@dimen/screen_padding</item>
+        <item name="android:layout_marginBottom">@dimen/element_padding</item>
+    </style>
+
+    <style name="TextViewCustom.Gray.Small">
         <item name="android:textAllCaps">true</item>
         <item name="android:textSize">@dimen/text_size_smaller</item>
     </style>
 
-    <style name="TextViewCustom.Status.Title">
+    <style name="TextViewCustom.Gray.Title">
         <item name="android:textAllCaps">true</item>
     </style>
 
-    <style name="TextViewCustom.Status.Settings">
+    <style name="TextViewCustom.Gray.Settings">
         <item name="android:textAllCaps">true</item>
         <item name="android:layout_marginTop">@dimen/settings_padding</item>
         <item name="android:layout_marginLeft">@dimen/screen_padding</item>

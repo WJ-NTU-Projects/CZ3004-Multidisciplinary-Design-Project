@@ -44,7 +44,7 @@
 
             <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextViewCustom.Status.Small"
+                    style="@style/TextViewCustom.Gray.Small"
                     android:text="@string/status"/>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -67,7 +67,7 @@
 
             <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextViewCustom.Status.Small"
+                    style="@style/TextViewCustom.Gray.Small"
                     android:text="@string/mode"/>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -90,7 +90,7 @@
 
             <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextViewCustom.Status.Small"
+                    style="@style/TextViewCustom.Gray.Small"
                     android:text="@string/coordinates"/>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -114,7 +114,7 @@
 
             <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextViewCustom.Status.Small"
+                    style="@style/TextViewCustom.Gray.Small"
                     android:id="@+id/timerTitleLabel2"
                     android:text="@string/timer"/>
 
@@ -145,7 +145,7 @@
                     android:layout_marginBottom="@dimen/element_padding">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/TextViewCustom.Status.Small"
+                        style="@style/TextViewCustom.Gray.Small"
                         android:text="@string/messages"/>
 
                     <com.google.android.material.textview.MaterialTextView

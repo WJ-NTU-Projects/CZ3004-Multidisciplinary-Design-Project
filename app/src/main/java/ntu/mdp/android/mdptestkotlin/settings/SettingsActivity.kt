@@ -12,15 +12,16 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
-import kotlinx.android.synthetic.main.activity_settings.*
+import kotlinx.android.synthetic.main.settings.*
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
-import ntu.mdp.android.mdptestkotlin.databinding.ActivitySettingsBinding
+import ntu.mdp.android.mdptestkotlin.databinding.SettingsBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
 class SettingsActivity : AppCompatActivity() {
-    private lateinit var binding: ActivitySettingsBinding
+    private lateinit var binding: SettingsBinding
     private lateinit var activityUtil: ActivityUtil
     private lateinit var drawableList: ArrayList<Drawable>
     private lateinit var labelList: ArrayList<String>
@@ -31,7 +32,7 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(App.appTheme)
         super.onCreate(savedInstanceState)
-        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        binding = SettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         activityUtil = ActivityUtil(this)
@@ -49,35 +50,40 @@ class SettingsActivity : AppCompatActivity() {
             getDrawable(R.drawable.ic_bluetooth_white)!!,
             getDrawable(R.drawable.ic_pi_white)!!,
             getDrawable(R.drawable.ic_f1_white)!!,
-            getDrawable(R.drawable.ic_tablet_white)!!
+            getDrawable(R.drawable.ic_tablet_white)!!,
+            getDrawable(R.drawable.ic_sim)!!
         )
 
         labelList = arrayListOf(
             getString(R.string.bluetooth),
             getString(R.string.robot_communication),
             getString(R.string.custom_buttons),
-            getString(R.string.experimental)
+            getString(R.string.display),
+            getString(R.string.simulation)
         )
 
         descriptionList = arrayListOf(
             getString(R.string.bluetooth_description),
             getString(R.string.robot_communication_description),
             getString(R.string.custom_buttons_description),
-            getString(R.string.experimental_description)
+            getString(R.string.display_description),
+            "???"
         )
 
         colorList = arrayListOf(
             getColor(R.color.icon_bg_bluetooth),
             getColor(R.color.icon_bg_commands),
             getColor(R.color.icon_bg_custom_buttons),
-            getColor(R.color.icon_bg_display)
+            getColor(R.color.icon_bg_display),
+            getColor(R.color.icon_bg_simulation)
         )
 
         activityList = arrayListOf(
             SettingsBluetoothActivity::class.java,
             SettingsCommunicationActivity::class.java,
             SettingsCustomButtonsActivity::class.java,
-            SettingsExperimentalActivity::class.java
+            SettingsDisplayActivity::class.java,
+            SettingsSimulationActivity::class.java
         )
     }
 
@@ -103,6 +109,7 @@ class SettingsActivity : AppCompatActivity() {
             var pos: Int = -1
 
             override fun onClick(v: View?) {
+                if (pos == itemCount - 1 && !isSimple) return
                 activityUtil.startActivity(activityList[pos])
             }
         }

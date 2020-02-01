@@ -107,7 +107,7 @@
 
             <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextViewCustom.Status.Title"
+                    style="@style/TextViewCustom.Gray.Title"
                     android:text="@string/coordinates"/>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -131,7 +131,7 @@
 
             <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextViewCustom.Status.Title"
+                    style="@style/TextViewCustom.Gray.Title"
                     android:text="@string/timer"/>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -155,7 +155,7 @@
 
             <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextViewCustom.Status.Title"
+                    style="@style/TextViewCustom.Gray.Title"
                     android:text="@string/status"/>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -178,7 +178,7 @@
 
             <LinearLayout style="@style/CardViewInnerLayout">
                 <com.google.android.material.textview.MaterialTextView
-                    style="@style/TextViewCustom.Status.Title"
+                    style="@style/TextViewCustom.Gray.Title"
                     android:text="@string/mode"/>
 
                 <com.google.android.material.textview.MaterialTextView
@@ -206,7 +206,7 @@
                     android:layout_marginBottom="@dimen/element_padding">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/TextViewCustom.Status.Title"
+                        style="@style/TextViewCustom.Gray.Title"
                         android:text="@string/messages"/>
 
                     <com.google.android.material.textview.MaterialTextView
@@ -290,7 +290,7 @@
                     android:layout_marginBottom="@dimen/element_padding">
 
                     <com.google.android.material.textview.MaterialTextView
-                        style="@style/TextViewCustom.Status.Title"
+                        style="@style/TextViewCustom.Gray.Title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/control_pad"/>
@@ -358,14 +358,14 @@
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 style="@style/FabCustom"
-                android:id="@+id/startFastestPathFab"
-                android:src="@drawable/ic_fastest" />
+                android:id="@+id/startExplorationFab"
+                android:src="@drawable/ic_explore" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 style="@style/FabCustom"
-                android:id="@+id/startExplorationFab"
+                android:id="@+id/startFastestPathFab"
                 android:layout_marginStart="@dimen/element_padding"
-                android:src="@drawable/ic_explore" />
+                android:src="@drawable/ic_fastest" />
         </LinearLayout>
 
         <LinearLayout
@@ -380,14 +380,14 @@
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 style="@style/FabCustom"
-                android:id="@+id/loadMapButton"
-                android:src="@drawable/ic_load" />
+                android:id="@+id/saveMapButton"
+                android:src="@drawable/ic_save" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 style="@style/FabCustom"
-                android:id="@+id/saveMapButton"
+                android:id="@+id/loadMapButton"
                 android:layout_marginStart="@dimen/element_padding"
-                android:src="@drawable/ic_save" />
+                android:src="@drawable/ic_load" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

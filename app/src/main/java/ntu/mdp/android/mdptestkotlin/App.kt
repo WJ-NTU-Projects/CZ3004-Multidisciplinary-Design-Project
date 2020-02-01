@@ -12,15 +12,8 @@ class App: Application() {
 
     companion object {
         const val BLUETOOTH_UUID = "00001101-0000-1000-8000-00805F9B34FB"
-        var SEND_ARENA_COMMAND = "sendArena"
-        var FORWARD_COMMAND = "f"
-        var REVERSE_COMMAND = "r"
-        var TURN_LEFT_COMMAND = "tl"
-        var TURN_RIGHT_COMMAND = "tr"
-        var BLUETOOTH_CONNECTED_DEVICE = "-"
         const val ANIMATOR_DURATION = 200L
-        const val FAST_SIM_DELAY = 40L
-        const val SLOW_SIM_DELAY = 320L
+        private const val SLOW_SIM_DELAY = 320L
 
         var appTheme: Int = R.style.AppTheme
         var socket: BluetoothSocket? = null
@@ -30,16 +23,20 @@ class App: Application() {
 
         // Persistent Data
         lateinit var sharedPreferences: SharedPreferences
-        var autoUpdateArena = false
-        var darkMode = false
-        var isSimple = false
-        var usingAmd = true
-        var testExplore = false
-        var plotPathChosen = false
-        var plotSearch = false
-        var allowDiagonalExploration = false
-        var fastSimulation = false
-        var simulationDelay = SLOW_SIM_DELAY
+        @Volatile var autoUpdateArena = false
+        @Volatile var darkMode = false
+        @Volatile var isSimple = false
+        @Volatile var usingAmd = true
+        @Volatile var simulationMode = false
+        @Volatile var allowDiagonalExploration = false
+        @JvmStatic @Volatile var simulationDelay = SLOW_SIM_DELAY
+        @JvmStatic @Volatile var coverageLimit = 100
+        @Volatile var SEND_ARENA_COMMAND = "sendArena"
+        @Volatile var FORWARD_COMMAND = "f"
+        @Volatile var REVERSE_COMMAND = "r"
+        @Volatile var TURN_LEFT_COMMAND = "tl"
+        @Volatile var TURN_RIGHT_COMMAND = "tr"
+        @Volatile var BLUETOOTH_CONNECTED_DEVICE = "-"
     }
 
     override fun onCreate() {
@@ -56,11 +53,10 @@ class App: Application() {
         isSimple = sharedPreferences.getBoolean(getString(R.string.app_pref_sad_mode), false)
         autoUpdateArena = sharedPreferences.getBoolean(getString(R.string.app_pref_auto_update), true)
         usingAmd = sharedPreferences.getBoolean(getString(R.string.app_pref_using_amd), true)
-        testExplore = sharedPreferences.getBoolean(getString(R.string.app_pref_test_explore), false)
-        plotPathChosen = sharedPreferences.getBoolean(getString(R.string.app_pref_plot_path_chosen), false)
-        plotSearch = sharedPreferences.getBoolean(getString(R.string.app_pref_plot_search), false)
-        allowDiagonalExploration = sharedPreferences.getBoolean(getString(R.string.app_pref_diagonal_exploration), false)
-        fastSimulation = sharedPreferences.getBoolean(getString(R.string.app_pref_fast_simulation), false)
-        simulationDelay = if (fastSimulation) FAST_SIM_DELAY else SLOW_SIM_DELAY
+        //allowDiagonalExploration = sharedPreferences.getBoolean(getString(R.string.app_pref_diagonal_exploration), false)
+
+        if (isSimple) simulationMode = sharedPreferences.getBoolean(getString(R.string.app_pref_simulation_mode), false)
+        simulationDelay = if (isSimple && simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 4) + 1) else 200L
+        coverageLimit = if (isSimple && simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
     }
 }

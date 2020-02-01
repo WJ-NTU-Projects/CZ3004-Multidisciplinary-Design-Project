@@ -17,12 +17,11 @@
     <string name="app_pref_dark_mode">DARK_MODE</string>
     <string name="app_pref_sad_mode">SAD_MODE</string>
     <string name="app_pref_using_amd">USING_AMD</string>
-    <string name="app_pref_test_explore">TEST_EXPLORE</string>
+    <string name="app_pref_simulation_mode">SIMULATION_MODE</string>
     <string name="app_pref_map_descriptor_1">MAP_DESCRIPTOR_1</string>
-    <string name="app_pref_plot_path_chosen">PLOT_PATH_CHOSEN</string>
-    <string name="app_pref_plot_search">PLOT_SEARCH</string>
-    <string name="app_pref_diagonal_exploration">DIAGONAL_EXPLORATION</string>
-    <string name="app_pref_fast_simulation">FAST_SIMULATION</string>
+    <string name="app_pref_simulation_speed">SIMULATION_SPEED</string>
+    <string name="app_pref_simulation_coverage">SIMULATION_COVERAGE</string>
+    <string name="app_pref_simulation_time">SIMULATION_TIME</string>
 
     <string name="ok">OK</string>
     <string name="yes">YES</string>
@@ -86,9 +85,8 @@
     <string name="custom_buttons">Custom Buttons</string>
     <string name="custom_buttons_description">Customise buttons F1 and F2.</string>
     <string name="display">Display</string>
-    <string name="display_description">Display modes &amp; dark mode.</string>
-    <string name="experimental">Experimental</string>
-    <string name="experimental_description">Bunch of test stuff.</string>
+    <string name="display_description">Dark mode &amp; SAD mode.</string>
+    <string name="simulation">Simulation</string>
 
     <!-- BLUETOOTH ACTIVITY -->
     <string name="connected_device">Connected Device</string>
@@ -132,19 +130,27 @@
     <string name="button_label">Button Label</string>
     <string name="settings_custom_buttons_description">Changes the functionality and label of the two custom buttons, F1 and F2.</string>
 
-    <!-- SETTINGS EXPERIMENTAL ACTIVITY -->
+    <!-- SETTINGS DISPLAY ACTIVITY -->
     <string name="experimental_warning">WARNING! App restarts when these settings are changed! NO POP UP!</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="dark_mode_description">For when your eyes are so tired and sleepy after hours of MDP but you have to push on.</string>
     <string name="simple_advanced_display">Simple, yet Advanced Display Mode (SAD Mode)</string>
     <string name="simple_advanced_display_description">Minimal display for advanced users.</string>
-    <string name="test_explore">Test Exploration Mode</string>
-    <string name="plot_path_chosen">Plot Path</string>
-    <string name="plot_search">Plot Search</string>
-    <string name="diagonal_exploration">Allow Diagonal Exploration</string>
-    <string name="fast_simulation">Fast Simulation</string>
-    <string name="fast_simulation_on">Fast Simulation ON</string>
-    <string name="fast_simulation_off">Fast Simulation OFF</string>
+
+    <!-- SETTINGS SIMULATION ACTIVITY -->
+    <string name="very_traumatising">This is very traumatising!</string>
+    <string name="simulation_mode">Simulation Mode</string>
+    <string name="very_critical">This is very critical!</string>
+    <string name="simulation_speed">Simulation Speed</string>
+    <string name="simulation_speed_description">Measured in Actions Per Second (APS).</string>
+    <string name="simulation_speed_placeholder_aps">%d Actions Per Second</string>
+    <string name="simulation_speed_placeholder_ms">%dms Per Action</string>
+    <string name="simulation_speed_notification">Simulation speed is now %d.</string>
+    <string name="simulation_coverage">Coverage Limit</string>
+    <string name="simulation_coverage_description">Simulation terminates after exploring the set percentage of grids of the map.</string>
+    <string name="simulation_coverage_placeholder">%d%% Coverage</string>
+    <string name="simulation_time">Time Limit</string>
+    <string name="simulation_time_description">Simulation terminates after exploring for the set amount of time.</string>
 
     <!-- ARENA -->
     <string name="obstructed">Unable to plot. Something is in the way.</string>

@@ -13,7 +13,6 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
-import ntu.mdp.android.mdptestkotlin.App.Companion.testExplore
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainSimpleBinding
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.currentMode
 import ntu.mdp.android.mdptestkotlin.MainActivityController.Companion.robotAutonomous
@@ -21,7 +20,6 @@ import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
 import ntu.mdp.android.mdptestkotlin.arena.ArenaV2.Companion.isPlotting
 import ntu.mdp.android.mdptestkotlin.arena.ArenaV2.Companion.isWaitingUpdate
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
-import ntu.mdp.android.mdptestkotlin.utils.ScratchPad
 
 
 class MainSimpleActivity : AppCompatActivity() {
@@ -88,7 +86,7 @@ class MainSimpleActivity : AppCompatActivity() {
 
             R.id.startFastestPathButton2 -> {
                 if (!robotAutonomous) {
-                    if (!mainActivityController.getArena().isWaypointSet()) {
+                    if (!mainActivityController.getRobotController().isWaypointSet()) {
                         activityUtil.sendSnack("Please set a waypoint first.")
                         return
                     }
@@ -108,7 +106,7 @@ class MainSimpleActivity : AppCompatActivity() {
                 } else {
                     buttonList.forEach { it.isEnabled = true }
                     ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.NONE
-                    mainActivityController.getArena().resetActions()
+                    mainActivityController.getRobotController().resetActions()
                 }
             }
 
@@ -120,7 +118,7 @@ class MainSimpleActivity : AppCompatActivity() {
                 } else {
                     buttonList.forEach { it.isEnabled = true }
                     ArenaV2.currentPlotFunction = ArenaV2.PlotFunction.NONE
-                    mainActivityController.getArena().resetActions()
+                    mainActivityController.getRobotController().resetActions()
                 }
             }
 

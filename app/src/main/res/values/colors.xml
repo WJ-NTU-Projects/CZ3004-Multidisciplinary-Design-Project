@@ -19,13 +19,14 @@
     <color name="cardColor">#FBFBFB</color>
     <color name="cardColorDark">#161616</color>
 
-    <color name="textColorHint">#888888</color>
+    <color name="textColorHint">#666666</color>
     <color name="toolbar_divider">#DDDDDD</color>
 
     <color name="icon_bg_bluetooth">#370FCF</color>
     <color name="icon_bg_commands">#970FCF</color>
     <color name="icon_bg_custom_buttons">#CF0FA7</color>
     <color name="icon_bg_display">#CF0F47</color>
+    <color name="icon_bg_simulation">#CF370F</color>
 
     <color name="progressBarEnd">#011A5FC6</color>
     <color name="arena_unexplored">#FB98A4</color>
