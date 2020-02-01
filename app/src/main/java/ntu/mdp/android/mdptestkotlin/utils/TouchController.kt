@@ -135,15 +135,25 @@ class TouchController(private val context: Context, private val mainActivityCont
                     lastMoveTime = System.currentTimeMillis()
 
                     CoroutineScope(Dispatchers.Main).launch {
-                        val robotPosition: IntArray = mainActivityController.getArena().getRobotPosition()
-                        val x: Int = robotPosition[0]
-                        val y: Int = robotPosition[1]
+                        val currentFacing: Int = mainActivityController.getArena().getRobotPosition()[2]
 
-                        when (movementFlag) {
-                            MovementFlag.FORWARD -> mainActivityController.getArena().moveRobot(x, y + 1)
-                            MovementFlag.REVERSE -> mainActivityController.getArena().moveRobot(x, y - 1)
-                            MovementFlag.LEFT -> mainActivityController.getArena().moveRobot(x - 1, y)
-                            MovementFlag.RIGHT -> mainActivityController.getArena().moveRobot(x + 1, y)
+                        val facing = when (movementFlag) {
+                            MovementFlag.FORWARD    -> 0
+                            MovementFlag.REVERSE    -> 180
+                            MovementFlag.LEFT       -> 270
+                            MovementFlag.RIGHT      -> 90
+                            MovementFlag.NONE       -> -1
+                        }
+
+                        if (facing == -1) return@launch
+                        val facingOffset: Int = currentFacing - facing
+
+                        if (facing == currentFacing || abs(facing - currentFacing) == 180) {
+                            mainActivityController.getArena().moveRobot(facing)
+                        } else if (facingOffset == 90 || facingOffset == -270) {
+                            mainActivityController.getArena().turnRobot(Math.floorMod(currentFacing - 90, 360))
+                        } else {
+                            mainActivityController.getArena().turnRobot(Math.floorMod(currentFacing + 90, 360))
                         }
                     }
                 }

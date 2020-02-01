@@ -19,6 +19,8 @@ class App: Application() {
         var TURN_RIGHT_COMMAND = "tr"
         var BLUETOOTH_CONNECTED_DEVICE = "-"
         const val ANIMATOR_DURATION = 200L
+        const val FAST_SIM_DELAY = 40L
+        const val SLOW_SIM_DELAY = 320L
 
         var appTheme: Int = R.style.AppTheme
         var socket: BluetoothSocket? = null
@@ -37,7 +39,7 @@ class App: Application() {
         var plotSearch = false
         var allowDiagonalExploration = false
         var fastSimulation = false
-        var simulationDelay = 500L
+        var simulationDelay = SLOW_SIM_DELAY
     }
 
     override fun onCreate() {
@@ -59,6 +61,6 @@ class App: Application() {
         plotSearch = sharedPreferences.getBoolean(getString(R.string.app_pref_plot_search), false)
         allowDiagonalExploration = sharedPreferences.getBoolean(getString(R.string.app_pref_diagonal_exploration), false)
         fastSimulation = sharedPreferences.getBoolean(getString(R.string.app_pref_fast_simulation), false)
-        simulationDelay = if (fastSimulation)  100L else 500L
+        simulationDelay = if (fastSimulation) FAST_SIM_DELAY else SLOW_SIM_DELAY
     }
 }

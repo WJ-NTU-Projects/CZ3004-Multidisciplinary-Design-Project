@@ -16,7 +16,8 @@ class GestureImageView(c: Context): AppCompatImageView(c) {
         LONG_PRESS,
         FLING_LEFT,
         FLING_RIGHT,
-        FLING_DOWN
+        FLING_DOWN,
+        FLING_UP
     }
 
     private lateinit var callback: (view: GestureImageView, gesture: Gesture) -> Unit
@@ -65,17 +66,21 @@ class GestureImageView(c: Context): AppCompatImageView(c) {
             Log.e("FLING", "$velocityX, $velocityY")
 
             if (abs(velocityX) > abs(velocityY)) {
-                if (velocityX >= 300) {
+                if (velocityX >= 150) {
                     callback(this@GestureImageView, Gesture.FLING_RIGHT)
-                } else {
+                } else if (velocityX <= -150){
                     callback(this@GestureImageView, Gesture.FLING_LEFT)
                 }
 
                 return true
             }
 
-            if (abs(velocityY) > abs(velocityX) && velocityY >= 1500) {
-                callback(this@GestureImageView, Gesture.FLING_DOWN)
+            if (abs(velocityY) > abs(velocityX)) {
+                if (velocityY >= 1500) {
+                    callback(this@GestureImageView, Gesture.FLING_DOWN)
+                } else if (velocityY <= -1500) {
+                    callback(this@GestureImageView, Gesture.FLING_UP)
+                }
                 return true
             }
 

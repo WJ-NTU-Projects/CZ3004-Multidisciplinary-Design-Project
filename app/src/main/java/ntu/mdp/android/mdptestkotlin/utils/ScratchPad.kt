@@ -51,8 +51,11 @@ class ScratchPad(activityController: MainActivityController, private val activit
             }
         )
 
+        arena.moveRobot(x, y)
+        val delay: Long = (simulationDelay * 1.5).toLong()
+
         while (true) {
-            if (haveDelay) delay(simulationDelay)
+            if (haveDelay) delay(delay)
             if (stop) return@withContext
 
             haveDelay = true
@@ -69,6 +72,7 @@ class ScratchPad(activityController: MainActivityController, private val activit
             if (counter >= 15) break
 
             if (!arena.isValidCoordinates(xTarget, yTarget)) {
+                /*
                 if (xTarget == -1) {
                     x = (yTarget % 15)
                     y = (yTarget / 15)
@@ -77,6 +81,8 @@ class ScratchPad(activityController: MainActivityController, private val activit
                 }
 
                 counter++
+
+                 */
                 continue
             }
 
@@ -90,7 +96,7 @@ class ScratchPad(activityController: MainActivityController, private val activit
             }
 
             for ((i, p) in path.withIndex()) {
-                if (i != 0) delay(simulationDelay)
+                if (i != 0) delay(delay)
                 if (stop) return@withContext
                 robotPosition = arena.getRobotPosition()
                 x = robotPosition[0]
@@ -98,7 +104,6 @@ class ScratchPad(activityController: MainActivityController, private val activit
                 r = robotPosition[2]
                 if (attemptMove(x, y, r)) break
                 arena.moveRobot(p[0], p[1])
-                break
             }
 
         }
@@ -128,14 +133,17 @@ class ScratchPad(activityController: MainActivityController, private val activit
 
         startX = endX
         startY = endY
-        val startR = if (bestWaypointPath.isEmpty()) 0 else bestWaypointPath.last()[2]
         val goalPosition: IntArray = arena.getGoalPosition()
         endX = goalPosition[0]
         endY = goalPosition[1]
-        val goalPointPath = findShortestPath(startX, startY, startR, endX, endY).second
 
-        path1 = path1 + goalPointPath
-        path2 = path2 + goalPointPath
+        var startR = if (path1.isEmpty()) 0 else path1.last()[2]
+        val goalPointPath1 = findShortestPath(startX, startY, startR, endX, endY).second
+        startR = if (path2.isEmpty()) 0 else path2.last()[2]
+        val goalPointPath2 = findShortestPath(startX, startY, startR, endX, endY).second
+
+        path1 = path1 + goalPointPath1
+        path2 = path2 + goalPointPath2
         var turns1 = 0
         var turns2 = 0
         var previousPathFacing = path1.first()[2]
@@ -166,22 +174,22 @@ class ScratchPad(activityController: MainActivityController, private val activit
         if (r == 0 || r == 180) {
             if (y <= 1) {
                 if (checkBottom(x, y)) {
-                    handleMove(180)
+                    arena.moveRobot(180)
                     return@withContext true
                 }
 
                 if (checkUp(x, y)) {
-                    handleMove(0)
+                    arena.moveRobot(0)
                     return@withContext true
                 }
             } else {
                 if (checkUp(x, y)) {
-                    handleMove(0)
+                    arena.moveRobot(0)
                     return@withContext true
                 }
 
                 if (checkBottom(x, y)) {
-                    handleMove(180)
+                    arena.moveRobot(180)
                     return@withContext true
                 }
             }
@@ -190,22 +198,22 @@ class ScratchPad(activityController: MainActivityController, private val activit
         if (r == 90 || r == 270) {
             if (x >= 7) {
                 if (checkRight(x, y)) {
-                    handleMove(90)
+                    arena.moveRobot(90)
                     return@withContext true
                 }
 
                 if (checkLeft(x, y)) {
-                    handleMove(270)
+                    arena.moveRobot(270)
                     return@withContext true
                 }
             } else {
                 if (checkLeft(x, y)) {
-                    handleMove(270)
+                    arena.moveRobot(270)
                     return@withContext true
                 }
 
                 if (checkRight(x, y)) {
-                    handleMove(90)
+                    arena.moveRobot(90)
                     return@withContext true
                 }
             }
@@ -215,69 +223,69 @@ class ScratchPad(activityController: MainActivityController, private val activit
             // CHECK IN OTHER DIRECTIONS, WITH PRIORITY
             if (x >= 7) {
                 if (r != 90 && checkRight(x, y)) {
-                    handleMove(90)
+                    arena.moveRobot(90)
                     return@withContext true
                 }
             } else {
                 if (r != 270 && checkLeft(x, y)) {
-                    handleMove(270)
+                    arena.moveRobot(270)
                     return@withContext true
                 }
             }
 
             if (r != 180 && checkBottom(x, y)) {
-                handleMove(180)
+                arena.moveRobot(180)
                 return@withContext true
             }
 
             if (x < 7) {
                 if (r != 90 && checkRight(x, y)) {
-                    handleMove(90)
+                    arena.moveRobot(90)
                     return@withContext true
                 }
             } else {
                 if (r != 270 && checkLeft(x, y)) {
-                    handleMove(270)
+                    arena.moveRobot(270)
                     return@withContext true
                 }
             }
 
             if (r != 0 && checkUp(x, y)) {
-                handleMove(0)
+                arena.moveRobot(0)
                 return@withContext true
             }
         } else {
             if (x >= 7) {
                 if (r != 90 && checkRight(x, y)) {
-                    handleMove(90)
+                    arena.moveRobot(90)
                     return@withContext true
                 }
             } else {
                 if (r != 270 && checkLeft(x, y)) {
-                    handleMove(270)
+                    arena.moveRobot(270)
                     return@withContext true
                 }
             }
 
             if (r != 0 && checkUp(x, y)) {
-                handleMove(0)
+                arena.moveRobot(0)
                 return@withContext true
             }
 
             if (x < 7) {
                 if (r != 90 && checkRight(x, y)) {
-                    handleMove(90)
+                    arena.moveRobot(90)
                     return@withContext true
                 }
             } else {
                 if (r != 270 && checkLeft(x, y)) {
-                    handleMove(270)
+                    arena.moveRobot(270)
                     return@withContext true
                 }
             }
 
             if (r != 180 && checkBottom(x, y)) {
-                handleMove(180)
+                arena.moveRobot(180)
                 return@withContext true
             }
         }
@@ -325,26 +333,13 @@ class ScratchPad(activityController: MainActivityController, private val activit
         return false
     }
 
-    private suspend fun handleMove(r: Int) = withContext(Dispatchers.Main) {
-        val robotPosition: IntArray = arena.getRobotPosition()
-        val x = robotPosition[0]
-        val y = robotPosition[1]
 
-        when (r) {
-            0 -> arena.moveRobot(x, y + 1)
-            45  -> arena.moveRobot(x + 1, y + 1)
-            90 -> arena.moveRobot(x + 1, y)
-            135 -> arena.moveRobot(x + 1, y - 1)
-            180 -> arena.moveRobot(x, y - 1)
-            225 -> arena.moveRobot(x - 1, y - 1)
-            270 -> arena.moveRobot(x - 1, y)
-            315 -> arena.moveRobot(x - 1, y + 1)
-        }
-    }
 
     private fun nearestUnexploredGrid(): Pair<Int, Int> {
         var shortestDistance = 999
         var coordinates: Pair<Int, Int> = Pair(-1, -1)
+        var shortestUnmovableCoordinates: Pair<Int, Int> = Pair(-1, -1)
+        var shortestUnmovableDistance = 999
 
         for (y in 19 downTo 0) {
             for (x in 0 .. 14) {
@@ -352,20 +347,30 @@ class ScratchPad(activityController: MainActivityController, private val activit
                 val robotPosition: IntArray = arena.getRobotPosition()
                 val distance = abs(x - robotPosition[0]) + abs(y - robotPosition[1])
                 if (distance >= shortestDistance) continue
-                shortestDistance = distance
-                coordinates = Pair(x, y)
-                continue
+
+                if (arena.isRobotMovable(x, y)) {
+                    shortestDistance = distance
+                    coordinates = Pair(x, y)
+                    continue
+                }
+
+                if (distance < shortestUnmovableDistance) {
+                    shortestUnmovableDistance = distance
+                    shortestUnmovableCoordinates = Pair(x, y)
+                }
             }
         }
 
         if (arena.isRobotMovable(coordinates.first, coordinates.second)) return coordinates
 
-        val x = coordinates.first
-        val y = coordinates.second
+        var x = shortestUnmovableCoordinates.first
+        var y = shortestUnmovableCoordinates.second
         var found = false
         shortestDistance = 999
 
         for (yOffset in -1..1) {
+            if (found) break
+
             for (xOffset in -1..1) {
                 val xNew: Int = x + xOffset
                 val yNew: Int = y + yOffset
@@ -376,6 +381,33 @@ class ScratchPad(activityController: MainActivityController, private val activit
                     shortestDistance = distance
                     coordinates = Pair(xNew, yNew)
                     found = true
+                    break
+                }
+            }
+        }
+
+        if (found) return coordinates
+
+        x = shortestUnmovableCoordinates.first
+        y = shortestUnmovableCoordinates.second
+        found = false
+        shortestDistance = 999
+
+        for (yOffset in -2..2) {
+            if (found) break
+
+            for (xOffset in -2..2) {
+                if (xOffset != 0 && yOffset != 0) continue
+                val xNew: Int = x + xOffset
+                val yNew: Int = y + yOffset
+                val robotPosition: IntArray = arena.getRobotPosition()
+                val distance = abs(xNew - robotPosition[0]) + abs(yNew - robotPosition[1])
+
+                if (arena.isRobotMovable(xNew, yNew) && distance < shortestDistance) {
+                    shortestDistance = distance
+                    coordinates = Pair(xNew, yNew)
+                    found = true
+                    break
                 }
             }
         }
@@ -384,9 +416,11 @@ class ScratchPad(activityController: MainActivityController, private val activit
         return coordinates
     }
 
-    private suspend fun tracePath(path: List<IntArray>) = withContext(Dispatchers.Main) {
+    private suspend fun tracePath(path: List<IntArray>, isExploration: Boolean = false) = withContext(Dispatchers.Main) {
         for ((i, p) in path.withIndex()) {
-            if (i != 0) delay(simulationDelay)
+            var delay: Long = simulationDelay
+            if (isExploration) delay = (simulationDelay * 1.5).toLong()
+            if (i != 0) delay(delay)
             if (stop) return@withContext
             if (plotPathChosen) arena.setSelectedPath(p[0], p[1])
             arena.moveRobot(p[0], p[1])
@@ -405,7 +439,7 @@ class ScratchPad(activityController: MainActivityController, private val activit
             val endY = startPosition[1]
             val pathHome: Pair<Double, List<IntArray>> = findShortestPath(startX, startY, startR, endX, endY)
             val list = pathHome.second
-            tracePath(list)
+            tracePath(list, true)
             val currentPosition = arena.getRobotPosition()
             if (currentPosition[0] != endX || currentPosition[1] != endY) continue
             break

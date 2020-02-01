@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.settings_experimental.*
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.App.Companion.FAST_SIM_DELAY
+import ntu.mdp.android.mdptestkotlin.App.Companion.SLOW_SIM_DELAY
 import ntu.mdp.android.mdptestkotlin.App.Companion.allowDiagonalExploration
 import ntu.mdp.android.mdptestkotlin.App.Companion.darkMode
 import ntu.mdp.android.mdptestkotlin.App.Companion.fastSimulation
@@ -76,7 +78,7 @@ class SettingsExperimentalActivity : AppCompatActivity() {
         fastSimulationSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean(getString(R.string.app_pref_fast_simulation), isChecked).apply()
             fastSimulation = isChecked
-            simulationDelay = if (fastSimulation)  50L else 250L
+            simulationDelay = if (fastSimulation) FAST_SIM_DELAY else SLOW_SIM_DELAY
         }
     }
 

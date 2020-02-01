@@ -143,6 +143,8 @@
     <string name="plot_search">Plot Search</string>
     <string name="diagonal_exploration">Allow Diagonal Exploration</string>
     <string name="fast_simulation">Fast Simulation</string>
+    <string name="fast_simulation_on">Fast Simulation ON</string>
+    <string name="fast_simulation_off">Fast Simulation OFF</string>
 
     <!-- ARENA -->
     <string name="obstructed">Unable to plot. Something is in the way.</string>
@@ -153,4 +155,5 @@
     <string name="turning_left">Turning Left</string>
     <string name="turning_right">Turning Right</string>
     <string name="waypoint_touched">Waypoint touched.</string>
+    <string name="blocked">Path obstructed.</string>
 </resources>
