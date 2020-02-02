@@ -42,8 +42,6 @@ class SettingsDisplayActivity : AppCompatActivity() {
         sadSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean(getString(R.string.app_pref_sad_mode), isChecked).apply()
             isSimple = isChecked
-            if (!simulationMode) simulationDelay = 200L
-            if (!simulationMode) coverageLimit = 100
             activityUtil.startActivity(AppStartActivity::class.java, fade = true, startNew = true)
         }
     }

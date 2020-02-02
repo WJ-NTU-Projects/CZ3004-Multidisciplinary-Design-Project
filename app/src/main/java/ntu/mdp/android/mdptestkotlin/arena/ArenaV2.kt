@@ -65,7 +65,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         OBSTACLE
     }
 
-    private val scale           : Double    = if (App.isSimple) 0.81 else 0.66
+    private val scale           : Double    = if (isSimple) 0.81 else 0.66
     private val displayPixels   : Int       = (context.resources.displayMetrics.widthPixels * scale).toInt()
     private val gridSize        : Int       = ((displayPixels - 30) / 15)
     private val robotSize       : Int       = (displayPixels / 15)
@@ -125,6 +125,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         updateRobotImage(0)
         setStartPoint(1, 1)
         setGoalPoint(13, 18)
+        callback(Callback.UPDATE_STATUS, context.getString(R.string.idle))
     }
 
     fun resetArena() {
@@ -138,6 +139,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         updateRobotImage(0)
         setStartPoint(1, 1)
         setGoalPoint(13, 18)
+        callback(Callback.UPDATE_STATUS, context.getString(R.string.idle))
     }
 
     fun updateArena(explorationData: String) {
@@ -176,8 +178,8 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
 
         counter = 0
-        val bitLength: Int = s[1].length * 4
-        var extraLength: Int = bitLength - exploredIndices.size
+        //val bitLength: Int = s[1].length * 4
+        //var extraLength: Int = bitLength - exploredIndices.size
 
         for (i in s[1].indices) {
             var binary: String = s[1][i].toString().toInt(16).toString(2)
@@ -186,15 +188,17 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             for (j in binary.indices) {
                 val bit: Int = binary[j].toString().toInt()
 
-                if (!simulationMode && counter < extraLength) {
-                    extraLength--
-                    continue
-                }
+                //if (!simulationMode && counter < extraLength) {
+                //    extraLength--
+                //    continue
+                //}
 
-                val coordinates = if (simulationMode) Pair(0, 0) else exploredIndices[counter]
-                val x = if (simulationMode) (counter % 15) else coordinates.first
-                val y = if (simulationMode) Math.floorDiv(counter, 15) else coordinates.second
+                //val coordinates = if (simulationMode) Pair(0, 0) else exploredIndices[counter]
+                //val x = if (simulationMode) (counter % 15) else coordinates.first
+                //val y = if (simulationMode) Math.floorDiv(counter, 15) else coordinates.second
 
+                val x = Math.floorMod(counter, 15)
+                val y = Math.floorDiv(counter, 15)
                 if (bit == 1) setObstacle(x, y)
                 else removeObstacle(x, y)
                 counter++
@@ -542,6 +546,8 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
     }
 
     private fun scanFront(x: Int, y: Int, facing: Int) {
+        val gridsAheadNoObstacleList: ArrayList<IntArray> = arrayListOf()
+
         for (offset in -1..1) {
             val newX: Int
             val newY: Int
@@ -573,10 +579,13 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             if (obstacleArray[newY][newX] == 1) {
                 setObstacle(newX, newY)
                 setExplored(newX, newY)
+            } else {
+                gridsAheadNoObstacleList.add(intArrayOf(newX, newY))
+                Log.e("NO OBS", "$newX, $newY")
             }
         }
 
-        scanUnreachable(x, y, facing)
+        scanUnreachable2(facing, gridsAheadNoObstacleList)
     }
 
     private fun scanRight(x: Int, y: Int, facing: Int) {
@@ -647,6 +656,56 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             if (obstacleArray[newY][newX] == 1) {
                 setObstacle(newX, newY)
                 setExplored(newX, newY)
+            }
+        }
+    }
+
+    private fun scanUnreachable2(facing: Int, gridsAheadNoObstacleList: ArrayList<IntArray>) {
+        for (grid in gridsAheadNoObstacleList) {
+            var x: Int = grid[0]
+            var y: Int = grid[1]
+            var skip = false
+
+            for (count in 0..2) {
+                if (skip) break
+                if (!isValidCoordinates(x, y)) continue
+
+                if (count == 0) {
+                    for (offset in -1..1 step 2) {
+                        if (facing == 0 || facing == 180) {
+                            if (isRobotMovable(x + offset, y)) {
+                                skip = true
+                                break
+                            }
+                        } else {
+                            if (isRobotMovable(x, y + offset)) {
+                                skip = true
+                                break
+                            }
+                        }
+                    }
+
+                    if (skip) break
+                }
+
+                for (offsetY in -1..1) {
+                    for (offsetX in -1..1) {
+                        if (isValidCoordinates(x + offsetX, y + offsetY) && isRobotMovable(x + offsetX, y + offsetY)) {
+                            skip = true
+                            break
+                        }
+                    }
+                }
+
+                if (skip) break
+                setExplored(x, y)
+
+                when (facing) {
+                    0 -> y += 1
+                    90 -> x += 1
+                    180 -> y -= 1
+                    270 -> x -= 1
+                }
             }
         }
     }
@@ -909,14 +968,14 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
 
         if (gesture == GestureImageView.Gesture.FLING_DOWN) {
-            if (!autoUpdateArena && !isPlotting && !isSimple) {
+            if (!autoUpdateArena && !isPlotting) {
                 isWaitingUpdate = true
                 callback(Callback.SEND_COMMAND, SEND_ARENA_COMMAND)
                 return
             }
 
-            if (!isSimple) return
-            var currentSpeed: Int = sharedPreferences.getInt(context.getString(R.string.app_pref_simulation_speed), 4)
+            if (!simulationMode) return
+            var currentSpeed: Int = sharedPreferences.getInt(context.getString(R.string.app_pref_simulation_speed), 2)
             currentSpeed--
             if (currentSpeed < 0) return
             simulationDelay = (1000 / (currentSpeed + 1)).toLong()
@@ -926,8 +985,8 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
 
         if (gesture == GestureImageView.Gesture.FLING_UP) {
-            if (!isSimple) return
-            var currentSpeed: Int = sharedPreferences.getInt(context.getString(R.string.app_pref_simulation_speed), 4)
+            if (!simulationMode) return
+            var currentSpeed: Int = sharedPreferences.getInt(context.getString(R.string.app_pref_simulation_speed), 2)
             currentSpeed++
             if (currentSpeed > 9) return
             simulationDelay = (1000 / (currentSpeed + 1)).toLong()

@@ -49,8 +49,8 @@ public class FastestPath extends Thread {
         if (stop.get()) return;
         final Pair<Double, List<int[]>> pathToWaypoint1 = aStarSearch.findFastestPath(new int[] {startX, startY, startFacing1}, robotController.getWaypointPosition());
         final Pair<Double, List<int[]>> pathToWaypoint2 = aStarSearch.findFastestPath(new int[] {startX, startY, startFacing2}, robotController.getWaypointPosition());
-        List<int[]> path1 = pathToWaypoint1.second;
-        List<int[]> path2 = pathToWaypoint2.second;
+        final List<int[]> path1 = pathToWaypoint1.second;
+        final List<int[]> path2 = pathToWaypoint2.second;
 
         if (stop.get()) return;
         final int[] waypointPosition = robotController.getWaypointPosition();
@@ -94,7 +94,8 @@ public class FastestPath extends Thread {
         double cost2 = pathToWaypoint2.first;
         if (turns2 > turns1) cost2 += 100;
         else if (turns1 > turns2) cost1 += 100;
-        List<int[]> pathList = (turns2 <= turns1) ? path2 : path1;
+
+        final List<int[]> pathList = (turns2 <= turns1) ? path2 : path1;
         Log.e("TEST", turns1 + ", " + turns2 + ", " + cost1 + ", " + cost2);
 
         for (int[] pathCoordinates : pathList) {

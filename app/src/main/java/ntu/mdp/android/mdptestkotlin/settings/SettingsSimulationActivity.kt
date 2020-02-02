@@ -28,15 +28,14 @@ class SettingsSimulationActivity : AppCompatActivity() {
         activityUtil = ActivityUtil(this)
         activityUtil.setTitle(getString(R.string.simulation))
 
-        simulationSwitch.isChecked = if (isSimple) simulationMode else false
-        simulationSwitch.isEnabled = isSimple
+        simulationSwitch.isChecked = simulationMode
         simulationSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean(getString(R.string.app_pref_simulation_mode), isChecked).apply()
             simulationMode = isChecked
             simulationSpeedSeekBar.isEnabled = isChecked
             coverageLimitSeekBar.isEnabled = isChecked
-            simulationDelay = if (isSimple && simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 4) + 1) else 200L
-            coverageLimit = if (isSimple && simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
+            simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else 200L
+            coverageLimit = if (simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
 
             simulationSpeedSeekBar.progress = (1000.0 / simulationDelay).toInt() - 1
             coverageLimitSeekBar.progress = coverageLimit

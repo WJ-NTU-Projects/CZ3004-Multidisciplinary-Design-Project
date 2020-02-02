@@ -55,8 +55,8 @@ class App: Application() {
         usingAmd = sharedPreferences.getBoolean(getString(R.string.app_pref_using_amd), true)
         //allowDiagonalExploration = sharedPreferences.getBoolean(getString(R.string.app_pref_diagonal_exploration), false)
 
-        if (isSimple) simulationMode = sharedPreferences.getBoolean(getString(R.string.app_pref_simulation_mode), false)
-        simulationDelay = if (isSimple && simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 4) + 1) else 200L
-        coverageLimit = if (isSimple && simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
+        simulationMode = sharedPreferences.getBoolean(getString(R.string.app_pref_simulation_mode), false)
+        simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else 200L
+        coverageLimit = if (simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
     }
 }

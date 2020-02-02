@@ -109,7 +109,7 @@ class SettingsActivity : AppCompatActivity() {
             var pos: Int = -1
 
             override fun onClick(v: View?) {
-                if (pos == itemCount - 1 && !isSimple) return
+                //if (pos == itemCount - 1 && !isSimple) return
                 activityUtil.startActivity(activityList[pos])
             }
         }

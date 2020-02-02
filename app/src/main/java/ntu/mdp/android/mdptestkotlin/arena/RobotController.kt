@@ -26,16 +26,6 @@ class RobotController(private val context: Context, activityController: MainActi
         RIGHT
     }
 
-    private val touchListener = View.OnTouchListener { view, event ->
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> return@OnTouchListener handleTouchDown(view, event)
-            MotionEvent.ACTION_MOVE -> handleTouchMove(event)
-            MotionEvent.ACTION_UP -> handleTouchUp()
-        }
-
-        return@OnTouchListener true
-    }
-
     private val binding         : ActivityMainBinding? = activityController.getMainBinding()
     private val buttonList      : List<View?> = listOf(binding?.padForwardButton, binding?.padReverseButton, binding?.padLeftButton, binding?.padRightButton)
     private val forwardRect     : Rect = Rect(80, 55, 150, 125)
@@ -48,14 +38,34 @@ class RobotController(private val context: Context, activityController: MainActi
     private var trackMovement   : AtomicBoolean = AtomicBoolean(false)
     private var currentDirection: Direction = Direction.NONE
 
-    fun canMoveJava(direction: Direction): CompletableFuture<Boolean> = CoroutineScope(Dispatchers.Main).future { canMove(direction) }
-    fun moveRobotJava(direction: Direction): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { moveRobot(direction) }
-    fun moveRobotJava(array: IntArray): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { moveRobot(array) }
-    fun turnRobotJava(direction: Int): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { turnRobot(direction) }
+    private val touchListener = View.OnTouchListener { view, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> return@OnTouchListener handleTouchDown(view, event)
+            MotionEvent.ACTION_MOVE -> handleTouchMove(event)
+            MotionEvent.ACTION_UP -> handleTouchUp()
+        }
+
+        return@OnTouchListener true
+    }
+
+    init {
+        if (!trackMovement.get()) {
+            MovementThread().start()
+            trackMovement.set(true)
+        }
+    }
 
     private suspend fun canMove(direction: Direction): Boolean = withContext(Dispatchers.Main) {
         val moveCoordinates: IntArray = getNextMovementCoordinates(direction)
         return@withContext isRobotMovable(moveCoordinates[0], moveCoordinates[1])
+    }
+
+    private suspend fun turnRobot(direction: Direction) = withContext(Dispatchers.Main) {
+        when (direction) {
+            Direction.RIGHT -> turnRobot(Math.floorMod(getRobotFacing() + 90, 360))
+            Direction.LEFT -> turnRobot(Math.floorMod(getRobotFacing() - 90, 360))
+            else -> return@withContext
+        }
     }
 
     private suspend fun moveRobot(direction: Direction) = withContext(Dispatchers.Main) {
@@ -112,13 +122,17 @@ class RobotController(private val context: Context, activityController: MainActi
         return@withContext intArrayOf(x, y)
     }
 
+    fun canMoveJava(direction: Direction): CompletableFuture<Boolean> = CoroutineScope(Dispatchers.Main).future { canMove(direction) }
+    fun moveRobotJava(direction: Direction): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { moveRobot(direction) }
+    fun moveRobotJava(array: IntArray): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { moveRobot(array) }
+    fun turnRobotJava(direction: Int): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { turnRobot(direction) }
+    fun turnRobotJava(direction: Direction): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { turnRobot(direction) }
     fun getTouchListener() = touchListener
+    fun getSwipeMode() = swipeMode
 
     fun toggleSwipeMode(state: Boolean = !swipeMode) {
         swipeMode = state
     }
-
-    fun getSwipeMode() = swipeMode
 
     private fun handleTouchDown(view: View, event: MotionEvent): Boolean {
         if (swipeMode) {
@@ -126,11 +140,6 @@ class RobotController(private val context: Context, activityController: MainActi
             swipeOriginY = (view.height / 2.0f)
         } else {
             checkTouchIntersect(event)
-        }
-
-        if (!trackMovement.get()) {
-            MovementThread().start()
-            trackMovement.set(true)
         }
 
         return true
@@ -156,7 +165,6 @@ class RobotController(private val context: Context, activityController: MainActi
     }
 
     private fun handleTouchUp() {
-        trackMovement.set(false)
         callback(Callback.UPDATE_STATUS, context.getString(R.string.idle))
         updateCurrentDirection(Direction.NONE)
         if (!swipeMode) releasePadButtons()
@@ -221,7 +229,7 @@ class RobotController(private val context: Context, activityController: MainActi
                         Direction.NONE       -> -1
                     }
 
-                    if (facing == -1) return@launch
+                    if (facing == -1) continue
                     val facingOffset: Int = currentFacing - facing
 
                     if (facing == currentFacing || abs(facing - currentFacing) == 180) {

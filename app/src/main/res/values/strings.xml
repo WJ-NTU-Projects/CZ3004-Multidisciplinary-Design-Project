@@ -76,6 +76,9 @@
     <string name="no_save_data">No save data found.</string>
     <string name="map_saved">Map saved successfully.</string>
     <string name="illegal_command">Illegal command.</string>
+    <string name="hugging_wall">Hugging wall…</string>
+    <string name="searching_unexplored">Searching for unexplored grids…</string>
+    <string name="going_home">Going home!</string>
 
     <!-- SETTINGS ACTIVITY -->
     <string name="bluetooth">Bluetooth</string>

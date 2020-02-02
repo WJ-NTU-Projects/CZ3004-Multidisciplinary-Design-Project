@@ -25,6 +25,7 @@ import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothMessageParser
 import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
 import ntu.mdp.android.mdptestkotlin.arena.RobotController
+import ntu.mdp.android.mdptestkotlin.simulation.Callback
 import ntu.mdp.android.mdptestkotlin.simulation.Exploration
 import ntu.mdp.android.mdptestkotlin.simulation.FastestPath
 import java.util.*
@@ -98,23 +99,28 @@ class MainActivityController(private val context: Context, private val activityU
         }
     }
 
-    private val robotController: RobotController = RobotController(context, this, arenaV2Callback)
-    private val bluetoothMessageParser: BluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
-    private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-    private val binding: ActivityMainBinding? = if (!isSimple && tempBinding is ActivityMainBinding) tempBinding else null
-    private val binding2: ActivityMainSimpleBinding? = if (isSimple && tempBinding is ActivityMainSimpleBinding) tempBinding else null
-    private val statusLabel: MaterialTextView? = if (isSimple) binding2?.statusLabel2 else binding?.statusLabel
-    private val timerLabel: MaterialTextView? = if (isSimple) binding2?.timerLabel2 else binding?.timerLabel
-    private val messagesTextView: TextView? = if (isSimple) binding2?.messagesTextView2 else binding?.messagesTextView
-    private val messagesScrollView: ScrollView? = if (isSimple) binding2?.messagesScrollView2 else binding?.messagesScrollView
-    private var buttonListCache: List<View> = listOf()
+    private val robotController         : RobotController = RobotController(context, this, arenaV2Callback)
+    private val bluetoothMessageParser  : BluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
+    private val bluetoothAdapter        : BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    private val binding                 : ActivityMainBinding? = if (!isSimple && tempBinding is ActivityMainBinding) tempBinding else null
+    private val binding2                : ActivityMainSimpleBinding? = if (isSimple && tempBinding is ActivityMainSimpleBinding) tempBinding else null
+    private val statusLabel             : MaterialTextView? = if (isSimple) binding2?.statusLabel2 else binding?.statusLabel
+    private val timerLabel              : MaterialTextView? = if (isSimple) binding2?.timerLabel2 else binding?.timerLabel
+    private val messagesTextView        : TextView? = if (isSimple) binding2?.messagesTextView2 else binding?.messagesTextView
+    private val messagesScrollView      : ScrollView? = if (isSimple) binding2?.messagesScrollView2 else binding?.messagesScrollView
+    private var buttonListCache         : List<View> = listOf()
+    private var lastClickTime           : Long = 0L
+    private lateinit var timer          : CountDownTimer
 
-    private var lastClickTime = 0L
-    private lateinit var timer: CountDownTimer
-
-    private val exploration: Exploration = Exploration(this) {
+    private val exploration: Exploration = Exploration(this) { callback ->
         CoroutineScope(Dispatchers.Main).launch {
-            onStartClicked(buttonListCache)
+            when (callback) {
+                Callback.WALL_HUGGING -> displayInChat(MessageType.INCOMING, context.getString(R.string.hugging_wall))
+                Callback.SEARCHING -> displayInChat(MessageType.INCOMING, context.getString(R.string.searching_unexplored))
+                Callback.GOING_HOME -> displayInChat(MessageType.INCOMING, context.getString(R.string.going_home))
+                Callback.COMPLETE -> onStartClicked(buttonListCache)
+                else -> return@launch
+            }
         }
     }
 
@@ -252,6 +258,7 @@ class MainActivityController(private val context: Context, private val activityU
             } else {
                 exploration.end()
                 fastestPath.end()
+                statusLabel?.text = context.getString(R.string.idle)
             }
         }
 
@@ -366,7 +373,7 @@ class MainActivityController(private val context: Context, private val activityU
         robotController.updateRobotImage()
     }
 
-    fun updateImage(data: String) {
+    private fun updateImage(data: String) {
         val s = data.split(", ")
 
         try {
@@ -380,7 +387,7 @@ class MainActivityController(private val context: Context, private val activityU
         }
     }
 
-    fun updateRobot(data: String) {
+    private fun updateRobot(data: String) {
         val s = data.split(", ")
 
         try {
@@ -388,7 +395,7 @@ class MainActivityController(private val context: Context, private val activityU
             val y = s[1].toInt()
             val r = s[2].toInt()
             CoroutineScope(Dispatchers.Main).launch {
-                robotController.processRobotMovement(x, y, r);
+                robotController.processRobotMovement(x, y, r)
             }
         } catch (e: NumberFormatException) {
             activityUtil.sendSnack(context.getString(R.string.something_went_wrong))
@@ -398,5 +405,5 @@ class MainActivityController(private val context: Context, private val activityU
 
     fun getRobotController(): RobotController = robotController
     fun getMainBinding(): ActivityMainBinding? = binding
-    fun getSimpleBinding(): ActivityMainSimpleBinding? = binding2
+    //fun getSimpleBinding(): ActivityMainSimpleBinding? = binding2
 }

@@ -53,8 +53,8 @@ class AStarSearch {
                     boolean continueToNext = false;
                     int facing = (offset == -1) ? (180 + (select * 90)) : (select * 90);
                     if (abs(facing - parentNode.facing) == 180) facing = parentNode.facing;
-                    int x = (select == 0) ? parentNode.x : parentNode.x + offset;
-                    int y = (select == 0) ? parentNode.y + offset : parentNode.y;
+                    final int x = (select == 0) ? parentNode.x : parentNode.x + offset;
+                    final int y = (select == 0) ? parentNode.y + offset : parentNode.y;
                     if (!robotController.isRobotMovable(x, y)) continue;
 
                     for (GridNode closedNode : closedList) {
@@ -79,7 +79,7 @@ class AStarSearch {
                     break;
                 }
 
-                double penalty = (parentNode.facing == successor.facing) ? 1.0 : 10.0;
+                final double penalty = (parentNode.facing == successor.facing) ? 1.0 : 10.0;
                 successor.g = (abs(successor.x - successor.parentX) + abs(successor.y - successor.parentY) * penalty) + parentNode.g + (penalty - 1);
                 successor.h = 1.0 * (abs(successor.x - goalX) + abs(successor.y - goalY));
                 successor.f = successor.g + successor.h;
@@ -101,7 +101,7 @@ class AStarSearch {
             }
         }
 
-        ArrayList<int[]> pathList = new ArrayList<>();
+        final ArrayList<int[]> pathList = new ArrayList<>();
         double totalCost = 0.0;
 
         if (found) {
@@ -124,9 +124,9 @@ class AStarSearch {
 
 
     static class GridNode {
-        int x;
-        int y;
-        int facing;
+        final int x;
+        final int y;
+        final int facing;
         double f;
         double g;
         double h;
