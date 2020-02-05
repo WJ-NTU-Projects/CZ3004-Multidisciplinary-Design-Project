@@ -67,34 +67,34 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         TURN_COMPLETE
     }
 
-    private val scale           : Double    = 0.74
-    private val displayPixels   : Int       = (context.resources.displayMetrics.widthPixels * scale).toInt()
-    private val gridSize        : Int       = ((displayPixels - 30) / 15)
-    private val robotSize       : Int       = (displayPixels / 15)
+    private val scale           : Double = 0.74
+    private val displayPixels   : Int = (context.resources.displayMetrics.widthPixels * scale).toInt()
+    private val gridSize        : Int = ((displayPixels - 30) / 15)
+    private val robotSize       : Int = (displayPixels / 15)
 
     private val robotPosition   : IntArray = intArrayOf(-1, -1, 0)
     private val startPosition   : IntArray = intArrayOf(-1, -1)
     private val goalPosition    : IntArray = intArrayOf(-1, -1)
     private val waypointPosition: IntArray = intArrayOf(-1, -1)
 
-    private val gridParent      : RelativeLayout    = (context as Activity).findViewById(R.id.gridParent)
-    private val gridLayout      : GridLayout        = (context as Activity).findViewById(R.id.main_grid_arena)
-    private val robotDisplay    : ImageView         = ImageView(context)
+    private val gridParent      : RelativeLayout = (context as Activity).findViewById(R.id.gridParent)
+    private val gridLayout      : GridLayout = (context as Activity).findViewById(R.id.main_grid_arena)
+    private val robotDisplay    : ImageView = ImageView(context)
 
-    private val gridTypeArray   : Array<Array<GridType>>            = Array(20) { Array(15) { GridType.UNEXPLORED }}
-    private val exploreArray    : Array<Array<Int>>                 = Array(20) { Array(15) { unexploredBit }}
-    private val obstacleArray   : Array<Array<Int>>                 = Array(20) { Array(15) { unexploredBit }}
-    private val gridArray       : Array<Array<GestureImageView>>    = Array(20) { Array(15) { GestureImageView(context) }}
+    private val gridTypeArray   : Array<Array<GridType>> = Array(20) { Array(15) { GridType.UNEXPLORED }}
+    private val exploreArray    : Array<Array<Int>> = Array(20) { Array(15) { unexploredBit }}
+    private val obstacleArray   : Array<Array<Int>> = Array(20) { Array(15) { unexploredBit }}
+    private val gridArray       : Array<Array<GestureImageView>> = Array(20) { Array(15) { GestureImageView(context) }}
 
-    private val undoActionList  : ArrayList<Pair<PlotFunction, IntArray>>   = arrayListOf()
-    private val redoActionList  : ArrayList<Pair<PlotFunction, IntArray>>   = arrayListOf()
+    private val undoActionList  : ArrayList<Pair<PlotFunction, IntArray>> = arrayListOf()
+    private val redoActionList  : ArrayList<Pair<PlotFunction, IntArray>> = arrayListOf()
     private var viewOnHold      : GestureImageView = GestureImageView(context)
     private var currentFunction : PlotFunction = PlotFunction.NONE
 
     private var broadcastList   : ArrayList<(Broadcast) -> Unit> = arrayListOf()
     private var waitingForTurn  : Boolean = false
-    private var waitingforTurnX : Int = -1
-    private var waitingforTurnY : Int = -1
+    private var waitingForTurnX : Int = -1
+    private var waitingForTurnY : Int = -1
     private var lastMoveTime    : Long = 0L
 
     private val gestureCallback : (view: GestureImageView, gesture: GestureImageView.Gesture) -> Unit = { view, gesture ->
@@ -107,16 +107,10 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
 
     private val broadcastCallback : (broadcastType: Broadcast) -> Unit = { broadcastType ->
         if (broadcastType == Broadcast.WAIT_TURN_COMPLETE) {
-            if (isValidCoordinates(waitingforTurnX, waitingforTurnY)) {
+            if (isValidCoordinates(waitingForTurnX, waitingForTurnY)) {
                 CoroutineScope(Dispatchers.Main).launch {
-                    val elapsed: Long = System.currentTimeMillis() - lastMoveTime
-
-                    if (elapsed < simulationDelay) {
-                        delay(simulationDelay - elapsed)
-                    }
-
                     waitingForTurn = false
-                    actuallyMoveRobot(waitingforTurnX, waitingforTurnY, robotPosition[2])
+                    actuallyMoveRobot(waitingForTurnX, waitingForTurnY, robotPosition[2])
                 }
             }
         }
@@ -275,11 +269,18 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         robotPosition[1] = y
         updateRobotImage(facing)
         setRobotPosition(x, y)
+        lastMoveTime = System.currentTimeMillis()
         if (simulationMode) scan(x, y, facing)
         if (isWaypointExact(x, y)) setWaypointTouched()
         else if (isGoalPointExact(x, y)) setGoalPointTouched()
 
         withContext(Dispatchers.Default) {
+            val elapsed: Long = System.currentTimeMillis() - lastMoveTime
+
+            if (elapsed < simulationDelay) {
+                delay(simulationDelay - elapsed)
+            }
+
             broadcast(broadcastType)
         }
     }
@@ -298,9 +299,16 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             }
         } else {
             updateRobotImage(facing)
+            lastMoveTime = System.currentTimeMillis()
             if (simulationMode) scan(robotPosition[0], robotPosition[1], facing)
 
             withContext(Dispatchers.Default) {
+                val elapsed: Long = System.currentTimeMillis() - lastMoveTime
+
+                if (elapsed < simulationDelay) {
+                    delay(simulationDelay - elapsed)
+                }
+
                 if (waitingForTurn) broadcast(Broadcast.WAIT_TURN_COMPLETE)
                 else broadcast(Broadcast.TURN_COMPLETE)
             }
@@ -330,6 +338,15 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
     private suspend fun moveRobot(x: Int, y: Int) = withContext(Dispatchers.Main) {
         if (!isRobotMovable(x, y)) {
             callback(Callback.UPDATE_STATUS, context.getString(R.string.blocked))
+            lastMoveTime = System.currentTimeMillis()
+            val elapsed: Long = System.currentTimeMillis() - lastMoveTime
+
+            if (elapsed < simulationDelay) {
+                delay(simulationDelay - elapsed)
+            }
+
+            lastMoveTime = System.currentTimeMillis()
+            broadcast(Broadcast.MOVE_COMPLETE)
             return@withContext
         }
 
@@ -366,8 +383,8 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
 
         if (facing != currentFacing) {
             waitingForTurn = true
-            waitingforTurnX = x
-            waitingforTurnX = y
+            waitingForTurnX = x
+            waitingForTurnY = y
             turnRobot(facing)
             return@withContext
         }
@@ -384,11 +401,18 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         callback(Callback.UPDATE_STATUS, context.getString(R.string.moving))
         setRobotPosition(x, y)
         robotPosition[2] = facing
+        lastMoveTime = System.currentTimeMillis()
         if (simulationMode) scan(x, y, facing)
         if (isWaypointExact(x, y)) setWaypointTouched()
         else if (isGoalPointExact(x, y)) setGoalPointTouched()
 
         withContext(Dispatchers.Default) {
+            val elapsed: Long = System.currentTimeMillis() - lastMoveTime
+
+            if (elapsed < simulationDelay) {
+                delay(simulationDelay - elapsed)
+            }
+
             broadcast(Broadcast.MOVE_COMPLETE)
         }
     }
@@ -794,136 +818,6 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
     }
 
-    private fun scanUnreachable(x: Int, y: Int, facing: Int) {
-        if ((facing != 180) && y >= 15 && y < 18) {
-            if (facing != 90 && x == 1 && !isRobotMovable(x, y + 2)) {
-                var cutoffX = -1
-
-                if (obstacleArray[y + 2][x + 1] == 1) cutoffX = x
-                else if (obstacleArray[y + 2][x] == 1) cutoffX = x - 1
-
-                if (cutoffX != -1) {
-                    for (offsetY in 2..4) {
-                        for (offsetX in (x - 1)..cutoffX) {
-                            setExplored(offsetX, y + offsetY)
-                        }
-                    }
-                }
-            }
-
-            if (facing != 270 && x == 13 && !isRobotMovable(x, y + 2)) {
-                var cutoffX = -1
-
-                if (obstacleArray[y + 2][x - 1] == 1) cutoffX = x
-                else if (obstacleArray[y + 2][x] == 1) cutoffX = x + 1
-
-                if (cutoffX != -1) {
-                    for (offsetY in 2..4) {
-                        for (offsetX in (x + 1) downTo cutoffX) {
-                            setExplored(offsetX, y + offsetY)
-                        }
-                    }
-                }
-            }
-        }
-
-        if (facing != 0 && y <= 4 && y > 1) {
-            if (facing != 90 && x == 1 && !isRobotMovable(x, y - 2)) {
-                var cutoffX = -1
-
-                if (obstacleArray[y - 2][x + 1] == 1) cutoffX = x
-                else if (obstacleArray[y - 2][x] == 1) cutoffX = x - 1
-
-                if (cutoffX != -1) {
-                    for (offsetY in 2..4) {
-                        for (offsetX in (x - 1)..cutoffX) {
-                            setExplored(offsetX, y - offsetY)
-                        }
-                    }
-                }
-            }
-
-            if (facing != 270 && x == 13 && !isRobotMovable(x, y - 2)) {
-                var cutoffX = -1
-
-                if (obstacleArray[y - 2][x - 1] == 1) cutoffX = x
-                else if (obstacleArray[y - 2][x] == 1) cutoffX = x + 1
-
-                if (cutoffX != -1) {
-                    for (offsetY in 2..4) {
-                        for (offsetX in (x + 1) downTo cutoffX) {
-                            setExplored(offsetX, y - offsetY)
-                        }
-                    }
-                }
-            }
-        }
-
-        if (facing != 270 && x >= 10 && x < 13) {
-            if (facing != 0 && y == 1 && !isRobotMovable(x + 2, y)) {
-                var cutoffY = -1
-
-                if (obstacleArray[y + 1][x + 2] == 1) cutoffY = y
-                else if (obstacleArray[y][x + 2] == 1) cutoffY = y - 1
-
-                if (cutoffY != -1) {
-                    for (offsetY in (y - 1)..cutoffY) {
-                        for (offsetX in 2..4) {
-                            setExplored(x + offsetX, offsetY)
-                        }
-                    }
-                }
-            }
-
-            if (facing != 180 && y == 18 && !isRobotMovable(x + 2, y)) {
-                var cutoffY = -1
-
-                if (obstacleArray[y - 1][x + 2] == 1) cutoffY = y
-                else if (obstacleArray[y][x + 2] == 1) cutoffY = y + 1
-
-                if (cutoffY != -1) {
-                    for (offsetY in (y + 1) downTo cutoffY) {
-                        for (offsetX in 2..4) {
-                            setExplored(x + offsetX, offsetY)
-                        }
-                    }
-                }
-            }
-        }
-
-        if (facing != 90 && x <= 4 && x > 1) {
-            if (facing != 0 && y == 1 && !isRobotMovable(x - 2, y)) {
-                var cutoffY = -1
-
-                if (obstacleArray[y + 1][x - 2] == 1) cutoffY = y
-                else if (obstacleArray[y][x - 2] == 1) cutoffY = y - 1
-
-                if (cutoffY != -1) {
-                    for (offsetY in (y - 1)..cutoffY) {
-                        for (offsetX in 2..4) {
-                            setExplored(x - offsetX, offsetY)
-                        }
-                    }
-                }
-            }
-
-            if (facing != 180 && y == 18 && !isRobotMovable(x - 2, y)) {
-                var cutoffY = -1
-
-                if (obstacleArray[y - 1][x - 2] == 1) cutoffY = y
-                else if (obstacleArray[y][x - 2] == 1) cutoffY = y + 1
-
-                if (cutoffY != -1) {
-                    for (offsetY in (y + 1) downTo cutoffY) {
-                        for (offsetX in 2..4) {
-                            setExplored(x - offsetX, offsetY)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private fun plot(array: IntArray, gridType: GridType): Boolean {
         if (array.size != 2) return false
         val x = array[0]
@@ -996,16 +890,6 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
                     obstacleArray[y][x] = 1
                 } else {
                     obstacleArray[y][x] = 0
-                }
-            }
-        }
-    }
-
-    fun clearObstacles() {
-        for (y in 19 downTo 0) {
-            for (x in 0..14) {
-                if (obstacleArray[y][x] == 1) {
-                    plot(x, y, if (exploreArray[y][x] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
                 }
             }
         }

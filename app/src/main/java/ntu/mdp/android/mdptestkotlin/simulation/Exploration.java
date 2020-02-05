@@ -35,7 +35,6 @@ public class Exploration extends Thread {
 
     public void end() {
         stop.set(true);
-        interrupt();
     }
 
     @Override
@@ -49,12 +48,12 @@ public class Exploration extends Thread {
             counter++;
 
             while (!movable) {
-                if (isInterrupted()) break;
+                if (stop.get()) return;
 
                 try {
                     sleep(50);
                 } catch (InterruptedException e) {
-                    Log.e("GG", "GG");
+                    Log.e("GG", "GG1");
                 }
             }
 
@@ -109,12 +108,12 @@ public class Exploration extends Thread {
                 if (stop.get()) return;
 
                 while (!movable) {
-                    if (isInterrupted()) break;
+                    if (stop.get()) return;
 
                     try {
                         sleep(50);
                     } catch (InterruptedException e) {
-                        Log.e("GG", "GG");
+                        Log.e("GG", "GG2");
                     }
                 }
 
@@ -149,12 +148,12 @@ public class Exploration extends Thread {
             if (stop.get()) return;
 
             while (!movable) {
-                if (isInterrupted()) break;
+                if (stop.get()) return;
 
                 try {
                     sleep(50);
                 } catch (InterruptedException e) {
-                    Log.e("GG", "GG");
+                    Log.e("GG", "GG3");
                 }
             }
 

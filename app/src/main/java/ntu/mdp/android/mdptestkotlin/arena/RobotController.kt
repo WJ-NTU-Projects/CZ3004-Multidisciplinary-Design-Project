@@ -5,9 +5,11 @@ import android.graphics.Rect
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
-import ntu.mdp.android.mdptestkotlin.App.Companion.simulationDelay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import java.util.concurrent.CompletableFuture
@@ -201,6 +203,7 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
     }
 
     private fun handleTouchMove(event: MotionEvent) {
+        Log.e("MOVABLE", "$movable")
         if (swipeMode) {
             val x = (event.x - swipeOriginX)
             val y = (event.y - swipeOriginY)
@@ -227,7 +230,6 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
     }
 
     private fun checkTouchIntersect(event: MotionEvent) {
-        Log.e("EVENT", "${event.x}, ${event.y}")
         when {
             forwardRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(Direction.FORWARD)
             reverseRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(Direction.REVERSE)
