@@ -16,11 +16,20 @@ public class FastestPath extends Thread {
     private final AStarSearch aStarSearch;
     private final AtomicBoolean stop = new AtomicBoolean(false);
     private final Function0<Unit> callback;
+    private boolean movable = true;
 
     public FastestPath(RobotController robotController, Function0<Unit> callback) {
         this.robotController = robotController;
         aStarSearch = new AStarSearch(robotController);
         this.callback = callback;
+
+        robotController.registerForBroadcast(broadcast -> {
+            if (this.isAlive() && broadcast == RobotController.Broadcast.MOVE_COMPLETE || broadcast == RobotController.Broadcast.TURN_COMPLETE) {
+                movable = true;
+            }
+
+            return null;
+        });
     }
 
     public void end() {
@@ -30,82 +39,24 @@ public class FastestPath extends Thread {
     @Override
     public void run() {
         stop.set(false);
-        final int[] startPosition = robotController.getStartPosition();
-        int startX = startPosition[0];
-        int startY = startPosition[1];
-        int startFacing1 = 0;
-        int startFacing2 = 90;
+        App.setROBOT_MOVABLE(false);
 
-        if (robotController.isStartPointExact(13, 1)) {
-            startFacing2 = 270;
-        } else if (robotController.isStartPointExact(1, 18)) {
-            startFacing1 = 180;
-        } else if (robotController.isStartPointExact(13, 18)) {
-            startFacing1 = 180;
-            startFacing2 = 270;
-        }
-
-        if (stop.get()) return;
-        final Pair<Double, List<int[]>> pathToWaypoint1 = aStarSearch.findFastestPath(new int[] {startX, startY, startFacing1}, robotController.getWaypointPosition());
-        final Pair<Double, List<int[]>> pathToWaypoint2 = aStarSearch.findFastestPath(new int[] {startX, startY, startFacing2}, robotController.getWaypointPosition());
-        final List<int[]> path1 = pathToWaypoint1.second;
-        final List<int[]> path2 = pathToWaypoint2.second;
-
-        if (stop.get()) return;
-        final int[] waypointPosition = robotController.getWaypointPosition();
-        startX = waypointPosition[0];
-        startY = waypointPosition[1];
-        startFacing1 = (path1.isEmpty()) ? startFacing1 : path1.get(path1.size() - 1)[2];
-        startFacing2 = (path2.isEmpty()) ? startFacing2 : path2.get(path2.size() - 1)[2];
-
-        if (stop.get()) return;
-        final List<int[]> goalPath1 = aStarSearch.findFastestPath(new int[] {startX, startY, startFacing1}, robotController.getGoalPosition()).second;
-        final List<int[]> goalPath2 = aStarSearch.findFastestPath(new int[] {startX, startY, startFacing2}, robotController.getGoalPosition()).second;
-        path1.addAll(goalPath1);
-        path2.addAll(goalPath2);
-
-        if (path1.isEmpty() && path2.isEmpty()) return;
-
-        int turns1 = 0;
-
-        if (!path1.isEmpty()) {
-            int previousFacing = path1.get(0)[2];
-
-            for (int[] path : path1) {
-                if (path[2] != previousFacing) turns1++;
-                previousFacing = path[2];
-            }
-        }
-
-        int turns2 = 0;
-
-        if (!path2.isEmpty()) {
-            int previousFacing = path2.get(0)[2];
-
-            for (int[] path : path2) {
-                if (path[2] != previousFacing) turns2++;
-                previousFacing = path[2];
-            }
-        }
-
-        if (stop.get()) return;
-        double cost1 = pathToWaypoint1.first;
-        double cost2 = pathToWaypoint2.first;
-        if (turns2 > turns1) cost2 += 100;
-        else if (turns1 > turns2) cost1 += 100;
-
-        final List<int[]> pathList = (turns2 <= turns1) ? path2 : path1;
-        Log.e("TEST", turns1 + ", " + turns2 + ", " + cost1 + ", " + cost2);
+        final List<int[]> pathList = aStarSearch.fastestPathChallenge();
 
         for (int[] pathCoordinates : pathList) {
             if (stop.get()) return;
 
-            try {
-                sleep(App.getSimulationDelay());
-            } catch (InterruptedException e) {
-                Log.e("GG", "GG");
+            while (!movable) {
+                if (stop.get()) return;
+
+                try {
+                    sleep(10);
+                } catch (InterruptedException e) {
+                    Log.e("GG", "GG3");
+                }
             }
 
+            movable = false;
             robotController.moveRobotJava(pathCoordinates).join();
         }
 

@@ -22,6 +22,7 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.CLICK_DELAY
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
+import ntu.mdp.android.mdptestkotlin.App.Companion.darkMode
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationMode
 import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
@@ -94,6 +95,12 @@ class MainActivity : AppCompatActivity() {
             ArenaV2.Callback.LONG_PRESS_CHOICE -> {
                 activityUtil.sendYesNoDialog("Plot which?", "START", "GOAL") {
                     robotController.selectPoint(it)
+                }
+            }
+
+            ArenaV2.Callback.PLOT_FASTEST_PATH -> {
+                activityUtil.sendYesNoDialog("Plot fastest path?") {
+                    if (it) robotController.plotFastestPath()
                 }
             }
 
@@ -220,10 +227,18 @@ class MainActivity : AppCompatActivity() {
             R.id.bluetoothButton -> activityUtil.startActivity(SettingsBluetoothActivity::class.java)
             R.id.communicationButton -> activityUtil.startActivity(SettingsCommunicationActivity::class.java)
             R.id.simulationButton -> activityUtil.startActivity(SettingsSimulationActivity::class.java)
-
             R.id.saveMapButton -> onMapSaveClicked()
             R.id.loadMapButton -> onMapLoadClicked()
             R.id.clearArenaButton -> resetArena(true)
+
+            R.id.darkModeButton -> {
+                darkMode = !darkMode
+                sharedPreferences.edit().putBoolean(getString(R.string.app_pref_dark_mode), darkMode).apply()
+                appTheme = if (darkMode) R.style.AppTheme_Dark
+                else R.style.AppTheme
+                //recreate()
+                activityUtil.startActivity(MainActivity::class.java, fade = true, startNew = true)
+            }
 
             R.id.messageCardClearButton -> {
                 activityUtil.sendYesNoDialog(getString(R.string.clear_message_log)) {

@@ -207,6 +207,7 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/restoreCustom"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/screen_padding"
@@ -499,6 +500,7 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/restoreCommands"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/screen_padding"

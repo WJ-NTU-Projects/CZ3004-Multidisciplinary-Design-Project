@@ -15,6 +15,8 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
         INFO
     }
 
+    private var previousMessage: String = ""
+
     fun parse(message: String) {
         if (!message.contains("::") || !message.contains("#")) {
             callback(MessageStatus.GARBAGE, message)
@@ -45,6 +47,9 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
         }
 
         if (s[0] == "#robotposition") {
+            if (s[1] == previousMessage) return
+            previousMessage = s[1]
+
             val s1 = s[1].split(", ")
 
             if (s1.size != 3) {

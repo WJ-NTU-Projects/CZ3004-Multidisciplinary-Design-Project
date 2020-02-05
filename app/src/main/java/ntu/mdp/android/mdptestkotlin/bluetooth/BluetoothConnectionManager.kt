@@ -37,6 +37,7 @@ class BluetoothConnectionManager: Thread() {
             }
 
             val ret = buffer.toString(Charsets.UTF_8).trim().replace("\u0000", "")
+            Log.e("Received", ret)
             buffer = ByteArray(1024)
 
             CoroutineScope(Dispatchers.Main).launch {
@@ -46,6 +47,7 @@ class BluetoothConnectionManager: Thread() {
     }
 
     fun write(output: ByteArray) {
+        Log.e("Sent", output.toString(Charsets.UTF_8).trim().replace("\u0000", ""))
         try {
             outputStream?.write(output)
         } catch (e: IOException) {

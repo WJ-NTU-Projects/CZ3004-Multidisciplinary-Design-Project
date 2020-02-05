@@ -5,6 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/window_layout"
     android:focusableInTouchMode="true"
+    android:focusedByDefault="true"
     android:animateLayoutChanges="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -375,7 +376,7 @@
                 <ScrollView
                     android:id="@+id/messagesScrollView"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="82dp"
                     android:layout_marginTop="@dimen/element_padding"
                     app:layout_constraintTop_toBottomOf="@id/messageCardTitle"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -402,26 +403,32 @@
             app:layout_constraintLeft_toLeftOf="@id/messageCard"
             app:layout_constraintRight_toRightOf="@id/messageCard">
 
-            <androidx.constraintlayout.widget.ConstraintLayout style="@style/DataCardInnerLayout.Main">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                style="@style/DataCardInnerLayout.Main"
+                android:paddingTop="@dimen/small_padding"
+                android:paddingBottom="@dimen/small_padding"
+                android:paddingStart="@dimen/element_padding"
+                android:paddingEnd="@dimen/small_padding">
+
                 <EditText
                     style="?attr/appEditText"
                     android:id="@+id/messagesOutputEditText"
+                    android:layout_width="0dp"
                     android:hint="@string/messages_send_hint"
                     android:inputType="text"
-                    app:layout_constraintWidth_percent="0.7"
+                    android:layout_marginEnd="2dp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/messagesSendButton"
                     android:importantForAutofill="no" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    style="@style/FAB"
                     android:id="@+id/messagesSendButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/send"
-                    android:textSize="@dimen/text_size_small"
-                    android:onClick="clickUiButton"
-                    app:layout_constraintWidth_percent="0.28"
+                    android:src="@drawable/ic_send"
+                    app:fabCustomSize="36dp"
+                    app:maxImageSize="20dp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintRight_toRightOf="parent"/>

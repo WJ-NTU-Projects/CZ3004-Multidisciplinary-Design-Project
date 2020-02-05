@@ -36,6 +36,7 @@ class App: Application() {
         @Volatile var TURN_LEFT_COMMAND = "tl"
         @Volatile var TURN_RIGHT_COMMAND = "tr"
         @Volatile var BLUETOOTH_CONNECTED_DEVICE = "-"
+        @JvmStatic @Volatile var ROBOT_MOVABLE = true
     }
 
     override fun onCreate() {

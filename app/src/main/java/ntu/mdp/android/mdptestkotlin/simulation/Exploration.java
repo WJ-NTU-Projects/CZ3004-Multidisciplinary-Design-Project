@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
+import ntu.mdp.android.mdptestkotlin.App;
 import ntu.mdp.android.mdptestkotlin.arena.RobotController;
 
 import static java.lang.Math.abs;
@@ -40,6 +41,7 @@ public class Exploration extends Thread {
     @Override
     public void run() {
         stop.set(false);
+        App.setROBOT_MOVABLE(false);
         boolean wallHug = true;
         int counter = -1;
         callback.invoke(Callback.WALL_HUGGING);
@@ -51,7 +53,7 @@ public class Exploration extends Thread {
                 if (stop.get()) return;
 
                 try {
-                    sleep(50);
+                    sleep(10);
                 } catch (InterruptedException e) {
                     Log.e("GG", "GG1");
                 }
@@ -111,7 +113,7 @@ public class Exploration extends Thread {
                     if (stop.get()) return;
 
                     try {
-                        sleep(50);
+                        sleep(10);
                     } catch (InterruptedException e) {
                         Log.e("GG", "GG2");
                     }
@@ -151,7 +153,7 @@ public class Exploration extends Thread {
                 if (stop.get()) return;
 
                 try {
-                    sleep(50);
+                    sleep(10);
                 } catch (InterruptedException e) {
                     Log.e("GG", "GG3");
                 }
@@ -162,6 +164,7 @@ public class Exploration extends Thread {
         }
 
         callback.invoke(Callback.COMPLETE);
+        App.setROBOT_MOVABLE(true);
     }
 
     private int[] findNearestUnexploredGrid() {

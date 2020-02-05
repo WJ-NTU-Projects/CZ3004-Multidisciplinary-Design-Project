@@ -80,8 +80,8 @@
     </style>
 
     <style name="ArenaGridLayout.Phone">
-        <item name="layout_constraintWidth_percent">0.8</item>
-        <item name="layout_constraintHeight_percent">0.6</item>
+        <item name="layout_constraintWidth_percent">0.76</item>
+        <item name="layout_constraintHeight_percent">0.56</item>
     </style>
 
     <style name="DataCard" parent="CardView">
@@ -111,7 +111,7 @@
     </style>
 
     <style name="DataCard.Main.Small.Phone">
-        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_height">46dp</item>
     </style>
 
     <style name="DataCardInnerLayout">

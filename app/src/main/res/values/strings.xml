@@ -110,7 +110,7 @@
     <string name="automatic_update">Automatically Update Arena</string>
     <string name="automatic_update_description">Arena will be updated without user input. If disabled, swipe down on the grid map to update.</string>
     <string name="using_amd">Using AMDTool</string>
-    <string name="using_amd_description">Please check this option if using AMDTool due to communication differences.</string>
+    <string name="using_amd_description">Please check this option if connecting with AMDTool.</string>
     <string name="string_commands">String Commands</string>
     <string name="command">Command</string>
     <string name="command_output">String Output</string>

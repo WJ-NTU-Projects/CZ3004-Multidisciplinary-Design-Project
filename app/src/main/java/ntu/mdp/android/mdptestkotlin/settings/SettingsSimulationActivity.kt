@@ -28,16 +28,6 @@ class SettingsSimulationActivity : AppCompatActivity() {
         activityUtil = ActivityUtil(this)
         activityUtil.setTitle(getString(R.string.simulation))
 
-
-        darkModeSwitch.isChecked = App.darkMode
-        darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            App.sharedPreferences.edit().putBoolean(getString(R.string.app_pref_dark_mode), isChecked).apply()
-            App.darkMode = isChecked
-            if (isChecked) App.appTheme = R.style.AppTheme_Dark
-            else App.appTheme = R.style.AppTheme
-            activityUtil.startActivity(MainActivity::class.java, fade = true, startNew = true)
-        }
-
         simulationSwitch.isChecked = simulationMode
         simulationSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean(getString(R.string.app_pref_simulation_mode), isChecked).apply()
