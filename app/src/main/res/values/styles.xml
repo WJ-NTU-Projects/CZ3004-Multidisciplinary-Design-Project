@@ -36,6 +36,7 @@
         <item name="communicationIconSrc">@drawable/ic_communication</item>
         <item name="simulationIconSrc">@drawable/ic_simulation</item>
         <item name="changeThemeIconSrc">@drawable/ic_change_theme</item>
+        <item name="colorTextTheme">@color/textColor</item>
     </style>
 
     <style name="AppTheme.Dark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -64,10 +65,11 @@
         <item name="communicationIconSrc">@drawable/ic_communication_dark</item>
         <item name="simulationIconSrc">@drawable/ic_simulation_dark</item>
         <item name="changeThemeIconSrc">@drawable/ic_change_theme_dark</item>
+        <item name="colorTextTheme">@color/textColorDark</item>
     </style>
 
-    <style name="AppTheme.Launcher" parent="AppTheme">
-        <item name="android:windowBackground">@drawable/bg_start</item>
+    <style name="AppTheme.Launcher" parent="AppTheme.Dark">
+        <item name="android:windowBackground">@drawable/bg_start_dark</item>
     </style>
 
     <style name="ArenaGridLayout">
@@ -124,6 +126,13 @@
         <item name="android:paddingBottom">@dimen/card_padding</item>
     </style>
 
+    <style name="DataCardInnerLayout.Settings">
+        <item name="android:paddingLeft">@dimen/screen_padding</item>
+        <item name="android:paddingRight">@dimen/screen_padding</item>
+        <item name="android:paddingTop">@dimen/screen_padding</item>
+        <item name="android:paddingBottom">@dimen/screen_padding</item>
+    </style>
+
     <style name="DataCardInnerLayout.Main">
         <item name="android:paddingTop">@dimen/element_padding</item>
         <item name="android:paddingBottom">@dimen/element_padding</item>
@@ -175,7 +184,7 @@
     <style name="ToolbarButtonLayout">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginEnd">@dimen/settings_padding</item>
+        <item name="android:layout_marginEnd">@dimen/toolbar_padding</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:onClick">clickUiButton</item>

@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        buttonList = listOf(exploreButton, fastestPathButton, plotButton, saveMapButton, loadMapButton, clearArenaButton, f1Button, f2Button, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
+        buttonList = listOf(exploreButton, fastestPathButton, plotButton, saveMapButton, loadMapButton, clearArenaButton, f1Button, f2Button, messagesOutputEditText, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
         robotController = RobotController(this, binding, robotControllerCallback)
         bluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
         isTablet = resources.getBoolean(R.bool.isTablet)
@@ -397,7 +397,6 @@ class MainActivity : AppCompatActivity() {
 
                 Mode.FASTEST_PATH -> {
                     CoroutineScope(Dispatchers.Main).launch {
-                        robotController.moveRobotToStart()
                         robotController.resetWaypoint()
                         robotController.resetGoalPoint()
                         if (::fastestPath.isInitialized && fastestPath.isAlive) fastestPath.end()

@@ -4,6 +4,7 @@
     <attr name="colorAccentTheme" format="reference" />
     <attr name="colorAccentLighterTheme" format="reference" />
     <attr name="colorCardBackground" format="reference" />
+    <attr name="colorTextTheme" format="reference" />
 
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#121212</color>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    tools:context=".settings.SettingsCustomButtonsActivity">
+
+    <include layout="@layout/addon_toolbar" />
+
+    <androidx.cardview.widget.CardView
+        style="@style/DataCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/screen_padding"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_label"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/text_size_small"
+                    android:textAllCaps="true"
+                    app:layout_constraintWidth_percent="0.4"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/command_output"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/text_size_small"
+                    android:textAllCaps="true"
+                    app:layout_constraintWidth_percent="0.6"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/element_padding">
+
+                <EditText
+                    style="?attr/appEditText"
+                    android:id="@+id/f1LabelEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/f1_default"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:importantForAutofill="no"
+                    app:layout_constraintWidth_percent="0.36"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent" />
+
+                <EditText
+                    style="?attr/appEditText"
+                    android:id="@+id/f1CommandEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/f1_default"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:importantForAutofill="no"
+                    app:layout_constraintWidth_percent="0.6"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/element_padding">
+
+                <EditText
+                    style="?attr/appEditText"
+                    android:id="@+id/f2LabelEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/f2_default"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:importantForAutofill="no"
+                    app:layout_constraintWidth_percent="0.36"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent" />
+
+                <EditText
+                    style="?attr/appEditText"
+                    android:id="@+id/f2CommandEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/f2_default"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:importantForAutofill="no"
+                    app:layout_constraintWidth_percent="0.6"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/screen_padding"
+                android:layout_gravity="end"
+                android:text="@string/restore_defaults"
+                android:textSize="@dimen/text_size_small"
+                android:onClick="clickRestore" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/AppTextView.Gray.Settings"
+        android:text="@string/settings_custom_buttons_description"/>
+
+</LinearLayout>
