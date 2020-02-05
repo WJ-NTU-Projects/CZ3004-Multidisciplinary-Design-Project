@@ -13,6 +13,7 @@ class App: Application() {
     companion object {
         const val BLUETOOTH_UUID = "00001101-0000-1000-8000-00805F9B34FB"
         const val ANIMATOR_DURATION = 200L
+        const val CLICK_DELAY = 100L
         private const val SLOW_SIM_DELAY = 320L
 
         var appTheme: Int = R.style.AppTheme
@@ -25,10 +26,8 @@ class App: Application() {
         lateinit var sharedPreferences: SharedPreferences
         @Volatile var autoUpdateArena = false
         @Volatile var darkMode = false
-        @Volatile var isSimple = false
         @Volatile var usingAmd = true
         @Volatile var simulationMode = false
-        @Volatile var allowDiagonalExploration = false
         @JvmStatic @Volatile var simulationDelay = SLOW_SIM_DELAY
         @JvmStatic @Volatile var coverageLimit = 100
         @Volatile var SEND_ARENA_COMMAND = "sendArena"
@@ -50,7 +49,6 @@ class App: Application() {
 
         darkMode = sharedPreferences.getBoolean(getString(R.string.app_pref_dark_mode), false)
         if (darkMode) appTheme = R.style.AppTheme_Dark
-        isSimple = sharedPreferences.getBoolean(getString(R.string.app_pref_sad_mode), false)
         autoUpdateArena = sharedPreferences.getBoolean(getString(R.string.app_pref_auto_update), true)
         usingAmd = sharedPreferences.getBoolean(getString(R.string.app_pref_using_amd), true)
         //allowDiagonalExploration = sharedPreferences.getBoolean(getString(R.string.app_pref_diagonal_exploration), false)

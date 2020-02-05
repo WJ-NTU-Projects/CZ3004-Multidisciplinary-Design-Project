@@ -11,7 +11,6 @@ import kotlin.math.abs
 
 class GestureImageView(c: Context): AppCompatImageView(c) {
     enum class Gesture {
-        SINGLE_TAP,
         DOUBLE_TAP,
         LONG_PRESS,
         FLING_LEFT,
@@ -43,12 +42,10 @@ class GestureImageView(c: Context): AppCompatImageView(c) {
 
     inner class GestureListener: GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent?): Boolean {
-            Log.e("DOWN", "DOWN")
             return true
         }
 
         override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-            callback(this@GestureImageView, Gesture.SINGLE_TAP)
             return true
         }
 
@@ -62,9 +59,6 @@ class GestureImageView(c: Context): AppCompatImageView(c) {
         }
 
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
-
-            Log.e("FLING", "$velocityX, $velocityY")
-
             if (abs(velocityX) > abs(velocityY)) {
                 if (velocityX >= 150) {
                     callback(this@GestureImageView, Gesture.FLING_RIGHT)

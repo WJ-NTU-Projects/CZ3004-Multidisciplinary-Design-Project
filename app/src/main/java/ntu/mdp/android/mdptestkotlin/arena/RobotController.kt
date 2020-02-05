@@ -2,20 +2,19 @@ package ntu.mdp.android.mdptestkotlin.arena
 
 import android.content.Context
 import android.graphics.Rect
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.future
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationDelay
-import ntu.mdp.android.mdptestkotlin.MainActivityController
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-class RobotController(private val context: Context, activityController: MainActivityController, private val callback: (callback: Callback, message: String) -> Unit)
+class RobotController(private val context: Context, binding: ActivityMainBinding, private val callback: (callback: Callback, message: String) -> Unit)
     : ArenaV2(context, callback) {
 
     enum class Direction {
@@ -26,17 +25,17 @@ class RobotController(private val context: Context, activityController: MainActi
         RIGHT
     }
 
-    private val binding         : ActivityMainBinding? = activityController.getMainBinding()
-    private val buttonList      : List<View?> = listOf(binding?.padForwardButton, binding?.padReverseButton, binding?.padLeftButton, binding?.padRightButton)
-    private val forwardRect     : Rect = Rect(80, 55, 150, 125)
-    private val reverseRect     : Rect = Rect(80, 190, 150, 260)
-    private val leftRect        : Rect = Rect(20, 125, 90, 195)
-    private val rightRect       : Rect = Rect(150, 125, 220, 195)
+    private val buttonList      : List<View?> = listOf(binding.padForwardButton, binding.padReverseButton, binding.padLeftButton, binding.padRightButton)
+    private val forwardRect     : Rect = Rect(75, 10, 165, 90)
+    private val reverseRect     : Rect = Rect(75, 150, 165, 230)
+    private val leftRect        : Rect = Rect(15, 90, 95, 170)
+    private val rightRect       : Rect = Rect(150, 90, 230, 170)
     private var swipeMode       : Boolean = false
     private var swipeOriginX    : Float = 0.0f
     private var swipeOriginY    : Float = 0.0f
-    private var trackMovement   : AtomicBoolean = AtomicBoolean(false)
+    private var trackMovement   : Boolean = false
     private var currentDirection: Direction = Direction.NONE
+    private var lastMoveTime    : Long = 0L
 
     private val touchListener = View.OnTouchListener { view, event ->
         when (event.action) {
@@ -48,16 +47,15 @@ class RobotController(private val context: Context, activityController: MainActi
         return@OnTouchListener true
     }
 
-    init {
-        if (!trackMovement.get()) {
-            MovementThread().start()
-            trackMovement.set(true)
-        }
-    }
-
     private suspend fun canMove(direction: Direction): Boolean = withContext(Dispatchers.Main) {
         val moveCoordinates: IntArray = getNextMovementCoordinates(direction)
         return@withContext isRobotMovable(moveCoordinates[0], moveCoordinates[1])
+    }
+
+    private suspend fun isGridExplored(direction: Direction): Boolean = withContext(Dispatchers.Main) {
+        val moveCoordinates: IntArray = getNextExplorationCoordinates(direction)
+        if (!isValidCoordinates(moveCoordinates)) return@withContext true
+        return@withContext isGridExplored(moveCoordinates[0], moveCoordinates[1])
     }
 
     private suspend fun turnRobot(direction: Direction) = withContext(Dispatchers.Main) {
@@ -71,6 +69,7 @@ class RobotController(private val context: Context, activityController: MainActi
     private suspend fun moveRobot(direction: Direction) = withContext(Dispatchers.Main) {
         val moveCoordinates: IntArray = getNextMovementCoordinates(direction)
         if (!canMove(direction)) return@withContext
+        Log.e("TEST", "CAN_MOVE")
         moveRobot(moveCoordinates)
     }
 
@@ -122,6 +121,55 @@ class RobotController(private val context: Context, activityController: MainActi
         return@withContext intArrayOf(x, y)
     }
 
+    private suspend fun getNextExplorationCoordinates(direction: Direction): IntArray = withContext(Dispatchers.Main) {
+        val robotPosition = getRobotPosition()
+        var x = robotPosition[0]
+        var y = robotPosition[1]
+
+        when (robotPosition[2]) {
+            0 -> {
+                when (direction) {
+                    Direction.FORWARD -> y += 2
+                    Direction.LEFT -> x -= 2
+                    Direction.RIGHT -> x += 2
+                    else -> y -= 2
+                }
+            }
+
+            90 -> {
+                when (direction) {
+                    Direction.FORWARD -> x += 2
+                    Direction.LEFT -> y += 2
+                    Direction.RIGHT -> y -= 2
+                    else -> x -= 2
+                }
+            }
+
+            180 -> {
+                when (direction) {
+                    Direction.FORWARD -> y -= 2
+                    Direction.LEFT -> x += 2
+                    Direction.RIGHT -> x -= 2
+                    else -> y += 2
+                }
+            }
+
+            270 -> {
+                when (direction) {
+                    Direction.FORWARD -> x -= 2
+                    Direction.LEFT -> y -= 2
+                    Direction.RIGHT -> y += 2
+                    else -> x += 2
+                }
+            }
+
+            else -> return@withContext intArrayOf(-1, -1)
+        }
+
+        return@withContext intArrayOf(x, y)
+    }
+
+    fun isGridExploredJava(direction: Direction): CompletableFuture<Boolean> = CoroutineScope(Dispatchers.Main).future { isGridExplored(direction) }
     fun canMoveJava(direction: Direction): CompletableFuture<Boolean> = CoroutineScope(Dispatchers.Main).future { canMove(direction) }
     fun moveRobotJava(direction: Direction): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { moveRobot(direction) }
     fun moveRobotJava(array: IntArray): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { moveRobot(array) }
@@ -129,6 +177,10 @@ class RobotController(private val context: Context, activityController: MainActi
     fun turnRobotJava(direction: Direction): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { turnRobot(direction) }
     fun getTouchListener() = touchListener
     fun getSwipeMode() = swipeMode
+    fun getResponded() = hasResponse
+    fun setResponse(r: Boolean) {
+        hasResponse = r
+    }
 
     fun toggleSwipeMode(state: Boolean = !swipeMode) {
         swipeMode = state
@@ -140,6 +192,11 @@ class RobotController(private val context: Context, activityController: MainActi
             swipeOriginY = (view.height / 2.0f)
         } else {
             checkTouchIntersect(event)
+        }
+
+        if (!trackMovement) {
+            MovementThread().start()
+            trackMovement = true
         }
 
         return true
@@ -167,10 +224,12 @@ class RobotController(private val context: Context, activityController: MainActi
     private fun handleTouchUp() {
         callback(Callback.UPDATE_STATUS, context.getString(R.string.idle))
         updateCurrentDirection(Direction.NONE)
+        trackMovement = false
         if (!swipeMode) releasePadButtons()
     }
 
     private fun checkTouchIntersect(event: MotionEvent) {
+        Log.e("EVENT", "${event.x}, ${event.y}")
         when {
             forwardRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(Direction.FORWARD)
             reverseRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(Direction.REVERSE)
@@ -216,27 +275,33 @@ class RobotController(private val context: Context, activityController: MainActi
 
     private inner class MovementThread: Thread() {
         override fun run() {
-            CoroutineScope(Dispatchers.Main).launch {
-                while (trackMovement.get()) {
-                    delay(simulationDelay)
-                    val currentFacing: Int = getRobotFacing()
+            while (trackMovement) {
+                if (!hasResponse) continue
+                if (System.currentTimeMillis() - lastMoveTime < simulationDelay) continue
+                lastMoveTime = System.currentTimeMillis()
 
-                    val facing = when (currentDirection) {
-                        Direction.FORWARD    -> 0
-                        Direction.REVERSE    -> 180
-                        Direction.LEFT       -> 270
-                        Direction.RIGHT      -> 90
-                        Direction.NONE       -> -1
-                    }
+                val currentFacing: Int = getRobotFacing()
+                val facing = when (currentDirection) {
+                    Direction.FORWARD    -> 0
+                    Direction.REVERSE    -> 180
+                    Direction.LEFT       -> 270
+                    Direction.RIGHT      -> 90
+                    Direction.NONE       -> -1
+                }
 
-                    if (facing == -1) continue
-                    val facingOffset: Int = currentFacing - facing
+                if (facing == -1) continue
+                val facingOffset: Int = currentFacing - facing
 
-                    if (facing == currentFacing || abs(facing - currentFacing) == 180) {
+                if (facing == currentFacing || abs(facing - currentFacing) == 180) {
+                    CoroutineScope(Dispatchers.Main).launch {
                         moveRobot(facing)
-                    } else if (facingOffset == 90 || facingOffset == -270) {
+                    }
+                } else if (facingOffset == 90 || facingOffset == -270) {
+                    CoroutineScope(Dispatchers.Main).launch {
                         turnRobot(Math.floorMod(currentFacing - 90, 360))
-                    } else {
+                    }
+                } else {
+                    CoroutineScope(Dispatchers.Main).launch {
                         turnRobot(Math.floorMod(currentFacing + 90, 360))
                     }
                 }

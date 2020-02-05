@@ -12,20 +12,17 @@
     <include layout="@layout/addon_toolbar" />
 
     <com.google.android.material.textview.MaterialTextView
-        style="@style/TextViewCustom.Gray.Settings"
+        style="@style/AppTextView.Gray.Settings.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/very_traumatising" />
+        android:text="@string/display" />
 
     <androidx.cardview.widget.CardView
-        style="?attr/cardStyle"
+        style="@style/DataCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/screen_padding"
+        <LinearLayout style="@style/DataCardInnerLayout"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -38,8 +35,41 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/simulation_mode"
+                    android:text="@string/dark_mode"
                     android:textSize="@dimen/text_size_big"/>
+            </LinearLayout>
+
+            <Switch
+                android:id="@+id/darkModeSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/AppTextView.Gray.Settings.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/very_traumatising" />
+
+    <androidx.cardview.widget.CardView
+        style="@style/DataCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout style="@style/DataCardInnerLayout"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/AppTextView.Big"
+                    android:text="@string/simulation_mode"/>
             </LinearLayout>
 
             <Switch
@@ -50,18 +80,15 @@
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.textview.MaterialTextView
-        style="@style/TextViewCustom.Gray.Settings"
+        style="@style/AppTextView.Gray.Settings.Title"
         android:text="@string/simulation_speed" />
 
     <androidx.cardview.widget.CardView
-        style="?attr/cardStyle"
+        style="@style/DataCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/screen_padding"
+        <LinearLayout style="@style/DataCardInnerLayout"
             android:gravity="center_vertical"
             android:orientation="vertical">
 
@@ -105,28 +132,20 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.google.android.material.textview.MaterialTextView
-                style="@style/TextViewCustom.Gray"
+                style="@style/AppTextView.Gray"
                 android:id="@+id/simulationSpeedLabel"
                 android:layout_marginTop="@dimen/screen_padding"
                 android:layout_gravity="center"
                 android:text="@string/simulation_speed_placeholder_aps" />
-            <!--
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/TextViewCustom.Gray"
-                android:id="@+id/simulationSpeedLabel2"
-                android:layout_marginTop="@dimen/small_padding"
-                android:layout_gravity="center"
-                android:text="@string/simulation_speed_placeholder_ms" />
-            -->
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.textview.MaterialTextView
-        style="@style/TextViewCustom.Gray.Settings"
+        style="@style/AppTextView.Gray.Settings.Title"
         android:text="@string/simulation_coverage" />
 
     <androidx.cardview.widget.CardView
-        style="?attr/cardStyle"
+        style="@style/DataCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -177,7 +196,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.google.android.material.textview.MaterialTextView
-                style="@style/TextViewCustom.Gray"
+                style="@style/AppTextView.Gray"
                 android:id="@+id/coverageLimitLabel"
                 android:layout_marginTop="@dimen/screen_padding"
                 android:layout_gravity="center"
@@ -186,15 +205,15 @@
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.textview.MaterialTextView
-        style="@style/TextViewCustom.Gray.Bottom"
+        style="@style/AppTextView.Gray.Settings"
         android:text="@string/simulation_coverage_description" />
 
     <com.google.android.material.textview.MaterialTextView
-        style="@style/TextViewCustom.Gray.Settings"
+        style="@style/AppTextView.Gray.Settings.Title"
         android:text="@string/simulation_time" />
 
     <androidx.cardview.widget.CardView
-        style="?attr/cardStyle"
+        style="@style/DataCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -206,13 +225,13 @@
             android:orientation="vertical">
 
             <com.google.android.material.textview.MaterialTextView
-                style="@style/TextViewCustom.Gray"
+                style="@style/AppTextView.Gray.Settings"
                 android:layout_gravity="center"
                 android:text="@string/coming_soon" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.textview.MaterialTextView
-        style="@style/TextViewCustom.Gray.Bottom"
+        style="@style/AppTextView.Gray.Settings"
         android:text="@string/simulation_time_description" />
 </LinearLayout>

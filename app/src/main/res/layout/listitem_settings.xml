@@ -10,7 +10,6 @@
     android:background="?android:attr/selectableItemBackground"
     tools:context=".settings.SettingsBluetoothActivity">
 
-
     <androidx.cardview.widget.CardView
         android:id="@+id/settings_listitem_icon_background"
         android:layout_width="36dp"

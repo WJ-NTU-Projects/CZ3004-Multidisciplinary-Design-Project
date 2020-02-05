@@ -18,8 +18,8 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
         <activity
-            android:name=".AppStartActivity"
-            android:theme="@style/AppTheme.Launcher.Dark"
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme.Launcher"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="LockedOrientationActivity">
@@ -30,18 +30,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".MainActivity"
-            android:theme="@style/AppTheme.Launcher.Dark"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"
-            tools:ignore="LockedOrientationActivity" />
-        <activity
-            android:name=".MainSimpleActivity"
-            android:theme="@style/AppTheme.Launcher.Dark"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"
-            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".settings.SettingsBluetoothActivity"
             android:screenOrientation="portrait"

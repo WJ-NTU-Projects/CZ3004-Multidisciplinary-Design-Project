@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="colorBackgroundTheme" format="reference" />
     <attr name="colorAccentTheme" format="reference" />
     <attr name="colorAccentLighterTheme" format="reference" />
+    <attr name="colorCardBackground" format="reference" />
 
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#121212</color>

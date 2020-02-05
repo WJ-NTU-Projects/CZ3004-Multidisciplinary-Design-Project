@@ -73,7 +73,8 @@ class ActivityUtil(private val context: Context) {
      * Sends a snackbar message.
      * @param message Message to be displayed.
      */
-    fun sendSnack(message: String) {
+    fun sendSnack(message: String?) {
+        if (message == null) return
         val windowLayout: View = (context as Activity).findViewById(R.id.window_layout)
         val snackBar: Snackbar = Snackbar.make(windowLayout, message, Snackbar.LENGTH_LONG)
         snackBar.show()

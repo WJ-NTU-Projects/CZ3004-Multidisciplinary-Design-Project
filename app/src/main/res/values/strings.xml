@@ -36,6 +36,7 @@
     <string name="something_went_wrong">Something went wrong.</string>
 
     <!-- MAIN ACTIVITY -->
+    <string name="home">Home</string>
     <string name="settings">Settings</string>
     <string name="start">Start</string>
     <string name="pause">Pause</string>
@@ -49,12 +50,13 @@
     <string name="disconnected">Disconnected</string>
     <string name="mode">Mode</string>
     <string name="none">None</string>
-    <string name="coordinates">Coordinates</string>
+    <string name="coordinates">Position</string>
     <string name="coordinates_default">1, 1</string>
     <string name="timer">Timer</string>
     <string name="timer_default">00:00</string>
     <string name="messages">Messages</string>
     <string name="clear">Clear</string>
+    <string name="clear_arena">Clear Arena</string>
     <string name="messages_send_hint">Message to send…</string>
     <string name="send">Send</string>
     <string name="control_pad">Control Pad</string>
@@ -64,13 +66,14 @@
     <string name="clear_all_obstacles">Clear All Obstacles</string>
     <string name="clear_message_log">Clear message log?</string>
     <string name="reset_arena_timer">Reset the arena and timer?</string>
+    <string name="clear_arena_timer">Completely clear the arena and timer?</string>
     <string name="chat_prefix">[%1$s] %2$s</string>
     <string name="prefix_robot">Robot:</string>
     <string name="prefix_tablet">Me:</string>
     <string name="started_something">Started %s</string>
     <string name="timer_minute_second">%1$s:%2$s</string>
     <string name="exploration">Exploration</string>
-    <string name="fastest_path">Fastest Path</string>
+    <string name="fastest_path">Fastest</string>
     <string name="save_map_prompt">Save this map? Any existing saved map will be overwritten.</string>
     <string name="load_map_prompt">Load saved map? Existing grid map will be replaced.</string>
     <string name="no_save_data">No save data found.</string>
@@ -79,10 +82,12 @@
     <string name="hugging_wall">Hugging wall…</string>
     <string name="searching_unexplored">Searching for unexplored grids…</string>
     <string name="going_home">Going home!</string>
+    <string name="set_waypoint">Please set a waypoint first.</string>
 
     <!-- SETTINGS ACTIVITY -->
     <string name="bluetooth">Bluetooth</string>
     <string name="bluetooth_description">Bluetooth discovery, pairing and connection.</string>
+    <string name="communication">Communication</string>
     <string name="robot_communication">Robot Communication</string>
     <string name="robot_communication_description">Arena update mode &amp; communication commands.</string>
     <string name="custom_buttons">Custom Buttons</string>
@@ -164,5 +169,5 @@
     <string name="turning_left">Turning Left</string>
     <string name="turning_right">Turning Right</string>
     <string name="waypoint_touched">Waypoint touched.</string>
-    <string name="blocked">Path obstructed.</string>
+    <string name="blocked">Obstructed</string>
 </resources>

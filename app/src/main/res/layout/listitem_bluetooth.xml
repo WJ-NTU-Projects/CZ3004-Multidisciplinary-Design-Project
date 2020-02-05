@@ -8,8 +8,6 @@
     android:background="?android:attr/selectableItemBackground"
     tools:context=".settings.SettingsBluetoothActivity">
 
-
-
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/bt_listitem_name"
         android:layout_width="wrap_content"

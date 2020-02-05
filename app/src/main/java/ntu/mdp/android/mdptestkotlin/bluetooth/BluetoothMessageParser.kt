@@ -3,7 +3,6 @@ package ntu.mdp.android.mdptestkotlin.bluetooth
 import android.util.Log
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.usingAmd
-import ntu.mdp.android.mdptestkotlin.MainActivityController
 import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
 
 class BluetoothMessageParser(private val callback: (status: MessageStatus, message: String) -> Unit) {

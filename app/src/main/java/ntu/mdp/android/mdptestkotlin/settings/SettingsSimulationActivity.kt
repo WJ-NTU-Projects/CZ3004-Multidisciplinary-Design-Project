@@ -6,10 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.settings_simulation.*
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.coverageLimit
-import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationDelay
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationMode
+import ntu.mdp.android.mdptestkotlin.MainActivity
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.SettingsSimulationBinding
@@ -27,6 +27,16 @@ class SettingsSimulationActivity : AppCompatActivity() {
 
         activityUtil = ActivityUtil(this)
         activityUtil.setTitle(getString(R.string.simulation))
+
+
+        darkModeSwitch.isChecked = App.darkMode
+        darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            App.sharedPreferences.edit().putBoolean(getString(R.string.app_pref_dark_mode), isChecked).apply()
+            App.darkMode = isChecked
+            if (isChecked) App.appTheme = R.style.AppTheme_Dark
+            else App.appTheme = R.style.AppTheme
+            activityUtil.startActivity(MainActivity::class.java, fade = true, startNew = true)
+        }
 
         simulationSwitch.isChecked = simulationMode
         simulationSwitch.setOnCheckedChangeListener { _, isChecked ->

@@ -45,6 +45,14 @@
                     style="@style/ToolbarButton"
                     android:src="?attr/bluetoothIconSrc"
                     android:contentDescription="@string/app_name"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/AppTextView"
+                    android:layout_marginStart="@dimen/small_padding"
+                    android:text="@string/bluetooth"
+                    android:textSize="@dimen/text_size_small"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
             </LinearLayout>
 
             <LinearLayout
@@ -58,6 +66,14 @@
                     style="@style/ToolbarButton"
                     android:src="?attr/communicationIconSrc"
                     android:contentDescription="@string/app_name"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/AppTextView"
+                    android:layout_marginStart="@dimen/small_padding"
+                    android:text="@string/communication"
+                    android:textSize="@dimen/text_size_small"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
             </LinearLayout>
 
             <LinearLayout
@@ -71,7 +87,16 @@
                     style="@style/ToolbarButton"
                     android:src="?attr/simulationIconSrc"
                     android:contentDescription="@string/app_name"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/AppTextView"
+                    android:layout_marginStart="@dimen/small_padding"
+                    android:text="@string/simulation"
+                    android:textSize="@dimen/text_size_small"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
             </LinearLayout>
+
 
             <LinearLayout
                 style="@style/ToolbarButtonLayout"
@@ -89,24 +114,20 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:padding="@dimen/screen_padding"
-        app:layout_constraintTop_toBottomOf="@id/toolbarCard"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/screen_padding">
 
         <RelativeLayout
-            style="@style/ArenaGridLayout.Phone"
+            style="@style/ArenaGridLayout"
             android:id="@+id/gridParent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginBottom="@dimen/element_padding"
+            app:layout_constraintBottom_toTopOf="@id/messageCard"
             app:layout_constraintLeft_toLeftOf="parent">
 
             <GridLayout
-                style="@style/ArenaGridLayout.Phone"
+                style="@style/ArenaGridLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/main_grid_arena" />
@@ -116,122 +137,111 @@
             android:id="@+id/buttonsLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/small_padding"
-            android:clipToPadding="false"
-            app:layout_constraintTop_toBottomOf="@id/fabLayout"
-            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginStart="@dimen/element_padding"
+            android:layout_marginEnd="2dp"
+            app:layout_constraintLeft_toRightOf="@id/gridParent"
+            app:layout_constraintTop_toTopOf="@id/gridParent"
             app:layout_constraintRight_toRightOf="parent">
 
             <com.google.android.material.button.MaterialButton
-                style="@style/UIButton"
+                style="@style/UIButton.Main"
                 android:id="@+id/f1Button"
-                android:text="@string/f1_default"
-                android:layout_marginEnd="@dimen/element_padding"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@id/f2Button"/>
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/f2Button"/>
 
             <com.google.android.material.button.MaterialButton
-                style="@style/UIButton"
+                style="@style/UIButton.Main"
                 android:id="@+id/f2Button"
-                android:text="@string/f2_default"
-                android:layout_marginStart="@dimen/element_padding"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toRightOf="@id/f1Button"
-                app:layout_constraintRight_toRightOf="parent"/>
-
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/f1Button"
+                app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fabLayout"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/element_padding"
-            android:clipToPadding="false"
-            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginEnd="2dp"
             app:layout_constraintLeft_toRightOf="@id/gridParent"
-            app:layout_constraintTop_toTopOf="@id/gridParent"
-            app:layout_constraintBottom_toBottomOf="@id/gridParent">
+            app:layout_constraintTop_toBottomOf="@id/buttonsLayout"
+            app:layout_constraintBottom_toTopOf="@id/dataCardsLayout"
+            app:layout_constraintRight_toRightOf="parent">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 style="@style/FAB"
                 android:id="@+id/exploreButton"
+                android:layout_marginTop="@dimen/small_padding"
                 android:src="@drawable/ic_explore"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/fastestPathButton"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/saveMapButton"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 style="@style/FAB"
                 android:id="@+id/fastestPathButton"
                 android:src="@drawable/ic_fastest"
-                app:layout_constraintTop_toBottomOf="@id/exploreButton"
-                app:layout_constraintBottom_toTopOf="@id/saveMapButton"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"/>
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/exploreButton"
+                app:layout_constraintBottom_toBottomOf="@id/exploreButton"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 style="@style/FAB"
                 android:id="@+id/saveMapButton"
                 android:src="@drawable/ic_save"
-                app:layout_constraintTop_toBottomOf="@id/fastestPathButton"
-                app:layout_constraintBottom_toTopOf="@id/loadMapButton"
+                android:layout_marginTop="@dimen/button_padding"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@id/exploreButton"
+                app:layout_constraintBottom_toTopOf="@id/plotButton"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 style="@style/FAB"
                 android:id="@+id/loadMapButton"
                 android:src="@drawable/ic_load"
-                app:layout_constraintTop_toBottomOf="@id/saveMapButton"
-                app:layout_constraintBottom_toTopOf="@id/plotButton"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"/>
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/saveMapButton"
+                app:layout_constraintBottom_toBottomOf="@id/saveMapButton"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 style="@style/FAB"
                 android:id="@+id/plotButton"
                 android:src="@drawable/ic_plot_obstacles"
-                app:layout_constraintTop_toBottomOf="@id/loadMapButton"
-                app:layout_constraintBottom_toTopOf="@id/clearArenaButton"
+                android:layout_marginTop="@dimen/button_padding"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@id/saveMapButton"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 style="@style/FAB"
                 android:id="@+id/clearArenaButton"
                 android:src="@drawable/ic_clear"
-                android:layout_marginBottom="@dimen/small_padding"
-                app:layout_constraintTop_toBottomOf="@id/plotButton"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"/>
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/plotButton"
+                app:layout_constraintBottom_toBottomOf="@id/plotButton"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/dataCardsLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/element_padding"
-            android:clipToPadding="false"
-            app:layout_constraintTop_toBottomOf="@id/buttonsLayout"
-            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginStart="@dimen/element_padding"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="@dimen/element_padding"
+            app:layout_constraintLeft_toRightOf="@id/gridParent"
+            app:layout_constraintBottom_toTopOf="@id/messageCard"
             app:layout_constraintRight_toRightOf="parent">
 
             <androidx.cardview.widget.CardView
-                style="@style/DataCard.Main.Small.Phone"
+                style="@style/DataCard.Main.Small"
                 android:id="@+id/statusCard"
                 android:layout_marginTop="0dp"
-                android:layout_marginStart="2dp"
-                android:layout_marginBottom="2dp"
-                android:layout_marginEnd="2dp"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@id/modeCard"
+                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
+                app:layout_constraintBottom_toTopOf="@id/modeCard">
 
                 <androidx.constraintlayout.widget.ConstraintLayout style="@style/DataCardInnerLayout.Main">
                     <com.google.android.material.textview.MaterialTextView
@@ -254,15 +264,12 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                style="@style/DataCard.Main.Small.Phone"
+                style="@style/DataCard.Main.Small"
                 android:id="@+id/modeCard"
-                android:layout_marginTop="0dp"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                app:layout_constraintLeft_toRightOf="@id/statusCard"
-                app:layout_constraintRight_toLeftOf="@id/coordinatesCard"
-                app:layout_constraintTop_toTopOf="@id/statusCard"
-                app:layout_constraintBottom_toBottomOf="@id/statusCard">
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/statusCard"
+                app:layout_constraintBottom_toTopOf="@id/coordinatesCard">
 
                 <androidx.constraintlayout.widget.ConstraintLayout style="@style/DataCardInnerLayout.Main">
                     <com.google.android.material.textview.MaterialTextView
@@ -285,16 +292,12 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                style="@style/DataCard.Main.Small.Phone"
+                style="@style/DataCard.Main.Small"
                 android:id="@+id/coordinatesCard"
-                android:clipToPadding="false"
-                android:layout_marginTop="0dp"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                app:layout_constraintLeft_toRightOf="@id/modeCard"
-                app:layout_constraintRight_toLeftOf="@id/timerCard"
-                app:layout_constraintTop_toTopOf="@id/statusCard"
-                app:layout_constraintBottom_toBottomOf="@id/statusCard">
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/modeCard"
+                app:layout_constraintBottom_toTopOf="@id/timerCard">
 
                 <androidx.constraintlayout.widget.ConstraintLayout style="@style/DataCardInnerLayout.Main">
                     <com.google.android.material.textview.MaterialTextView
@@ -317,15 +320,13 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                style="@style/DataCard.Main.Small.Phone"
+                style="@style/DataCard.Main.Small"
                 android:id="@+id/timerCard"
-                android:layout_marginTop="0dp"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                app:layout_constraintLeft_toRightOf="@id/coordinatesCard"
+                android:layout_marginBottom="2dp"
+                app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="@id/statusCard"
-                app:layout_constraintBottom_toBottomOf="@id/statusCard">
+                app:layout_constraintTop_toBottomOf="@id/coordinatesCard"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout style="@style/DataCardInnerLayout.Main">
                     <com.google.android.material.textview.MaterialTextView
@@ -351,10 +352,10 @@
         <androidx.cardview.widget.CardView
             style="@style/DataCard.Main"
             android:id="@+id/messageCard"
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="@dimen/small_padding"
-            app:layout_constraintWidth_percent="0.60"
-            app:layout_constraintTop_toBottomOf="@id/dataCardsLayout"
+            android:layout_marginBottom="@dimen/element_padding"
+            android:layout_marginEnd="@dimen/small_padding"
+            app:layout_constraintWidth_percent="0.64"
+            app:layout_constraintBottom_toTopOf="@id/messageInputCard"
             app:layout_constraintLeft_toLeftOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout style="@style/DataCardInnerLayout.Main">
@@ -375,13 +376,12 @@
                 <ScrollView
                     android:id="@+id/messagesScrollView"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="110dp"
                     android:layout_marginTop="@dimen/element_padding"
                     app:layout_constraintTop_toBottomOf="@id/messageCardTitle"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    tools:ignore="NestedScrolling">
+                    app:layout_constraintBottom_toBottomOf="parent">
 
                     <TextView
                         android:id="@+id/messagesTextView"
@@ -397,8 +397,9 @@
         <androidx.cardview.widget.CardView
             style="@style/DataCard.Main"
             android:id="@+id/messageInputCard"
-            app:layout_constraintWidth_percent="0.6"
-            app:layout_constraintTop_toBottomOf="@id/messageCard"
+            android:layout_marginBottom="@dimen/small_padding"
+            app:layout_constraintWidth_percent="0.64"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/messageCard"
             app:layout_constraintRight_toRightOf="@id/messageCard">
 
@@ -433,12 +434,13 @@
             android:id="@+id/controllerCard"
             android:layout_height="0dp"
             android:layout_marginTop="0dp"
-            android:clipToPadding="false"
-            android:layout_marginEnd="2dp"
-            app:layout_constraintWidth_percent="0.375"
+            android:layout_marginEnd="0dp"
+            android:layout_marginStart="4dp"
+            app:layout_constraintWidth_percent="0.34"
             app:layout_constraintTop_toTopOf="@id/messageCard"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/messageInputCard">
+            app:layout_constraintBottom_toBottomOf="@id/messageInputCard"
+            app:layout_constraintLeft_toRightOf="@id/messageCard"
+            app:layout_constraintRight_toRightOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout style="@style/DataCardInnerLayout.Main"
                 android:padding="0dp">
@@ -452,15 +454,11 @@
                     android:paddingLeft="@dimen/card_padding"
                     android:paddingRight="@dimen/card_padding"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"/>
+                    app:layout_constraintLeft_toLeftOf="parent"/>
 
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/TextButton"
                     android:id="@+id/controlModeButton"
-                    android:visibility="gone"
-                    android:clickable="false"
-                    android:focusable="false"
                     android:text="@string/swipe"
                     android:textColor="?attr/colorAccentLighterTheme"
                     android:paddingTop="@dimen/element_padding"
@@ -488,7 +486,6 @@
                             style="@style/FAB.Controller"
                             android:id="@+id/padForwardButton"
                             android:clickable="false"
-                            android:visibility="gone"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintBottom_toTopOf="@id/padLeftButton"
@@ -499,7 +496,6 @@
                             style="@style/FAB.Controller"
                             android:id="@+id/padLeftButton"
                             android:clickable="false"
-                            android:visibility="gone"
                             app:layout_constraintRight_toLeftOf="@id/padForwardButton"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
@@ -510,7 +506,6 @@
                             style="@style/FAB.Controller"
                             android:id="@+id/padRightButton"
                             android:clickable="false"
-                            android:visibility="gone"
                             app:layout_constraintLeft_toRightOf="@id/padForwardButton"
                             app:layout_constraintTop_toTopOf="@id/padLeftButton"
                             app:layout_constraintBottom_toBottomOf="@id/padLeftButton"
@@ -521,7 +516,6 @@
                             style="@style/FAB.Controller"
                             android:id="@+id/padReverseButton"
                             android:clickable="false"
-                            android:visibility="gone"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/padLeftButton"

@@ -22,15 +22,12 @@
         android:textSize="@dimen/text_size_small"/>
 
     <androidx.cardview.widget.CardView
-        style="?attr/cardStyle"
+        style="@style/DataCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/settings_padding">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/screen_padding"
+        <LinearLayout style="@style/DataCardInnerLayout"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -55,15 +52,12 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        style="?attr/cardStyle"
+        style="@style/DataCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="1dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/screen_padding"
+        <LinearLayout style="@style/DataCardInnerLayout"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -74,17 +68,12 @@
                 android:orientation="vertical">
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/simple_advanced_display"
-                    android:textSize="@dimen/text_size_big"/>
+                    style="@style/AppTextView.Big"
+                    android:text="@string/simple_advanced_display"/>
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/simple_advanced_display_description"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="@dimen/text_size_small" />
+                    style="@style/AppTextView.Gray"
+                    android:text="@string/simple_advanced_display_description"/>
             </LinearLayout>
 
             <Switch

@@ -7,8 +7,12 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.settings_communication.*
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.App.Companion.FORWARD_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.REVERSE_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_LEFT_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_RIGHT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
-import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.App.Companion.usingAmd
 import ntu.mdp.android.mdptestkotlin.R
@@ -32,7 +36,6 @@ class SettingsCommunicationActivity : AppCompatActivity() {
         activityUtil.setTitle(getString(R.string.robot_communication))
 
         autoSwitch.isChecked = autoUpdateArena
-        autoSwitch.isEnabled = !isSimple
         autoSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean(getString(R.string.app_pref_auto_update), isChecked).apply()
             autoUpdateArena = isChecked
@@ -64,6 +67,18 @@ class SettingsCommunicationActivity : AppCompatActivity() {
 
         turnRightEditText.setOnKeyListener(onEnter)
         turnRightEditText.onFocusChangeListener = onFocusLost
+
+        f1LabelEditText.setOnKeyListener(onEnter)
+        f1LabelEditText.onFocusChangeListener = onFocusLost
+
+        f1CommandEditText.setOnKeyListener(onEnter)
+        f1CommandEditText.onFocusChangeListener = onFocusLost
+
+        f2LabelEditText.setOnKeyListener(onEnter)
+        f2LabelEditText.onFocusChangeListener = onFocusLost
+
+        f2CommandEditText.setOnKeyListener(onEnter)
+        f2CommandEditText.onFocusChangeListener = onFocusLost
     }
 
     override fun onResume() {
@@ -82,11 +97,11 @@ class SettingsCommunicationActivity : AppCompatActivity() {
         if (input.isBlank()) return
 
         when (id) {
-            R.id.sendArenaEditText -> {
-                sharedPreferences.edit().putString(getString(R.string.app_pref_send_arena), input).apply()
-                App.SEND_ARENA_COMMAND = input
-            }
 
+            R.id.f1LabelEditText -> sharedPreferences.edit().putString(getString(R.string.app_pref_label_f1), input).apply()
+            R.id.f1CommandEditText -> sharedPreferences.edit().putString(getString(R.string.app_pref_command_f1), input).apply()
+            R.id.f2LabelEditText -> sharedPreferences.edit().putString(getString(R.string.app_pref_label_f2), input).apply()
+            R.id.f2CommandEditText -> sharedPreferences.edit().putString(getString(R.string.app_pref_command_f2), input).apply()
             R.id.explorationEditText -> sharedPreferences.edit().putString(getString(
                 R.string.app_pref_exploration
             ), input).apply()
@@ -98,27 +113,34 @@ class SettingsCommunicationActivity : AppCompatActivity() {
             ), input).apply()
 
             R.id.forwardEditText -> {
-                sharedPreferences.edit().putString(getString(
-                    R.string.app_pref_forward
-                ), input).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_forward), input).apply()
+                FORWARD_COMMAND = input
             }
 
             R.id.reverseEditText -> {
                 sharedPreferences.edit().putString(getString(
                     R.string.app_pref_reverse
                 ), input).apply()
+                REVERSE_COMMAND = input
             }
 
             R.id.turnLeftEditText -> {
                 sharedPreferences.edit().putString(getString(
                     R.string.app_pref_turn_left
                 ), input).apply()
+                TURN_LEFT_COMMAND = input
             }
 
             R.id.turnRightEditText -> {
                 sharedPreferences.edit().putString(getString(
                     R.string.app_pref_turn_right
                 ), input).apply()
+                TURN_RIGHT_COMMAND = input
+            }
+
+            R.id.sendArenaEditText -> {
+                sharedPreferences.edit().putString(getString(R.string.app_pref_send_arena), input).apply()
+                SEND_ARENA_COMMAND = input
             }
         }
 
@@ -149,6 +171,10 @@ class SettingsCommunicationActivity : AppCompatActivity() {
         turnRightEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_turn_right), getString(
             R.string.turn_right_default
         ))
+        f1LabelEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default))
+        f1CommandEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_command_f1), getString(R.string.f1_default))
+        f2LabelEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default))
+        f2CommandEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_command_f2), getString(R.string.f2_default))
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -179,10 +205,16 @@ class SettingsCommunicationActivity : AppCompatActivity() {
                 sharedPreferences.edit().putString(getString(R.string.app_pref_turn_right), getString(
                     R.string.turn_right_default
                 )).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_command_f1), getString(R.string.f1_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_command_f2), getString(R.string.f2_default)).apply()
                 refreshHints()
-                App.SEND_ARENA_COMMAND = getString(
-                    R.string.send_arena_default
-                )
+                SEND_ARENA_COMMAND = getString(R.string.send_arena_default)
+                FORWARD_COMMAND = getString(R.string.forward_default)
+                REVERSE_COMMAND = getString(R.string.reverse_default)
+                TURN_LEFT_COMMAND = getString(R.string.turn_left_default)
+                TURN_RIGHT_COMMAND = getString(R.string.turn_right_default)
             }
         }
     }
@@ -200,10 +232,7 @@ class SettingsCommunicationActivity : AppCompatActivity() {
     private val onFocusLost = View.OnFocusChangeListener { view, hasFocus ->
         if (!hasFocus && !enterPressed && (view as EditText).text.toString().isNotBlank()) {
             activityUtil.sendYesNoDialog(getString(R.string.unsaved_changes), getString(R.string.save), getString(R.string.discard)) { positive ->
-                if (positive) {
-                    save(view)
-                }
-
+                if (positive) save(view)
                 view.text.clear()
             }
         }

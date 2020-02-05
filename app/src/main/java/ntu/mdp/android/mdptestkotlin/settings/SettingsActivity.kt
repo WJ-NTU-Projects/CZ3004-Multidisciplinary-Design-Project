@@ -13,8 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.android.synthetic.main.settings.*
+import kotlinx.android.synthetic.main.settings.darkModeSwitch
+import kotlinx.android.synthetic.main.settings_display.*
 import ntu.mdp.android.mdptestkotlin.App
-import ntu.mdp.android.mdptestkotlin.App.Companion.isSimple
+import ntu.mdp.android.mdptestkotlin.MainActivity
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.SettingsBinding
@@ -50,7 +52,6 @@ class SettingsActivity : AppCompatActivity() {
             getDrawable(R.drawable.ic_bluetooth_white)!!,
             getDrawable(R.drawable.ic_pi_white)!!,
             getDrawable(R.drawable.ic_f1_white)!!,
-            getDrawable(R.drawable.ic_tablet_white)!!,
             getDrawable(R.drawable.ic_sim)!!
         )
 
@@ -58,7 +59,6 @@ class SettingsActivity : AppCompatActivity() {
             getString(R.string.bluetooth),
             getString(R.string.robot_communication),
             getString(R.string.custom_buttons),
-            getString(R.string.display),
             getString(R.string.simulation)
         )
 
@@ -66,7 +66,6 @@ class SettingsActivity : AppCompatActivity() {
             getString(R.string.bluetooth_description),
             getString(R.string.robot_communication_description),
             getString(R.string.custom_buttons_description),
-            getString(R.string.display_description),
             "???"
         )
 
@@ -74,7 +73,6 @@ class SettingsActivity : AppCompatActivity() {
             getColor(R.color.icon_bg_bluetooth),
             getColor(R.color.icon_bg_commands),
             getColor(R.color.icon_bg_custom_buttons),
-            getColor(R.color.icon_bg_display),
             getColor(R.color.icon_bg_simulation)
         )
 
@@ -82,9 +80,17 @@ class SettingsActivity : AppCompatActivity() {
             SettingsBluetoothActivity::class.java,
             SettingsCommunicationActivity::class.java,
             SettingsCustomButtonsActivity::class.java,
-            SettingsDisplayActivity::class.java,
             SettingsSimulationActivity::class.java
         )
+
+        darkModeSwitch.isChecked = App.darkMode
+        darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            App.sharedPreferences.edit().putBoolean(getString(R.string.app_pref_dark_mode), isChecked).apply()
+            App.darkMode = isChecked
+            if (isChecked) App.appTheme = R.style.AppTheme_Dark
+            else App.appTheme = R.style.AppTheme
+            activityUtil.startActivity(MainActivity::class.java, fade = true, startNew = true)
+        }
     }
 
     override fun onResume() {

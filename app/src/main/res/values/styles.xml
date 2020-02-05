@@ -1,13 +1,13 @@
 <resources>
-    <attr format="reference" name="cardStyle"/>
-    <attr format="reference" name="editTextStyleCustom"/>
-    <attr format="reference" name="toolbarStyleCustom"/>
-    <attr format="reference" name="layoutCustom"/>
-    <attr format="reference" name="recyclerCustom"/>
+    <attr format="reference" name="appEditText"/>
     <attr format="reference" name="speedSlowIconSrc"/>
     <attr format="reference" name="speedFastIconSrc"/>
     <attr format="reference" name="coverageLessIconSrc"/>
     <attr format="reference" name="coverageMoreIconSrc"/>
+    <attr format="reference" name="bluetoothIconSrc"/>
+    <attr format="reference" name="communicationIconSrc"/>
+    <attr format="reference" name="simulationIconSrc"/>
+    <attr format="reference" name="changeThemeIconSrc"/>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -20,19 +20,22 @@
         <item name="android:statusBarColor">@color/colorPrimary</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:colorBackground">@color/colorPrimary</item>
-        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">@dimen/text_size_default</item>
         <item name="android:windowActivityTransitions">true</item>
-        <item name="cardStyle">@style/CardViewCustom</item>
-        <item name="editTextStyleCustom">@style/EditTextCustom</item>
-        <item name="toolbarStyleCustom">@style/ToolbarCustom</item>
-        <item name="layoutCustom">@style/LayoutCustom</item>
+        <item name="colorBackgroundTheme">@color/colorPrimary</item>
+        <item name="colorCardBackground">@color/cardColor</item>
+        <item name="appEditText">@style/AppEditText</item>
         <item name="colorAccentTheme">@color/colorAccent</item>
         <item name="colorAccentLighterTheme">@color/colorAccentLighter</item>
         <item name="speedSlowIconSrc">@drawable/ic_speed_slow</item>
         <item name="speedFastIconSrc">@drawable/ic_speed_fast</item>
         <item name="coverageLessIconSrc">@drawable/ic_coverage_less</item>
         <item name="coverageMoreIconSrc">@drawable/ic_coverage_more</item>
+        <item name="bluetoothIconSrc">@drawable/ic_bluetooth</item>
+        <item name="communicationIconSrc">@drawable/ic_communication</item>
+        <item name="simulationIconSrc">@drawable/ic_simulation</item>
+        <item name="changeThemeIconSrc">@drawable/ic_change_theme</item>
     </style>
 
     <style name="AppTheme.Dark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -48,47 +51,181 @@
         <item name="android:textColor">@color/textColorDark</item>
         <item name="android:textSize">@dimen/text_size_default</item>
         <item name="android:windowActivityTransitions">true</item>
-        <item name="cardStyle">@style/CardViewCustom.Dark</item>
-        <item name="editTextStyleCustom">@style/EditTextCustom.Dark</item>
-        <item name="toolbarStyleCustom">@style/ToolbarCustom.Dark</item>
-        <item name="layoutCustom">@style/LayoutCustom.Dark</item>
+        <item name="colorBackgroundTheme">@color/colorPrimaryDark</item>
+        <item name="colorCardBackground">@color/cardColorDark</item>
+        <item name="appEditText">@style/AppEditText.Dark</item>
         <item name="colorAccentTheme">@color/colorAccentDark</item>
         <item name="colorAccentLighterTheme">@color/colorAccentLighterDark</item>
         <item name="speedSlowIconSrc">@drawable/ic_speed_slow_dark</item>
         <item name="speedFastIconSrc">@drawable/ic_speed_fast_dark</item>
         <item name="coverageLessIconSrc">@drawable/ic_coverage_less_dark</item>
         <item name="coverageMoreIconSrc">@drawable/ic_coverage_more_dark</item>
+        <item name="bluetoothIconSrc">@drawable/ic_bluetooth_dark</item>
+        <item name="communicationIconSrc">@drawable/ic_communication_dark</item>
+        <item name="simulationIconSrc">@drawable/ic_simulation_dark</item>
+        <item name="changeThemeIconSrc">@drawable/ic_change_theme_dark</item>
     </style>
 
-    <style name="LayoutCustom">
-        <item name="android:background">@color/colorPrimary</item>
+    <style name="AppTheme.Launcher" parent="AppTheme">
+        <item name="android:windowBackground">@drawable/bg_start</item>
     </style>
 
-    <style name="LayoutCustom.Dark">
-        <item name="android:background">@color/colorPrimaryDark</item>
+    <style name="ArenaGridLayout">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:rowCount">20</item>
+        <item name="android:columnCount">15</item>
+        <item name="layout_constraintWidth_percent">0.78</item>
+        <item name="layout_constraintHeight_percent">0.68</item>
     </style>
 
-    <style name="ToolbarCustom" parent="Widget.AppCompat.Toolbar">
-        <item name="android:background">@color/colorPrimary</item>
-        <item name="titleTextColor">@color/textColor</item>
+    <style name="ArenaGridLayout.Phone">
+        <item name="layout_constraintWidth_percent">0.8</item>
+        <item name="layout_constraintHeight_percent">0.6</item>
     </style>
 
-    <style name="ToolbarCustom.Dark">
-        <item name="android:background">@color/colorPrimaryDark</item>
-        <item name="titleTextColor">@color/textColorDark</item>
-    </style>
-
-    <style name="CardViewCustom" parent="CardView.Light">
-        <item name="cardBackgroundColor">@color/cardColor</item>
+    <style name="DataCard" parent="CardView">
+        <item name="cardBackgroundColor">?attr/colorCardBackground</item>
         <item name="cardElevation">2dp</item>
+        <item name="android:clipToPadding">false</item>
     </style>
 
-    <style name="CardViewCustom.Dark" parent="CardView.Dark">
-        <item name="cardBackgroundColor">@color/cardColorDark</item>
-        <item name="cardElevation">2dp</item>
+    <style name="DataCard.Toolbar">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="cardBackgroundColor">?attr/colorBackgroundTheme</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
     </style>
 
-    <style name="EditTextCustom" parent="Widget.AppCompat.EditText">
+    <style name="DataCard.Main">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">2dp</item>
+        <item name="android:layout_marginEnd">2dp</item>
+        <item name="android:layout_marginTop">@dimen/element_padding</item>
+    </style>
+
+    <style name="DataCard.Main.Small">
+        <item name="android:layout_height">50dp</item>
+    </style>
+
+    <style name="DataCard.Main.Small.Phone">
+        <item name="android:layout_height">40dp</item>
+    </style>
+
+    <style name="DataCardInnerLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingLeft">@dimen/card_padding</item>
+        <item name="android:paddingRight">@dimen/card_padding</item>
+        <item name="android:paddingTop">@dimen/card_padding</item>
+        <item name="android:paddingBottom">@dimen/card_padding</item>
+    </style>
+
+    <style name="DataCardInnerLayout.Main">
+        <item name="android:paddingTop">@dimen/element_padding</item>
+        <item name="android:paddingBottom">@dimen/element_padding</item>
+    </style>
+
+    <style name="UIButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:onClick">clickUiButton</item>
+    </style>
+
+    <style name="UIButton.Main">
+        <item name="android:layout_marginStart">2dp</item>
+        <item name="android:layout_marginEnd">2dp</item>
+    </style>
+
+    <style name="FAB" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:onClick">clickUiButton</item>
+        <item name="elevation">2dp</item>
+        <item name="fabCustomSize">52dp</item>
+    </style>
+
+    <style name="FAB.Controller">
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="elevation">0dp</item>
+        <item name="fabCustomSize">50dp</item>
+    </style>
+
+    <style name="ToolbarButton">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+    </style>
+
+    <style name="TextButton" parent="AppTextView.Gray.Title">
+        <item name="android:textColor">?attr/colorAccentTheme</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:clickable">true</item>
+        <item name="android:onClick">clickUiButton</item>
+    </style>
+
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">@dimen/text_size_small</item>
+    </style>
+
+    <style name="ToolbarButtonLayout">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginEnd">@dimen/screen_padding</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:onClick">clickUiButton</item>
+    </style>
+
+    <style name="AppTextView" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="AppTextView.Toolbar">
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="AppTextView.Big">
+        <item name="android:textSize">@dimen/text_size_big</item>
+    </style>
+
+    <style name="AppTextView.Gray">
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textColor">@android:color/darker_gray</item>
+    </style>
+
+    <style name="AppTextView.Gray.Title">
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="AppTextView.Gray.Small">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/text_size_smaller</item>
+    </style>
+
+    <style name="AppTextView.Gray.Settings">
+        <item name="android:layout_marginTop">@dimen/element_padding</item>
+        <item name="android:layout_marginLeft">@dimen/screen_padding</item>
+        <item name="android:layout_marginRight">@dimen/screen_padding</item>
+        <item name="android:layout_marginBottom">@dimen/element_padding</item>
+    </style>
+
+    <style name="AppTextView.Gray.Settings.Title">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:layout_marginTop">@dimen/settings_padding</item>
+        <item name="android:layout_marginLeft">@dimen/screen_padding</item>
+        <item name="android:layout_marginRight">@dimen/screen_padding</item>
+        <item name="android:layout_marginBottom">@dimen/element_padding</item>
+    </style>
+
+    <style name="AppEditText" parent="Widget.AppCompat.EditText">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">@dimen/element_padding</item>
@@ -98,123 +235,8 @@
         <item name="android:textColor">@color/textColor</item>
     </style>
 
-    <style name="EditTextCustom.Dark">
+    <style name="AppEditText.Dark">
         <item name="android:background">@drawable/ui_edittext_dark</item>
         <item name="android:textColor">@color/textColorDark</item>
     </style>
-
-    <style name="AppTheme.Launcher" parent="AppTheme">
-        <item name="android:windowBackground">@drawable/bg_start</item>
-    </style>
-
-    <style name="AppTheme.Launcher.Dark" parent="AppTheme.Dark">
-        <item name="android:windowBackground">@drawable/bg_start_dark</item>
-    </style>
-
-    <style name="TextViewCustom" parent="Widget.MaterialComponents.TextView">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <style name="TextViewCustom.Settings">
-        <item name="android:textSize">@dimen/text_size_big</item>
-    </style>
-
-    <style name="TextViewCustom.Gray">
-        <item name="android:textSize">@dimen/text_size_small</item>
-        <item name="android:textColor">@android:color/darker_gray</item>
-    </style>
-
-    <style name="TextViewCustom.Gray.Bottom">
-        <item name="android:textSize">@dimen/text_size_small</item>
-        <item name="android:textColor">@android:color/darker_gray</item>
-        <item name="android:layout_marginTop">@dimen/element_padding</item>
-        <item name="android:layout_marginLeft">@dimen/screen_padding</item>
-        <item name="android:layout_marginRight">@dimen/screen_padding</item>
-        <item name="android:layout_marginBottom">@dimen/element_padding</item>
-    </style>
-
-    <style name="TextViewCustom.Gray.Small">
-        <item name="android:textAllCaps">true</item>
-        <item name="android:textSize">@dimen/text_size_smaller</item>
-    </style>
-
-    <style name="TextViewCustom.Gray.Title">
-        <item name="android:textAllCaps">true</item>
-    </style>
-
-    <style name="TextViewCustom.Gray.Settings">
-        <item name="android:textAllCaps">true</item>
-        <item name="android:layout_marginTop">@dimen/settings_padding</item>
-        <item name="android:layout_marginLeft">@dimen/screen_padding</item>
-        <item name="android:layout_marginRight">@dimen/screen_padding</item>
-        <item name="android:layout_marginBottom">@dimen/element_padding</item>
-    </style>
-
-    <style name="TextViewCustom.Content">
-        <item name="android:textSize">@dimen/text_size_big</item>
-    </style>
-
-    <style name="ArenaGridLayout">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:rowCount">20</item>
-        <item name="android:columnCount">15</item>
-        <item name="layout_constraintWidth_percent">0.7</item>
-        <item name="layout_constraintHeight_percent">0.61</item>
-    </style>
-
-    <style name="ArenaGridLayout.Simple">
-        <item name="android:foregroundGravity">center</item>
-        <item name="layout_constraintWidth_percent">0.85</item>
-        <item name="layout_constraintHeight_percent">0.76</item>
-    </style>
-
-    <style name="UIButton" parent="Widget.MaterialComponents.Button">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">@dimen/main_button_height</item>
-        <item name="android:layout_marginStart">@dimen/button_padding</item>
-        <item name="android:textSize">@dimen/text_size_small</item>
-        <item name="android:onClick">clickUiButton</item>
-    </style>
-
-    <style name="UIButton.Bottom">
-        <item name="android:layout_marginBottom">@dimen/screen_padding</item>
-        <item name="android:visibility">gone</item>
-    </style>
-
-    <style name="TextButton" parent="Widget.MaterialComponents.TextView">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:gravity">end</item>
-        <item name="android:textAllCaps">true</item>
-        <item name="android:textColor">?attr/colorAccentTheme</item>
-        <item name="android:textSize">@dimen/text_size_small</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:onClick">clickUiButton</item>
-    </style>
-
-    <style name="TextButton.Simple">
-        <item name="android:textSize">@dimen/text_size_smaller</item>
-    </style>
-
-    <style name="CardViewInnerLayout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:orientation">vertical</item>
-        <item name="android:paddingLeft">@dimen/card_padding</item>
-        <item name="android:paddingRight">@dimen/card_padding</item>
-        <item name="android:paddingTop">@dimen/element_padding</item>
-        <item name="android:paddingBottom">@dimen/element_padding</item>
-    </style>
-
-    <style name="FabCustom" parent="Widget.MaterialComponents.FloatingActionButton">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:onClick">clickUiButton</item>
-        <item name="elevation">2dp</item>
-    </style>
-
 </resources>

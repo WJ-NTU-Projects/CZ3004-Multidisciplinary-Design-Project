@@ -11,10 +11,46 @@
 
     <include layout="@layout/addon_toolbar" />
 
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/AppTextView.Gray.Settings.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/display" />
+
     <androidx.cardview.widget.CardView
-        style="?attr/cardStyle"
+        style="@style/DataCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <LinearLayout style="@style/DataCardInnerLayout"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dark_mode"
+                    android:textSize="@dimen/text_size_big"/>
+            </LinearLayout>
+
+            <Switch
+                android:id="@+id/darkModeSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        style="@style/DataCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/settings_padding">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/settingsRecycler"

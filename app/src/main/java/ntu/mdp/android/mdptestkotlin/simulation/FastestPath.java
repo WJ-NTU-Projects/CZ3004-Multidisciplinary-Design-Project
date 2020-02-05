@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 import ntu.mdp.android.mdptestkotlin.App;
-import ntu.mdp.android.mdptestkotlin.MainActivityController;
 import ntu.mdp.android.mdptestkotlin.arena.RobotController;
 
 public class FastestPath extends Thread {
@@ -18,8 +17,8 @@ public class FastestPath extends Thread {
     private final AtomicBoolean stop = new AtomicBoolean(false);
     private final Function0<Unit> callback;
 
-    public FastestPath(MainActivityController activityController, Function0<Unit> callback) {
-        robotController = activityController.getRobotController();
+    public FastestPath(RobotController robotController, Function0<Unit> callback) {
+        this.robotController = robotController;
         aStarSearch = new AStarSearch(robotController);
         this.callback = callback;
     }
@@ -35,7 +34,7 @@ public class FastestPath extends Thread {
         int startX = startPosition[0];
         int startY = startPosition[1];
         int startFacing1 = 0;
-        int startFacing2 = 0;
+        int startFacing2 = 90;
 
         if (robotController.isStartPointExact(13, 1)) {
             startFacing2 = 270;
