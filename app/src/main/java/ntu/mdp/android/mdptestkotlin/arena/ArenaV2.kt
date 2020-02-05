@@ -61,11 +61,16 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         OBSTACLE
     }
 
+    enum class Broadcast {
+        MOVE_COMPLETE,
+        WAIT_TURN_COMPLETE,
+        TURN_COMPLETE
+    }
+
     private val scale           : Double    = 0.74
     private val displayPixels   : Int       = (context.resources.displayMetrics.widthPixels * scale).toInt()
     private val gridSize        : Int       = ((displayPixels - 30) / 15)
     private val robotSize       : Int       = (displayPixels / 15)
-    private var previousFacing  : Int       = 0
 
     private val robotPosition   : IntArray = intArrayOf(-1, -1, 0)
     private val startPosition   : IntArray = intArrayOf(-1, -1)
@@ -85,13 +90,35 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
     private val redoActionList  : ArrayList<Pair<PlotFunction, IntArray>>   = arrayListOf()
     private var viewOnHold      : GestureImageView = GestureImageView(context)
     private var currentFunction : PlotFunction = PlotFunction.NONE
-    protected var hasResponse   : Boolean = true
+
+    private var broadcastList   : ArrayList<(Broadcast) -> Unit> = arrayListOf()
+    private var waitingForTurn  : Boolean = false
+    private var waitingforTurnX : Int = -1
+    private var waitingforTurnY : Int = -1
+    private var lastMoveTime    : Long = 0L
 
     private val gestureCallback : (view: GestureImageView, gesture: GestureImageView.Gesture) -> Unit = { view, gesture ->
         when (gesture) {
             GestureImageView.Gesture.DOUBLE_TAP -> gridDoubleTap(view)
             GestureImageView.Gesture.LONG_PRESS -> gridLongPress(view)
             GestureImageView.Gesture.FLING_LEFT, GestureImageView.Gesture.FLING_RIGHT, GestureImageView.Gesture.FLING_DOWN, GestureImageView.Gesture.FLING_UP -> gridFling(gesture)
+        }
+    }
+
+    private val broadcastCallback : (broadcastType: Broadcast) -> Unit = { broadcastType ->
+        if (broadcastType == Broadcast.WAIT_TURN_COMPLETE) {
+            if (isValidCoordinates(waitingforTurnX, waitingforTurnY)) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    val elapsed: Long = System.currentTimeMillis() - lastMoveTime
+
+                    if (elapsed < simulationDelay) {
+                        delay(simulationDelay - elapsed)
+                    }
+
+                    waitingForTurn = false
+                    actuallyMoveRobot(waitingforTurnX, waitingforTurnY, robotPosition[2])
+                }
+            }
         }
     }
 
@@ -123,6 +150,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         setStartPoint(1, 1)
         setGoalPoint(13, 18)
         callback(Callback.UPDATE_STATUS, context.getString(R.string.idle))
+        registerForBroadcast(broadcastCallback)
     }
 
     fun clearArena() {
@@ -217,6 +245,16 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
     }
 
+    private fun broadcast(broadcastType: Broadcast) {
+        for (f in broadcastList) {
+            f.invoke(broadcastType)
+        }
+    }
+
+    fun registerForBroadcast(f: (broadcastType: Broadcast) -> Unit) {
+        broadcastList.add(f)
+    }
+
     suspend fun moveRobotToStart() = withContext(Dispatchers.Main) {
         updateRobot(startPosition[0], startPosition[1])
     }
@@ -225,6 +263,14 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         val coordinates: IntArray = getValidCoordinates(x1, y1, true)
         val x: Int = coordinates[0]
         val y: Int = coordinates[1]
+        val broadcastType: Broadcast =
+            if (x == robotPosition[0] && y == robotPosition[1]) {
+                if (waitingForTurn) Broadcast.WAIT_TURN_COMPLETE
+                else Broadcast.TURN_COMPLETE
+            } else {
+                Broadcast.MOVE_COMPLETE
+            }
+
         robotPosition[0] = x
         robotPosition[1] = y
         updateRobotImage(facing)
@@ -234,14 +280,12 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         else if (isGoalPointExact(x, y)) setGoalPointTouched()
 
         withContext(Dispatchers.Default) {
-            delay(50)
-            hasResponse = true
+            broadcast(broadcastType)
         }
     }
 
     suspend fun turnRobot(facing: Int) = withContext(Dispatchers.Main) {
         callback(Callback.UPDATE_STATUS, context.getString(R.string.turning))
-        hasResponse = false
 
         if (BluetoothController.isSocketConnected()) {
             val currentFacing: Int = robotPosition[2]
@@ -254,13 +298,13 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             }
         } else {
             updateRobotImage(facing)
+            if (simulationMode) scan(robotPosition[0], robotPosition[1], facing)
 
             withContext(Dispatchers.Default) {
-                hasResponse = true
+                if (waitingForTurn) broadcast(Broadcast.WAIT_TURN_COMPLETE)
+                else broadcast(Broadcast.TURN_COMPLETE)
             }
         }
-
-        if (simulationMode) scan(robotPosition[0], robotPosition[1], facing)
     }
 
     protected suspend fun moveRobot(array: IntArray) = withContext(Dispatchers.Main) {
@@ -289,7 +333,6 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             return@withContext
         }
 
-        hasResponse = false
         val currentX: Int = robotPosition[0]
         val currentY: Int = robotPosition[1]
         val currentFacing: Int = robotPosition[2]
@@ -322,30 +365,31 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
 
         if (facing != currentFacing) {
+            waitingForTurn = true
+            waitingforTurnX = x
+            waitingforTurnX = y
             turnRobot(facing)
-            withContext(Dispatchers.Default) {
-                while (!hasResponse) { delay(10) }
-            }
-            delay(simulationDelay)
+            return@withContext
         }
-
-        hasResponse = false
-        callback(Callback.UPDATE_STATUS, context.getString(R.string.moving))
 
         if (BluetoothController.isSocketConnected()) {
             callback(Callback.SEND_COMMAND, FORWARD_COMMAND)
             return@withContext
         }
 
+        actuallyMoveRobot(x, y, facing)
+    }
+
+    private suspend fun actuallyMoveRobot(x: Int, y: Int, facing: Int) = withContext(Dispatchers.Main) {
+        callback(Callback.UPDATE_STATUS, context.getString(R.string.moving))
         setRobotPosition(x, y)
         robotPosition[2] = facing
-        previousFacing = direction
         if (simulationMode) scan(x, y, facing)
         if (isWaypointExact(x, y)) setWaypointTouched()
         else if (isGoalPointExact(x, y)) setGoalPointTouched()
 
         withContext(Dispatchers.Default) {
-            hasResponse = true
+            broadcast(Broadcast.MOVE_COMPLETE)
         }
     }
 
@@ -386,7 +430,6 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
 
         robotDisplay.setImageResource(drawable)
         robotPosition[2] = facing
-        previousFacing = facing
     }
 
     private fun setUnexploredForced(x: Int, y: Int) {

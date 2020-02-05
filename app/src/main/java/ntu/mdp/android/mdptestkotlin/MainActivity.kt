@@ -161,8 +161,6 @@ class MainActivity : AppCompatActivity() {
         buttonList = listOf(exploreButton, fastestPathButton, plotButton, saveMapButton, loadMapButton, clearArenaButton, f1Button, f2Button, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
         robotController = RobotController(this, binding, robotControllerCallback)
         bluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
-        exploration = Exploration(robotController, explorationCallback)
-        fastestPath = FastestPath(robotController, fastestPathCallback)
         isTablet = resources.getBoolean(R.bool.isTablet)
 
         padForwardButton.isClickable = false
@@ -256,6 +254,7 @@ class MainActivity : AppCompatActivity() {
                     plotButton.setImageDrawable(getDrawable(R.drawable.ic_done))
                 } else {
                     robotController.setPlotFunction(ArenaV2.PlotFunction.NONE)
+                    robotController.resetActions()
                     buttonList.forEach { it.isEnabled = true }
                     plotButton.setImageDrawable(getDrawable(R.drawable.ic_plot_obstacles))
                 }
@@ -375,6 +374,8 @@ class MainActivity : AppCompatActivity() {
                     CoroutineScope(Dispatchers.Main).launch {
                         robotController.saveObstacles()
                         robotController.resetGoalPoint()
+                        if (::exploration.isInitialized && exploration.isAlive) exploration.end()
+                        exploration = Exploration(robotController, explorationCallback)
                         exploration.start()
                     }
                 }
@@ -384,13 +385,15 @@ class MainActivity : AppCompatActivity() {
                         robotController.moveRobotToStart()
                         robotController.resetWaypoint()
                         robotController.resetGoalPoint()
+                        if (::fastestPath.isInitialized && fastestPath.isAlive) fastestPath.end()
+                        fastestPath = FastestPath(robotController, fastestPathCallback)
                         fastestPath.start()
                     }
                 }
 
                 else -> {
-                    exploration.end()
-                    fastestPath.end()
+                    if (::exploration.isInitialized && exploration.isAlive) exploration.end()
+                    if (::fastestPath.isInitialized && fastestPath.isAlive) fastestPath.end()
                     statusCardLabel.text = getString(R.string.idle)
                 }
             }

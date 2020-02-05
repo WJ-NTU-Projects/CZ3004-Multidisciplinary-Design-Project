@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
-import ntu.mdp.android.mdptestkotlin.App;
 import ntu.mdp.android.mdptestkotlin.arena.RobotController;
 
 import static java.lang.Math.abs;
@@ -18,11 +17,20 @@ public class Exploration extends Thread {
     private final AStarSearch aStarSearch;
     private final AtomicBoolean stop = new AtomicBoolean(false);
     private final Function1<? super Callback, Unit> callback;
+    private boolean movable = true;
 
     public Exploration(RobotController robotController, Function1<? super Callback, Unit> callback) {
         this.robotController = robotController;
         aStarSearch = new AStarSearch(robotController);
         this.callback = callback;
+
+        robotController.registerForBroadcast(broadcast -> {
+            if (this.isAlive() && broadcast == RobotController.Broadcast.MOVE_COMPLETE || broadcast == RobotController.Broadcast.TURN_COMPLETE) {
+                movable = true;
+            }
+
+            return null;
+        });
     }
 
     public void end() {
@@ -33,49 +41,21 @@ public class Exploration extends Thread {
     @Override
     public void run() {
         stop.set(false);
-        int[] robotPosition = robotController.getRobotPosition();
-        int x = robotPosition[0];
-        int y = robotPosition[1];
-        int facing;
-
-        if (robotController.isRobotMovable(x + 1, y)) facing = 90;
-        else if (robotController.isRobotMovable(x, y + 1)) facing = 0;
-        else if (robotController.isRobotMovable(x, y - 1)) facing = 180;
-        else facing = 270;
-        robotController.setResponse(false);
-        robotController.turnRobotJava(facing).join();
-        while (!robotController.getResponded()) {
-            if (isInterrupted()) break;
-
-            try {
-                sleep(10);
-            } catch (InterruptedException e) {
-                Log.e("GG", "GG");
-            }
-        }
-
         boolean wallHug = true;
-        callback.invoke(Callback.WALL_HUGGING);
         int counter = -1;
-
+        callback.invoke(Callback.WALL_HUGGING);
+        
         while (!stop.get()) {
             counter++;
-            Log.e("TEST", "IN_LOOP" + counter);
 
-            while (!robotController.getResponded()) {
+            while (!movable) {
                 if (isInterrupted()) break;
 
                 try {
-                    sleep(10);
+                    sleep(50);
                 } catch (InterruptedException e) {
                     Log.e("GG", "GG");
                 }
-            }
-
-            try {
-                sleep(App.getSimulationDelay());
-            } catch (InterruptedException e) {
-                Log.e("GG", "GG");
             }
 
             if (robotController.coverageReached()) break;
@@ -86,42 +66,32 @@ public class Exploration extends Thread {
             }
 
             if (wallHug) {
-                Log.e("TEST", "IN");
+                movable = false;
 
-                if (robotController.canMoveJava(RobotController.Direction.RIGHT).join()) {
-                    Log.e("TEST", "IN_RIGHT");
-                    robotController.setResponse(false);
+                if (robotController.canMove(RobotController.Direction.RIGHT)) {
                     robotController.moveRobotJava(RobotController.Direction.RIGHT).join();
-                    Log.e("TEST", "MOVE_RIGHT");
                     continue;
                 }
 
-                if (robotController.canMoveJava(RobotController.Direction.FORWARD).join()) {
-                    Log.e("TEST", "IN_FORWARD");
-                    robotController.setResponse(false);
+                if (robotController.canMove(RobotController.Direction.FORWARD)) {
                     robotController.moveRobotJava(RobotController.Direction.FORWARD).join();
-                    Log.e("TEST", "MOVE_FORWARD");
                     continue;
                 }
 
-                if (robotController.canMoveJava(RobotController.Direction.LEFT).join()) {
-                    Log.e("TEST", "IN_LEFT");
-                    robotController.setResponse(false);
+                if (robotController.canMove(RobotController.Direction.LEFT)) {
                     robotController.moveRobotJava(RobotController.Direction.LEFT).join();
-                    Log.e("TEST", "MOVE_LEFT");
                     continue;
                 }
 
-                Log.e("TEST", "ALL_FAIL");
-                robotController.setResponse(false);
                 robotController.turnRobotJava(RobotController.Direction.RIGHT).join();
                 continue;
             }
 
             if (!robotController.hasUnexploredGrid()) break;
 
-            if (!robotController.isGridExploredJava(RobotController.Direction.FORWARD).join()) {
-                if (robotController.canMoveJava(RobotController.Direction.FORWARD).join()) {
+            if (!robotController.isGridExplored(RobotController.Direction.FORWARD)) {
+                if (robotController.canMove(RobotController.Direction.FORWARD)) {
+                    movable = false;
                     robotController.moveRobotJava(RobotController.Direction.FORWARD).join();
                     continue;
                 }
@@ -130,46 +100,40 @@ public class Exploration extends Thread {
             final int[] nearestCoordinates = findNearestUnexploredGrid();
             if (!robotController.isValidCoordinates(nearestCoordinates, true)) break;
 
-            robotPosition = robotController.getRobotPosition();
+            final int[] robotPosition = robotController.getRobotPosition();
             final Pair<Double, List<int[]>> fastestPathToNearest = aStarSearch.findFastestPath(robotPosition, nearestCoordinates);
             final List<int[]> pathList = fastestPathToNearest.second;
             if (pathList.isEmpty()) break;
-            int i = 0;
 
             for (int[] pathCoordinates : pathList) {
-                while (!robotController.getResponded()) {
+                if (stop.get()) return;
+
+                while (!movable) {
                     if (isInterrupted()) break;
 
                     try {
-                        sleep(10);
+                        sleep(50);
                     } catch (InterruptedException e) {
                         Log.e("GG", "GG");
                     }
                 }
 
-                try {
-                    if (i != 0) sleep(App.getSimulationDelay());
-                } catch (InterruptedException e) {
-                    Log.e("GG", "GG");
-                }
-
-                if (!robotController.isGridExploredJava(RobotController.Direction.FORWARD).join()) {
-                    if (robotController.canMoveJava(RobotController.Direction.FORWARD).join()) {
-                        robotController.setResponse(false);
+                if (!robotController.isGridExplored(RobotController.Direction.FORWARD)) {
+                    if (robotController.canMove(RobotController.Direction.FORWARD)) {
+                        movable = false;
                         robotController.moveRobotJava(RobotController.Direction.FORWARD).join();
                         break;
                     }
                 }
 
-                robotController.setResponse(false);
+                movable = false;
                 robotController.moveRobotJava(pathCoordinates).join();
-                i++;
             }
         }
 
-        robotPosition = robotController.getRobotPosition();
-        x = robotPosition[0];
-        y = robotPosition[1];
+        final int[] robotPosition = robotController.getRobotPosition();
+        final int x = robotPosition[0];
+        final int y = robotPosition[1];
 
         if (robotController.isStartPointExact(x, y)) {
             callback.invoke(Callback.COMPLETE);
@@ -180,29 +144,22 @@ public class Exploration extends Thread {
         final Pair<Double, List<int[]>> fastestPathToStart = aStarSearch.findFastestPath(robotPosition, robotController.getStartPosition());
         final List<int[]> pathList = fastestPathToStart.second;
         if (pathList.isEmpty()) return;
-        int i = 0;
 
         for (int[] pathCoordinates : pathList) {
             if (stop.get()) return;
-            while (!robotController.getResponded()) {
+
+            while (!movable) {
                 if (isInterrupted()) break;
 
                 try {
-                    sleep(10);
+                    sleep(50);
                 } catch (InterruptedException e) {
                     Log.e("GG", "GG");
                 }
             }
 
-            try {
-                if (i != 0) sleep(App.getSimulationDelay());
-            } catch (InterruptedException e) {
-                Log.e("GG", "GG");
-            }
-
-            robotController.setResponse(false);
+            movable = false;
             robotController.moveRobotJava(pathCoordinates).join();
-            i++;
         }
 
         callback.invoke(Callback.COMPLETE);

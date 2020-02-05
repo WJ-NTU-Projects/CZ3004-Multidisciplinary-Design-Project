@@ -35,7 +35,7 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
     private var swipeOriginY    : Float = 0.0f
     private var trackMovement   : Boolean = false
     private var currentDirection: Direction = Direction.NONE
-    private var lastMoveTime    : Long = 0L
+    private var movable         : Boolean = true
 
     private val touchListener = View.OnTouchListener { view, event ->
         when (event.action) {
@@ -47,15 +47,21 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
         return@OnTouchListener true
     }
 
-    private suspend fun canMove(direction: Direction): Boolean = withContext(Dispatchers.Main) {
-        val moveCoordinates: IntArray = getNextMovementCoordinates(direction)
-        return@withContext isRobotMovable(moveCoordinates[0], moveCoordinates[1])
+    init {
+        registerForBroadcast {
+            if (it == Broadcast.MOVE_COMPLETE || it == Broadcast.TURN_COMPLETE) movable = true
+        }
     }
 
-    private suspend fun isGridExplored(direction: Direction): Boolean = withContext(Dispatchers.Main) {
+    fun canMove(direction: Direction): Boolean {
+        val moveCoordinates: IntArray = getNextMovementCoordinates(direction)
+        return isRobotMovable(moveCoordinates[0], moveCoordinates[1])
+    }
+
+    fun isGridExplored(direction: Direction): Boolean {
         val moveCoordinates: IntArray = getNextExplorationCoordinates(direction)
-        if (!isValidCoordinates(moveCoordinates)) return@withContext true
-        return@withContext isGridExplored(moveCoordinates[0], moveCoordinates[1])
+        if (!isValidCoordinates(moveCoordinates)) return true
+        return isGridExplored(moveCoordinates[0], moveCoordinates[1])
     }
 
     private suspend fun turnRobot(direction: Direction) = withContext(Dispatchers.Main) {
@@ -69,11 +75,10 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
     private suspend fun moveRobot(direction: Direction) = withContext(Dispatchers.Main) {
         val moveCoordinates: IntArray = getNextMovementCoordinates(direction)
         if (!canMove(direction)) return@withContext
-        Log.e("TEST", "CAN_MOVE")
         moveRobot(moveCoordinates)
     }
 
-    private suspend fun getNextMovementCoordinates(direction: Direction): IntArray = withContext(Dispatchers.Main) {
+    private fun getNextMovementCoordinates(direction: Direction): IntArray {
         val robotPosition = getRobotPosition()
         var x = robotPosition[0]
         var y = robotPosition[1]
@@ -115,13 +120,13 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
                 }
             }
 
-            else -> return@withContext intArrayOf(-1, -1)
+            else -> return intArrayOf(-1, -1)
         }
 
-        return@withContext intArrayOf(x, y)
+        return intArrayOf(x, y)
     }
 
-    private suspend fun getNextExplorationCoordinates(direction: Direction): IntArray = withContext(Dispatchers.Main) {
+    private fun getNextExplorationCoordinates(direction: Direction): IntArray {
         val robotPosition = getRobotPosition()
         var x = robotPosition[0]
         var y = robotPosition[1]
@@ -163,24 +168,17 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
                 }
             }
 
-            else -> return@withContext intArrayOf(-1, -1)
+            else -> return intArrayOf(-1, -1)
         }
 
-        return@withContext intArrayOf(x, y)
+        return intArrayOf(x, y)
     }
 
-    fun isGridExploredJava(direction: Direction): CompletableFuture<Boolean> = CoroutineScope(Dispatchers.Main).future { isGridExplored(direction) }
-    fun canMoveJava(direction: Direction): CompletableFuture<Boolean> = CoroutineScope(Dispatchers.Main).future { canMove(direction) }
     fun moveRobotJava(direction: Direction): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { moveRobot(direction) }
     fun moveRobotJava(array: IntArray): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { moveRobot(array) }
-    fun turnRobotJava(direction: Int): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { turnRobot(direction) }
     fun turnRobotJava(direction: Direction): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { turnRobot(direction) }
     fun getTouchListener() = touchListener
     fun getSwipeMode() = swipeMode
-    fun getResponded() = hasResponse
-    fun setResponse(r: Boolean) {
-        hasResponse = r
-    }
 
     fun toggleSwipeMode(state: Boolean = !swipeMode) {
         swipeMode = state
@@ -276,9 +274,10 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
     private inner class MovementThread: Thread() {
         override fun run() {
             while (trackMovement) {
-                if (!hasResponse) continue
-                if (System.currentTimeMillis() - lastMoveTime < simulationDelay) continue
-                lastMoveTime = System.currentTimeMillis()
+                if (!movable) {
+                    sleep(50)
+                    continue
+                }
 
                 val currentFacing: Int = getRobotFacing()
                 val facing = when (currentDirection) {
@@ -291,6 +290,7 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
 
                 if (facing == -1) continue
                 val facingOffset: Int = currentFacing - facing
+                movable = false
 
                 if (facing == currentFacing || abs(facing - currentFacing) == 180) {
                     CoroutineScope(Dispatchers.Main).launch {
