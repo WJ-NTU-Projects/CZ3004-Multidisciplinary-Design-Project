@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/window_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/settings_padding"
+    android:paddingRight="@dimen/settings_padding"
+    android:paddingBottom="@dimen/settings_padding"
+    tools:context=".MapSaveActivity">
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/AppTextView.Title"
+        android:id="@+id/okTitleLabel"
+        android:text="@string/app_name"
+        android:layout_marginTop="@dimen/settings_padding"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/AppTextView.Big"
+        android:id="@+id/okMessageLabel"
+        android:text="@string/app_name"
+        android:layout_marginTop="@dimen/settings_padding"
+        app:layout_constraintTop_toBottomOf="@id/okTitleLabel"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/UIButton.Dialog"
+        android:id="@+id/okDialogButton"
+        android:text="@string/ok"
+        android:layout_marginTop="@dimen/settings_padding"
+        android:layout_marginEnd="0dp"
+        app:layout_constraintTop_toBottomOf="@id/okMessageLabel"
+        app:layout_constraintRight_toRightOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

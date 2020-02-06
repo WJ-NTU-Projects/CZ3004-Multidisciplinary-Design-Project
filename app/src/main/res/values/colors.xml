@@ -6,21 +6,24 @@
     <attr name="colorCardBackground" format="reference" />
     <attr name="colorTextTheme" format="reference" />
 
-    <color name="colorPrimary">#FFFFFF</color>
-    <color name="colorPrimaryDark">#121212</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorOnPrimaryDark">#121212</color>
 
-    <color name="colorAccent">#1E6AE1</color>
-    <color name="colorAccentDark">#E1951E</color>
+    <color name="colorError">#B00020</color>
+    <color name="colorErrorDark">#CF6679</color>
 
-    <color name="colorAccentLighter">#8FB5F0</color>
-    <color name="colorAccentLighterDark">#F0CA8F</color>
+    <color name="colorPrimary">#2859D5</color>
+    <color name="colorPrimaryDark">#b299ed</color>
+
+    <color name="colorAccent">#c5cdf3</color>
+    <color name="colorAccentDark">#ede6fa</color>
 
 
-    <color name="textColor">#121212</color>
-    <color name="textColorDark">#EDEDED</color>
+    <color name="textColor">#000000</color>
+    <color name="textColorDark">#FFFFFF</color>
 
-    <color name="cardColor">#FBFBFB</color>
-    <color name="cardColorDark">#161616</color>
+    <color name="cardColor">#F9F9F9</color>
+    <color name="cardColorDark">#181818</color>
 
     <color name="textColorHint">#666666</color>
     <color name="toolbar_divider">#DDDDDD</color>
@@ -34,10 +37,10 @@
     <color name="progressBarEnd">#011A5FC6</color>
     <color name="arena_unexplored">#FB98A4</color>
     <color name="arena_explored">#98FBEE</color>
-    <color name="arena_start_point">#A50CB3</color>
-    <color name="arena_goal_point">#0C6DB3</color>
+    <color name="arena_start_point">#007FFF</color>
+    <color name="arena_goal_point">#FF00FF</color>
     <color name="arena_goal_point_touched">#FFFF00</color>
-    <color name="arena_way_point">#B3520C</color>
-    <color name="arena_way_point_touched">#F0B70F</color>
+    <color name="arena_way_point">#FF8000</color>
+    <color name="arena_way_point_touched">#FFFF00</color>
     <color name="arena_obstacle">#000000</color>
 </resources>

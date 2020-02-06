@@ -16,7 +16,8 @@ class App: Application() {
         const val CLICK_DELAY = 100L
         private const val SLOW_SIM_DELAY = 320L
 
-        var appTheme: Int = R.style.AppTheme
+        @Volatile var appTheme: Int = R.style.AppTheme
+        @Volatile var dialogTheme: Int = R.style.DialogTheme
         var socket: BluetoothSocket? = null
         var bluetoothServerThread: BluetoothServer? = null
         var bluetoothClientThread: BluetoothClient? = null
@@ -49,13 +50,18 @@ class App: Application() {
         TURN_RIGHT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_turn_right), getString(R.string.turn_right_default))!!
 
         darkMode = sharedPreferences.getBoolean(getString(R.string.app_pref_dark_mode), false)
-        if (darkMode) appTheme = R.style.AppTheme_Dark
+
+        if (darkMode) {
+            appTheme = R.style.AppTheme_Dark
+            dialogTheme = R.style.DialogTheme_Dark
+        }
+
         autoUpdateArena = sharedPreferences.getBoolean(getString(R.string.app_pref_auto_update), true)
         usingAmd = sharedPreferences.getBoolean(getString(R.string.app_pref_using_amd), true)
         //allowDiagonalExploration = sharedPreferences.getBoolean(getString(R.string.app_pref_diagonal_exploration), false)
 
         simulationMode = sharedPreferences.getBoolean(getString(R.string.app_pref_simulation_mode), false)
-        simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else 200L
+        simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else (1000 / 3)
         coverageLimit = if (simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
     }
 }

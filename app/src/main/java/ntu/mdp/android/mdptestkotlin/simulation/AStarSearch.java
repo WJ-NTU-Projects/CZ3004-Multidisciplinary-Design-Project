@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 import ntu.mdp.android.mdptestkotlin.arena.ArenaV2;
-import ntu.mdp.android.mdptestkotlin.arena.RobotController;
 
 import static java.lang.Math.abs;
 

@@ -1,170 +1,209 @@
 package ntu.mdp.android.mdptestkotlin.simulation;
 
-import android.util.Log;
 import android.util.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 import ntu.mdp.android.mdptestkotlin.App;
+import ntu.mdp.android.mdptestkotlin.arena.ArenaV2;
 import ntu.mdp.android.mdptestkotlin.arena.RobotController;
 
 import static java.lang.Math.abs;
 
-public class Exploration extends Thread {
+public class Exploration {
     private final RobotController robotController;
     private final AStarSearch aStarSearch;
-    private final AtomicBoolean stop = new AtomicBoolean(false);
     private final Function1<? super Callback, Unit> callback;
-    private boolean movable = true;
+    private final Function2<? super RobotController.Broadcast, ? super boolean[], Unit> broadcastCallback;
+    private boolean wallHug = false;
+    private boolean do180 = false;
+    private boolean started = false;
+    private boolean goingHome = false;
+    private List<int[]> pathList = new ArrayList<>();
 
     public Exploration(RobotController robotController, Function1<? super Callback, Unit> callback) {
         this.robotController = robotController;
         aStarSearch = new AStarSearch(robotController);
         this.callback = callback;
 
-        robotController.registerForBroadcast(broadcast -> {
-            if (this.isAlive() && broadcast == RobotController.Broadcast.MOVE_COMPLETE || broadcast == RobotController.Broadcast.TURN_COMPLETE) {
-                movable = true;
-            }
-
+        broadcastCallback = (Function2<RobotController.Broadcast, boolean[], Unit>) (broadcast, sensorData) -> {
+            if (goingHome) goHome();
+            else processBroadcast(broadcast, sensorData);
             return null;
-        });
+        };
+
+        robotController.registerForBroadcast(broadcastCallback);
+    }
+
+    public void start() {
+        App.setROBOT_MOVABLE(false);
+        wallHug = true;
+        goingHome = false;
+        do180 = false;
+        robotController.getInitialSurrounding();
     }
 
     public void end() {
-        stop.set(true);
+        started = false;
+        robotController.deregisterForBroadcast(broadcastCallback);
+        App.setROBOT_MOVABLE(true);
     }
 
-    @Override
-    public void run() {
-        stop.set(false);
-        App.setROBOT_MOVABLE(false);
-        boolean wallHug = true;
-        int counter = -1;
-        callback.invoke(Callback.WALL_HUGGING);
-        
-        while (!stop.get()) {
-            counter++;
+    private void endExploration() {
+        pathList.clear();
+        goHome();
+    }
 
-            while (!movable) {
-                if (stop.get()) return;
+    private void processBroadcast(RobotController.Broadcast broadcastType, boolean[] sensorData) {
+        if (goingHome) return;
 
-                try {
-                    sleep(10);
-                } catch (InterruptedException e) {
-                    Log.e("GG", "GG1");
-                }
+        if (!started) {
+            if (broadcastType == RobotController.Broadcast.TURN_COMPLETE) {
+                robotController.getInitialSurrounding();
+                return;
             }
 
-            if (robotController.coverageReached()) break;
-
-            if (robotController.isStartPointExact(robotController.getRobotPosition()) && counter > 0) {
-                wallHug = false;
-                callback.invoke(Callback.SEARCHING);
-            }
-
-            if (wallHug) {
-                movable = false;
-
-                if (robotController.canMove(RobotController.Direction.RIGHT)) {
-                    robotController.moveRobotJava(RobotController.Direction.RIGHT).join();
-                    continue;
-                }
-
-                if (robotController.canMove(RobotController.Direction.FORWARD)) {
-                    robotController.moveRobotJava(RobotController.Direction.FORWARD).join();
-                    continue;
-                }
-
-                if (robotController.canMove(RobotController.Direction.LEFT)) {
-                    robotController.moveRobotJava(RobotController.Direction.LEFT).join();
-                    continue;
-                }
-
-                robotController.turnRobotJava(RobotController.Direction.RIGHT).join();
-                continue;
-            }
-
-            if (!robotController.hasUnexploredGrid()) break;
-
-            if (!robotController.isGridExplored(RobotController.Direction.FORWARD)) {
-                if (robotController.canMove(RobotController.Direction.FORWARD)) {
-                    movable = false;
-                    robotController.moveRobotJava(RobotController.Direction.FORWARD).join();
-                    continue;
-                }
-            }
-
-            final int[] nearestCoordinates = findNearestUnexploredGrid();
-            if (!robotController.isValidCoordinates(nearestCoordinates, true)) break;
-
-            final int[] robotPosition = robotController.getRobotPosition();
-            final Pair<Double, List<int[]>> fastestPathToNearest = aStarSearch.findFastestPath(robotPosition, nearestCoordinates);
-            final List<int[]> pathList = fastestPathToNearest.second;
-            if (pathList.isEmpty()) break;
-
-            for (int[] pathCoordinates : pathList) {
-                if (stop.get()) return;
-
-                while (!movable) {
-                    if (stop.get()) return;
-
-                    try {
-                        sleep(10);
-                    } catch (InterruptedException e) {
-                        Log.e("GG", "GG2");
-                    }
-                }
-
-                if (!robotController.isGridExplored(RobotController.Direction.FORWARD)) {
-                    if (robotController.canMove(RobotController.Direction.FORWARD)) {
-                        movable = false;
-                        robotController.moveRobotJava(RobotController.Direction.FORWARD).join();
-                        break;
-                    }
-                }
-
-                movable = false;
-                robotController.moveRobotJava(pathCoordinates).join();
+            if (broadcastType == RobotController.Broadcast.MOVE_COMPLETE) {
+                started = true;
+                callback.invoke(Callback.START_CLOCK);
+                CHAAAAARGE();
+                return;
             }
         }
 
+        if (robotController.coverageReached()) {
+            endExploration();
+            return;
+        }
+
+        if (wallHug) {
+            final int[] robotPosition = robotController.getRobotPosition();
+            final int x = robotPosition[0];
+            final int y = robotPosition[1];
+
+            if (robotController.isStartPointExact(x, y)) {
+                wallHug = false;
+                callback.invoke(Callback.SEARCHING);
+                processBroadcast(broadcastType, sensorData);
+                return;
+            }
+
+            boolean frontObstructed = sensorData[0];
+            boolean rightObstructed = sensorData[1];
+            boolean leftObstructed = sensorData[2];
+
+            switch (broadcastType) {
+                case MOVE_COMPLETE:
+                    if (!rightObstructed) {
+                        robotController.turnRobot(RobotController.Direction.RIGHT);
+                        return;
+                    }
+
+                    CHAAAAARGE();
+                    break;
+
+                case TURN_COMPLETE:
+                    if (do180) {
+                        do180 = false;
+                        robotController.turnRobot(RobotController.Direction.RIGHT);
+                        return;
+                    }
+
+                    CHAAAAARGE();
+                    break;
+
+                case OBSTRUCTED:
+                    if (frontObstructed && rightObstructed && leftObstructed) {
+                        do180 = true;
+                        robotController.turnRobot(RobotController.Direction.RIGHT);
+                        return;
+                    }
+
+                    if (!rightObstructed) {
+                        robotController.turnRobot(RobotController.Direction.RIGHT);
+                        return;
+                    }
+
+                    if (!leftObstructed) {
+                        robotController.turnRobot(RobotController.Direction.LEFT);
+                        return;
+                    }
+
+                    break;
+            }
+
+            return;
+        }
+
+        if (!robotController.hasUnexploredGrid()) {
+            endExploration();
+            return;
+        }
+
+        if (!robotController.isGridExplored(RobotController.Direction.FORWARD)) {
+            CHAAAAARGE();
+            return;
+        }
+
+        if (pathList.isEmpty() || broadcastType == RobotController.Broadcast.OBSTRUCTED) {
+            final int[] nearestCoordinates = findNearestUnexploredGrid();
+
+            if (!robotController.isValidCoordinates(nearestCoordinates, true)) {
+                endExploration();
+                return;
+            }
+
+            final int[] robotPosition = robotController.getRobotPosition();
+            final Pair<Double, List<int[]>> fastestPathToNearest = aStarSearch.findFastestPath(robotPosition, nearestCoordinates);
+            pathList.clear();
+            pathList = fastestPathToNearest.second;
+
+            if (pathList.isEmpty()) {
+                endExploration();
+                return;
+            }
+        }
+
+        int[] coordinates = pathList.get(0);
+        pathList.remove(0);
+        robotController.moveRobot(coordinates);
+    }
+
+    private void goHome() {
+        if (!goingHome) goingHome = true;
         final int[] robotPosition = robotController.getRobotPosition();
         final int x = robotPosition[0];
         final int y = robotPosition[1];
 
         if (robotController.isStartPointExact(x, y)) {
             callback.invoke(Callback.COMPLETE);
+            end();
             return;
         }
 
-        callback.invoke(Callback.GOING_HOME);
-        final Pair<Double, List<int[]>> fastestPathToStart = aStarSearch.findFastestPath(robotPosition, robotController.getStartPosition());
-        final List<int[]> pathList = fastestPathToStart.second;
-        if (pathList.isEmpty()) return;
+        if (pathList.isEmpty()) {
+            callback.invoke(Callback.GOING_HOME);
+            final Pair<Double, List<int[]>> fastestPathToStart = aStarSearch.findFastestPath(robotPosition, robotController.getStartPosition());
+            pathList = fastestPathToStart.second;
 
-        for (int[] pathCoordinates : pathList) {
-            if (stop.get()) return;
-
-            while (!movable) {
-                if (stop.get()) return;
-
-                try {
-                    sleep(10);
-                } catch (InterruptedException e) {
-                    Log.e("GG", "GG3");
-                }
+            if (pathList.isEmpty()) {
+                end();
+                return;
             }
-
-            movable = false;
-            robotController.moveRobotJava(pathCoordinates).join();
         }
 
-        callback.invoke(Callback.COMPLETE);
-        App.setROBOT_MOVABLE(true);
+        int[] coordinates = pathList.get(0);
+        pathList.remove(0);
+        robotController.moveRobot(coordinates);
+    }
+
+    private void CHAAAAARGE() {
+        pathList.clear();
+        robotController.moveRobot(RobotController.Direction.FORWARD);
     }
 
     private int[] findNearestUnexploredGrid() {

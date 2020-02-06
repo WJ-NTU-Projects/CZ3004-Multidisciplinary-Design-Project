@@ -9,7 +9,6 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.coverageLimit
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationDelay
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationMode
-import ntu.mdp.android.mdptestkotlin.MainActivity
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.SettingsSimulationBinding
@@ -34,7 +33,7 @@ class SettingsSimulationActivity : AppCompatActivity() {
             simulationMode = isChecked
             simulationSpeedSeekBar.isEnabled = isChecked
             coverageLimitSeekBar.isEnabled = isChecked
-            simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else 200L
+            simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else (1000 / 3)
             coverageLimit = if (simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
 
             simulationSpeedSeekBar.progress = (1000.0 / simulationDelay).toInt() - 1

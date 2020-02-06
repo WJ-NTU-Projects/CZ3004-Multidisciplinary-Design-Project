@@ -2,13 +2,16 @@ package ntu.mdp.android.mdptestkotlin
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
 import android.util.TypedValue
+import android.view.GestureDetector
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -22,14 +25,20 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.CLICK_DELAY
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
+import ntu.mdp.android.mdptestkotlin.App.Companion.coverageLimit
 import ntu.mdp.android.mdptestkotlin.App.Companion.darkMode
+import ntu.mdp.android.mdptestkotlin.App.Companion.dialogTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
+import ntu.mdp.android.mdptestkotlin.App.Companion.simulationDelay
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationMode
 import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
 import ntu.mdp.android.mdptestkotlin.arena.RobotController
+import ntu.mdp.android.mdptestkotlin.utils.TouchController
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothMessageParser
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
+import ntu.mdp.android.mdptestkotlin.room.AppDatabase
+import ntu.mdp.android.mdptestkotlin.room.arena.Arena
 import ntu.mdp.android.mdptestkotlin.settings.SettingsBluetoothActivity
 import ntu.mdp.android.mdptestkotlin.settings.SettingsCommunicationActivity
 import ntu.mdp.android.mdptestkotlin.settings.SettingsSimulationActivity
@@ -43,6 +52,16 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     companion object {
         var currentMode: Mode = Mode.NONE
+        const val APP_EXIT_CODE = 1000
+        const val BLUETOOTH_ENABLE_CODE = 1100
+        const val BLUETOOTH_NOT_SUPPORTED_CODE = 1200
+        const val SAVE_REQUEST_CODE = 10000
+        const val LOAD_REQUEST_CODE = 10001
+        const val RESET_ARENA_CODE = 11000
+        const val CLEAR_ARENA_CODE = 11001
+        const val CLEAR_MESSAGE_CODE = 12000
+        const val LONG_PRESS_CHOICE_CODE = 13000
+        const val PLOT_FASTEST_PATH_CODE = 13001
     }
 
     enum class Mode {
@@ -93,15 +112,11 @@ class MainActivity : AppCompatActivity() {
             ArenaV2.Callback.UPDATE_STATUS -> statusCardLabel.text = message
 
             ArenaV2.Callback.LONG_PRESS_CHOICE -> {
-                activityUtil.sendYesNoDialog("Plot which?", "START", "GOAL") {
-                    robotController.selectPoint(it)
-                }
+                activityUtil.sendYesNoDialog(LONG_PRESS_CHOICE_CODE, "Plot which?", leftLabel = "START", rightLabel = "GOAL")
             }
 
             ArenaV2.Callback.PLOT_FASTEST_PATH -> {
-                activityUtil.sendYesNoDialog("Plot fastest path?") {
-                    if (it) robotController.plotFastestPath()
-                }
+                activityUtil.sendYesNoDialog(PLOT_FASTEST_PATH_CODE, "Plot fastest path?")
             }
 
             ArenaV2.Callback.RESET_ARENA -> resetArena(false)
@@ -126,13 +141,18 @@ class MainActivity : AppCompatActivity() {
                 Callback.SEARCHING -> displayInChat(MessageType.INCOMING, getString(R.string.searching_unexplored))
                 Callback.GOING_HOME -> displayInChat(MessageType.INCOMING, getString(R.string.going_home))
                 Callback.COMPLETE -> onStartClicked(Mode.NONE)
+                Callback.START_CLOCK -> startTimer()
             }
         }
     }
 
-    private val fastestPathCallback: () -> Unit = {
+    private val fastestPathCallback: (callback: Callback) -> Unit = { callback ->
         CoroutineScope(Dispatchers.Main).launch {
-            onStartClicked(Mode.NONE)
+            when (callback) {
+                Callback.COMPLETE -> onStartClicked(Mode.NONE)
+                Callback.START_CLOCK -> startTimer()
+                else -> return@launch
+            }
         }
     }
 
@@ -140,11 +160,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activityUtil           : ActivityUtil
     private lateinit var bluetoothAdapter       : BluetoothAdapter
     private lateinit var robotController        : RobotController
+    private lateinit var touchController        : TouchController
     private lateinit var bluetoothMessageParser : BluetoothMessageParser
+    private lateinit var database               : AppDatabase
     private lateinit var buttonList             : List<View>
     private lateinit var timer                  : CountDownTimer
     private lateinit var exploration            : Exploration
     private lateinit var fastestPath            : FastestPath
+    private lateinit var titleGestureDetector   : GestureDetector
     private var lastClickTime                   : Long = 0L
     private var isTablet                        : Boolean = false
 
@@ -160,36 +183,57 @@ class MainActivity : AppCompatActivity() {
         activityUtil.toggleProgressBar(View.VISIBLE, opaque = true, instant = true)
 
         if (BluetoothAdapter.getDefaultAdapter() == null) {
-            activityUtil.sendDialog(getString(R.string.error_bluetooth_not_supported), finish = true)
+            activityUtil.sendDialog(BLUETOOTH_NOT_SUPPORTED_CODE, getString(R.string.error_bluetooth_not_supported))
             return
         }
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         buttonList = listOf(exploreButton, fastestPathButton, plotButton, saveMapButton, loadMapButton, clearArenaButton, f1Button, f2Button, messagesOutputEditText, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
-        robotController = RobotController(this, binding, robotControllerCallback)
+        robotController = RobotController(this, robotControllerCallback)
+        touchController = TouchController(this, binding, robotController, robotControllerCallback)
         bluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
+        database = AppDatabase.getDatabase(applicationContext)
         isTablet = resources.getBoolean(R.bool.isTablet)
 
         padForwardButton.isClickable = false
         padReverseButton.isClickable = false
         padLeftButton.isClickable = false
         padRightButton.isClickable = false
-        controllerPad.setOnTouchListener(robotController.getTouchListener())
+        controllerPad.setOnTouchListener(touchController.getTouchListener())
         messagesOutputEditText.setOnKeyListener(onEnter)
+
+        titleGestureDetector = GestureDetector(applicationContext, object: GestureDetector.SimpleOnGestureListener() {
+            override fun onLongPress(e: MotionEvent?) {
+                simulationButton.visibility = if (simulationButton.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+
+                if (simulationButton.visibility == View.GONE) {
+                    simulationMode = false
+                    sharedPreferences.edit().putBoolean(getString(R.string.app_pref_simulation_mode), false).apply()
+                    simulationDelay = (1000 / 3)
+                    coverageLimit = 100
+                }
+            }
+        })
+
+        appTitle.setOnTouchListener { _, event ->
+            titleGestureDetector.onTouchEvent(event)
+            return@setOnTouchListener true
+        }
     }
 
     override fun onStart() {
         super.onStart()
         if (BluetoothAdapter.getDefaultAdapter() == null) return
-        if (!bluetoothAdapter.isEnabled) startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 1000)
+        if (!bluetoothAdapter.isEnabled) startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE)
     }
 
     override fun onResume() {
         super.onResume()
         if (BluetoothAdapter.getDefaultAdapter() == null) return
-        if (!isTablet) robotController.toggleSwipeMode(true)
+        if (!isTablet) touchController.toggleSwipeMode(true)
         f1Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default))
         f2Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default))
+        simulationButton.visibility = if (simulationMode) View.VISIBLE else View.GONE
         statusCardLabel.text = getString(R.string.idle)
         if (!bluetoothAdapter.isEnabled) activityUtil.sendSnack(getString(R.string.error_bluetooth_off))
         else startBluetoothListener()
@@ -203,7 +247,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        activityUtil.sendYesNoDialog(getString(R.string.exit_the_app)) { positive -> if (positive) activityUtil.finishActivity() }
+        activityUtil.sendYesNoDialog(APP_EXIT_CODE, getString(R.string.exit_the_app))
     }
 
     private fun startBluetoothListener() {
@@ -234,16 +278,21 @@ class MainActivity : AppCompatActivity() {
             R.id.darkModeButton -> {
                 darkMode = !darkMode
                 sharedPreferences.edit().putBoolean(getString(R.string.app_pref_dark_mode), darkMode).apply()
-                appTheme = if (darkMode) R.style.AppTheme_Dark
-                else R.style.AppTheme
+
+                if (darkMode) {
+                    appTheme = R.style.AppTheme_Dark
+                    dialogTheme = R.style.DialogTheme_Dark
+                } else {
+                    appTheme = R.style.AppTheme
+                    dialogTheme = R.style.DialogTheme
+                }
+
                 //recreate()
                 activityUtil.startActivity(MainActivity::class.java, fade = true, startNew = true)
             }
 
             R.id.messageCardClearButton -> {
-                activityUtil.sendYesNoDialog(getString(R.string.clear_message_log)) {
-                    if (it) messagesTextView?.text = ""
-                }
+                activityUtil.sendYesNoDialog(CLEAR_MESSAGE_CODE, getString(R.string.clear_message_log))
             }
 
             R.id.exploreButton -> {
@@ -276,20 +325,20 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.controlModeButton -> {
-                robotController.toggleSwipeMode()
+                touchController.toggleSwipeMode()
                 val typedValue = TypedValue()
-                theme.resolveAttribute(if (robotController.getSwipeMode()) R.attr.colorAccentTheme else R.attr.colorAccentLighterTheme, typedValue, true)
+                theme.resolveAttribute(if (touchController.getSwipeMode()) R.attr.colorAccentTheme else R.attr.colorAccentLighterTheme, typedValue, true)
                 @ColorInt val color = typedValue.data
                 controlModeButton.setTextColor(color)
 
-                val animationId: Int = if (robotController.getSwipeMode()) R.anim.view_close else R.anim.view_open
+                val animationId: Int = if (touchController.getSwipeMode()) R.anim.view_close else R.anim.view_open
                 val animation: Animation =  AnimationUtils.loadAnimation(applicationContext, animationId)
                 animation.duration = ANIMATOR_DURATION
                 animation.setAnimationListener(object : Animation.AnimationListener {
                     override fun onAnimationRepeat(p0: Animation?) {}
 
                     override fun onAnimationStart(p0: Animation?) {
-                        if (!robotController.getSwipeMode()) {
+                        if (!touchController.getSwipeMode()) {
                             padForwardButton.visibility = View.VISIBLE
                             padReverseButton.visibility = View.VISIBLE
                             padLeftButton.visibility = View.VISIBLE
@@ -298,7 +347,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onAnimationEnd(animation: Animation?) {
-                        if (robotController.getSwipeMode()) {
+                        if (touchController.getSwipeMode()) {
                             padForwardButton.visibility = View.INVISIBLE
                             padReverseButton.visibility = View.INVISIBLE
                             padLeftButton.visibility = View.INVISIBLE
@@ -389,7 +438,7 @@ class MainActivity : AppCompatActivity() {
                     CoroutineScope(Dispatchers.Main).launch {
                         robotController.saveObstacles()
                         robotController.resetGoalPoint()
-                        if (::exploration.isInitialized && exploration.isAlive) exploration.end()
+                        if (::exploration.isInitialized) exploration.end()
                         exploration = Exploration(robotController, explorationCallback)
                         exploration.start()
                     }
@@ -399,15 +448,15 @@ class MainActivity : AppCompatActivity() {
                     CoroutineScope(Dispatchers.Main).launch {
                         robotController.resetWaypoint()
                         robotController.resetGoalPoint()
-                        if (::fastestPath.isInitialized && fastestPath.isAlive) fastestPath.end()
+                        if (::fastestPath.isInitialized) fastestPath.end()
                         fastestPath = FastestPath(robotController, fastestPathCallback)
                         fastestPath.start()
                     }
                 }
 
                 else -> {
-                    if (::exploration.isInitialized && exploration.isAlive) exploration.end()
-                    if (::fastestPath.isInitialized && fastestPath.isAlive) fastestPath.end()
+                    if (::exploration.isInitialized) exploration.end()
+                    if (::fastestPath.isInitialized) fastestPath.end()
                     statusCardLabel.text = getString(R.string.idle)
                 }
             }
@@ -416,22 +465,22 @@ class MainActivity : AppCompatActivity() {
         when (mode) {
             Mode.EXPLORATION -> {
                 sendCommand(sharedPreferences.getString(getString(R.string.app_pref_exploration), getString(R.string.exploration_default))!!)
-                startTimer()
                 buttonList.forEach { it.isEnabled = false }
                 exploreButton.isEnabled = true
                 exploreButton.setImageDrawable(getDrawable(R.drawable.ic_pause))
                 modeCardLabel.text = getString(R.string.exploration)
                 displayInChat(MessageType.SYSTEM, getString(R.string.started_something, "exploration."))
+                if (!simulationMode) startTimer()
             }
 
             Mode.FASTEST_PATH -> {
                 sendCommand(sharedPreferences.getString(getString(R.string.app_pref_fastest), getString(R.string.fastest_path_default))!!)
-                startTimer()
                 buttonList.forEach { it.isEnabled = false }
                 fastestPathButton.isEnabled = true
                 fastestPathButton.setImageDrawable(getDrawable(R.drawable.ic_pause))
                 modeCardLabel.text = getString(R.string.fastest_path)
                 displayInChat(MessageType.SYSTEM, getString(R.string.started_something, "fastest path."))
+                if (!simulationMode) startTimer()
             }
 
             Mode.NONE -> {
@@ -445,31 +494,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         currentMode = mode
-    }
-
-    private fun onMapSaveClicked() {
-        activityUtil.sendYesNoDialog(getString(R.string.save_map_prompt), leftLabel = getString(R.string.yes), rightLabel = getString(R.string.no)) {
-            if (it) {
-                val save: String = robotController.getMapDescriptor()
-                sharedPreferences.edit().putString(getString(R.string.app_pref_map_descriptor_1), save).apply()
-                activityUtil.sendSnack(getString(R.string.map_saved))
-            }
-        }
-    }
-
-    private fun onMapLoadClicked() {
-        activityUtil.sendYesNoDialog(getString(R.string.load_map_prompt), leftLabel = getString(R.string.yes), rightLabel = getString(R.string.no)) {
-            if (it) {
-                val load: String = sharedPreferences.getString(getString(R.string.app_pref_map_descriptor_1), "") ?: ""
-                if (load.isEmpty()) {
-                    activityUtil.sendSnack(getString(R.string.no_save_data))
-                } else {
-                    Log.e("LOAD", load)
-                    robotController.resetArena()
-                    robotController.updateArena(load)
-                }
-            }
-        }
     }
 
     private fun startTimer() {
@@ -491,18 +515,12 @@ class MainActivity : AppCompatActivity() {
     private fun stopTimer() {
         val type: String = if (currentMode == Mode.EXPLORATION) getString(R.string.exploration) else getString(R.string.fastest_path)
         displayInChat(MessageType.SYSTEM, "$type - ${timerCardLabel.text.toString().trim()}")
-        timer.cancel()
+        if (::timer.isInitialized) timer.cancel()
     }
 
     private fun resetArena(clear: Boolean) {
         val s = if (clear) getString(R.string.clear_arena_timer) else getString(R.string.reset_arena_timer)
-        activityUtil.sendYesNoDialog(s) {
-            if (it) {
-                if (clear) robotController.clearArena()
-                else robotController.resetArena()
-                timerCardLabel.text = getString(R.string.timer_default)
-            }
-        }
+        activityUtil.sendYesNoDialog(if (clear) CLEAR_ARENA_CODE else RESET_ARENA_CODE, s)
     }
 
     private fun connectionChanged(status: BluetoothController.Status) {
@@ -543,6 +561,127 @@ class MainActivity : AppCompatActivity() {
         } catch (e: NumberFormatException) {
             activityUtil.sendSnack(getString(R.string.something_went_wrong))
             return
+        }
+    }
+
+
+    private fun onMapSaveClicked() {
+        startActivityForResult(Intent(this, MapSaveActivity::class.java), SAVE_REQUEST_CODE)
+
+        /*
+        activityUtil.sendYesNoDialog(getString(R.string.save_map_prompt), leftLabel = getString(R.string.yes), rightLabel = getString(R.string.no)) {
+            if (it) {
+                val save: String = robotController.getMapDescriptor()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_map_descriptor_1), save).apply()
+                activityUtil.sendSnack(getString(R.string.map_saved))
+            }
+        }
+        */
+    }
+
+    private fun onMapLoadClicked() {
+        startActivityForResult(Intent(this, MapLoadActivity::class.java), LOAD_REQUEST_CODE)
+        /*
+        activityUtil.sendYesNoDialog(getString(R.string.load_map_prompt), leftLabel = getString(R.string.yes), rightLabel = getString(R.string.no)) {
+            if (it) {
+                val load: String = sharedPreferences.getString(getString(R.string.app_pref_map_descriptor_1), "") ?: ""
+                if (load.isEmpty()) {
+                    activityUtil.sendSnack(getString(R.string.no_save_data))
+                } else {
+                    Log.e("LOAD", load)
+                    robotController.resetArena()
+                    robotController.updateArena(load)
+                }
+            }
+        }
+
+         */
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == LONG_PRESS_CHOICE_CODE) {
+            if (resultCode == Activity.RESULT_OK) robotController.selectPoint(true)
+            else if (resultCode == Activity.RESULT_CANCELED) robotController.selectPoint(false)
+            return
+        }
+
+        if (resultCode != Activity.RESULT_OK) return
+
+        when (requestCode) {
+            BLUETOOTH_NOT_SUPPORTED_CODE, APP_EXIT_CODE -> activityUtil.finishActivity()
+            CLEAR_MESSAGE_CODE -> messagesTextView?.text = ""
+            PLOT_FASTEST_PATH_CODE -> robotController.plotFastestPath()
+
+            CLEAR_ARENA_CODE -> {
+                robotController.clearArena()
+                timerCardLabel.text = getString(R.string.timer_default)
+            }
+
+            RESET_ARENA_CODE -> {
+                robotController.resetArena()
+                timerCardLabel.text = getString(R.string.timer_default)
+            }
+
+            SAVE_REQUEST_CODE -> {
+                val name: String? = data?.getStringExtra(getString(R.string.app_result_map_name))
+
+                if (name == null) {
+                    activityUtil.sendSnack(getString(R.string.something_went_wrong))
+                    return
+                }
+
+                val save: List<String> = robotController.getMapDescriptor().split("//")
+
+                if (save.size != 2) {
+                    activityUtil.sendSnack(getString(R.string.something_went_wrong))
+                    return
+                }
+
+                val start: IntArray = robotController.getStartPosition()
+                val waypoint: IntArray = robotController.getWaypointPosition()
+                val goal: IntArray = robotController.getGoalPosition()
+                val arena = Arena(0, name, save[0], save[1], startX = start[0], startY = start[1], waypointX = waypoint[0], waypointY = waypoint[1], goalX = goal[0], goalY = goal[1])
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    database.arenaDao().insert(arena)
+                }.invokeOnCompletion {
+                    activityUtil.sendSnack(getString(R.string.map_saved))
+                }
+
+                return
+            }
+
+            LOAD_REQUEST_CODE -> {
+                val id: Int = data?.getIntExtra(getString(R.string.app_result_map_id), -1) ?: -1
+
+                if (id < 0) {
+                    activityUtil.sendSnack(getString(R.string.something_went_wrong))
+                    return
+                }
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    val arena: Arena? = database.arenaDao().selectById(id)
+
+                    if (arena == null) {
+                        activityUtil.sendSnack(getString(R.string.something_went_wrong))
+                        return@launch
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        robotController.emptyArena()
+                        robotController.setStartPoint(arena.startX, arena.startY)
+                        robotController.setGoalPoint(arena.goalX, arena.goalY)
+                        if (robotController.isValidCoordinates(arena.waypointX, arena.waypointY)) robotController.setWaypoint(arena.waypointX, arena.waypointY)
+
+                        val descriptor = "${arena.map_descriptor}//${arena.obstacle_descriptor}"
+                        robotController.updateArena(descriptor)
+                    }
+                }.invokeOnCompletion {
+                    activityUtil.sendSnack(getString(R.string.map_loaded))
+                }
+            }
         }
     }
 }

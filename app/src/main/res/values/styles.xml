@@ -11,23 +11,23 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorAccent</item>
-        <item name="colorOnPrimary">@color/colorPrimary</item>
-        <item name="colorSecondary">@color/colorAccent</item>
-        <item name="colorOnSecondary">@color/colorPrimary</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorSecondary">@color/colorPrimary</item>
+        <item name="colorOnSecondary">@color/colorOnPrimary</item>
         <item name="colorError">@android:color/holo_red_dark</item>
-        <item name="colorOnError">@color/colorPrimary</item>
-        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="colorOnError">@color/colorOnPrimary</item>
+        <item name="android:statusBarColor">@color/colorOnPrimary</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:colorBackground">@color/colorPrimary</item>
+        <item name="android:colorBackground">@color/colorOnPrimary</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">@dimen/text_size_default</item>
         <item name="android:windowActivityTransitions">true</item>
-        <item name="colorBackgroundTheme">@color/colorPrimary</item>
+        <item name="colorBackgroundTheme">@color/colorOnPrimary</item>
         <item name="colorCardBackground">@color/cardColor</item>
         <item name="appEditText">@style/AppEditText</item>
-        <item name="colorAccentTheme">@color/colorAccent</item>
-        <item name="colorAccentLighterTheme">@color/colorAccentLighter</item>
+        <item name="colorAccentTheme">@color/colorPrimary</item>
+        <item name="colorAccentLighterTheme">@color/colorAccent</item>
         <item name="speedSlowIconSrc">@drawable/ic_speed_slow</item>
         <item name="speedFastIconSrc">@drawable/ic_speed_fast</item>
         <item name="coverageLessIconSrc">@drawable/ic_coverage_less</item>
@@ -40,23 +40,23 @@
     </style>
 
     <style name="AppTheme.Dark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/colorAccentDark</item>
-        <item name="colorOnPrimary">@color/colorPrimaryDark</item>
-        <item name="colorSecondary">@color/colorAccentDark</item>
-        <item name="colorOnSecondary">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryDark</item>
+        <item name="colorSecondary">@color/colorPrimaryDark</item>
+        <item name="colorOnSecondary">@color/colorOnPrimaryDark</item>
         <item name="colorError">@android:color/holo_red_dark</item>
-        <item name="colorOnError">@color/colorPrimaryDark</item>
-        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="colorOnError">@color/colorOnPrimaryDark</item>
+        <item name="android:statusBarColor">@color/colorOnPrimaryDark</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:colorBackground">@color/colorPrimaryDark</item>
+        <item name="android:colorBackground">@color/colorOnPrimaryDark</item>
         <item name="android:textColor">@color/textColorDark</item>
         <item name="android:textSize">@dimen/text_size_default</item>
         <item name="android:windowActivityTransitions">true</item>
-        <item name="colorBackgroundTheme">@color/colorPrimaryDark</item>
+        <item name="colorBackgroundTheme">@color/colorOnPrimaryDark</item>
         <item name="colorCardBackground">@color/cardColorDark</item>
         <item name="appEditText">@style/AppEditText.Dark</item>
-        <item name="colorAccentTheme">@color/colorAccentDark</item>
-        <item name="colorAccentLighterTheme">@color/colorAccentLighterDark</item>
+        <item name="colorAccentTheme">@color/colorPrimaryDark</item>
+        <item name="colorAccentLighterTheme">@color/colorAccentDark</item>
         <item name="speedSlowIconSrc">@drawable/ic_speed_slow_dark</item>
         <item name="speedFastIconSrc">@drawable/ic_speed_fast_dark</item>
         <item name="coverageLessIconSrc">@drawable/ic_coverage_less_dark</item>
@@ -66,6 +66,52 @@
         <item name="simulationIconSrc">@drawable/ic_simulation_dark</item>
         <item name="changeThemeIconSrc">@drawable/ic_change_theme_dark</item>
         <item name="colorTextTheme">@color/textColorDark</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorSecondary">@color/colorPrimary</item>
+        <item name="colorOnSecondary">@color/colorOnPrimary</item>
+        <item name="colorError">@android:color/holo_red_dark</item>
+        <item name="colorOnError">@color/colorOnPrimary</item>
+        <item name="android:statusBarColor">@color/colorOnPrimary</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:colorBackground">@color/colorOnPrimary</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textSize">@dimen/text_size_default</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="colorBackgroundTheme">@color/colorOnPrimary</item>
+        <item name="colorCardBackground">@color/cardColor</item>
+        <item name="appEditText">@style/AppEditText</item>
+        <item name="colorTextTheme">@color/textColor</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="DialogTheme.Dark" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryDark</item>
+        <item name="colorSecondary">@color/colorPrimaryDark</item>
+        <item name="colorOnSecondary">@color/colorOnPrimaryDark</item>
+        <item name="colorError">@android:color/holo_red_dark</item>
+        <item name="colorOnError">@color/colorOnPrimaryDark</item>
+        <item name="android:statusBarColor">@color/colorOnPrimaryDark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:colorBackground">@color/colorOnPrimaryDark</item>
+        <item name="android:textColor">@color/textColorDark</item>
+        <item name="android:textSize">@dimen/text_size_default</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="colorBackgroundTheme">@color/colorOnPrimaryDark</item>
+        <item name="colorCardBackground">@color/cardColorDark</item>
+        <item name="appEditText">@style/AppEditText.Dark</item>
+        <item name="colorTextTheme">@color/textColorDark</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="AppTheme.Launcher" parent="AppTheme.Dark">
@@ -90,6 +136,8 @@
         <item name="cardBackgroundColor">?attr/colorCardBackground</item>
         <item name="cardElevation">2dp</item>
         <item name="android:clipToPadding">false</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="DataCard.Toolbar">
@@ -150,6 +198,12 @@
         <item name="android:layout_marginEnd">2dp</item>
     </style>
 
+    <style name="UIButton.Dialog">
+        <item name="android:layout_marginTop">@dimen/screen_padding</item>
+        <item name="android:layout_marginEnd">@dimen/screen_padding</item>
+        <item name="android:layout_width">100dp</item>
+    </style>
+
     <style name="FAB" parent="Widget.MaterialComponents.FloatingActionButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -185,6 +239,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginEnd">@dimen/toolbar_padding</item>
+        <item name="android:padding">@dimen/element_padding</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:onClick">clickUiButton</item>
@@ -197,6 +252,11 @@
 
     <style name="AppTextView.Toolbar">
         <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="AppTextView.Title">
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">true</item>
     </style>

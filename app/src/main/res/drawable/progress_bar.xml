@@ -7,7 +7,7 @@
 
         <size android:width="76dip" android:height="76dip" />
         <gradient android:type="sweep" android:useLevel="false"
-            android:startColor="@color/colorAccent"
+            android:startColor="@color/colorPrimary"
             android:endColor="@color/progressBarEnd"
             android:angle="0"
             />

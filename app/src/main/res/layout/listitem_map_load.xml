@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?android:attr/selectableItemBackground"
+    tools:context=".MapLoadActivity">
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/AppTextView"
+        android:id="@+id/listitem_map_load_label"
+        android:paddingTop="@dimen/screen_padding"
+        android:paddingBottom="@dimen/screen_padding"
+        android:paddingLeft="@dimen/settings_padding"
+        android:paddingRight="@dimen/settings_padding"
+        android:text="@string/app_name" />
+</LinearLayout>

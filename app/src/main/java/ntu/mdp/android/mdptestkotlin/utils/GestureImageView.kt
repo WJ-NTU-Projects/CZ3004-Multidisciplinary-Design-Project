@@ -2,7 +2,6 @@ package ntu.mdp.android.mdptestkotlin.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatImageView
@@ -32,10 +31,6 @@ class GestureImageView(c: Context): AppCompatImageView(c) {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (event?.action != MotionEvent.ACTION_MOVE) {
-            Log.e("EVENT", event.toString())
-        }
-
         gestureDetector.onTouchEvent(event)
         return true
     }

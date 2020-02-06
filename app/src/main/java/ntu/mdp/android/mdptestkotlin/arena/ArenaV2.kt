@@ -3,6 +3,7 @@ package ntu.mdp.android.mdptestkotlin.arena
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import android.util.Log
 import android.widget.GridLayout
 import android.widget.ImageView
@@ -24,6 +25,8 @@ import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.simulation.AStarSearch
 import ntu.mdp.android.mdptestkotlin.utils.GestureImageView
+import java.lang.Exception
+import java.time.LocalDateTime
 import kotlin.math.abs
 
 open class ArenaV2 (private val context: Context, private val callback: (status: Callback, message: String) -> Unit) {
@@ -33,6 +36,14 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         const val exploredBit = 1
 
         var isWaitingUpdate = false
+    }
+
+    enum class Direction {
+        NONE,
+        FORWARD,
+        REVERSE,
+        LEFT,
+        RIGHT
     }
 
     enum class PlotFunction {
@@ -66,7 +77,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
 
     enum class Broadcast {
         MOVE_COMPLETE,
-        WAIT_TURN_COMPLETE,
+        OBSTRUCTED,
         TURN_COMPLETE
     }
 
@@ -83,6 +94,9 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
     private val gridParent      : RelativeLayout = (context as Activity).findViewById(R.id.gridParent)
     private val gridLayout      : GridLayout = (context as Activity).findViewById(R.id.main_grid_arena)
     private val robotDisplay    : ImageView = ImageView(context)
+    private val startDisplay    : ImageView = ImageView(context)
+    private val goalDisplay     : ImageView = ImageView(context)
+    private val waypointDisplay : ImageView = ImageView(context)
 
     private val gridTypeArray   : Array<Array<GridType>> = Array(20) { Array(15) { GridType.UNEXPLORED }}
     private val exploreArray    : Array<Array<Int>> = Array(20) { Array(15) { unexploredBit }}
@@ -94,10 +108,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
     private var viewOnHold      : GestureImageView = GestureImageView(context)
     private var currentFunction : PlotFunction = PlotFunction.NONE
 
-    private var broadcastList   : ArrayList<(Broadcast) -> Unit> = arrayListOf()
-    private var waitingForTurn  : Boolean = false
-    private var waitingForTurnX : Int = -1
-    private var waitingForTurnY : Int = -1
+    private var broadcastList   : ArrayList<(Broadcast, BooleanArray) -> Unit> = arrayListOf()
     private var lastMoveTime    : Long = 0L
 
     private val gestureCallback : (view: GestureImageView, gesture: GestureImageView.Gesture) -> Unit = { view, gesture ->
@@ -105,17 +116,6 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             GestureImageView.Gesture.DOUBLE_TAP -> gridDoubleTap(view)
             GestureImageView.Gesture.LONG_PRESS -> gridLongPress(view)
             GestureImageView.Gesture.FLING_LEFT, GestureImageView.Gesture.FLING_RIGHT, GestureImageView.Gesture.FLING_DOWN, GestureImageView.Gesture.FLING_UP -> gridFling(gesture)
-        }
-    }
-
-    private val broadcastCallback : (broadcastType: Broadcast) -> Unit = { broadcastType ->
-        if (broadcastType == Broadcast.WAIT_TURN_COMPLETE) {
-            if (isValidCoordinates(waitingForTurnX, waitingForTurnY)) {
-                CoroutineScope(Dispatchers.Main).launch {
-                    waitingForTurn = false
-                    actuallyMoveRobot(waitingForTurnX, waitingForTurnY, robotPosition[2])
-                }
-            }
         }
     }
 
@@ -139,15 +139,49 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             }
         }
 
+        startDisplay.layoutParams = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3)
+        startDisplay.setBackgroundColor(Color.TRANSPARENT)
+        startDisplay.setImageDrawable(context.getDrawable(R.drawable.img_startpoint))
+        startDisplay.alpha = 1.0f
+        gridParent.addView(startDisplay)
+
+        try {
+            val coordinatesStr: String = sharedPreferences.getString(context.getString(R.string.app_pref_start_position), "1, 1") ?: "1, 1"
+            val coordinates: List<String> = coordinatesStr.split(", ")
+            setStartPoint(coordinates[0].toInt(), coordinates[1].toInt())
+        } catch (e: Exception) {
+            Log.e("GG", "GG!", e)
+            setStartPoint(1, 1)
+        }
+
+        goalDisplay.layoutParams = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3)
+        goalDisplay.setBackgroundColor(Color.TRANSPARENT)
+        goalDisplay.setImageDrawable(context.getDrawable(R.drawable.img_goalpoint))
+        goalDisplay.alpha = 1.0f
+        gridParent.addView(goalDisplay)
+
+        try {
+            val coordinatesStr: String = sharedPreferences.getString(context.getString(R.string.app_pref_goal_position), "13, 18") ?: "13, 18"
+            val coordinates: List<String> = coordinatesStr.split(", ")
+            setGoalPoint(coordinates[0].toInt(), coordinates[1].toInt())
+        } catch (e: Exception) {
+            Log.e("GG", "GG!", e)
+            setGoalPoint(13, 18)
+        }
+
+        waypointDisplay.layoutParams = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3)
+        waypointDisplay.setBackgroundColor(Color.TRANSPARENT)
+        waypointDisplay.setImageDrawable(context.getDrawable(R.drawable.img_waypoint))
+        waypointDisplay.alpha = 0.0f
+        gridParent.addView(waypointDisplay)
+
         robotDisplay.layoutParams = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3)
         robotDisplay.setBackgroundColor(Color.TRANSPARENT)
         robotDisplay.alpha = 1.0f
         gridParent.addView(robotDisplay)
         updateRobotImage(0)
-        setStartPoint(1, 1)
-        setGoalPoint(13, 18)
+
         callback(Callback.UPDATE_STATUS, context.getString(R.string.idle))
-        registerForBroadcast(broadcastCallback)
     }
 
     fun clearArena() {
@@ -158,10 +192,31 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             }
         }
 
+        CoroutineScope(Dispatchers.Main).launch {
+            moveRobotToStart()
+        }
+
+        waypointDisplay.alpha = 0.0f
+        resetStartPoint()
+        resetGoalPoint()
         updateRobotImage(0)
-        setStartPoint(1, 1)
-        setGoalPoint(13, 18)
         callback(Callback.UPDATE_STATUS, context.getString(R.string.idle))
+    }
+
+    fun emptyArena() {
+        if (isValidCoordinates(waypointPosition, true)) setWaypoint(waypointPosition[0], waypointPosition[1])
+
+        for (y in 19 downTo 0) {
+            for (x in 0..14) {
+                setUnexploredForced(x, y)
+            }
+        }
+
+        waypointDisplay.alpha = 0.0f
+        startPosition[0] = -1
+        startPosition[1] = -1
+        goalPosition[0] = -1
+        goalPosition[1] = -1
     }
 
     fun resetArena() {
@@ -172,9 +227,14 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             }
         }
 
+        CoroutineScope(Dispatchers.Main).launch {
+            moveRobotToStart()
+        }
+
+        waypointDisplay.alpha = 0.0f
+        resetStartPoint()
+        resetGoalPoint()
         updateRobotImage(0)
-        setStartPoint(1, 1)
-        setGoalPoint(13, 18)
         callback(Callback.UPDATE_STATUS, context.getString(R.string.idle))
     }
 
@@ -242,19 +302,25 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
     }
 
-    private suspend fun broadcast(broadcastType: Broadcast) = withContext(Dispatchers.Default) {
-        for (f in broadcastList) {
-            f.invoke(broadcastType)
+    protected suspend fun broadcast(broadcastType: Broadcast, sensorData: BooleanArray) = withContext(Dispatchers.Main) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Log.e("BROADCASTING", "${LocalDateTime.now()}: ${robotPosition[0]}, ${robotPosition[1]}, ${robotPosition[2]}, $broadcastType, [${sensorData[0]}, ${sensorData[1]}, ${sensorData[2]}]")
         }
 
-        i++
+        for (f in broadcastList) {
+            f.invoke(broadcastType, sensorData)
+        }
     }
 
-    fun registerForBroadcast(f: (broadcastType: Broadcast) -> Unit) {
+    fun registerForBroadcast(f: (broadcastType: Broadcast, sensorData: BooleanArray) -> Unit) {
         broadcastList.add(f)
     }
 
-    suspend fun moveRobotToStart() = withContext(Dispatchers.Main) {
+    fun deregisterForBroadcast(f: (broadcastType: Broadcast, sensorData: BooleanArray) -> Unit) {
+        broadcastList.remove(f)
+    }
+
+    private suspend fun moveRobotToStart() = withContext(Dispatchers.Main) {
         updateRobot(startPosition[0], startPosition[1])
     }
 
@@ -264,8 +330,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         val y: Int = coordinates[1]
         val broadcastType: Broadcast =
             if (x == robotPosition[0] && y == robotPosition[1]) {
-                if (waitingForTurn) Broadcast.WAIT_TURN_COMPLETE
-                else Broadcast.TURN_COMPLETE
+                Broadcast.TURN_COMPLETE
             } else {
                 Broadcast.MOVE_COMPLETE
             }
@@ -280,24 +345,18 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         robotPosition[1] = y
         updateRobotImage(facing)
         setRobotPosition(x, y)
-        if (simulationMode) scan(x, y, facing)
         if (isWaypointExact(x, y)) setWaypointTouched()
         else if (isGoalPointExact(x, y)) setGoalPointTouched()
+        val sensorData: BooleanArray = if (simulationMode) scan(x, y, facing) else booleanArrayOf(false, false, false)
         lastMoveTime = System.currentTimeMillis()
+        elapsed = System.currentTimeMillis() - lastMoveTime
 
-        withContext(Dispatchers.Default) {
-            elapsed = System.currentTimeMillis() - lastMoveTime
-
-            if (elapsed < simulationDelay) {
-                delay(simulationDelay - elapsed)
-            }
-
-            Log.e("BROADCASTING", "$i, ${robotPosition[2]}, $broadcastType")
-            broadcast(broadcastType)
+        if (elapsed < simulationDelay) {
+            delay(simulationDelay - elapsed)
         }
-    }
 
-    private var i = 0
+        broadcast(broadcastType, sensorData)
+    }
 
     suspend fun turnRobot(facing: Int) = withContext(Dispatchers.Main) {
         callback(Callback.UPDATE_STATUS, context.getString(R.string.turning))
@@ -311,7 +370,6 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
                 return@withContext
             } else if (facingOffset == -90 || facingOffset == 270) {
                 callback(Callback.SEND_COMMAND, TURN_RIGHT_COMMAND)
-                Log.e("SENT COMMAND", "$i, SENT COMMAND RIGHT")
                 return@withContext
             }
         } else {
@@ -322,27 +380,20 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             }
 
             updateRobotImage(facing)
+            val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], facing) else booleanArrayOf(false, false, false)
             lastMoveTime = System.currentTimeMillis()
-            if (simulationMode) scan(robotPosition[0], robotPosition[1], facing)
+            elapsed = System.currentTimeMillis() - lastMoveTime
 
-            withContext(Dispatchers.Default) {
-                elapsed = System.currentTimeMillis() - lastMoveTime
-
-                if (elapsed < simulationDelay) {
-                    delay(simulationDelay - elapsed)
-                }
-
-                if (waitingForTurn) broadcast(Broadcast.WAIT_TURN_COMPLETE)
-                else broadcast(Broadcast.TURN_COMPLETE)
+            if (elapsed < simulationDelay) {
+                delay(simulationDelay - elapsed)
             }
+
+            broadcast(Broadcast.TURN_COMPLETE, sensorData)
         }
     }
 
-    protected suspend fun moveRobot(array: IntArray) = withContext(Dispatchers.Main) {
-        moveRobot(array[0], array[1])
-    }
-
-    protected suspend fun moveRobot(facing: Int) = withContext(Dispatchers.Main) {
+    suspend fun moveRobot(facing: Int) = withContext(Dispatchers.Main) {
+        val robotPosition: IntArray = getRobotPosition()
         val x = robotPosition[0]
         val y = robotPosition[1]
 
@@ -358,17 +409,13 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
     }
 
-    private suspend fun moveRobot(x: Int, y: Int) = withContext(Dispatchers.Main) {
+    suspend fun moveRobot(x: Int, y: Int) = withContext(Dispatchers.Main) {
         if (!isRobotMovable(x, y)) {
-            callback(Callback.UPDATE_STATUS, context.getString(R.string.blocked))
-            lastMoveTime = System.currentTimeMillis()
-            val elapsed: Long = System.currentTimeMillis() - lastMoveTime
+            callback(Callback.UPDATE_STATUS, context.getString(R.string.obstructed))
+            val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], robotPosition[2]) else booleanArrayOf(false, false, false)
 
-            if (elapsed < simulationDelay) {
-                delay(simulationDelay - elapsed)
-            }
 
-            broadcast(Broadcast.MOVE_COMPLETE)
+            broadcast(Broadcast.OBSTRUCTED, sensorData)
             return@withContext
         }
 
@@ -400,21 +447,20 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             }
 
             facing = currentFacing
-            //if (direction != previousFacing) delay(simulationDelay)
         }
 
         if (facing != currentFacing) {
-            waitingForTurn = true
-            waitingForTurnX = x
-            waitingForTurnY = y
-            turnRobot(facing)
-            return@withContext
+            val elapsed: Long = System.currentTimeMillis() - lastMoveTime
+
+            if (elapsed < simulationDelay) {
+                delay(simulationDelay - elapsed)
+            }
+
+            updateRobotImage(facing)
+            scan(robotPosition[0], robotPosition[1], facing)
+            lastMoveTime = System.currentTimeMillis()
         }
 
-        actuallyMoveRobot(x, y, facing)
-    }
-
-    private suspend fun actuallyMoveRobot(x: Int, y: Int, facing: Int) = withContext(Dispatchers.Main) {
         callback(Callback.UPDATE_STATUS, context.getString(R.string.moving))
         var elapsed: Long = System.currentTimeMillis() - lastMoveTime
 
@@ -429,20 +475,18 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
 
         setRobotPosition(x, y)
         robotPosition[2] = facing
-        lastMoveTime = System.currentTimeMillis()
-        if (simulationMode) scan(x, y, facing)
+        val sensorData: BooleanArray = if (simulationMode) scan(x, y, facing) else booleanArrayOf(false, false, false)
         if (isWaypointExact(x, y)) setWaypointTouched()
         else if (isGoalPointExact(x, y)) setGoalPointTouched()
 
-        withContext(Dispatchers.Default) {
-            elapsed = System.currentTimeMillis() - lastMoveTime
+        lastMoveTime = System.currentTimeMillis()
+        elapsed = System.currentTimeMillis() - lastMoveTime
 
-            if (elapsed < simulationDelay) {
-                delay(simulationDelay - elapsed)
-            }
-
-            broadcast(Broadcast.MOVE_COMPLETE)
+        if (elapsed < simulationDelay) {
+            delay(simulationDelay - elapsed)
         }
+
+        broadcast(Broadcast.MOVE_COMPLETE, sensorData)
     }
 
     private suspend fun setRobotPosition(x: Int, y: Int) = withContext(Dispatchers.Main) {
@@ -470,14 +514,10 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
 
     fun updateRobotImage(facing: Int = robotPosition[2]) {
         val drawable: Int = when (facing) {
-            //45 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_45_connected else R.drawable.ic_45
-            90 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_90_connected else R.drawable.ic_90
-            //135 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_135_connected else R.drawable.ic_135
-            180 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_180_connected else R.drawable.ic_180
-            //225 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_225_connected else R.drawable.ic_225
-            270 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_270_connected else R.drawable.ic_270
-            //315 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_315_connected else R.drawable.ic_315
-            0 -> if (BluetoothController.isSocketConnected()) R.drawable.ic_0_connected else R.drawable.ic_0
+            0 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_up else R.drawable.img_robot_up
+            90 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_right else R.drawable.img_robot_right
+            180 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_down else R.drawable.img_robot_down
+            270 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_left else R.drawable.img_robot_left
             else -> return
         }
 
@@ -508,78 +548,148 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
 
     private fun setObstacle(x: Int, y: Int) {
         if (isValidCoordinates(x, y)) plot(x, y, GridType.OBSTACLE)
-        else callback(Callback.MESSAGE, context.getString(R.string.obstructed))
+        else callback(Callback.MESSAGE, context.getString(R.string.cannot_plot))
     }
 
     private fun removeObstacle(x: Int, y: Int) {
         if (isValidCoordinates(x, y) && isObstacle(x, y)) plot(x, y, if (exploreArray[y][x] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
     }
 
-    private fun setStartPoint(x1: Int, y1: Int) {
+    fun setStartPoint(x1: Int, y1: Int) {
         val coordinates: IntArray = getValidCoordinates(x1, y1, true)
         val x: Int = coordinates[0]
         val y: Int = coordinates[1]
 
-        if (isOccupied(x, y)) {
+        if ((isOccupied(x, y) && !isStartPoint(x, y)) || isStartPointExact(x, y)) {
             if (isStartPointExact(x, y)) {
                 CoroutineScope(Dispatchers.Main).launch {
                     moveRobotToStart()
                 }
+            } else {
+                callback(Callback.MESSAGE, context.getString(R.string.cannot_plot))
             }
 
             return
         }
 
         if (isValidCoordinates(startPosition, true)) {
-            plotThree(startPosition, if (exploreArray[y][x] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
+            for (offsetY in -1 .. 1) {
+                for (offsetX in -1..1) {
+                    val newX = startPosition[0] + offsetX
+                    val newY = startPosition[1] + offsetY
+                    plot(newX, newY, if (exploreArray[newY][newX] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
+                }
+            }
         }
 
+        val anchorX = x - 1
+        val anchorY = y + 1
+
+        startDisplay.layoutParams  = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3).apply {
+            leftMargin = (anchorX * robotSize)
+            topMargin = (19 - anchorY) * robotSize
+        }
+
+        startDisplay.requestLayout()
         plot(x, y, GridType.START_POINT)
         startPosition[0] = x
         startPosition[1] = y
+        sharedPreferences.edit().putString(context.getString(R.string.app_pref_start_position), "$x, $y").apply()
+
+        for (offsetY in -1..1) {
+            for (offsetX in -1..1) {
+                val newX = x + offsetX
+                val newY = y + offsetY
+                setExplored(newX, newY)
+            }
+        }
 
         CoroutineScope(Dispatchers.Main).launch {
             moveRobotToStart()
         }
     }
 
-    private fun setWaypoint(x1: Int, y1: Int) {
+    fun setWaypoint(x1: Int, y1: Int) {
         val coordinates: IntArray = getValidCoordinates(x1, y1, true)
         val x: Int = coordinates[0]
         val y: Int = coordinates[1]
 
-        if (isWaypointExact(x, y)) {
-            plotThree(waypointPosition, if (exploreArray[y][x] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
-            waypointPosition[0] = -1
-            waypointPosition[1] = -1
+        if (isOccupied(x, y) && !isWaypoint(x, y)) {
+            if (!isWaypointExact(x, y)) {
+                callback(Callback.MESSAGE, context.getString(R.string.cannot_plot))
+            }
+
             return
         }
 
-        if (isOccupied(x, y)) return
+        if (isWaypointExact(x, y) || isValidCoordinates(waypointPosition, true)) {
+            for (offsetY in -1 .. 1) {
+                for (offsetX in -1..1) {
+                    val newX = waypointPosition[0] + offsetX
+                    val newY = waypointPosition[1] + offsetY
+                    plot(newX, newY, if (exploreArray[newY][newX] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
+                }
+            }
 
-        if (isValidCoordinates(waypointPosition, true)) {
-            plotThree(waypointPosition, if (exploreArray[y][x] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
+            if (isWaypointExact(x, y)) {
+                waypointDisplay.alpha = 0.0f
+                waypointPosition[0] = -1
+                waypointPosition[1] = -1
+                return
+            }
         }
 
+        val anchorX = x - 1
+        val anchorY = y + 1
+
+        waypointDisplay.layoutParams  = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3).apply {
+            leftMargin = (anchorX * robotSize)
+            topMargin = (19 - anchorY) * robotSize
+        }
+
+        waypointDisplay.requestLayout()
+        waypointDisplay.alpha = 1.0f
         plot(x, y, GridType.WAYPOINT)
         waypointPosition[0] = x
         waypointPosition[1] = y
     }
 
-    private fun setGoalPoint(x1: Int, y1: Int) {
+    fun setGoalPoint(x1: Int, y1: Int) {
         val coordinates: IntArray = getValidCoordinates(x1, y1, true)
         val x: Int = coordinates[0]
         val y: Int = coordinates[1]
 
-        if (isOccupied(x, y)) return
+        if ((isOccupied(x, y) && !isGoalPoint(x, y)) || isGoalPointExact(x, y)) {
+            if (!isGoalPointExact(x, y)) {
+                callback(Callback.MESSAGE, context.getString(R.string.cannot_plot))
+            }
 
-        if (isValidCoordinates(goalPosition, true)) {
-            plotThree(goalPosition, if (exploreArray[y][x] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
+            return
         }
 
+        if (isValidCoordinates(goalPosition, true)) {
+            for (offsetY in -1 .. 1) {
+                for (offsetX in -1..1) {
+                    val newX = goalPosition[0] + offsetX
+                    val newY = goalPosition[1] + offsetY
+                    plot(newX, newY, if (exploreArray[newY][newX] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
+                }
+            }
+        }
+
+        val anchorX = x - 1
+        val anchorY = y + 1
+
+        goalDisplay.layoutParams  = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3).apply {
+            leftMargin = (anchorX * robotSize)
+            topMargin = (19 - anchorY) * robotSize
+        }
+
+        goalDisplay.requestLayout()
         plot(x, y, GridType.GOAL_POINT)
         goalPosition[0] = x
         goalPosition[1] = y
+        sharedPreferences.edit().putString(context.getString(R.string.app_pref_goal_position), "$x, $y").apply()
     }
 
     private fun setWaypointTouched() {
@@ -588,6 +698,10 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
 
     private fun setGoalPointTouched() {
         if (isValidCoordinates(goalPosition, true)) plot(goalPosition, GridType.GOAL_POINT_TOUCHED)
+    }
+
+    fun resetStartPoint() {
+        if (isValidCoordinates(startPosition, true)) plot(startPosition, GridType.START_POINT)
     }
 
     fun resetWaypoint() {
@@ -689,15 +803,17 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
     }
 
-    private fun scan(x: Int, y: Int, facing: Int, gridsAhead: Int = 1) {
-        if (Math.floorMod(facing, 90) != 0) return
-        scanFront(x, y, facing, gridsAhead)
-        scanRight(x, y, facing, gridsAhead)
-        scanLeft(x, y, facing, gridsAhead)
+    protected fun scan(x: Int, y: Int, facing: Int, gridsAhead: Int = 1): BooleanArray {
+        if (Math.floorMod(facing, 90) != 0) return booleanArrayOf(true, true, true)
+        val ret1: Boolean = scanFront(x, y, facing, gridsAhead)
+        val ret2: Boolean = scanRight(x, y, facing, gridsAhead)
+        val ret3: Boolean = scanLeft(x, y, facing, gridsAhead)
+        return booleanArrayOf(ret1, ret2, ret3)
     }
 
-    private fun scanFront(x: Int, y: Int, facing: Int, gridsAhead: Int) {
+    private fun scanFront(x: Int, y: Int, facing: Int, gridsAhead: Int): Boolean {
         val gridsAheadNoObstacleList: ArrayList<IntArray> = arrayListOf()
+        var ret = false
 
         for (offset in -1..1) {
             val newX: Int
@@ -725,20 +841,27 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
                 }
             }
 
-            if (!isValidCoordinates(newX, newY)) continue
+            if (!isValidCoordinates(newX, newY)) {
+                ret = true
+                continue
+            }
 
             if (obstacleArray[newY][newX] == 1) {
                 setObstacle(newX, newY)
                 setExplored(newX, newY)
+                ret = true
             } else {
                 gridsAheadNoObstacleList.add(intArrayOf(newX, newY))
             }
         }
 
         scanUnreachable2(facing, gridsAheadNoObstacleList)
+        return ret
     }
 
-    private fun scanRight(x: Int, y: Int, facing: Int, gridsAhead: Int) {
+    private fun scanRight(x: Int, y: Int, facing: Int, gridsAhead: Int): Boolean {
+        var ret = false
+
         for (offset in -1..1) {
             val newX: Int
             val newY: Int
@@ -765,16 +888,24 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
                 }
             }
 
-            if (!isValidCoordinates(newX, newY)) continue
+            if (!isValidCoordinates(newX, newY)) {
+                ret = true
+                continue
+            }
 
             if (obstacleArray[newY][newX] == 1) {
                 setObstacle(newX, newY)
                 setExplored(newX, newY)
+                ret = true
             }
         }
+
+        return ret
     }
 
-    private fun scanLeft(x: Int, y: Int, facing: Int, gridsAhead: Int) {
+    private fun scanLeft(x: Int, y: Int, facing: Int, gridsAhead: Int): Boolean {
+        var ret = false
+
         for (offset in -1..1) {
             val newX: Int
             val newY: Int
@@ -801,13 +932,19 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
                 }
             }
 
-            if (!isValidCoordinates(newX, newY)) continue
+            if (!isValidCoordinates(newX, newY)) {
+                ret = true
+                continue
+            }
 
             if (obstacleArray[newY][newX] == 1) {
                 setObstacle(newX, newY)
                 setExplored(newX, newY)
+                ret = true
             }
         }
+
+        return ret
     }
 
     private fun scanUnreachable2(facing: Int, gridsAheadNoObstacleList: ArrayList<IntArray>) {
@@ -867,13 +1004,6 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         return plot(x, y, gridType)
     }
 
-    private fun plotThree(array: IntArray, gridType: GridType): Boolean {
-        if (array.size != 2) return false
-        val x = array[0]
-        val y = array[1]
-        return plotThree(x, y, gridType)
-    }
-
     private fun plot(x: Int, y: Int, gridType: GridType): Boolean {
         if (!isValidCoordinates(x, y)) return false
         val grid: GestureImageView = gridArray[y][x]
@@ -917,6 +1047,8 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
                     GridType.GOAL_POINT_TOUCHED -> grid.setBackgroundColor(context.getColor(R.color.arena_goal_point_touched))
                     GridType.WAYPOINT           -> grid.setBackgroundColor(context.getColor(R.color.arena_way_point))
                     GridType.WAYPOINT_TOUCHED   -> grid.setBackgroundColor(context.getColor(R.color.arena_way_point_touched))
+
+
                     else -> return false
                 }
             }
@@ -1008,7 +1140,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
 
         if (gesture == GestureImageView.Gesture.FLING_RIGHT) {
-            if (!isValidCoordinates(waypointPosition)) return
+            if (!isValidCoordinates(waypointPosition) || !simulationMode) return
             callback(Callback.PLOT_FASTEST_PATH, "")
         }
     }
@@ -1062,11 +1194,6 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         return (gridType == GridType.START_POINT)
     }
 
-    fun isStartPointExact(array: IntArray): Boolean {
-        if (array.size < 2) return false
-        return isStartPointExact(array[0], array[1])
-    }
-
     fun isStartPointExact(x: Int, y: Int): Boolean {
         return (startPosition[0] == x && startPosition[1] == y)
     }
@@ -1076,7 +1203,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         return (gridType == GridType.GOAL_POINT || gridType == GridType.GOAL_POINT_TOUCHED)
     }
 
-    private fun isGoalPointExact(x: Int, y: Int): Boolean {
+    fun isGoalPointExact(x: Int, y: Int): Boolean {
         return (goalPosition[0] == x && goalPosition[1] == y)
     }
 

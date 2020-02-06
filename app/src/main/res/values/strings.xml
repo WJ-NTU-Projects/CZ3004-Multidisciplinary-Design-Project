@@ -22,6 +22,10 @@
     <string name="app_pref_simulation_speed">SIMULATION_SPEED</string>
     <string name="app_pref_simulation_coverage">SIMULATION_COVERAGE</string>
     <string name="app_pref_simulation_time">SIMULATION_TIME</string>
+    <string name="app_pref_start_position">START_POSITION</string>
+    <string name="app_pref_goal_position">GOAL_POSITION</string>
+    <string name="app_result_map_name">MAP_NAME</string>
+    <string name="app_result_map_id">MAP_ID</string>
 
     <string name="ok">OK</string>
     <string name="yes">YES</string>
@@ -77,7 +81,6 @@
     <string name="save_map_prompt">Save this map? Any existing saved map will be overwritten.</string>
     <string name="load_map_prompt">Load saved map? Existing grid map will be replaced.</string>
     <string name="no_save_data">No save data found.</string>
-    <string name="map_saved">Map saved successfully.</string>
     <string name="illegal_command">Illegal command.</string>
     <string name="hugging_wall">Hugging wall…</string>
     <string name="searching_unexplored">Searching for unexplored grids…</string>
@@ -161,7 +164,7 @@
     <string name="simulation_time_description">Simulation terminates after exploring for the set amount of time.</string>
 
     <!-- ARENA -->
-    <string name="obstructed">Unable to plot. Something is in the way.</string>
+    <string name="cannot_plot">Unable to plot. Something is in the way.</string>
     <string name="idle">Idle</string>
     <string name="moving">Moving</string>
     <string name="reversing">Reversing</string>
@@ -169,5 +172,18 @@
     <string name="turning_left">Turning Left</string>
     <string name="turning_right">Turning Right</string>
     <string name="waypoint_touched">Waypoint touched.</string>
-    <string name="blocked">Obstructed</string>
+    <string name="obstructed">Obstructed</string>
+
+    <!-- SAVE MAP ACTIVITY -->
+    <string name="save_map">Save Map</string>
+    <string name="load_map">Load Map</string>
+    <string name="saving">Saving…</string>
+    <string name="loading">Loading…</string>
+    <string name="map_saved">Map saved successfully.</string>
+    <string name="map_loaded">Map loaded successfully.</string>
+    <string name="map_name">Map Name:</string>
+    <string name="map_removed">%s has been deleted.</string>
+    <string name="cancel">Cancel</string>
+    <string name="error_name_blank">Please enter a name for the map.</string>
+    <string name="error_name_not_available">Name is not available. Please use another name.</string>
 </resources>

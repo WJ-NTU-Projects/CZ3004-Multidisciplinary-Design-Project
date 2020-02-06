@@ -1,65 +1,65 @@
 package ntu.mdp.android.mdptestkotlin.simulation;
 
-import android.util.Log;
-import android.util.Pair;
-
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
 import ntu.mdp.android.mdptestkotlin.App;
 import ntu.mdp.android.mdptestkotlin.arena.RobotController;
 
-public class FastestPath extends Thread {
+public class FastestPath {
     private final RobotController robotController;
     private final AStarSearch aStarSearch;
-    private final AtomicBoolean stop = new AtomicBoolean(false);
-    private final Function0<Unit> callback;
-    private boolean movable = true;
+    private final Function1<? super Callback, Unit> callback;
+    private final Function2<? super RobotController.Broadcast, ? super boolean[], Unit> broadcastCallback;
+    private boolean started = false;
+    private List<int[]> pathList = new ArrayList<>();
 
-    public FastestPath(RobotController robotController, Function0<Unit> callback) {
+    public FastestPath(RobotController robotController, Function1<? super Callback, Unit> callback) {
         this.robotController = robotController;
         aStarSearch = new AStarSearch(robotController);
         this.callback = callback;
 
-        robotController.registerForBroadcast(broadcast -> {
-            if (this.isAlive() && broadcast == RobotController.Broadcast.MOVE_COMPLETE || broadcast == RobotController.Broadcast.TURN_COMPLETE) {
-                movable = true;
-            }
-
+        broadcastCallback = (Function2<RobotController.Broadcast, boolean[], Unit>) (broadcast, sensorData) -> {
+            processBroadcast();
             return null;
-        });
+        };
+
+        robotController.registerForBroadcast(broadcastCallback);
+    }
+
+    public void start() {
+        App.setROBOT_MOVABLE(false);
+        robotController.getInitialSurrounding();
     }
 
     public void end() {
-        stop.set(true);
+        started = false;
+        robotController.deregisterForBroadcast(broadcastCallback);
+        App.setROBOT_MOVABLE(true);
     }
 
-    @Override
-    public void run() {
-        stop.set(false);
-        App.setROBOT_MOVABLE(false);
-
-        final List<int[]> pathList = aStarSearch.fastestPathChallenge();
-
-        for (int[] pathCoordinates : pathList) {
-            if (stop.get()) return;
-
-            while (!movable) {
-                if (stop.get()) return;
-
-                try {
-                    sleep(10);
-                } catch (InterruptedException e) {
-                    Log.e("GG", "GG3");
-                }
-            }
-
-            movable = false;
-            robotController.moveRobotJava(pathCoordinates).join();
+    private void processBroadcast() {
+        if (!started) {
+            pathList = aStarSearch.fastestPathChallenge();
+            callback.invoke(Callback.START_CLOCK);
+            started = true;
         }
 
-        if (!stop.get()) callback.invoke();
+        final int[] robotPosition = robotController.getRobotPosition();
+        final int x = robotPosition[0];
+        final int y = robotPosition[1];
+
+        if (robotController.isGoalPointExact(x, y)) {
+            callback.invoke(Callback.COMPLETE);
+            end();
+            return;
+        }
+
+        int[] coordinates = pathList.get(0);
+        pathList.remove(0);
+        robotController.moveRobot(coordinates);
     }
 }

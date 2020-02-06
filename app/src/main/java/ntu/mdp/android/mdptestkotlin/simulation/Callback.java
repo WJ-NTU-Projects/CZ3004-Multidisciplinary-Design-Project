@@ -4,5 +4,6 @@ public enum Callback {
     COMPLETE,
     WALL_HUGGING,
     SEARCHING,
-    GOING_HOME
+    GOING_HOME,
+    START_CLOCK
 }

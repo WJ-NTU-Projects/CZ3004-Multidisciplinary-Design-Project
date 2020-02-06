@@ -7,13 +7,15 @@ import android.content.Context
 import android.content.Intent
 import android.os.Parcelable
 import android.util.Log
+import android.view.ContextThemeWrapper
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
+import ntu.mdp.android.mdptestkotlin.App.Companion.dialogTheme
+import ntu.mdp.android.mdptestkotlin.MapSaveActivity
 import ntu.mdp.android.mdptestkotlin.R
 import java.io.Serializable
 
@@ -86,28 +88,24 @@ class ActivityUtil(private val context: Context) {
         toolbar?.title = title
     }
 
-    fun sendDialog(message: String, finish: Boolean = false) {
-        val builder: AlertDialog.Builder? = (context as Activity).let {
-            AlertDialog.Builder(it)
-        }
-
-        builder?.setMessage(message)
-        builder?.setPositiveButton(R.string.ok) { dialog, _ ->
-            dialog.dismiss()
-
-            if (finish) {
-                finishActivity()
-            }
-        }
-
-        val dialog: AlertDialog? = builder?.create()
-        dialog?.show()
+    fun sendDialog(requestCode: Int, message: String, label: String = "OK", title: String = "") {
+        val intent = Intent(context, OkDialog::class.java)
+        intent.putExtra("message", message)
+        intent.putExtra("label", label)
+        intent.putExtra("title", title)
+        (context as Activity).startActivityForResult(intent, requestCode)
     }
 
-    fun sendYesNoDialog(message: String, leftLabel: String = "YES", rightLabel: String = "NO", callback: (positive: Boolean) -> Unit) {
-        val builder: AlertDialog.Builder? = (context as Activity).let {
-            AlertDialog.Builder(it)
-        }
+    fun sendYesNoDialog(requestCode: Int, message: String, leftLabel: String = "YES", rightLabel: String = "NO", title: String = "") {
+        val intent = Intent(context, YesNoDialog::class.java)
+        intent.putExtra("message", message)
+        intent.putExtra("leftLabel", leftLabel)
+        intent.putExtra("rightLabel", rightLabel)
+        intent.putExtra("title", title)
+        (context as Activity).startActivityForResult(intent, requestCode)
+
+        /*
+        val builder: AlertDialog.Builder? = AlertDialog.Builder(context)
 
         builder?.setMessage(message)
         builder?.setPositiveButton(rightLabel) { dialog, _ ->
@@ -122,6 +120,8 @@ class ActivityUtil(private val context: Context) {
 
         val dialog: AlertDialog? = builder?.create()
         dialog?.show()
+
+         */
     }
 
     /**
@@ -151,35 +151,5 @@ class ActivityUtil(private val context: Context) {
         } else {
             windowTint.animate().alpha(0.0f).setDuration(App.ANIMATOR_DURATION).setListener(animatorListener)
         }
-    }
-
-    fun scaleViews(viewList: List<View>, show: Boolean, callback: () -> Unit = {}) {
-        val animationId: Int = if (show) R.anim.view_open else R.anim.view_close
-        val animation: Animation =  AnimationUtils.loadAnimation(context.applicationContext, animationId)
-        animation.duration = App.ANIMATOR_DURATION
-        animation.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationRepeat(p0: Animation?) {}
-            override fun onAnimationStart(p0: Animation?) {
-                if (show) {
-                    viewList.forEach {
-                        it.isEnabled = true
-                        it.visibility = View.VISIBLE
-                    }
-                }
-            }
-
-            override fun onAnimationEnd(p0: Animation?) {
-                if (!show) {
-                    viewList.forEach {
-                        it.isEnabled = false
-                        it.visibility = View.GONE
-                    }
-                }
-
-                callback()
-            }
-        })
-
-        viewList.forEach { it.startAnimation(animation) }
     }
 }

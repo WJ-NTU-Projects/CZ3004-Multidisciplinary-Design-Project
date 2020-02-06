@@ -1,89 +1,26 @@
 package ntu.mdp.android.mdptestkotlin.arena
 
 import android.content.Context
-import android.graphics.Rect
-import android.os.Build
-import android.util.Log
-import android.view.MotionEvent
-import android.view.View
 import kotlinx.coroutines.*
-import kotlinx.coroutines.future.future
-import ntu.mdp.android.mdptestkotlin.App
-import ntu.mdp.android.mdptestkotlin.App.Companion.ROBOT_MOVABLE
-import ntu.mdp.android.mdptestkotlin.R
-import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
-import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
-import java.time.LocalDateTime
-import java.util.concurrent.CompletableFuture
-import kotlin.math.abs
-import kotlin.math.roundToInt
 
-class RobotController(private val context: Context, binding: ActivityMainBinding, private val callback: (callback: Callback, message: String) -> Unit)
-    : ArenaV2(context, callback) {
-
-    enum class Direction {
-        NONE,
-        FORWARD,
-        REVERSE,
-        LEFT,
-        RIGHT
-    }
-
-    private val buttonList      : List<View?> = listOf(binding.padForwardButton, binding.padReverseButton, binding.padLeftButton, binding.padRightButton)
-    private val forwardRect     : Rect = Rect(75, 10, 165, 90)
-    private val reverseRect     : Rect = Rect(75, 150, 165, 230)
-    private val leftRect        : Rect = Rect(15, 90, 95, 170)
-    private val rightRect       : Rect = Rect(150, 90, 230, 170)
-    private var swipeMode       : Boolean = false
-    private var swipeOriginX    : Float = 0.0f
-    private var swipeOriginY    : Float = 0.0f
-    private var trackMovement   : Boolean = false
-    private var currentDirection: Direction = Direction.NONE
-    private lateinit var movementThread  : MovementThread
-
-    private val touchListener = View.OnTouchListener { view, event ->
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> return@OnTouchListener handleTouchDown(view, event)
-            MotionEvent.ACTION_MOVE -> handleTouchMove(event)
-            MotionEvent.ACTION_UP -> handleTouchUp()
-        }
-
-        return@OnTouchListener true
-    }
-
-    init {
-        registerForBroadcast {
-            if (it == Broadcast.MOVE_COMPLETE || it == Broadcast.TURN_COMPLETE) ROBOT_MOVABLE = true
+class RobotController(context: Context, callback: (callback: Callback, message: String) -> Unit) : ArenaV2(context, callback) {
+    fun turnRobot(direction: Direction) {
+        CoroutineScope(Dispatchers.Main).launch {
+            when (direction) {
+                Direction.RIGHT -> turnRobot(Math.floorMod(getRobotFacing() + 90, 360))
+                Direction.LEFT -> turnRobot(Math.floorMod(getRobotFacing() - 90, 360))
+                else -> return@launch
+            }
         }
     }
 
-    fun canMove(direction: Direction): Boolean {
-        val moveCoordinates: IntArray = getNextMovementCoordinates(direction)
-        return isRobotMovable(moveCoordinates[0], moveCoordinates[1])
-    }
-
-    fun isGridExplored(direction: Direction): Boolean {
-        val moveCoordinates: IntArray = getNextExplorationCoordinates(direction)
-        if (!isValidCoordinates(moveCoordinates)) return true
-        return isGridExplored(moveCoordinates[0], moveCoordinates[1])
-    }
-
-    private suspend fun turnRobot(direction: Direction) = withContext(Dispatchers.Main) {
-        when (direction) {
-            Direction.RIGHT -> turnRobot(Math.floorMod(getRobotFacing() + 90, 360))
-            Direction.LEFT -> turnRobot(Math.floorMod(getRobotFacing() - 90, 360))
-            else -> return@withContext
+    fun moveRobot(array: IntArray) {
+        CoroutineScope(Dispatchers.Main).launch {
+            moveRobot(array[0], array[1])
         }
     }
 
-    private suspend fun moveRobot(direction: Direction) = withContext(Dispatchers.Main) {
-        val moveCoordinates: IntArray = getNextMovementCoordinates(direction)
-        if (!canMove(direction)) return@withContext
-        moveRobot(moveCoordinates)
-    }
-
-    private fun getNextMovementCoordinates(direction: Direction): IntArray {
-        val robotPosition = getRobotPosition()
+    fun moveRobot(direction: Direction) {val robotPosition = getRobotPosition()
         var x = robotPosition[0]
         var y = robotPosition[1]
 
@@ -124,13 +61,17 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
                 }
             }
 
-            else -> return intArrayOf(-1, -1)
+            else -> return
         }
 
-        return intArrayOf(x, y)
+        if (!isValidCoordinates(x, y)) return
+
+        CoroutineScope(Dispatchers.Main).launch {
+            moveRobot(x, y)
+        }
     }
 
-    private fun getNextExplorationCoordinates(direction: Direction): IntArray {
+    fun isGridExplored(direction: Direction): Boolean {
         val robotPosition = getRobotPosition()
         var x = robotPosition[0]
         var y = robotPosition[1]
@@ -172,209 +113,34 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
                 }
             }
 
-            else -> return intArrayOf(-1, -1)
+            else -> return true
         }
 
-        return intArrayOf(x, y)
+        if (!isValidCoordinates(x, y)) return true
+        return isGridExplored(x, y)
     }
 
-    fun moveRobotJava(direction: Direction): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { moveRobot(direction) }
-    fun moveRobotJava(array: IntArray): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { moveRobot(array) }
-    fun turnRobotJava(direction: Direction): CompletableFuture<*> = CoroutineScope(Dispatchers.Main).future { turnRobot(direction) }
-    fun getTouchListener() = touchListener
-    fun getSwipeMode() = swipeMode
+    fun getInitialSurrounding(): Boolean {
+        val robotPosition: IntArray = getRobotPosition()
+        val sensorData: BooleanArray = scan(robotPosition[0], robotPosition[1], robotPosition[2])
+        val frontObstructed = sensorData[0]
+        val rightObstructed = sensorData[1]
 
-    fun toggleSwipeMode(state: Boolean = !swipeMode) {
-        swipeMode = state
-    }
-
-    private fun handleTouchDown(view: View, event: MotionEvent): Boolean {
-        if (swipeMode) {
-            swipeOriginX = (view.width / 2.0f)
-            swipeOriginY = (view.height / 2.0f)
-
-            val x = (event.x - swipeOriginX)
-            val y = (event.y - swipeOriginY)
-            val threshold = 33
-
-            when {
-                (y < -threshold && abs(y) > abs(x)) -> updateCurrentDirection(Direction.FORWARD)
-                (y > threshold && abs(y) > abs(x)) -> updateCurrentDirection(Direction.REVERSE)
-                (x < -threshold && abs(y) < abs(x))  -> updateCurrentDirection(Direction.LEFT)
-                (x > threshold && abs(y) < abs(x)) -> updateCurrentDirection(Direction.RIGHT)
-            }
-        } else {
-            checkTouchIntersect(event)
+        if (!rightObstructed) {
+            turnRobot(Direction.RIGHT)
+            return false
         }
 
-        if (!trackMovement) {
-            if (::movementThread.isInitialized && movementThread.isAlive) movementThread.end()
-            movementThread = MovementThread()
-            movementThread.start()
-            trackMovement = true
+        if (frontObstructed) {
+            turnRobot(Direction.LEFT)
+            return false
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(100)
+            broadcast(Broadcast.MOVE_COMPLETE, sensorData)
         }
 
         return true
-    }
-
-    private fun handleTouchMove(event: MotionEvent) {
-        if (swipeMode) {
-            val x = (event.x - swipeOriginX)
-            val y = (event.y - swipeOriginY)
-            val threshold = 33
-
-            when {
-                (y < -threshold && abs(y) > abs(x)) -> updateCurrentDirection(Direction.FORWARD)
-                (y > threshold && abs(y) > abs(x)) -> updateCurrentDirection(Direction.REVERSE)
-                (x < -threshold && abs(y) < abs(x))  -> updateCurrentDirection(Direction.LEFT)
-                (x > threshold && abs(y) < abs(x)) -> updateCurrentDirection(Direction.RIGHT)
-            }
-
-            return
-        }
-
-        checkTouchIntersect(event)
-    }
-
-    private fun handleTouchUp() {
-        callback(Callback.UPDATE_STATUS, context.getString(R.string.idle))
-        updateCurrentDirection(Direction.NONE)
-        if (::movementThread.isInitialized && movementThread.isAlive) movementThread.end()
-        if (!swipeMode) releasePadButtons()
-    }
-
-    private fun checkTouchIntersect(event: MotionEvent) {
-        when {
-            forwardRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(Direction.FORWARD)
-            reverseRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(Direction.REVERSE)
-            leftRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(Direction.LEFT)
-            rightRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(Direction.RIGHT)
-            else -> releasePadButtons()
-        }
-    }
-
-    @Synchronized
-    private fun updateCurrentDirection(direction: Direction) {
-        this.currentDirection = direction
-    }
-
-    private fun pressPadButton(direction: Direction) {
-        if (this.currentDirection != direction) {
-            updateCurrentDirection(direction)
-
-            val skipIndex: Int = when (direction) {
-                Direction.FORWARD -> 0
-                Direction.REVERSE -> 1
-                Direction.LEFT -> 2
-                Direction.RIGHT -> 3
-                Direction.NONE -> -1
-            }
-
-            for ((i, button) in buttonList.withIndex()) {
-                if (i == skipIndex) dispatchTouchEvent(button, MotionEvent.ACTION_DOWN)
-                else dispatchTouchEvent(button, MotionEvent.ACTION_UP)
-            }
-        }
-    }
-
-    private fun releasePadButtons() {
-        updateCurrentDirection(Direction.NONE)
-        buttonList.forEach { dispatchTouchEvent(it, MotionEvent.ACTION_UP) }
-    }
-
-    private fun dispatchTouchEvent(view: View?, action: Int) {
-        view?.dispatchTouchEvent(MotionEvent.obtain(1, 1, action, 0.0f, 0.0f, 0))
-        view?.isEnabled = action != MotionEvent.ACTION_DOWN
-    }
-
-    private inner class MovementThread: Thread() {
-        private var lastProcessTime: Long = 0L
-        private var i = 0
-
-        fun end() {
-            trackMovement = false
-        }
-
-        override fun run() {
-            CoroutineScope(Dispatchers.Default).launch {
-                while (trackMovement) {
-                    if (!ROBOT_MOVABLE) {
-                        delay(10)
-                        continue
-                    }
-
-                    val facing = when (currentDirection) {
-                        Direction.FORWARD    -> 0
-                        Direction.REVERSE    -> 180
-                        Direction.LEFT       -> 270
-                        Direction.RIGHT      -> 90
-                        Direction.NONE       -> -1
-                    }
-
-                    if (facing == -1) continue
-                    val currentFacing: Int = getRobotFacing()
-                    val facingOffset: Int = currentFacing - facing
-                    ROBOT_MOVABLE = false
-
-                    if (facing == currentFacing || abs(facing - currentFacing) == 180) {
-                        moveRobot(facing)
-                    } else if (facingOffset == 90 || facingOffset == -270) {
-                        turnRobot(Math.floorMod(currentFacing - 90, 360))
-                    } else if (facingOffset == -90 || facingOffset == 270) {
-                        turnRobot(Math.floorMod(currentFacing + 90, 360))
-                    }
-
-                    i++
-                    if (BluetoothController.isSocketConnected()) delay(App.simulationDelay)
-                }
-            }
-
-            /*
-            while (trackMovement) {
-                if (!ROBOT_MOVABLE) {
-                    sleep(10)
-                    continue
-                }
-
-                val facing = when (currentDirection) {
-                    Direction.FORWARD    -> 0
-                    Direction.REVERSE    -> 180
-                    Direction.LEFT       -> 270
-                    Direction.RIGHT      -> 90
-                    Direction.NONE       -> -1
-                }
-
-                if (facing == -1) continue
-                val currentFacing: Int = getRobotFacing()
-                val facingOffset: Int = currentFacing - facing
-                ROBOT_MOVABLE = false
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    if (facing == currentFacing || abs(facing - currentFacing) == 180) {
-                        Log.e("TEST", "$i")
-                        moveRobot(facing)
-
-                    } else if (facingOffset == 90 || facingOffset == -270) {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            Log.e("TEST", "$i")
-                            turnRobot(Math.floorMod(currentFacing - 90, 360))
-                        }
-                    } else if (facingOffset == -90 || facingOffset == 270) {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            Log.e("TEST", "$i")
-                            turnRobot(Math.floorMod(currentFacing + 90, 360))
-                        }
-                    } else {
-                        Log.e("TEST", "$facingOffset, $i")
-                    }
-
-                    i++
-                }
-
-                if (BluetoothController.isSocketConnected()) sleep(App.simulationDelay)
-            }
-
-             */
-        }
     }
 }

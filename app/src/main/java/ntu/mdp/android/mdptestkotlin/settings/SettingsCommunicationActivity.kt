@@ -1,5 +1,7 @@
 package ntu.mdp.android.mdptestkotlin.settings
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -25,6 +27,7 @@ class SettingsCommunicationActivity : AppCompatActivity() {
     private var enterPressed = false
     private lateinit var binding: SettingsCommunicationBinding
     private lateinit var activityUtil: ActivityUtil
+    private lateinit var viewOnHold: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(App.appTheme)
@@ -179,35 +182,13 @@ class SettingsCommunicationActivity : AppCompatActivity() {
 
     @Suppress("UNUSED_PARAMETER")
     fun clickRestore(view: View) {
-        activityUtil.sendYesNoDialog(getString(R.string.restore_command_defaultsk)) { positive ->
-            if (positive) {
-                when (view.id) {
-                    R.id.restoreCustom -> {
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default)).apply()
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default)).apply()
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_command_f1), getString(R.string.f1_default)).apply()
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_command_f2), getString(R.string.f2_default)).apply()
-                    }
+        when (view.id) {
+            R.id.restoreCustom -> {
+                activityUtil.sendYesNoDialog(10000, getString(R.string.restore_command_defaultsk))
+            }
 
-                    R.id.restoreCommands -> {
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_send_arena), getString(R.string.send_arena_default)).apply()
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_exploration), getString(R.string.exploration_default)).apply()
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_fastest), getString(R.string.fastest_path_default)).apply()
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_pause), getString(R.string.pause_default)).apply()
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_forward), getString(R.string.forward_default)).apply()
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_reverse), getString(R.string.reverse_default)).apply()
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_turn_left), getString(R.string.turn_left_default)).apply()
-                        sharedPreferences.edit().putString(getString(R.string.app_pref_turn_right), getString(R.string.turn_right_default)).apply()
-
-                        SEND_ARENA_COMMAND = getString(R.string.send_arena_default)
-                        FORWARD_COMMAND = getString(R.string.forward_default)
-                        REVERSE_COMMAND = getString(R.string.reverse_default)
-                        TURN_LEFT_COMMAND = getString(R.string.turn_left_default)
-                        TURN_RIGHT_COMMAND = getString(R.string.turn_right_default)
-                    }
-                }
-
-                refreshHints()
+            R.id.restoreCommands -> {
+                activityUtil.sendYesNoDialog(10001, getString(R.string.restore_command_defaultsk))
             }
         }
     }
@@ -224,12 +205,49 @@ class SettingsCommunicationActivity : AppCompatActivity() {
 
     private val onFocusLost = View.OnFocusChangeListener { view, hasFocus ->
         if (!hasFocus && !enterPressed && (view as EditText).text.toString().isNotBlank()) {
-            activityUtil.sendYesNoDialog(getString(R.string.unsaved_changes), getString(R.string.save), getString(R.string.discard)) { positive ->
-                if (positive) save(view)
-                view.text.clear()
-            }
+            viewOnHold = view
+            activityUtil.sendYesNoDialog(11000, getString(R.string.unsaved_changes), leftLabel = getString(R.string.save), rightLabel = getString(R.string.discard))
         }
 
         enterPressed = false
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            10000 -> {
+                if (resultCode == Activity.RESULT_CANCELED) return
+                sharedPreferences.edit().putString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_command_f1), getString(R.string.f1_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_command_f2), getString(R.string.f2_default)).apply()
+                refreshHints()
+            }
+
+            10001 -> {
+                if (resultCode == Activity.RESULT_CANCELED) return
+                sharedPreferences.edit().putString(getString(R.string.app_pref_send_arena), getString(R.string.send_arena_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_exploration), getString(R.string.exploration_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_fastest), getString(R.string.fastest_path_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_pause), getString(R.string.pause_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_forward), getString(R.string.forward_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_reverse), getString(R.string.reverse_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_turn_left), getString(R.string.turn_left_default)).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_turn_right), getString(R.string.turn_right_default)).apply()
+
+                SEND_ARENA_COMMAND = getString(R.string.send_arena_default)
+                FORWARD_COMMAND = getString(R.string.forward_default)
+                REVERSE_COMMAND = getString(R.string.reverse_default)
+                TURN_LEFT_COMMAND = getString(R.string.turn_left_default)
+                TURN_RIGHT_COMMAND = getString(R.string.turn_right_default)
+                refreshHints()
+            }
+
+            11000 -> {
+                if (resultCode == Activity.RESULT_OK && ::viewOnHold.isInitialized) save(viewOnHold)
+                viewOnHold.text.clear()
+            }
+        }
     }
 }

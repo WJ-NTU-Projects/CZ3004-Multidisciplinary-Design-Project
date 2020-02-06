@@ -17,20 +17,21 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
-import kotlinx.android.synthetic.main.activity_bluetooth.*
+import kotlinx.android.synthetic.main.settings_bluetooth.*
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
-import ntu.mdp.android.mdptestkotlin.databinding.ActivityBluetoothBinding
+import ntu.mdp.android.mdptestkotlin.databinding.SettingsBluetoothBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
 class SettingsBluetoothActivity : AppCompatActivity() {
 
     companion object {
-        const val DISCOVERABILITY_REQUEST: Int = 1
+        const val DISCOVERABILITY_REQUEST: Int = 1001
+        const val BLUETOOTH_DISABLED_CODE: Int = 10000
     }
 
-    private lateinit var binding: ActivityBluetoothBinding
+    private lateinit var binding: SettingsBluetoothBinding
     private lateinit var activityUtil: ActivityUtil
     private lateinit var otherDeviceList: ArrayList<BluetoothDevice>
     private lateinit var othersAdapter: DeviceAdapter
@@ -39,7 +40,7 @@ class SettingsBluetoothActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(App.appTheme)
         super.onCreate(savedInstanceState)
-        binding = ActivityBluetoothBinding.inflate(layoutInflater)
+        binding = SettingsBluetoothBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         activityUtil = ActivityUtil(this)
@@ -67,13 +68,16 @@ class SettingsBluetoothActivity : AppCompatActivity() {
         filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED)
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         registerReceiver(receiver, filter)
+
+        bluetoothBondedRecycler.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
+        bluetoothOthersRecycler.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
     }
 
     override fun onResume() {
         super.onResume()
 
         if (!checkBluetoothState()) {
-            activityUtil.sendDialog(getString(R.string.error_bluetooth_off))
+            activityUtil.sendDialog(BLUETOOTH_DISABLED_CODE, getString(R.string.error_bluetooth_off))
             activityUtil.finishActivity()
             return
         }
@@ -106,7 +110,6 @@ class SettingsBluetoothActivity : AppCompatActivity() {
                 adapter = DeviceAdapter(ArrayList(pairedDevices))
             }
 
-            bluetoothBondedRecycler.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
             bluetoothOthersLabel.text = getString(R.string.other_devices)
         }
 
@@ -118,14 +121,13 @@ class SettingsBluetoothActivity : AppCompatActivity() {
             adapter = othersAdapter
         }
 
-        bluetoothOthersRecycler.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
-
         bluetoothAdapter.cancelDiscovery()
         bluetoothAdapter.startDiscovery()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if(requestCode == DISCOVERABILITY_REQUEST) {
             if(resultCode == Activity.RESULT_OK) {
                 bluetoothDiscoverySwitch.isChecked = true
@@ -133,6 +135,13 @@ class SettingsBluetoothActivity : AppCompatActivity() {
             else if(resultCode == Activity.RESULT_CANCELED) {
                 bluetoothDiscoverySwitch.isChecked = false
             }
+
+            return
+        }
+
+        if (requestCode == BLUETOOTH_DISABLED_CODE) {
+            activityUtil.finishActivity()
+            return
         }
     }
 
@@ -144,8 +153,6 @@ class SettingsBluetoothActivity : AppCompatActivity() {
             bluetoothNameLabel.text = "-"
             getDevices()
             bluetoothSwipeRefreshLayout.isRefreshing = false
-        } else {
-            activityUtil.sendDialog(getString(R.string.error_bluetooth_off))
         }
     }
 
