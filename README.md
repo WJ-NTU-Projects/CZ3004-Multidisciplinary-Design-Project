@@ -1,5 +1,5 @@
 # Android Remote Controller Module for MDP
-[Changelog can be found here.](https://github.com/101011101001010/MDP-Android/wiki)
+[Changelog](https://github.com/101011101001010/MDP-Android/wiki)
 
 [Grid Map User Manual](https://github.com/101011101001010/MDP-Android/wiki/Grid-Map-User-Manual)
 
