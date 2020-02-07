@@ -59,8 +59,6 @@ class App: Application() {
 
         autoUpdateArena = sharedPreferences.getBoolean(getString(R.string.app_pref_auto_update), true)
         usingAmd = sharedPreferences.getBoolean(getString(R.string.app_pref_using_amd), true)
-        //allowDiagonalExploration = sharedPreferences.getBoolean(getString(R.string.app_pref_diagonal_exploration), false)
-
         simulationMode = sharedPreferences.getBoolean(getString(R.string.app_pref_simulation_mode), false)
         accelerometer = sharedPreferences.getBoolean(getString(R.string.app_pref_accelerometer), false)
         simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else (1000 / 3)

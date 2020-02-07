@@ -1,4 +1,4 @@
-package ntu.mdp.android.mdptestkotlin.utils
+package ntu.mdp.android.mdptestkotlin.arena
 
 import android.content.Context
 import android.graphics.Rect
@@ -8,17 +8,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.ROBOT_MOVABLE
 import ntu.mdp.android.mdptestkotlin.R
-import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
-import ntu.mdp.android.mdptestkotlin.arena.RobotController
-import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-class TouchController(private val context: Context, binding: ActivityMainBinding, private val robotController: RobotController, private val callback: (callback: ArenaV2.Callback, message: String) -> Unit) {
+class TouchController(private val context: Context, private val binding: ActivityMainBinding, private val robotController: RobotController, private val callback: (callback: ArenaV2.Callback, message: String) -> Unit) {
 
     private val buttonList      : List<View?> = listOf(binding.padForwardButton, binding.padReverseButton, binding.padLeftButton, binding.padRightButton)
     private val forwardRect     : Rect = Rect(75, 10, 165, 90)
@@ -43,7 +39,9 @@ class TouchController(private val context: Context, binding: ActivityMainBinding
     }
 
     init {
-        robotController.registerForBroadcast { _, _ -> ROBOT_MOVABLE = true }
+        robotController.registerForBroadcast { _, _ ->
+            ROBOT_MOVABLE = true
+        }
     }
 
     private fun handleTouchDown(view: View, event: MotionEvent): Boolean {
@@ -76,6 +74,8 @@ class TouchController(private val context: Context, binding: ActivityMainBinding
     }
 
     private fun handleTouchMove(event: MotionEvent) {
+        if (!ROBOT_MOVABLE) return
+
         if (swipeMode) {
             val x = (event.x - swipeOriginX)
             val y = (event.y - swipeOriginY)
@@ -87,14 +87,20 @@ class TouchController(private val context: Context, binding: ActivityMainBinding
                 (x < -threshold && abs(y) < abs(x))  -> updateCurrentDirection(ArenaV2.Direction.LEFT)
                 (x > threshold && abs(y) < abs(x)) -> updateCurrentDirection(ArenaV2.Direction.RIGHT)
             }
-
-            return
+        } else {
+            checkTouchIntersect(event)
         }
 
-        checkTouchIntersect(event)
+        if (!trackMovement) {
+            if (::movementThread.isInitialized && movementThread.isAlive) movementThread.end()
+            movementThread = MovementThread()
+            movementThread.start()
+            trackMovement = true
+        }
     }
 
     private fun handleTouchUp() {
+        robotController.cancelLast()
         callback(ArenaV2.Callback.UPDATE_STATUS, context.getString(R.string.idle))
         updateCurrentDirection(ArenaV2.Direction.NONE)
         if (::movementThread.isInitialized) movementThread.end()
@@ -113,7 +119,10 @@ class TouchController(private val context: Context, binding: ActivityMainBinding
 
     @Synchronized
     private fun updateCurrentDirection(direction: ArenaV2.Direction) {
-        this.currentDirection = direction
+        if (currentDirection != direction) {
+            robotController.cancelLast()
+            this.currentDirection = direction
+        }
     }
 
     private fun pressPadButton(direction: ArenaV2.Direction) {
@@ -161,7 +170,7 @@ class TouchController(private val context: Context, binding: ActivityMainBinding
             CoroutineScope(Dispatchers.Default).launch {
                 while (trackMovement) {
                     if (!ROBOT_MOVABLE) {
-                        delay(10)
+                        delay(1)
                         continue
                     }
 
@@ -173,7 +182,7 @@ class TouchController(private val context: Context, binding: ActivityMainBinding
                         ArenaV2.Direction.NONE -> -1
                     }
 
-                    if (facing == -1) continue
+                    if (facing == -1) return@launch
                     val currentFacing: Int = robotController.getRobotFacing()
                     val facingOffset: Int = currentFacing - facing
                     ROBOT_MOVABLE = false
@@ -186,7 +195,9 @@ class TouchController(private val context: Context, binding: ActivityMainBinding
                         robotController.turnRobot(Math.floorMod(currentFacing + 90, 360))
                     }
 
-                    if (BluetoothController.isSocketConnected()) delay(App.simulationDelay)
+                    end()
+                    return@launch
+                    //if (BluetoothController.isSocketConnected()) delay(App.simulationDelay)
                 }
             }
         }

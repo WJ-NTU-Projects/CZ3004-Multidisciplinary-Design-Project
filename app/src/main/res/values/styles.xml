@@ -127,7 +127,7 @@
         <item name="android:rowCount">20</item>
         <item name="android:columnCount">15</item>
         <item name="layout_constraintWidth_percent">0.78</item>
-        <item name="layout_constraintHeight_percent">0.68</item>
+        <item name="layout_constraintHeight_percent">0.685</item>
     </style>
 
     <style name="ArenaGridLayout.Phone">

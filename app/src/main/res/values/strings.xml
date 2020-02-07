@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MDPTestKotlin</string>
+    <string name="app_name">MDP</string>
     <string name="app_pref_key">MDP_PREF_KEY</string>
     <string name="app_pref_auto_update">AUTO_UPDATE</string>
     <string name="app_pref_send_arena">COMMAND_SEND_ARENA</string>

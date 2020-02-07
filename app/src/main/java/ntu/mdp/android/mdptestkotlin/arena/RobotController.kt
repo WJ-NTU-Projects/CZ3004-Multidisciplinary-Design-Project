@@ -1,6 +1,7 @@
 package ntu.mdp.android.mdptestkotlin.arena
 
 import android.content.Context
+import android.util.Log
 import kotlinx.coroutines.*
 
 class RobotController(context: Context, callback: (callback: Callback, message: String) -> Unit) : ArenaV2(context, callback) {
@@ -17,6 +18,34 @@ class RobotController(context: Context, callback: (callback: Callback, message: 
     fun moveRobot(array: IntArray) {
         CoroutineScope(Dispatchers.Main).launch {
             moveRobot(array[0], array[1])
+        }
+    }
+
+    fun moveRobot(facing: Int) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val robotPosition: IntArray = getRobotPosition()
+            val x = robotPosition[0]
+            val y = robotPosition[1]
+
+            when (facing) {
+                0   -> moveRobot(x, y + 1)
+                90  -> moveRobot(x + 1, y)
+                180 -> moveRobot(x, y - 1)
+                270 -> moveRobot(x - 1, y)
+            }
+        }
+    }
+
+    fun moveOrTurnRobot(facing: Int) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val currentFacing: Int = getRobotFacing()
+
+            when (currentFacing - facing) {
+                0 -> moveRobot(Direction.FORWARD)
+                90, -270 -> turnRobot(Direction.LEFT)
+                -90, 270 -> turnRobot(Direction.RIGHT)
+                -180, 180 -> moveRobot(Direction.REVERSE)
+            }
         }
     }
 
@@ -63,8 +92,6 @@ class RobotController(context: Context, callback: (callback: Callback, message: 
 
             else -> return
         }
-
-        if (!isValidCoordinates(x, y)) return
 
         CoroutineScope(Dispatchers.Main).launch {
             moveRobot(x, y)

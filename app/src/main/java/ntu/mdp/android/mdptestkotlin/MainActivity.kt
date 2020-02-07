@@ -40,7 +40,7 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.simulationDelay
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationMode
 import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
 import ntu.mdp.android.mdptestkotlin.arena.RobotController
-import ntu.mdp.android.mdptestkotlin.utils.TouchController
+import ntu.mdp.android.mdptestkotlin.arena.TouchController
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothMessageParser
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
@@ -163,51 +163,46 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     //create listener
-    private val gyroscopeSensorListener = object : SensorEventListener
-    {
+    private val gyroscopeSensorListener = object : SensorEventListener {
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
         override fun onSensorChanged(event: SensorEvent?) {
+            if (!accelerometerMove) {
+                return
+            }
+
             if (event != null) {
-                if(event.values[2] > 9.5)
-                {
-                    canMove = false
-                    CoroutineScope(Dispatchers.Main).launch {
-                        robotController.moveRobot(0)
+                val x = event.values[0]
+                val y = event.values[1]
+                val z = event.values[2]
+
+                when {
+                    (z > 9.5 && y < 2.5) -> {
+                        accelerometerMove = false
+                        robotController.moveOrTurnRobot(0)
                     }
-                }
-                else if(event.values[0] > 4.5)
-                {
-                    canMove = false
-                    CoroutineScope(Dispatchers.Main).launch {
-                        robotController.moveRobot(270)
+
+                    x > 4.5 -> {
+                        accelerometerMove = false
+                        robotController.moveOrTurnRobot(270)
                     }
-                }
-                else if(event.values[0] < -4.5)
-                {
-                    canMove = false
-                    CoroutineScope(Dispatchers.Main).launch {
-                        robotController.moveRobot(90)
+
+                    x < -4 -> {
+                        accelerometerMove = false
+                        robotController.moveOrTurnRobot(90)
                     }
-                }
-                else if(event.values[2] < 0)
-                {
-                    canMove = false
-                    CoroutineScope(Dispatchers.Main).launch {
-                        robotController.moveRobot(180)
+
+                    (y > 9.5 && z < 3.5) -> {
+                        accelerometerMove = false
+                        robotController.moveOrTurnRobot(180)
                     }
+
+                    else -> robotController.cancelLast()
                 }
 
                 Log.e("XYZ values", "${event.values[0]}, ${event.values[1]}, ${event.values[2]}")
             }
-            else
-            {
-                Log.d("nullevent", "event is null");
-            }
-        }
-
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-            //do nothing
         }
     }
 
@@ -227,7 +222,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var gyroscopeSensor        : Sensor
     private var lastClickTime                   : Long = 0L
     private var isTablet                        : Boolean = false
-    private var canMove: Boolean = true
+    private var accelerometerMove               : Boolean = true
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -252,13 +247,9 @@ class MainActivity : AppCompatActivity() {
         bluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
         database = AppDatabase.getDatabase(applicationContext)
         isTablet = resources.getBoolean(R.bool.isTablet)
-
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        gyroscopeSensor =  sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        robotController.registerForBroadcast { broadcastType, _ ->
-            if (broadcastType == ArenaV2.Broadcast.MOVE_COMPLETE)
-                canMove = true
-        }
+        gyroscopeSensor =  sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        robotController.registerForBroadcast { _, _ -> accelerometerMove = true }
 
         padForwardButton.isClickable = false
         padReverseButton.isClickable = false
@@ -288,23 +279,43 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (BluetoothAdapter.getDefaultAdapter() == null) return
-        if (!bluetoothAdapter.isEnabled) startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE)
+        if (BluetoothAdapter.getDefaultAdapter() == null) {
+            return
+        }
+
+        if (!bluetoothAdapter.isEnabled) {
+            startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (BluetoothAdapter.getDefaultAdapter() == null) return
-        if (!isTablet) touchController.toggleSwipeMode(true)
+
+        if (BluetoothAdapter.getDefaultAdapter() == null) {
+            return
+        }
+
+        if (!isTablet) {
+            touchController.toggleSwipeMode(true)
+        }
+
         f1Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default))
         f2Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default))
         simulationButton.visibility = if (simulationMode) View.VISIBLE else View.GONE
         statusCardLabel.text = getString(R.string.idle)
-        //register listener lol
-        if (accelerometer) sensorManager.registerListener(gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
-        if (accelerometer) activityUtil.sendSnack(getString(R.string.accelerometer_on)) else activityUtil.sendSnack(getString(R.string.accelerometer_off))
-        if (!bluetoothAdapter.isEnabled) activityUtil.sendSnack(getString(R.string.error_bluetooth_off))
-        else startBluetoothListener()
+
+        if (accelerometer) {
+            sensorManager.registerListener(gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
+            activityUtil.sendSnack(getString(R.string.accelerometer_on))
+        } else {
+            activityUtil.sendSnack(getString(R.string.accelerometer_off))
+        }
+
+        if (!bluetoothAdapter.isEnabled) {
+            activityUtil.sendSnack(getString(R.string.error_bluetooth_off))
+        } else {
+            startBluetoothListener()
+        }
 
         CoroutineScope(Dispatchers.Default).launch {
             delay(1000)
@@ -326,34 +337,40 @@ class MainActivity : AppCompatActivity() {
     private fun startBluetoothListener() {
         if (!BluetoothController.isSocketConnected()) {
             BluetoothController.startServer(bluetoothCallback)
+            return
         }
 
-        else {
-            BluetoothController.callback = bluetoothCallback
+        BluetoothController.callback = bluetoothCallback
 
-            if (autoUpdateArena) {
-                ArenaV2.isWaitingUpdate = true
-                sendCommand(SEND_ARENA_COMMAND)
-            }
+        if (autoUpdateArena) {
+            sendCommand(SEND_ARENA_COMMAND)
         }
     }
 
     @Suppress("unused")
     fun clickUiButton(view: View) {
-        if (System.currentTimeMillis() - lastClickTime < CLICK_DELAY) return
+        if (System.currentTimeMillis() - lastClickTime < CLICK_DELAY) {
+            return
+        }
+
         lastClickTime = System.currentTimeMillis()
 
         when (view.id) {
-            R.id.bluetoothButton -> activityUtil.startActivity(SettingsBluetoothActivity::class.java)
-            R.id.communicationButton -> activityUtil.startActivity(SettingsCommunicationActivity::class.java)
-            R.id.simulationButton -> activityUtil.startActivity(SettingsSimulationActivity::class.java)
-            R.id.saveMapButton -> onMapSaveClicked()
-            R.id.loadMapButton -> onMapLoadClicked()
-            R.id.clearArenaButton -> resetArena(true)
+            R.id.bluetoothButton        -> activityUtil.startActivity(SettingsBluetoothActivity::class.java)
+            R.id.communicationButton    -> activityUtil.startActivity(SettingsCommunicationActivity::class.java)
+            R.id.simulationButton       -> activityUtil.startActivity(SettingsSimulationActivity::class.java)
+            R.id.messageCardClearButton -> activityUtil.sendYesNoDialog(CLEAR_MESSAGE_CODE, getString(R.string.clear_message_log))
+            R.id.saveMapButton          -> onMapSaveClicked()
+            R.id.loadMapButton          -> onMapLoadClicked()
+            R.id.clearArenaButton       -> resetArena(true)
 
             R.id.accelerometerIcon -> {
                 accelerometer = !accelerometer
-                sharedPreferences.edit().putBoolean(getString(R.string.app_pref_dark_mode), accelerometer).apply()
+                padForwardButton.isEnabled = !accelerometer
+                padReverseButton.isEnabled = !accelerometer
+                padRightButton.isEnabled = !accelerometer
+                padLeftButton.isEnabled = !accelerometer
+
                 if (accelerometer) {
                     sensorManager.registerListener(gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
                     activityUtil.sendSnack(getString(R.string.accelerometer_on))
@@ -375,12 +392,7 @@ class MainActivity : AppCompatActivity() {
                     dialogTheme = R.style.DialogTheme
                 }
 
-                //recreate()
                 activityUtil.startActivity(MainActivity::class.java, fade = true, startNew = true)
-            }
-
-            R.id.messageCardClearButton -> {
-                activityUtil.sendYesNoDialog(CLEAR_MESSAGE_CODE, getString(R.string.clear_message_log))
             }
 
             R.id.exploreButton -> {
@@ -619,7 +631,9 @@ class MainActivity : AppCompatActivity() {
             startBluetoothListener()
         }
 
-        robotController.updateRobotImage()
+        CoroutineScope(Dispatchers.Main).launch {
+            robotController.updateRobotImage()
+        }
     }
 
     private fun updateImage(data: String) {
