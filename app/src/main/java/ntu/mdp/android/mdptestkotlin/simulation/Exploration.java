@@ -9,7 +9,6 @@ import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function2;
 import ntu.mdp.android.mdptestkotlin.App;
-import ntu.mdp.android.mdptestkotlin.arena.ArenaV2;
 import ntu.mdp.android.mdptestkotlin.arena.RobotController;
 
 import static java.lang.Math.abs;
@@ -23,7 +22,7 @@ public class Exploration {
     private boolean do180 = false;
     private boolean started = false;
     private boolean goingHome = false;
-    private List<int[]> pathList = new ArrayList<>();
+    private List<AStarSearch.GridNode> pathList = new ArrayList<>();
 
     public Exploration(RobotController robotController, Function1<? super Callback, Unit> callback) {
         this.robotController = robotController;
@@ -40,7 +39,6 @@ public class Exploration {
     }
 
     public void start() {
-        App.setROBOT_MOVABLE(false);
         wallHug = true;
         goingHome = false;
         do180 = false;
@@ -50,7 +48,6 @@ public class Exploration {
     public void end() {
         started = false;
         robotController.deregisterForBroadcast(broadcastCallback);
-        App.setROBOT_MOVABLE(true);
     }
 
     private void endExploration() {
@@ -69,6 +66,7 @@ public class Exploration {
 
             if (broadcastType == RobotController.Broadcast.MOVE_COMPLETE) {
                 started = true;
+                callback.invoke(Callback.WALL_HUGGING);
                 callback.invoke(Callback.START_CLOCK);
                 CHAAAAARGE();
                 return;
@@ -79,6 +77,10 @@ public class Exploration {
             endExploration();
             return;
         }
+
+        boolean frontObstructed = sensorData[0];
+        boolean rightObstructed = sensorData[1];
+        boolean leftObstructed = sensorData[2];
 
         if (wallHug) {
             final int[] robotPosition = robotController.getRobotPosition();
@@ -91,10 +93,6 @@ public class Exploration {
                 processBroadcast(broadcastType, sensorData);
                 return;
             }
-
-            boolean frontObstructed = sensorData[0];
-            boolean rightObstructed = sensorData[1];
-            boolean leftObstructed = sensorData[2];
 
             switch (broadcastType) {
                 case MOVE_COMPLETE:
@@ -144,7 +142,7 @@ public class Exploration {
             return;
         }
 
-        if (!robotController.isGridExplored(RobotController.Direction.FORWARD)) {
+        if (!robotController.isGridExplored(RobotController.Direction.FORWARD) && !frontObstructed) {
             CHAAAAARGE();
             return;
         }
@@ -158,9 +156,9 @@ public class Exploration {
             }
 
             final int[] robotPosition = robotController.getRobotPosition();
-            final Pair<Double, List<int[]>> fastestPathToNearest = aStarSearch.findFastestPath(robotPosition, nearestCoordinates);
+            final List<AStarSearch.GridNode> fastestPathToNearest = aStarSearch.findFastestPath(robotPosition, nearestCoordinates);
             pathList.clear();
-            pathList = fastestPathToNearest.second;
+            pathList = fastestPathToNearest;
 
             if (pathList.isEmpty()) {
                 endExploration();
@@ -168,7 +166,8 @@ public class Exploration {
             }
         }
 
-        int[] coordinates = pathList.get(0);
+        AStarSearch.GridNode node = pathList.get(0);
+        int[] coordinates = new int[] {node.x, node.y};
         pathList.remove(0);
         robotController.moveRobot(coordinates);
     }
@@ -187,8 +186,7 @@ public class Exploration {
 
         if (pathList.isEmpty()) {
             callback.invoke(Callback.GOING_HOME);
-            final Pair<Double, List<int[]>> fastestPathToStart = aStarSearch.findFastestPath(robotPosition, robotController.getStartPosition());
-            pathList = fastestPathToStart.second;
+            pathList = aStarSearch.findFastestPath(robotPosition, robotController.getStartPosition());
 
             if (pathList.isEmpty()) {
                 end();
@@ -196,7 +194,8 @@ public class Exploration {
             }
         }
 
-        int[] coordinates = pathList.get(0);
+        AStarSearch.GridNode node = pathList.get(0);
+        int[] coordinates = new int[] {node.x, node.y};
         pathList.remove(0);
         robotController.moveRobot(coordinates);
     }

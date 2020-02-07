@@ -31,21 +31,19 @@ public class FastestPath {
     }
 
     public void start() {
-        App.setROBOT_MOVABLE(false);
-        robotController.getInitialSurrounding();
+        pathList = aStarSearch.fastestPathChallenge();
+        robotController.turnRobotJava(pathList.get(0)[2]);
     }
 
     public void end() {
         started = false;
         robotController.deregisterForBroadcast(broadcastCallback);
-        App.setROBOT_MOVABLE(true);
     }
 
     private void processBroadcast() {
         if (!started) {
-            pathList = aStarSearch.fastestPathChallenge();
-            callback.invoke(Callback.START_CLOCK);
             started = true;
+            callback.invoke(Callback.START_CLOCK);
         }
 
         final int[] robotPosition = robotController.getRobotPosition();

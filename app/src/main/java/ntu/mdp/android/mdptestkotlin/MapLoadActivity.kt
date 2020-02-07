@@ -59,13 +59,15 @@ class MapLoadActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             dataList = ArrayList(database.arenaDao().selectAll())
         }.invokeOnCompletion {
-            recyclerAdapter = DeviceAdapter()
-            mapLoadRecycler.adapter = recyclerAdapter
+            CoroutineScope(Dispatchers.Main).launch {
+                recyclerAdapter = DeviceAdapter()
+                mapLoadRecycler.adapter = recyclerAdapter
 
-            if (dataList.isEmpty()) {
-                mapLoadRecycler.visibility = View.GONE
-                noSaveDataLabel.visibility = View.VISIBLE
-                bottomMarginView.visibility = View.VISIBLE
+                if (dataList.isEmpty()) {
+                    mapLoadRecycler.visibility = View.GONE
+                    noSaveDataLabel.visibility = View.VISIBLE
+                    bottomMarginView.visibility = View.VISIBLE
+                }
             }
         }
 

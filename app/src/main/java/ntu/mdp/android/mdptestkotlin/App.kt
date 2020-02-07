@@ -27,7 +27,6 @@ class App: Application() {
         lateinit var sharedPreferences: SharedPreferences
         @Volatile var autoUpdateArena = false
         @Volatile var darkMode = false
-        @Volatile var accelerometer = false
         @Volatile var usingAmd = true
         @Volatile var simulationMode = false
         @JvmStatic @Volatile var simulationDelay = SLOW_SIM_DELAY
@@ -38,7 +37,9 @@ class App: Application() {
         @Volatile var TURN_LEFT_COMMAND = "tl"
         @Volatile var TURN_RIGHT_COMMAND = "tr"
         @Volatile var BLUETOOTH_CONNECTED_DEVICE = "-"
-        @JvmStatic @Volatile var ROBOT_MOVABLE = true
+        @JvmStatic @Volatile var accelerometer = false
+        @JvmStatic @Volatile var PAD_MOVABLE = true
+        @JvmStatic @Volatile var TILT_MOVABLE = true
     }
 
     override fun onCreate() {
@@ -60,7 +61,6 @@ class App: Application() {
         autoUpdateArena = sharedPreferences.getBoolean(getString(R.string.app_pref_auto_update), true)
         usingAmd = sharedPreferences.getBoolean(getString(R.string.app_pref_using_amd), true)
         simulationMode = sharedPreferences.getBoolean(getString(R.string.app_pref_simulation_mode), false)
-        accelerometer = sharedPreferences.getBoolean(getString(R.string.app_pref_accelerometer), false)
         simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else (1000 / 3)
         coverageLimit = if (simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
     }

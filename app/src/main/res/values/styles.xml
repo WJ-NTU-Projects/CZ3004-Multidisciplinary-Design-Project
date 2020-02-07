@@ -9,6 +9,7 @@
     <attr format="reference" name="simulationIconSrc"/>
     <attr format="reference" name="changeThemeIconSrc"/>
     <attr format="reference" name="accelerometerIconSrc"/>
+    <attr format="reference" name="editTextBg"/>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -39,6 +40,7 @@
         <item name="changeThemeIconSrc">@drawable/ic_change_theme</item>
         <item name="accelerometerIconSrc">@drawable/ic_accelerometer</item>
         <item name="colorTextTheme">@color/textColor</item>
+        <item name="editTextBg">@drawable/ui_edittext</item>
     </style>
 
     <style name="AppTheme.Dark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -69,6 +71,7 @@
         <item name="changeThemeIconSrc">@drawable/ic_change_theme_dark</item>
         <item name="accelerometerIconSrc">@drawable/ic_accelerometer_dark</item>
         <item name="colorTextTheme">@color/textColorDark</item>
+        <item name="editTextBg">@drawable/ui_edittext_dark</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.MaterialComponents.Light.Dialog">
@@ -136,11 +139,14 @@
     </style>
 
     <style name="DataCard" parent="CardView">
-        <item name="cardBackgroundColor">?attr/colorCardBackground</item>
-        <item name="cardElevation">2dp</item>
-        <item name="android:clipToPadding">false</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:clipChildren">false</item>
+        <item name="android:elevation">4dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardBackgroundColor">?attr/colorCardBackground</item>
+        <item name="cardPreventCornerOverlap">false</item>
     </style>
 
     <style name="DataCard.Toolbar">
@@ -153,14 +159,13 @@
 
     <style name="DataCard.Main">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">2dp</item>
-        <item name="android:layout_marginEnd">2dp</item>
-        <item name="android:layout_marginTop">@dimen/element_padding</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:clipChildren">false</item>
     </style>
 
     <style name="DataCard.Main.Small">
-        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="DataCard.Main.Small.Phone">
@@ -185,18 +190,40 @@
     </style>
 
     <style name="DataCardInnerLayout.Main">
+        <item name="android:gravity">center</item>
         <item name="android:paddingTop">@dimen/element_padding</item>
         <item name="android:paddingBottom">@dimen/element_padding</item>
     </style>
 
     <style name="UIButton" parent="Widget.MaterialComponents.Button">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">50dp</item>
+        <item name="backgroundTint">@color/button_state_list</item>
+        <item name="android:layout_width">@dimen/main_button_width</item>
+        <item name="android:layout_height">@dimen/main_button_height</item>
         <item name="android:textSize">@dimen/text_size_small</item>
         <item name="android:onClick">clickUiButton</item>
+        <item name="backgroundColor">?attr/colorPrimary</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="UIButton.IconOnly">
+        <item name="android:layout_width">@dimen/main_button_height_sq</item>
+        <item name="android:layout_height">@dimen/main_button_height_sq</item>
+        <item name="android:layout_marginStart">@dimen/small_padding</item>
+        <item name="android:layout_marginEnd">@dimen/small_padding</item>
+        <item name="iconSize">24dp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
     </style>
 
     <style name="UIButton.Main">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:insetBottom">0dp</item>
         <item name="android:layout_marginStart">2dp</item>
         <item name="android:layout_marginEnd">2dp</item>
     </style>
@@ -207,12 +234,35 @@
         <item name="android:layout_width">100dp</item>
     </style>
 
+    <style name="CardParentLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:clipChildren">false</item>
+    </style>
+
+    <style name="MainSideBarLayout">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_marginStart">@dimen/element_padding</item>
+    </style>
+
+    <style name="ButtonLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginTop">@dimen/element_padding</item>
+    </style>
+
     <style name="FAB" parent="Widget.MaterialComponents.FloatingActionButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:onClick">clickUiButton</item>
         <item name="elevation">2dp</item>
         <item name="fabCustomSize">52dp</item>
+        <item name="borderWidth">0dp</item>
     </style>
 
     <style name="FAB.Controller">
@@ -231,6 +281,7 @@
         <item name="android:textColor">?attr/colorAccentTheme</item>
         <item name="android:textStyle">bold</item>
         <item name="android:clickable">true</item>
+        <item name="android:textSize">@dimen/text_size_smaller</item>
         <item name="android:onClick">clickUiButton</item>
     </style>
 
@@ -311,4 +362,12 @@
         <item name="android:background">@drawable/ui_edittext_dark</item>
         <item name="android:textColor">@color/textColorDark</item>
     </style>
+
+
+
+
+
+
+
+    <!-- NEW -->
 </resources>

@@ -15,6 +15,12 @@ class RobotController(context: Context, callback: (callback: Callback, message: 
         }
     }
 
+    fun turnRobotJava(facing: Int) {
+        CoroutineScope(Dispatchers.Main).launch {
+            turnRobot(facing)
+        }
+    }
+
     fun moveRobot(array: IntArray) {
         CoroutineScope(Dispatchers.Main).launch {
             moveRobot(array[0], array[1])

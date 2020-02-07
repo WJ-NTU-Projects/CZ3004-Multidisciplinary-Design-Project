@@ -3,6 +3,7 @@ package ntu.mdp.android.mdptestkotlin.arena
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Matrix
 import android.os.Build
 import android.util.Log
 import android.widget.GridLayout
@@ -25,10 +26,10 @@ import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.simulation.AStarSearch
 import ntu.mdp.android.mdptestkotlin.utils.GestureImageView
-import java.lang.Exception
 import java.time.LocalDateTime
 import kotlin.math.abs
-import kotlin.math.max
+import kotlin.math.ceil
+
 
 open class ArenaV2 (private val context: Context, private val callback: (status: Callback, message: String) -> Unit) {
 
@@ -58,9 +59,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         SEND_COMMAND,
         UPDATE_COORDINATES,
         UPDATE_STATUS,
-        LONG_PRESS_CHOICE,
-        RESET_ARENA,
-        PLOT_FASTEST_PATH
+        LONG_PRESS_CHOICE
     }
 
     enum class GridType {
@@ -82,7 +81,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         TURN_COMPLETE
     }
 
-    private val scale           : Double = if (context.resources.getBoolean(R.bool.isTablet)) 0.74 else 0.70
+    private val scale           : Double = if (context.resources.getBoolean(R.bool.isTablet)) 0.745 else 0.70
     private val displayPixels   : Int = (context.resources.displayMetrics.widthPixels * scale).toInt()
     private val gridSize        : Int = ((displayPixels - 30) / 15)
     private val robotSize       : Int = (displayPixels / 15)
@@ -357,21 +356,18 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         robotPosition[1] = y
 
         if ((currentX == x && abs(currentY - y) == 1) || (currentY == y && abs(currentX - x) == 1)) {
+            travelComplete = false
             setRobotPosition2(currentX, currentY, x, y)
         } else {
             setRobotPosition(x, y)
         }
+
+        travelComplete = false
         updateRobotImage(facing)
         if (isWaypointExact(x, y)) setWaypointTouched()
         else if (isGoalPointExact(x, y)) setGoalPointTouched()
         val sensorData: BooleanArray = if (simulationMode) scan(x, y, facing) else booleanArrayOf(false, false, false)
         lastMoveTime = System.currentTimeMillis()
-        elapsed = System.currentTimeMillis() - lastMoveTime
-
-        if (elapsed < simulationDelay) {
-            delay(simulationDelay - elapsed)
-        }
-
         broadcast(broadcastType, sensorData)
     }
 
@@ -390,21 +386,16 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
                 return@withContext
             }
         } else {
-            var elapsed: Long = System.currentTimeMillis() - lastMoveTime
+            val elapsed: Long = System.currentTimeMillis() - lastMoveTime
 
             if (elapsed < simulationDelay) {
                 delay(simulationDelay - elapsed)
             }
 
+            travelComplete = false
             updateRobotImage(facing)
             val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], facing) else booleanArrayOf(false, false, false)
             lastMoveTime = System.currentTimeMillis()
-            elapsed = System.currentTimeMillis() - lastMoveTime
-
-            if (elapsed < simulationDelay) {
-                delay(simulationDelay - elapsed)
-            }
-
             broadcast(Broadcast.TURN_COMPLETE, sensorData)
         }
     }
@@ -450,7 +441,13 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
                 delay(simulationDelay - elapsed)
             }
 
+            travelComplete = false
             updateRobotImage(facing)
+
+            while (!travelComplete) {
+                delay(1)
+            }
+
             scan(robotPosition[0], robotPosition[1], facing)
             lastMoveTime = System.currentTimeMillis()
         }
@@ -531,35 +528,48 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
 
         if (anchorX != currentAnchorX) {
-            val distance = abs(anchorX - currentAnchorX)
-            val modifier = if ((anchorX - currentAnchorX) < 0) -1 else 1
-            val elapsed = System.currentTimeMillis() - lastMoveTime
-            val delay = (1.0 * simulationDelay / distance).toLong()
+            val distance: Double = 1.0 * abs(anchorX - currentAnchorX) / 3.0
+            val modifier = if ((anchorX - currentAnchorX) < 0) -3 else 3
+            val delay = ceil(1.0 * simulationDelay / distance).toLong()
             currentAnchor = currentAnchorX
+            val params = robotDisplay.layoutParams as RelativeLayout.LayoutParams
 
             while (currentAnchor != anchorX) {
+                params.topMargin = anchorY
+                params.leftMargin = currentAnchor + modifier
+                robotDisplay.layoutParams = params
+
+                /*
                 robotDisplay.layoutParams = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3).apply {
                     leftMargin = currentAnchor + modifier
                     topMargin = anchorY
                 }
 
                 robotDisplay.requestLayout()
+                 */
                 currentAnchor += modifier
                 delay(delay)
             }
         } else if (anchorY != currentAnchorY) {
-            val distance = abs(anchorY - currentAnchorY)
-            val modifier = if ((anchorY - currentAnchorY) < 0) -1 else 1
-            val delay = (simulationDelay / distance)
+            val distance: Double = 1.0 * abs(anchorY - currentAnchorY) / 3.0
+            val modifier = if ((anchorY - currentAnchorY) < 0) -3 else 3
+            val delay = ceil(1.0 * simulationDelay / distance).toLong()
             currentAnchor = currentAnchorY
+            val params = robotDisplay.layoutParams as RelativeLayout.LayoutParams
 
             while (currentAnchor != anchorY) {
+                params.topMargin = currentAnchor + modifier
+                params.leftMargin = anchorX
+                robotDisplay.layoutParams = params
+
+                /*
                 robotDisplay.layoutParams = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3).apply {
                     leftMargin = anchorX
                     topMargin = currentAnchor + modifier
                 }
 
                 robotDisplay.requestLayout()
+                 */
                 currentAnchor += modifier
                 delay(delay)
             }
@@ -570,8 +580,15 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
     }
 
     suspend fun updateRobotImage(facing: Int = robotPosition[2]) = withContext(Dispatchers.Main) {
-        while (!travelComplete) {
-            delay(1)
+        var currentFacing = robotPosition[2]
+        val offset = facing - currentFacing
+        val modifier = if (offset == 90 || offset == -270) 10 else -10
+        val delay = ceil(1.0 * simulationDelay / 9.0).toLong()
+
+        while (currentFacing != facing) {
+            currentFacing = Math.floorMod((currentFacing + modifier), 360)
+            robotDisplay.rotation += modifier
+            delay(delay)
         }
 
         val drawable: Int = when (facing) {
@@ -583,7 +600,9 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
 
         robotDisplay.setImageResource(drawable)
+        robotDisplay.rotation = 0.0f
         robotPosition[2] = facing
+        travelComplete = true
     }
 
     private fun setUnexploredForced(x: Int, y: Int) {
@@ -798,6 +817,12 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
     }
 
     fun plotFastestPath() {
+        for (y in 19 downTo 0) {
+            for (x in 0..14) {
+                if (gridTypeArray[y][x] == GridType.FASTEST_PATH) plot(x, y, if (exploreArray[y][x] == exploredBit) GridType.EXPLORED else GridType.UNEXPLORED)
+            }
+        }
+
         val pathList: List<IntArray> = AStarSearch(this).fastestPathChallenge()
 
         for (p in pathList) {
@@ -1219,17 +1244,6 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             sharedPreferences.edit().putInt(context.getString(R.string.app_pref_simulation_speed), currentSpeed).apply()
             callback(Callback.MESSAGE, context.getString(R.string.simulation_speed_notification, currentSpeed + 1))
             return
-        }
-
-
-        if (gesture == GestureImageView.Gesture.FLING_LEFT) {
-            callback(Callback.RESET_ARENA, "")
-            return
-        }
-
-        if (gesture == GestureImageView.Gesture.FLING_RIGHT) {
-            if (!isValidCoordinates(waypointPosition) || !simulationMode) return
-            callback(Callback.PLOT_FASTEST_PATH, "")
         }
     }
 

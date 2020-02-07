@@ -34,70 +34,154 @@ public class AStarSearch {
             startFacing2 = 270;
         }
 
-        final Pair<Double, List<int[]>> pathToWaypoint1 = findFastestPath(new int[] {startX, startY, startFacing1}, robotController.getWaypointPosition());
-        final Pair<Double, List<int[]>> pathToWaypoint2 = findFastestPath(new int[] {startX, startY, startFacing2}, robotController.getWaypointPosition());
-        final List<int[]> path1 = pathToWaypoint1.second;
-        final List<int[]> path2 = pathToWaypoint2.second;
+        int waypointX = robotController.getWaypointPosition()[0];
+        int waypointY = robotController.getWaypointPosition()[1];
+        int goalX = robotController.getGoalPosition()[0];
+        int goalY = robotController.getGoalPosition()[1];
+        ArrayList<int[]> waypointEntranceList = new ArrayList<>();
+        ArrayList<int[]> goalEntranceList = new ArrayList<>();
 
-        final int[] waypointPosition = robotController.getWaypointPosition();
-        startX = waypointPosition[0];
-        startY = waypointPosition[1];
-        startFacing1 = (path1.isEmpty()) ? startFacing1 : path1.get(path1.size() - 1)[2];
-        startFacing2 = (path2.isEmpty()) ? startFacing2 : path2.get(path2.size() - 1)[2];
+        // FIND VIABLE ENTRANCES TO WAYPOINT
+        for (int offsetY = -1; offsetY <= 1; offsetY++) {
+            for (int offsetX = -1; offsetX <= 1; offsetX++) {
+                if ((offsetY == offsetX && offsetY == 0) || (offsetX != 0 && offsetY != 0)) continue;
 
-        final List<int[]> goalPath1 = findFastestPath(new int[] {startX, startY, startFacing1}, robotController.getGoalPosition()).second;
-        final List<int[]> goalPath2 = findFastestPath(new int[] {startX, startY, startFacing2}, robotController.getGoalPosition()).second;
-        path1.addAll(goalPath1);
-        path2.addAll(goalPath2);
+                int x = waypointX + offsetX;
+                int y = waypointY + offsetY;
+                if (robotController.isRobotMovable(x, y)) waypointEntranceList.add(new int[] {x, y});
 
-        if (path1.isEmpty() && path2.isEmpty()) return path1;
-
-        int turns1 = 0;
-
-        if (!path1.isEmpty()) {
-            int previousFacing = path1.get(0)[2];
-
-            for (int[] path : path1) {
-                if (path[2] != previousFacing) turns1++;
-                previousFacing = path[2];
+                x = goalX + offsetX;
+                y = goalY + offsetY;
+                if (robotController.isRobotMovable(x, y)) goalEntranceList.add(new int[] {x, y});
             }
         }
 
-        int turns2 = 0;
+        List<GridNode> finalPath = new ArrayList<>();
+        double previousCost = Double.MAX_VALUE;
 
-        if (!path2.isEmpty()) {
-            int previousFacing = path2.get(0)[2];
+        for (int[] waypointEntrance : waypointEntranceList) {
+            final List<GridNode> path1 = findFastestPath(startX, startY, startFacing1, waypointEntrance[0], waypointEntrance[1]);
+            GridNode path1End = path1.get(path1.size() - 1);
+            final List<GridNode> path1ToWp = findFastestPath(path1End.x, path1End.y, path1End.facing, waypointX, waypointY);
+            path1.addAll(path1ToWp);
+            path1End = path1.get(path1.size() - 1);
 
-            for (int[] path : path2) {
-                if (path[2] != previousFacing) turns2++;
-                previousFacing = path[2];
+            List<GridNode> finalGoalPath = new ArrayList<>();
+            double previousGoalCost = Double.MAX_VALUE;
+
+            for (int[] goalEntrance : goalEntranceList) {
+                final List<GridNode> goalPath = findFastestPath(path1End.x, path1End.y, path1End.facing, goalEntrance[0], goalEntrance[1]);
+                final GridNode goalPathEnd = goalPath.get(goalPath.size() - 1);
+                final List<GridNode> pathToGoal = findFastestPath(goalPathEnd.x, goalPathEnd.y, goalPathEnd.facing, goalX, goalY);
+                goalPath.addAll(pathToGoal);
+
+                double pathCost = 0.0;
+                int previousFacing = goalPath.get(0).facing;
+
+                for (GridNode node : goalPath) {
+                    pathCost += node.f;
+                    if (node.facing != previousFacing) pathCost += 500;
+                    previousFacing = node.facing;
+                }
+
+                if (pathCost <= previousGoalCost) {
+                    finalGoalPath = goalPath;
+                    previousGoalCost = pathCost;
+                }
+            }
+
+            path1.addAll(finalGoalPath);
+
+            double cost1 = 0.0;
+            int previousFacing = path1.get(0).facing;
+
+            for (GridNode node : path1) {
+                cost1 += node.f;
+                if (node.facing != previousFacing) cost1 += 500;
+                previousFacing = node.facing;
+            }
+
+            final List<GridNode> path2 = findFastestPath(startX, startY, startFacing2, waypointEntrance[0], waypointEntrance[1]);
+            GridNode path2End = path2.get(path2.size() - 1);
+            final List<GridNode> path2ToWp = findFastestPath(path2End.x, path2End.y, path2End.facing, waypointX, waypointY);
+            path2.addAll(path2ToWp);
+            path2End = path2.get(path2.size() - 1);
+
+            finalGoalPath = new ArrayList<>();
+            previousGoalCost = Double.MAX_VALUE;
+
+            for (int[] goalEntrance : goalEntranceList) {
+                final List<GridNode> goalPath = findFastestPath(path2End.x, path2End.y, path2End.facing, goalEntrance[0], goalEntrance[1]);
+                final GridNode goalPathEnd = goalPath.get(goalPath.size() - 1);
+                final List<GridNode> pathToGoal = findFastestPath(goalPathEnd.x, goalPathEnd.y, goalPathEnd.facing, goalX, goalY);
+                goalPath.addAll(pathToGoal);
+
+                double pathCost = 0.0;
+                previousFacing = goalPath.get(0).facing;
+
+                for (GridNode node : goalPath) {
+                    pathCost += node.f;
+                    if (node.facing != previousFacing) pathCost += 500;
+                    previousFacing = node.facing;
+                }
+
+                if (pathCost <= previousGoalCost) {
+                    finalGoalPath = goalPath;
+                    previousGoalCost = pathCost;
+                }
+            }
+
+            path2.addAll(finalGoalPath);
+
+            double cost2 = 0.0;
+            previousFacing = path2.get(0).facing;
+
+            for (GridNode node : path2) {
+                cost2 += node.f;
+                if (node.facing != previousFacing) cost2 += 500;
+                previousFacing = node.facing;
+            }
+
+            List<GridNode> path;
+            double cost;
+
+            if (cost2 <= cost1) {
+                path = path2;
+                cost = cost2;
+            } else {
+                path = path1;
+                cost = cost1;
+            }
+
+            if (cost <= previousCost) {
+                finalPath = path;
+                previousCost = cost;
             }
         }
 
-        double cost1 = pathToWaypoint1.first;
-        double cost2 = pathToWaypoint2.first;
-        if (turns2 > turns1) cost2 += 100;
-        else if (turns1 > turns2) cost1 += 100;
+        ArrayList<int[]> path = new ArrayList<>();
 
-        final List<int[]> pathList = (turns2 <= turns1) ? path2 : path1;
-        Log.e("TEST", turns1 + ", " + turns2 + ", " + cost1 + ", " + cost2);
-        return pathList;
+        for (GridNode node : finalPath) {
+            path.add(new int[] {node.x, node.y, node.facing});
+        }
+
+        return path;
     }
 
-    Pair<Double, List<int[]>> findFastestPath(int[] startArray, int[] endArray) {
-        if (startArray.length < 3 || endArray.length < 2) return new Pair<>(-1.0, new ArrayList<>());
+    List<GridNode> findFastestPath(int[] startArray, int[] endArray) {
+        if (startArray.length < 3 || endArray.length < 2) return new ArrayList<>();
         return findFastestPath(startArray[0], startArray[1], startArray[2], endArray[0], endArray[1]);
     }
 
-    private Pair<Double, List<int[]>> findFastestPath(int startX, int startY, int startFacing, int goalX, int goalY) {
-        if (!robotController.isValidCoordinates(startX, startY, false)) return new Pair<>(-1.0, new ArrayList<>());
-        if (!robotController.isValidCoordinates(goalX, goalY, false)) return new Pair<>(-1.0, new ArrayList<>());
+    private List<GridNode> findFastestPath(int startX, int startY, int startFacing, int goalX, int goalY) {
+        if (!robotController.isValidCoordinates(startX, startY, false)) return new ArrayList<>();
+        if (!robotController.isValidCoordinates(goalX, goalY, false)) return new ArrayList<>();
 
         boolean found = false;
         final ArrayList<GridNode> openList = new ArrayList<>();
         final ArrayList<GridNode> closedList = new ArrayList<>();
         final ArrayList<GridNode> successors = new ArrayList<>();
-        GridNode parentNode = new GridNode(startX, startY, startFacing, 0.0, 0.0, 0.0, -1, -1);
+        GridNode parentNode = new GridNode(startX, startY, startFacing, startFacing, 0.0, 0.0, 0.0, -1, -1);
         openList.add(parentNode);
 
         while (!openList.isEmpty()) {
@@ -119,6 +203,7 @@ public class AStarSearch {
                 for (int select = 0; select <= 1; select++) {
                     boolean continueToNext = false;
                     int facing = (offset == -1) ? (180 + (select * 90)) : (select * 90);
+                    int direction = facing;
                     if (abs(facing - parentNode.facing) == 180) facing = parentNode.facing;
                     final int x = (select == 0) ? parentNode.x : parentNode.x + offset;
                     final int y = (select == 0) ? parentNode.y + offset : parentNode.y;
@@ -132,7 +217,7 @@ public class AStarSearch {
                     }
 
                     if (continueToNext) continue;
-                    successors.add(new GridNode(x, y, facing, 0.0, 0.0, 0.0, parentNode.x, parentNode.y));
+                    successors.add(new GridNode(x, y, facing, direction, 0.0, 0.0, 0.0, parentNode.x, parentNode.y));
                 }
             }
 
@@ -146,7 +231,8 @@ public class AStarSearch {
                     break;
                 }
 
-                final double penalty = (parentNode.facing == successor.facing) ? 1.0 : 10.0;
+                double penalty = (parentNode.facing == successor.facing) ? 1.0 : 1.5;
+                //if (abs(successor.direction - parentNode.direction) == 180) penalty += 4.0;
                 successor.g = (abs(successor.x - successor.parentX) + abs(successor.y - successor.parentY) * penalty) + parentNode.g + (penalty - 1);
                 successor.h = 1.0 * (abs(successor.x - goalX) + abs(successor.y - goalY));
                 successor.f = successor.g + successor.h;
@@ -168,13 +254,11 @@ public class AStarSearch {
             }
         }
 
-        final ArrayList<int[]> pathList = new ArrayList<>();
-        double totalCost = 0.0;
+        final ArrayList<GridNode> nodeList = new ArrayList<>();
 
         if (found) {
             while (parentNode.parentX != -1 && parentNode.parentY != -1) {
-                pathList.add(new int[] {parentNode.x, parentNode.y, parentNode.facing});
-                totalCost += parentNode.f;
+                nodeList.add(parentNode);
 
                 for (GridNode closedNode : closedList) {
                     if (closedNode.x == parentNode.parentX && closedNode.y == parentNode.parentY) {
@@ -185,8 +269,8 @@ public class AStarSearch {
             }
         }
 
-        Collections.reverse(pathList);
-        return new Pair<>(totalCost, pathList);
+        Collections.reverse(nodeList);
+        return nodeList;
     }
 
 
@@ -194,16 +278,18 @@ public class AStarSearch {
         final int x;
         final int y;
         final int facing;
+        final int direction;
         double f;
         double g;
         double h;
         int parentX;
         int parentY;
 
-        GridNode(int x, int y, int facing, double f, double g, double h, int parentX, int parentY) {
+        GridNode(int x, int y, int facing, int direction, double f, double g, double h, int parentX, int parentY) {
             this.x = x;
             this.y = y;
             this.facing = facing;
+            this.direction = direction;
             this.f = f;
             this.g = g;
             this.h = h;

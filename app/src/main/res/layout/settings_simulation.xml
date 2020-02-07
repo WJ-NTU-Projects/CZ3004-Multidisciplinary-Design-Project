@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".settings.SettingsDisplayActivity">
+    tools:context=".settings.SettingsSimulationActivity">
 
     <include layout="@layout/addon_toolbar" />
 

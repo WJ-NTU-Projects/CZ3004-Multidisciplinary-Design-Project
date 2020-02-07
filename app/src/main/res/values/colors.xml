@@ -18,6 +18,7 @@
     <color name="colorAccent">#c5cdf3</color>
     <color name="colorAccentDark">#ede6fa</color>
 
+    <color name="colorActivated">#00dd00</color>
 
     <color name="textColor">#000000</color>
     <color name="textColorDark">#FFFFFF</color>
