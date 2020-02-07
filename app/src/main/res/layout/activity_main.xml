@@ -37,6 +37,19 @@
 
             <LinearLayout
                 style="@style/ToolbarButtonLayout"
+                android:id="@+id/accelerometerIcon"
+                app:layout_constraintRight_toLeftOf="@id/bluetoothButton"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <ImageView
+                    style="@style/ToolbarButton"
+                    android:src="?attr/accelerometerIconSrc"
+                    android:contentDescription="@string/app_name"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/ToolbarButtonLayout"
                 android:id="@+id/bluetoothButton"
                 app:layout_constraintRight_toLeftOf="@id/communicationButton"
                 app:layout_constraintTop_toTopOf="parent"

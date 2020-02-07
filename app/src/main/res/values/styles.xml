@@ -8,6 +8,7 @@
     <attr format="reference" name="communicationIconSrc"/>
     <attr format="reference" name="simulationIconSrc"/>
     <attr format="reference" name="changeThemeIconSrc"/>
+    <attr format="reference" name="accelerometerIconSrc"/>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -36,6 +37,7 @@
         <item name="communicationIconSrc">@drawable/ic_communication</item>
         <item name="simulationIconSrc">@drawable/ic_simulation</item>
         <item name="changeThemeIconSrc">@drawable/ic_change_theme</item>
+        <item name="accelerometerIconSrc">@drawable/ic_accelerometer</item>
         <item name="colorTextTheme">@color/textColor</item>
     </style>
 
@@ -65,6 +67,7 @@
         <item name="communicationIconSrc">@drawable/ic_communication_dark</item>
         <item name="simulationIconSrc">@drawable/ic_simulation_dark</item>
         <item name="changeThemeIconSrc">@drawable/ic_change_theme_dark</item>
+        <item name="accelerometerIconSrc">@drawable/ic_accelerometer_dark</item>
         <item name="colorTextTheme">@color/textColorDark</item>
     </style>
 
