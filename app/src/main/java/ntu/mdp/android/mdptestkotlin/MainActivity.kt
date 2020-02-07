@@ -25,6 +25,7 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.CLICK_DELAY
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
+import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.coverageLimit
 import ntu.mdp.android.mdptestkotlin.App.Companion.darkMode
 import ntu.mdp.android.mdptestkotlin.App.Companion.dialogTheme
@@ -257,8 +258,11 @@ class MainActivity : AppCompatActivity() {
 
         else {
             BluetoothController.callback = bluetoothCallback
-            ArenaV2.isWaitingUpdate = true
-            sendCommand(SEND_ARENA_COMMAND)
+
+            if (autoUpdateArena) {
+                ArenaV2.isWaitingUpdate = true
+                sendCommand(SEND_ARENA_COMMAND)
+            }
         }
     }
 

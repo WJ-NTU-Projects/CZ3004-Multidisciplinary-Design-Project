@@ -515,6 +515,10 @@
                 style="@style/AppTextView.Gray.Settings"
                 android:text="@string/settings_command_description"/>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/screen_padding"/>
         </LinearLayout>
 
     </ScrollView>
