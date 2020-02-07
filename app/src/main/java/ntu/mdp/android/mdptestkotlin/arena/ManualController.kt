@@ -22,22 +22,15 @@ import kotlin.math.roundToInt
 
 class ManualController(private val context: Context, binding: ActivityMainBinding, private val robotController: RobotController, private val callback: (callback: ArenaV2.Callback, message: String) -> Unit) {
 
-    private val buttonList      : List<View?> = listOf(binding.padForwardButton, binding.padReverseButton, binding.padLeftButton, binding.padRightButton)
-    private val forwardRect     : Rect = Rect(75, 10, 165, 90)
-    private val reverseRect     : Rect = Rect(75, 150, 165, 230)
-    private val leftRect        : Rect = Rect(15, 90, 95, 170)
-    private val rightRect       : Rect = Rect(150, 90, 230, 170)
-    private var swipeMode       : Boolean = false
-    private var swipeOriginX    : Float = 0.0f
-    private var swipeOriginY    : Float = 0.0f
+    private val buttonList      : List<View> = listOf(binding.padForwardButton, binding.padReverseButton, binding.padLeftButton, binding.padRightButton)
     private var trackMovement   : Boolean = false
     private var currentDirection: ArenaV2.Direction = ArenaV2.Direction.NONE
     private lateinit var movementThread  : MovementThread
 
-    val touchListener = View.OnTouchListener { view, event ->
-        Log.e("EVENT", "$event")
+    val touchListener = View.OnTouchListener { _, event ->
+        //Log.e("EVENT", "$event")
         when (event.action) {
-            MotionEvent.ACTION_DOWN -> return@OnTouchListener handleTouchDown(view, event)
+            MotionEvent.ACTION_DOWN -> return@OnTouchListener handleTouchDown(event)
             MotionEvent.ACTION_MOVE -> handleTouchMove(event)
             MotionEvent.ACTION_UP -> handleTouchUp()
         }
@@ -90,72 +83,48 @@ class ManualController(private val context: Context, binding: ActivityMainBindin
                     }
                 }
 
-                Log.e("XYZ values", "${event.values[0]}, ${event.values[1]}, ${event.values[2]}")
+                //Log.e("XYZ values", "${event.values[0]}, ${event.values[1]}, ${event.values[2]}")
             }
         }
     }
 
     init {
         robotController.registerForBroadcast { _, _ ->
-            if (accelerometer) TILT_MOVABLE = true
-            else PAD_MOVABLE = true
+            if (accelerometer) {
+                TILT_MOVABLE = true
+            } else {
+                PAD_MOVABLE = true
+
+                if (!trackMovement && currentDirection != ArenaV2.Direction.NONE) {
+                    trackMovement = true
+                    movementThread = MovementThread()
+                    movementThread.start()
+                }
+            }
         }
     }
 
-    private fun handleTouchDown(view: View, event: MotionEvent): Boolean {
+    private fun handleTouchDown(event: MotionEvent): Boolean {
+        checkTouchIntersect(event)
+
         if (!PAD_MOVABLE) return true
-        if (swipeMode) {
-            swipeOriginX = (view.width / 2.0f)
-            swipeOriginY = (view.height / 2.0f)
-
-            val x = (event.x - swipeOriginX)
-            val y = (event.y - swipeOriginY)
-            val threshold = 33
-
-            when {
-                (y < -threshold && abs(y) > abs(x)) -> updateCurrentDirection(ArenaV2.Direction.FORWARD)
-                (y > threshold && abs(y) > abs(x)) -> updateCurrentDirection(ArenaV2.Direction.REVERSE)
-                (x < -threshold && abs(y) < abs(x))  -> updateCurrentDirection(ArenaV2.Direction.LEFT)
-                (x > threshold && abs(y) < abs(x)) -> updateCurrentDirection(ArenaV2.Direction.RIGHT)
-            }
-        } else {
-            checkTouchIntersect(event)
-        }
-
         if (!trackMovement) {
-            if (::movementThread.isInitialized && movementThread.isAlive) movementThread.end()
+            trackMovement = true
             movementThread = MovementThread()
             movementThread.start()
-            trackMovement = true
         }
 
         return true
     }
 
     private fun handleTouchMove(event: MotionEvent) {
+        checkTouchIntersect(event)
+
         if (!PAD_MOVABLE) return
-        Log.e("TEST", "TEST")
-
-        if (swipeMode) {
-            val x = (event.x - swipeOriginX)
-            val y = (event.y - swipeOriginY)
-            val threshold = 33
-
-            when {
-                (y < -threshold && abs(y) > abs(x)) -> updateCurrentDirection(ArenaV2.Direction.FORWARD)
-                (y > threshold && abs(y) > abs(x)) -> updateCurrentDirection(ArenaV2.Direction.REVERSE)
-                (x < -threshold && abs(y) < abs(x))  -> updateCurrentDirection(ArenaV2.Direction.LEFT)
-                (x > threshold && abs(y) < abs(x)) -> updateCurrentDirection(ArenaV2.Direction.RIGHT)
-            }
-        } else {
-            checkTouchIntersect(event)
-        }
-
         if (!trackMovement) {
-            if (::movementThread.isInitialized && movementThread.isAlive) movementThread.end()
+            trackMovement = true
             movementThread = MovementThread()
             movementThread.start()
-            trackMovement = true
         }
     }
 
@@ -164,10 +133,20 @@ class ManualController(private val context: Context, binding: ActivityMainBindin
         callback(ArenaV2.Callback.UPDATE_STATUS, context.getString(R.string.idle))
         updateCurrentDirection(ArenaV2.Direction.NONE)
         if (::movementThread.isInitialized) movementThread.end()
-        if (!swipeMode) releasePadButtons()
+        releasePadButtons()
     }
 
     private fun checkTouchIntersect(event: MotionEvent) {
+        /*
+        for ((i, b) in buttonList.withIndex()) {
+            Log.e("CTI $i", "${b?.left?.minus(10)}, ${b?.top?.minus(10)}, ${b?.right?.plus(10)}, ${b?.bottom?.plus(10)}")
+        }
+        */
+        val forwardRect = Rect(buttonList[0].left.minus(10), buttonList[0].top.minus(10), buttonList[0].right.plus(10), buttonList[0].bottom.plus(10))
+        val reverseRect = Rect(buttonList[1].left.minus(10), buttonList[1].top.minus(10), buttonList[1].right.plus(10), buttonList[1].bottom.plus(10))
+        val leftRect = Rect(buttonList[2].left.minus(10), buttonList[2].top.minus(10), buttonList[2].right.plus(10), buttonList[2].bottom.plus(10))
+        val rightRect = Rect(buttonList[3].left.minus(10), buttonList[3].top.minus(10), buttonList[3].right.plus(10), buttonList[3].bottom.plus(10))
+
         when {
             forwardRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(ArenaV2.Direction.FORWARD)
             reverseRect.contains(event.x.roundToInt(), event.y.roundToInt()) -> pressPadButton(ArenaV2.Direction.REVERSE)
@@ -218,10 +197,6 @@ class ManualController(private val context: Context, binding: ActivityMainBindin
         releasePadButtons()
     }
 
-    fun toggleSwipeMode(state: Boolean = !swipeMode) {
-        swipeMode = state
-    }
-
     private inner class MovementThread: Thread() {
         fun end() {
             trackMovement = false
@@ -231,8 +206,8 @@ class ManualController(private val context: Context, binding: ActivityMainBindin
             CoroutineScope(Dispatchers.Default).launch {
                 while (trackMovement) {
                     if (!PAD_MOVABLE) {
-                        delay(1)
-                        continue
+                        end()
+                        return@launch
                     }
 
                     val facing = when (currentDirection) {
@@ -244,9 +219,10 @@ class ManualController(private val context: Context, binding: ActivityMainBindin
                     }
 
                     if (facing == -1) continue
+                    PAD_MOVABLE = false
                     val currentFacing: Int = robotController.getRobotFacing()
                     val facingOffset: Int = currentFacing - facing
-                    PAD_MOVABLE = false
+                    end()
 
                     if (facing == currentFacing || abs(facing - currentFacing) == 180) {
                         robotController.moveRobot(facing)
@@ -256,7 +232,6 @@ class ManualController(private val context: Context, binding: ActivityMainBindin
                         robotController.turnRobot(Math.floorMod(currentFacing + 90, 360))
                     }
 
-                    end()
                     return@launch
                     //if (BluetoothController.isSocketConnected()) delay(App.simulationDelay)
                 }

@@ -4,11 +4,6 @@
     <attr format="reference" name="speedFastIconSrc"/>
     <attr format="reference" name="coverageLessIconSrc"/>
     <attr format="reference" name="coverageMoreIconSrc"/>
-    <attr format="reference" name="bluetoothIconSrc"/>
-    <attr format="reference" name="communicationIconSrc"/>
-    <attr format="reference" name="simulationIconSrc"/>
-    <attr format="reference" name="changeThemeIconSrc"/>
-    <attr format="reference" name="accelerometerIconSrc"/>
     <attr format="reference" name="editTextBg"/>
 
     <!-- Base application theme. -->
@@ -34,11 +29,6 @@
         <item name="speedFastIconSrc">@drawable/ic_speed_fast</item>
         <item name="coverageLessIconSrc">@drawable/ic_coverage_less</item>
         <item name="coverageMoreIconSrc">@drawable/ic_coverage_more</item>
-        <item name="bluetoothIconSrc">@drawable/ic_bluetooth</item>
-        <item name="communicationIconSrc">@drawable/ic_communication</item>
-        <item name="simulationIconSrc">@drawable/ic_simulation</item>
-        <item name="changeThemeIconSrc">@drawable/ic_change_theme</item>
-        <item name="accelerometerIconSrc">@drawable/ic_accelerometer</item>
         <item name="colorTextTheme">@color/textColor</item>
         <item name="editTextBg">@drawable/ui_edittext</item>
     </style>
@@ -65,11 +55,6 @@
         <item name="speedFastIconSrc">@drawable/ic_speed_fast_dark</item>
         <item name="coverageLessIconSrc">@drawable/ic_coverage_less_dark</item>
         <item name="coverageMoreIconSrc">@drawable/ic_coverage_more_dark</item>
-        <item name="bluetoothIconSrc">@drawable/ic_bluetooth_dark</item>
-        <item name="communicationIconSrc">@drawable/ic_communication_dark</item>
-        <item name="simulationIconSrc">@drawable/ic_simulation_dark</item>
-        <item name="changeThemeIconSrc">@drawable/ic_change_theme_dark</item>
-        <item name="accelerometerIconSrc">@drawable/ic_accelerometer_dark</item>
         <item name="colorTextTheme">@color/textColorDark</item>
         <item name="editTextBg">@drawable/ui_edittext_dark</item>
     </style>
@@ -129,13 +114,13 @@
         <item name="android:layout_height">0dp</item>
         <item name="android:rowCount">20</item>
         <item name="android:columnCount">15</item>
-        <item name="layout_constraintWidth_percent">0.78</item>
-        <item name="layout_constraintHeight_percent">0.685</item>
+        <item name="layout_constraintWidth_percent">0.776</item>
+        <item name="layout_constraintHeight_percent">0.68</item>
     </style>
 
     <style name="ArenaGridLayout.Phone">
-        <item name="layout_constraintWidth_percent">0.76</item>
-        <item name="layout_constraintHeight_percent">0.56</item>
+        <item name="layout_constraintWidth_percent">0.74</item>
+        <item name="layout_constraintHeight_percent">0.514</item>
     </style>
 
     <style name="DataCard" parent="CardView">

@@ -12,7 +12,7 @@
     <dimen name="text_size_default">14sp</dimen>
     <dimen name="text_size_small">12sp</dimen>
     <dimen name="text_size_smaller">10sp</dimen>
-    <dimen name="main_button_height">48dp</dimen>
-    <dimen name="main_button_height_sq">50dp</dimen>
-    <dimen name="main_button_width">100dp</dimen>
+    <dimen name="main_button_height">40dp</dimen>
+    <dimen name="main_button_height_sq">40dp</dimen>
+    <dimen name="main_button_width">80dp</dimen>
 </resources>

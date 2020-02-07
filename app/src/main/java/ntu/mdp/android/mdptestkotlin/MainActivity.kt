@@ -218,12 +218,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        if (!isTablet) {
-            manualController.toggleSwipeMode(true)
+        if (isTablet) {
+            f1Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default))
+            f2Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default))
         }
 
-        f1Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default))
-        f2Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default))
         statusCardLabel.text = getString(R.string.idle)
 
         if (accelerometer) {

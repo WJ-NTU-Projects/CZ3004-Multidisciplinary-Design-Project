@@ -29,6 +29,7 @@ import ntu.mdp.android.mdptestkotlin.utils.GestureImageView
 import java.time.LocalDateTime
 import kotlin.math.abs
 import kotlin.math.ceil
+import kotlin.math.floor
 
 
 open class ArenaV2 (private val context: Context, private val callback: (status: Callback, message: String) -> Unit) {
@@ -81,7 +82,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         TURN_COMPLETE
     }
 
-    private val scale           : Double = if (context.resources.getBoolean(R.bool.isTablet)) 0.745 else 0.70
+    private val scale           : Double = if (context.resources.getBoolean(R.bool.isTablet)) 0.745 else 0.69
     private val displayPixels   : Int = (context.resources.displayMetrics.widthPixels * scale).toInt()
     private val gridSize        : Int = ((displayPixels - 30) / 15)
     private val robotSize       : Int = (displayPixels / 15)
@@ -516,6 +517,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         val anchorX = (x - 1) * robotSize
         val anchorY = (19 - (y + 1)) * robotSize
         var currentAnchor: Int
+        val params = robotDisplay.layoutParams as RelativeLayout.LayoutParams
 
         CoroutineScope(Dispatchers.Main).launch {
             for (offsetY in -1..1) {
@@ -532,21 +534,11 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             val modifier = if ((anchorX - currentAnchorX) < 0) -3 else 3
             val delay = ceil(1.0 * simulationDelay / distance).toLong()
             currentAnchor = currentAnchorX
-            val params = robotDisplay.layoutParams as RelativeLayout.LayoutParams
 
-            while (currentAnchor != anchorX) {
+            for (i in 0..(floor(distance).toInt())) {
                 params.topMargin = anchorY
                 params.leftMargin = currentAnchor + modifier
                 robotDisplay.layoutParams = params
-
-                /*
-                robotDisplay.layoutParams = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3).apply {
-                    leftMargin = currentAnchor + modifier
-                    topMargin = anchorY
-                }
-
-                robotDisplay.requestLayout()
-                 */
                 currentAnchor += modifier
                 delay(delay)
             }
@@ -555,26 +547,19 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             val modifier = if ((anchorY - currentAnchorY) < 0) -3 else 3
             val delay = ceil(1.0 * simulationDelay / distance).toLong()
             currentAnchor = currentAnchorY
-            val params = robotDisplay.layoutParams as RelativeLayout.LayoutParams
 
-            while (currentAnchor != anchorY) {
+            for (i in 0..(floor(distance).toInt())) {
                 params.topMargin = currentAnchor + modifier
                 params.leftMargin = anchorX
                 robotDisplay.layoutParams = params
-
-                /*
-                robotDisplay.layoutParams = RelativeLayout.LayoutParams(robotSize * 3, robotSize * 3).apply {
-                    leftMargin = anchorX
-                    topMargin = currentAnchor + modifier
-                }
-
-                robotDisplay.requestLayout()
-                 */
                 currentAnchor += modifier
                 delay(delay)
             }
         }
 
+        params.leftMargin = anchorX
+        params.topMargin = anchorY
+        robotDisplay.layoutParams = params
         travelComplete = true
         callback(Callback.UPDATE_COORDINATES, "$x, $y")
     }

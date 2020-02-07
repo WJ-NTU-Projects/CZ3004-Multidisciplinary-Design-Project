@@ -15,13 +15,13 @@
     android:clipToPadding="false">
 
     <RelativeLayout
-        style="@style/ArenaGridLayout"
+        style="@style/ArenaGridLayout.Phone"
         android:id="@+id/gridParent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent">
 
         <GridLayout
-            style="@style/ArenaGridLayout"
+            style="@style/ArenaGridLayout.Phone"
             android:id="@+id/main_grid_arena"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -29,17 +29,14 @@
 
     <LinearLayout
         style="@style/MainSideBarLayout"
-        android:id="@+id/settingsButtonLayout"
+        android:id="@+id/buttonLayout"
         android:layout_marginTop="0dp"
+        app:layout_constraintLeft_toRightOf="@id/gridParent"
         app:layout_constraintTop_toTopOf="@id/gridParent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/gridParent">
+        app:layout_constraintBottom_toBottomOf="@id/gridParent">
 
-        <com.google.android.material.textview.MaterialTextView
-            style="@style/AppTextView.Gray.Small"
-            android:text="@string/settings"/>
-
-        <LinearLayout style="@style/ButtonLayout">
+        <LinearLayout style="@style/ButtonLayout" android:layout_marginTop="0dp">
             <com.google.android.material.button.MaterialButton
                 style="@style/UIButton.IconOnly"
                 android:id="@+id/bluetoothButton"
@@ -74,20 +71,6 @@
                 android:id="@+id/testButton"
                 app:icon="@drawable/ic_test"/>
         </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        style="@style/MainSideBarLayout"
-        android:id="@+id/arenaButtonLayout"
-        android:layout_marginTop="@dimen/small_padding"
-        app:layout_constraintTop_toBottomOf="@id/settingsButtonLayout"
-        app:layout_constraintBottom_toTopOf="@id/customButtonLayout"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/gridParent">
-
-        <com.google.android.material.textview.MaterialTextView
-            style="@style/AppTextView.Gray.Small"
-            android:text="@string/arena"/>
 
         <LinearLayout style="@style/ButtonLayout">
             <com.google.android.material.button.MaterialButton
@@ -136,32 +119,18 @@
                 android:id="@+id/clearArenaButton"
                 app:icon="@drawable/ic_clear"/>
         </LinearLayout>
-    </LinearLayout>
 
-    <LinearLayout
-        style="@style/MainSideBarLayout"
-        android:id="@+id/customButtonLayout"
-        android:layout_marginTop="@dimen/small_padding"
-        app:layout_constraintLeft_toRightOf="@id/gridParent"
-        app:layout_constraintTop_toBottomOf="@id/arenaButtonLayout"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/dataCardLayout">
+        <LinearLayout style="@style/ButtonLayout">
+            <com.google.android.material.button.MaterialButton
+                style="@style/UIButton.IconOnly"
+                android:id="@+id/f1Button"
+                app:icon="@drawable/ic_f1"/>
 
-        <com.google.android.material.textview.MaterialTextView
-            style="@style/AppTextView.Gray.Small"
-            android:text="@string/custom_buttons"/>
-
-        <com.google.android.material.button.MaterialButton
-            style="@style/UIButton.Main"
-            android:id="@+id/f1Button"
-            android:layout_marginTop="@dimen/element_padding"
-            android:text="@string/f1_default"/>
-
-        <com.google.android.material.button.MaterialButton
-            style="@style/UIButton.Main"
-            android:id="@+id/f2Button"
-            android:layout_marginTop="@dimen/element_padding"
-            android:text="@string/f2_default"/>
+            <com.google.android.material.button.MaterialButton
+                style="@style/UIButton.IconOnly"
+                android:id="@+id/f2Button"
+                app:icon="@drawable/ic_f2"/>
+        </LinearLayout>
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -169,17 +138,19 @@
         android:id="@+id/dataCardLayout"
         android:layout_marginTop="@dimen/element_padding"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/customButtonLayout"
+        app:layout_constraintTop_toBottomOf="@id/buttonLayout"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottomCardLayout">
 
         <androidx.cardview.widget.CardView
-            style="@style/DataCard.Main.Small"
+            style="@style/DataCard.Main"
             android:id="@+id/modeCard"
             android:layout_marginEnd="@dimen/small_padding"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginBottom="@dimen/small_padding"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/statusCard">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/statusCard"
+            app:layout_constraintBottom_toTopOf="@id/coordinatesCard">
 
             <LinearLayout style="@style/DataCardInnerLayout.Main">
                 <com.google.android.material.textview.MaterialTextView
@@ -189,18 +160,22 @@
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/AppTextView"
                     android:id="@+id/modeCardLabel"
+                    android:layout_marginTop="@dimen/element_padding"
+                    android:layout_marginBottom="@dimen/element_padding"
                     android:text="@string/none" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            style="@style/DataCard.Main.Small"
+            style="@style/DataCard.Main"
             android:id="@+id/statusCard"
             android:layout_marginStart="@dimen/small_padding"
-            android:layout_marginEnd="@dimen/small_padding"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginBottom="@dimen/small_padding"
+            android:layout_marginEnd="@dimen/element_padding"
             app:layout_constraintLeft_toRightOf="@id/modeCard"
-            app:layout_constraintRight_toLeftOf="@id/coordinatesCard">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/controllerCard"
+            app:layout_constraintBottom_toTopOf="@id/timerCard">
 
             <LinearLayout style="@style/DataCardInnerLayout.Main">
                 <com.google.android.material.textview.MaterialTextView
@@ -210,18 +185,21 @@
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/AppTextView"
                     android:id="@+id/statusCardLabel"
+                    android:layout_marginTop="@dimen/element_padding"
+                    android:layout_marginBottom="@dimen/element_padding"
                     android:text="@string/idle" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            style="@style/DataCard.Main.Small"
+            style="@style/DataCard.Main"
             android:id="@+id/coordinatesCard"
-            android:layout_marginStart="@dimen/small_padding"
+            android:layout_marginTop="@dimen/small_padding"
             android:layout_marginEnd="@dimen/small_padding"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/statusCard"
-            app:layout_constraintRight_toLeftOf="@id/timerCard">
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/modeCard"
+            app:layout_constraintRight_toLeftOf="@id/timerCard"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <LinearLayout style="@style/DataCardInnerLayout.Main">
                 <com.google.android.material.textview.MaterialTextView
@@ -231,17 +209,22 @@
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/AppTextView"
                     android:id="@+id/coordinatesCardLabel"
+                    android:layout_marginTop="@dimen/element_padding"
+                    android:layout_marginBottom="@dimen/element_padding"
                     android:text="@string/coordinates_default" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            style="@style/DataCard.Main.Small"
+            style="@style/DataCard.Main"
             android:id="@+id/timerCard"
             android:layout_marginStart="@dimen/small_padding"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/coordinatesCard">
+            android:layout_marginTop="@dimen/small_padding"
+            android:layout_marginEnd="@dimen/element_padding"
+            app:layout_constraintLeft_toRightOf="@id/coordinatesCard"
+            app:layout_constraintTop_toBottomOf="@id/statusCard"
+            app:layout_constraintRight_toLeftOf="@id/controllerCard"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <LinearLayout style="@style/DataCardInnerLayout.Main">
                 <com.google.android.material.textview.MaterialTextView
@@ -251,10 +234,62 @@
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/AppTextView"
                     android:id="@+id/timerCardLabel"
+                    android:layout_marginTop="@dimen/element_padding"
+                    android:layout_marginBottom="@dimen/element_padding"
                     android:text="@string/timer_default" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            style="@style/DataCard.Main"
+            android:id="@+id/controllerCard"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.4"
+            app:layout_constraintLeft_toRightOf="@id/statusCard"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                style="@style/DataCardInnerLayout.Main"
+                android:id="@+id/controllerPad">
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/UIButton.IconOnly"
+                    android:id="@+id/padLeftButton"
+                    app:icon="@drawable/ic_left"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/padForwardButton"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/UIButton.IconOnly"
+                    android:id="@+id/padForwardButton"
+                    app:icon="@drawable/ic_forward"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/padLeftButton"/>
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/UIButton.IconOnly"
+                    android:id="@+id/padRightButton"
+                    app:icon="@drawable/ic_right"
+                    app:layout_constraintLeft_toRightOf="@id/padForwardButton"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/UIButton.IconOnly"
+                    android:id="@+id/padReverseButton"
+                    app:icon="@drawable/ic_reverse"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/padLeftButton"
+                    app:layout_constraintRight_toRightOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         style="@style/CardParentLayout"
@@ -269,12 +304,11 @@
             style="@style/DataCard.Main"
             android:layout_height="wrap_content"
             android:id="@+id/messageCard"
-            app:layout_constraintWidth_percent="0.62"
             android:layout_marginEnd="@dimen/small_padding"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/controllerCard">
+            app:layout_constraintRight_toRightOf="parent">
 
             <LinearLayout style="@style/DataCardInnerLayout.Main" android:gravity="top">
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -306,7 +340,7 @@
                     android:paddingBottom="@dimen/small_padding"
                     android:paddingLeft="@dimen/element_padding"
                     android:paddingRight="@dimen/element_padding"
-                    android:layout_height="99dp"
+                    android:layout_height="107dp"
                     android:layout_marginTop="@dimen/element_padding">
 
                     <TextView
@@ -352,52 +386,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            style="@style/DataCard.Main"
-            android:id="@+id/controllerCard"
-            android:layout_marginStart="@dimen/small_padding"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/messageCard"
-            app:layout_constraintRight_toRightOf="parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                style="@style/DataCardInnerLayout.Main"
-                android:id="@+id/controllerPad">
-
-                <com.google.android.material.button.MaterialButton
-                    style="@style/UIButton.IconOnly"
-                    android:id="@+id/padLeftButton"
-                    app:icon="@drawable/ic_left"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/padForwardButton"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-                <com.google.android.material.button.MaterialButton
-                    style="@style/UIButton.IconOnly"
-                    android:id="@+id/padForwardButton"
-                    app:icon="@drawable/ic_forward"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintBottom_toTopOf="@id/padLeftButton"/>
-
-                <com.google.android.material.button.MaterialButton
-                    style="@style/UIButton.IconOnly"
-                    android:id="@+id/padRightButton"
-                    app:icon="@drawable/ic_right"
-                    app:layout_constraintLeft_toRightOf="@id/padForwardButton"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-
-                <com.google.android.material.button.MaterialButton
-                    style="@style/UIButton.IconOnly"
-                    android:id="@+id/padReverseButton"
-                    app:icon="@drawable/ic_reverse"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/padLeftButton"
-                    app:layout_constraintRight_toRightOf="parent"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
