@@ -27,6 +27,7 @@ class App: Application() {
         lateinit var sharedPreferences: SharedPreferences
         @Volatile var autoUpdateArena = false
         @Volatile var darkMode = false
+        @Volatile var accelerometer = false
         @Volatile var usingAmd = true
         @Volatile var simulationMode = false
         @JvmStatic @Volatile var simulationDelay = SLOW_SIM_DELAY
@@ -61,6 +62,7 @@ class App: Application() {
         //allowDiagonalExploration = sharedPreferences.getBoolean(getString(R.string.app_pref_diagonal_exploration), false)
 
         simulationMode = sharedPreferences.getBoolean(getString(R.string.app_pref_simulation_mode), false)
+        accelerometer = sharedPreferences.getBoolean(getString(R.string.app_pref_accelerometer), false)
         simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else (1000 / 3)
         coverageLimit = if (simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
     }

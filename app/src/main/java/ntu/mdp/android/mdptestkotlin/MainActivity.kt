@@ -29,6 +29,7 @@ import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App.Companion.ANIMATOR_DURATION
 import ntu.mdp.android.mdptestkotlin.App.Companion.CLICK_DELAY
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.accelerometer
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.coverageLimit
@@ -162,6 +163,54 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    //create listener
+    private val gyroscopeSensorListener = object : SensorEventListener
+    {
+        override fun onSensorChanged(event: SensorEvent?) {
+            if (event != null) {
+                if(event.values[2] > 9.5)
+                {
+                    canMove = false
+                    CoroutineScope(Dispatchers.Main).launch {
+                        robotController.moveRobot(0)
+                    }
+                }
+                else if(event.values[0] > 4.5)
+                {
+                    canMove = false
+                    CoroutineScope(Dispatchers.Main).launch {
+                        robotController.moveRobot(270)
+                    }
+                }
+                else if(event.values[0] < -4.5)
+                {
+                    canMove = false
+                    CoroutineScope(Dispatchers.Main).launch {
+                        robotController.moveRobot(90)
+                    }
+                }
+                else if(event.values[2] < 0)
+                {
+                    canMove = false
+                    CoroutineScope(Dispatchers.Main).launch {
+                        robotController.moveRobot(180)
+                    }
+                }
+
+                Log.e("XYZ values", "${event.values[0]}, ${event.values[1]}, ${event.values[2]}")
+            }
+            else
+            {
+                Log.d("nullevent", "event is null");
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+            //do nothing
+        }
+    }
+
     private lateinit var binding                : ActivityMainBinding
     private lateinit var activityUtil           : ActivityUtil
     private lateinit var bluetoothAdapter       : BluetoothAdapter
@@ -210,55 +259,6 @@ class MainActivity : AppCompatActivity() {
             if (broadcastType == ArenaV2.Broadcast.MOVE_COMPLETE)
                 canMove = true
         }
-        //create listener
-        val gyroscopeSensorListener = object : SensorEventListener
-        {
-            override fun onSensorChanged(event: SensorEvent?) {
-                if (event != null) {
-                    if(event.values[2] > 9.5)
-                    {
-                        canMove = false
-                        CoroutineScope(Dispatchers.Main).launch {
-                            robotController.moveRobot(0)
-                        }
-                    }
-                    else if(event.values[0] > 4.5)
-                    {
-                        canMove = false
-                        CoroutineScope(Dispatchers.Main).launch {
-                            robotController.moveRobot(270)
-                        }
-                    }
-                    else if(event.values[0] < -4.5)
-                    {
-                        canMove = false
-                        CoroutineScope(Dispatchers.Main).launch {
-                            robotController.moveRobot(90)
-                        }
-                    }
-                    else if(event.values[2] < 0)
-                    {
-                        canMove = false
-                        CoroutineScope(Dispatchers.Main).launch {
-                            robotController.moveRobot(180)
-                        }
-                    }
-
-                    Log.e("XYZ values", "${event.values[0]}, ${event.values[1]}, ${event.values[2]}")
-                }
-                else
-                {
-                    Log.d("nullevent", "event is null");
-                }
-            }
-
-            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-                //do nothing
-            }
-        }
-
-        //register listener lol
-        sensorManager.registerListener(gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
 
         padForwardButton.isClickable = false
         padReverseButton.isClickable = false
@@ -300,6 +300,9 @@ class MainActivity : AppCompatActivity() {
         f2Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default))
         simulationButton.visibility = if (simulationMode) View.VISIBLE else View.GONE
         statusCardLabel.text = getString(R.string.idle)
+        //register listener lol
+        if (accelerometer) sensorManager.registerListener(gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
+        if (accelerometer) activityUtil.sendSnack(getString(R.string.accelerometer_on)) else activityUtil.sendSnack(getString(R.string.accelerometer_off))
         if (!bluetoothAdapter.isEnabled) activityUtil.sendSnack(getString(R.string.error_bluetooth_off))
         else startBluetoothListener()
 
@@ -309,6 +312,11 @@ class MainActivity : AppCompatActivity() {
                 activityUtil.toggleProgressBar(View.GONE)
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager.unregisterListener(gyroscopeSensorListener)
     }
 
     override fun onBackPressed() {
@@ -342,6 +350,18 @@ class MainActivity : AppCompatActivity() {
             R.id.saveMapButton -> onMapSaveClicked()
             R.id.loadMapButton -> onMapLoadClicked()
             R.id.clearArenaButton -> resetArena(true)
+
+            R.id.accelerometerIcon -> {
+                accelerometer = !accelerometer
+                sharedPreferences.edit().putBoolean(getString(R.string.app_pref_dark_mode), accelerometer).apply()
+                if (accelerometer) {
+                    sensorManager.registerListener(gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
+                    activityUtil.sendSnack(getString(R.string.accelerometer_on))
+                } else {
+                    sensorManager.unregisterListener(gyroscopeSensorListener)
+                    activityUtil.sendSnack(getString(R.string.accelerometer_off))
+                }
+            }
 
             R.id.darkModeButton -> {
                 darkMode = !darkMode

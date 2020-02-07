@@ -24,6 +24,7 @@
     <string name="app_pref_simulation_time">SIMULATION_TIME</string>
     <string name="app_pref_start_position">START_POSITION</string>
     <string name="app_pref_goal_position">GOAL_POSITION</string>
+    <string name="app_pref_accelerometer">ACCELEROMETER_USE</string>
     <string name="app_result_map_name">MAP_NAME</string>
     <string name="app_result_map_id">MAP_ID</string>
 
@@ -86,6 +87,8 @@
     <string name="searching_unexplored">Searching for unexplored grids…</string>
     <string name="going_home">Going home!</string>
     <string name="set_waypoint">Please set a waypoint first.</string>
+    <string name="accelerometer_on">Accelerometer ON.</string>
+    <string name="accelerometer_off">Accelerometer OFF.</string>
 
     <!-- SETTINGS ACTIVITY -->
     <string name="bluetooth">Bluetooth</string>
