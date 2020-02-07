@@ -604,6 +604,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             }
         }
 
+        callback(Callback.SEND_COMMAND, "#startposition::$x, $y")
         CoroutineScope(Dispatchers.Main).launch {
             moveRobotToStart()
         }
@@ -652,6 +653,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         plot(x, y, GridType.WAYPOINT)
         waypointPosition[0] = x
         waypointPosition[1] = y
+        callback(Callback.SEND_COMMAND, "#waypoint::$x, $y")
     }
 
     fun setGoalPoint(x1: Int, y1: Int) {
