@@ -4,7 +4,12 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
@@ -169,8 +174,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var exploration            : Exploration
     private lateinit var fastestPath            : FastestPath
     private lateinit var titleGestureDetector   : GestureDetector
+    private lateinit var sensorManager          : SensorManager
+    private lateinit var gyroscopeSensor        : Sensor
     private var lastClickTime                   : Long = 0L
     private var isTablet                        : Boolean = false
+    private var canMove: Boolean = true
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -195,6 +203,62 @@ class MainActivity : AppCompatActivity() {
         bluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
         database = AppDatabase.getDatabase(applicationContext)
         isTablet = resources.getBoolean(R.bool.isTablet)
+
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        gyroscopeSensor =  sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        robotController.registerForBroadcast { broadcastType, _ ->
+            if (broadcastType == ArenaV2.Broadcast.MOVE_COMPLETE)
+                canMove = true
+        }
+        //create listener
+        val gyroscopeSensorListener = object : SensorEventListener
+        {
+            override fun onSensorChanged(event: SensorEvent?) {
+                if (event != null) {
+                    if(event.values[2] > 9.5)
+                    {
+                        canMove = false
+                        CoroutineScope(Dispatchers.Main).launch {
+                            robotController.moveRobot(0)
+                        }
+                    }
+                    else if(event.values[0] > 4.5)
+                    {
+                        canMove = false
+                        CoroutineScope(Dispatchers.Main).launch {
+                            robotController.moveRobot(270)
+                        }
+                    }
+                    else if(event.values[0] < -4.5)
+                    {
+                        canMove = false
+                        CoroutineScope(Dispatchers.Main).launch {
+                            robotController.moveRobot(90)
+                        }
+                    }
+                    else if(event.values[2] < 0)
+                    {
+                        canMove = false
+                        CoroutineScope(Dispatchers.Main).launch {
+                            robotController.moveRobot(180)
+                        }
+                    }
+
+                    Log.e("XYZ values", "${event.values[0]}, ${event.values[1]}, ${event.values[2]}")
+                }
+                else
+                {
+                    Log.d("nullevent", "event is null");
+                }
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+                //do nothing
+            }
+        }
+
+        //register listener lol
+        sensorManager.registerListener(gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
 
         padForwardButton.isClickable = false
         padReverseButton.isClickable = false
