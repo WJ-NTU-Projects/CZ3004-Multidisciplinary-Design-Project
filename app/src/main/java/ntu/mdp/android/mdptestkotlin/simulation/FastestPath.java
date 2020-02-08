@@ -58,6 +58,6 @@ public class FastestPath {
 
         int[] coordinates = pathList.get(0);
         pathList.remove(0);
-        robotController.moveRobot(coordinates);
+        robotController.moveRobot(coordinates, false);
     }
 }

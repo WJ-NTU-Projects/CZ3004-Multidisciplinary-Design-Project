@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (!bluetoothAdapter.isEnabled) {
-            startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE)
+            //startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE)
         }
     }
 

@@ -22,6 +22,7 @@ public class Exploration {
     private boolean do180 = false;
     private boolean started = false;
     private boolean goingHome = false;
+    private int initCounter = 0;
     private List<AStarSearch.GridNode> pathList = new ArrayList<>();
 
     public Exploration(RobotController robotController, Function1<? super Callback, Unit> callback) {
@@ -43,6 +44,7 @@ public class Exploration {
         goingHome = false;
         do180 = false;
         robotController.getInitialSurrounding();
+        initCounter++;
     }
 
     public void end() {
@@ -60,7 +62,17 @@ public class Exploration {
 
         if (!started) {
             if (broadcastType == RobotController.Broadcast.TURN_COMPLETE) {
+                if (initCounter >= 4) {
+                    started = true;
+                    wallHug = false;
+                    callback.invoke(Callback.SEARCHING);
+                    callback.invoke(Callback.START_CLOCK);
+                    CHAAAAARGE();
+                    return;
+                }
+
                 robotController.getInitialSurrounding();
+                initCounter++;
                 return;
             }
 
@@ -169,7 +181,7 @@ public class Exploration {
         AStarSearch.GridNode node = pathList.get(0);
         int[] coordinates = new int[] {node.x, node.y};
         pathList.remove(0);
-        robotController.moveRobot(coordinates);
+        robotController.moveRobot(coordinates, true);
     }
 
     private void goHome() {
@@ -197,7 +209,7 @@ public class Exploration {
         AStarSearch.GridNode node = pathList.get(0);
         int[] coordinates = new int[] {node.x, node.y};
         pathList.remove(0);
-        robotController.moveRobot(coordinates);
+        robotController.moveRobot(coordinates, true);
     }
 
     private void CHAAAAARGE() {
@@ -212,7 +224,7 @@ public class Exploration {
         int shortestDistanceUnmovable = Integer.MAX_VALUE;
 
         for (int y = 19; y >= 0; y--) {
-            for (int x = 0; x <= 14; x++) {
+            for (int x = 14; x >= 0; x--) {
                 if (robotController.isGridExplored(x, y)) continue;
                 final int[] robotPosition = robotController.getRobotPosition();
                 final int distance = abs(x - robotPosition[0]) + abs(y - robotPosition[1]);

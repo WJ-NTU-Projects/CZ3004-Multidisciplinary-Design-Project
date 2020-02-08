@@ -401,7 +401,7 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
     }
 
-    suspend fun moveRobot(x: Int, y: Int) = withContext(Dispatchers.Main) {
+    suspend fun moveRobot(x: Int, y: Int, noReverse: Boolean = false) = withContext(Dispatchers.Main) {
         if (!isRobotMovable(x, y)) {
             callback(Callback.UPDATE_STATUS, context.getString(R.string.obstructed))
             val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], robotPosition[2]) else booleanArrayOf(false, false, false)
@@ -427,12 +427,32 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         val facingDifference = abs(facing - currentFacing)
 
         if (facingDifference == 180) {
-            if (BluetoothController.isSocketConnected()) {
-                callback(Callback.SEND_COMMAND, REVERSE_COMMAND)
-                return@withContext
-            }
-
             facing = currentFacing
+
+            if (noReverse) {
+                var newFacing: Int = facing
+
+                for (i in 0..1) {
+                    val elapsed: Long = System.currentTimeMillis() - lastMoveTime
+
+                    if (elapsed < simulationDelay) {
+                        delay(simulationDelay - elapsed)
+                    }
+
+                    travelComplete = false
+                    newFacing = Math.floorMod(newFacing + 90, 360)
+                    updateRobotImage(newFacing)
+
+                    while (!travelComplete) {
+                        delay(1)
+                    }
+
+                    scan(robotPosition[0], robotPosition[1], facing)
+                    lastMoveTime = System.currentTimeMillis()
+                }
+
+                facing = newFacing
+            }
         }
 
         if (facing != currentFacing) {
@@ -472,7 +492,8 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         }
 
         if (BluetoothController.isSocketConnected()) {
-            callback(Callback.SEND_COMMAND, FORWARD_COMMAND)
+            if (facingDifference == 180 && !noReverse) callback(Callback.SEND_COMMAND, REVERSE_COMMAND)
+            else callback(Callback.SEND_COMMAND, FORWARD_COMMAND)
             return@withContext
         }
 
@@ -516,7 +537,6 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
         val currentAnchorY = (19 - (currentY + 1)) * robotSize
         val anchorX = (x - 1) * robotSize
         val anchorY = (19 - (y + 1)) * robotSize
-        var currentAnchor: Int
         val params = robotDisplay.layoutParams as RelativeLayout.LayoutParams
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -533,38 +553,35 @@ open class ArenaV2 (private val context: Context, private val callback: (status:
             val distance: Double = 1.0 * abs(anchorX - currentAnchorX) / 3.0
             val modifier = if ((anchorX - currentAnchorX) < 0) -3 else 3
             val delay = ceil(1.0 * simulationDelay / distance).toLong()
-            currentAnchor = currentAnchorX
 
-            for (i in 0..(floor(distance).toInt())) {
+            for (i in 0 until (floor(distance).toInt())) {
                 params.topMargin = anchorY
-                params.leftMargin = currentAnchor + modifier
+                params.leftMargin += modifier
                 robotDisplay.layoutParams = params
-                currentAnchor += modifier
                 delay(delay)
             }
         } else if (anchorY != currentAnchorY) {
             val distance: Double = 1.0 * abs(anchorY - currentAnchorY) / 3.0
             val modifier = if ((anchorY - currentAnchorY) < 0) -3 else 3
             val delay = ceil(1.0 * simulationDelay / distance).toLong()
-            currentAnchor = currentAnchorY
 
-            for (i in 0..(floor(distance).toInt())) {
-                params.topMargin = currentAnchor + modifier
+            for (i in 0 until (floor(distance).toInt())) {
+                params.topMargin += modifier
                 params.leftMargin = anchorX
                 robotDisplay.layoutParams = params
-                currentAnchor += modifier
                 delay(delay)
             }
         }
 
-        params.leftMargin = anchorX
-        params.topMargin = anchorY
+        if (params.leftMargin != anchorX) params.leftMargin = anchorX
+        if (params.topMargin != anchorY) params.topMargin = anchorY
         robotDisplay.layoutParams = params
         travelComplete = true
         callback(Callback.UPDATE_COORDINATES, "$x, $y")
     }
 
-    suspend fun updateRobotImage(facing: Int = robotPosition[2]) = withContext(Dispatchers.Main) {
+    suspend fun updateRobotImage(facing1: Int = robotPosition[2]) = withContext(Dispatchers.Main) {
+        val facing = Math.floorMod(facing1, 360)
         var currentFacing = robotPosition[2]
         val offset = facing - currentFacing
         val modifier = if (offset == 90 || offset == -270) 10 else -10

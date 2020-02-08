@@ -21,9 +21,9 @@ class RobotController(context: Context, callback: (callback: Callback, message: 
         }
     }
 
-    fun moveRobot(array: IntArray) {
+    fun moveRobot(array: IntArray, noReverse: Boolean = false) {
         CoroutineScope(Dispatchers.Main).launch {
-            moveRobot(array[0], array[1])
+            moveRobot(array[0], array[1], noReverse)
         }
     }
 
