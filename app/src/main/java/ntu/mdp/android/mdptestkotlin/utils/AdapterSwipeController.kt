@@ -67,6 +67,6 @@ abstract class AdapterSwipeController internal constructor(context: Context): It
     }
 
     override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
-        return 0.7f
+        return 0.5f
     }
 }

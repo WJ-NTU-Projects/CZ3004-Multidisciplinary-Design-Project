@@ -35,6 +35,7 @@
         android:id="@+id/recyclerCard"
         android:layout_marginTop="@dimen/settings_padding"
         app:layout_constraintTop_toBottomOf="@id/titleLabel"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
@@ -44,7 +45,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/mapLoadRecycler"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="320dp"
                 tools:listitem="@layout/listitem_map_load"
                 tools:itemCount="3"/>
         </LinearLayout>
@@ -54,15 +55,10 @@
         style="@style/AppTextView.Gray.Title"
         android:id="@+id/noSaveDataLabel"
         android:text="@string/no_save_data"
+        android:elevation="10dp"
         android:layout_marginTop="@dimen/settings_padding"
         app:layout_constraintTop_toBottomOf="@id/titleLabel"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
-    <View
-        android:id="@+id/bottomMarginView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/settings_padding"
-        app:layout_constraintTop_toBottomOf="@id/noSaveDataLabel"
-        app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -47,7 +47,6 @@ class MapLoadActivity : AppCompatActivity() {
         dataList = arrayListOf()
         deleteList = arrayListOf()
         noSaveDataLabel.visibility = View.GONE
-        bottomMarginView.visibility = View.GONE
 
         mapLoadRecycler.apply {
             setHasFixedSize(true)
@@ -65,9 +64,8 @@ class MapLoadActivity : AppCompatActivity() {
                 mapLoadRecycler.adapter = recyclerAdapter
 
                 if (dataList.isEmpty()) {
-                    mapLoadRecycler.visibility = View.GONE
+                    mapLoadRecycler.visibility = View.INVISIBLE
                     noSaveDataLabel.visibility = View.VISIBLE
-                    bottomMarginView.visibility = View.VISIBLE
                 }
             }
         }
@@ -125,7 +123,7 @@ class MapLoadActivity : AppCompatActivity() {
 
             override fun onClick(v: View?) {
                 val intent = Intent()
-                intent.putExtra(getString(R.string.app_result_map_id), dataList[pos].arena_id)
+                intent.putExtra(getString(R.string.app_result_map_id), dataList[adapterPosition].arena_id)
                 setResult(Activity.RESULT_OK, intent)
                 finish()
             }
