@@ -1,4 +1,4 @@
-package ntu.mdp.android.mdptestkotlin
+package ntu.mdp.android.mdptestkotlin.arena
 
 import android.app.Activity
 import android.content.Intent
@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ntu.mdp.android.mdptestkotlin.App.Companion.dialogTheme
+import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMapSaveBinding
 import ntu.mdp.android.mdptestkotlin.room.AppDatabase
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil

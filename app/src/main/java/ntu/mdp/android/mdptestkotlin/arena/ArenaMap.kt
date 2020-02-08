@@ -32,7 +32,7 @@ import kotlin.math.ceil
 import kotlin.math.floor
 
 
-open class ArenaV2 (private val context: Context, private val callback: (status: Callback, message: String) -> Unit) {
+open class ArenaMap (private val context: Context, private val callback: (status: Callback, message: String) -> Unit) {
 
     companion object {
         const val unexploredBit = 0

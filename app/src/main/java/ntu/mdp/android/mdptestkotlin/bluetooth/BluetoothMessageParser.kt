@@ -3,7 +3,7 @@ package ntu.mdp.android.mdptestkotlin.bluetooth
 import android.util.Log
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.usingAmd
-import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
+import ntu.mdp.android.mdptestkotlin.arena.ArenaMap
 
 class BluetoothMessageParser(private val callback: (status: MessageStatus, message: String) -> Unit) {
     enum class MessageStatus {
@@ -30,8 +30,8 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             return
         }
 
-        if ((App.autoUpdateArena || ArenaV2.isWaitingUpdate) && s[0] == "#grid") {
-            ArenaV2.isWaitingUpdate = false
+        if ((App.autoUpdateArena || ArenaMap.isWaitingUpdate) && s[0] == "#grid") {
+            ArenaMap.isWaitingUpdate = false
 
             if (usingAmd) {
                 var s2: String = "f".padEnd(75, 'f')

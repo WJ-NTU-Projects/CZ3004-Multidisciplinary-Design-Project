@@ -10,7 +10,7 @@
     android:paddingLeft="@dimen/settings_padding"
     android:paddingRight="@dimen/settings_padding"
     android:paddingBottom="@dimen/settings_padding"
-    tools:context=".MapSaveActivity">
+    tools:context=".arena.MapSaveActivity">
 
     <com.google.android.material.textview.MaterialTextView
         style="@style/AppTextView.Title"

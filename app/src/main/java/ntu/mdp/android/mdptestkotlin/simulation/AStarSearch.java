@@ -1,20 +1,17 @@
 package ntu.mdp.android.mdptestkotlin.simulation;
 
-import android.util.Log;
-import android.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ntu.mdp.android.mdptestkotlin.arena.ArenaV2;
+import ntu.mdp.android.mdptestkotlin.arena.ArenaMap;
 
 import static java.lang.Math.abs;
 
 public class AStarSearch {
-    private final ArenaV2 robotController;
+    private final ArenaMap robotController;
 
-    public AStarSearch(ArenaV2 robotController) {
+    public AStarSearch(ArenaMap robotController) {
         this.robotController = robotController;
     }
 

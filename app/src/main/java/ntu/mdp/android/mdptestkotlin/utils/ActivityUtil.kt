@@ -7,15 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Parcelable
 import android.util.Log
-import android.view.ContextThemeWrapper
 import android.view.View
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import ntu.mdp.android.mdptestkotlin.App
-import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
-import ntu.mdp.android.mdptestkotlin.App.Companion.dialogTheme
-import ntu.mdp.android.mdptestkotlin.MapSaveActivity
 import ntu.mdp.android.mdptestkotlin.R
 import java.io.Serializable
 

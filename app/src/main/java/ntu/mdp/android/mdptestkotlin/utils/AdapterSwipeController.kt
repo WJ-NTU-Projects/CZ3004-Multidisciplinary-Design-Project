@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
-abstract class SwipeController internal constructor(context: Context): ItemTouchHelper.Callback() {
+abstract class AdapterSwipeController internal constructor(context: Context): ItemTouchHelper.Callback() {
 
     private val paint: Paint = Paint()
     private val background: ColorDrawable = ColorDrawable()

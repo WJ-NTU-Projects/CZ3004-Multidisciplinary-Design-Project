@@ -31,9 +31,7 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.dialogTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationDelay
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationMode
-import ntu.mdp.android.mdptestkotlin.arena.ArenaV2
-import ntu.mdp.android.mdptestkotlin.arena.RobotController
-import ntu.mdp.android.mdptestkotlin.arena.ManualController
+import ntu.mdp.android.mdptestkotlin.arena.*
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothMessageParser
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMainBinding
@@ -47,13 +45,13 @@ import ntu.mdp.android.mdptestkotlin.simulation.Exploration
 import ntu.mdp.android.mdptestkotlin.simulation.FastestPath
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
     companion object {
         var currentMode: Mode = Mode.NONE
         const val APP_EXIT_CODE = 1000
-        const val BLUETOOTH_ENABLE_CODE = 1100
         const val BLUETOOTH_NOT_SUPPORTED_CODE = 1200
         const val SAVE_REQUEST_CODE = 10000
         const val LOAD_REQUEST_CODE = 10001
@@ -78,91 +76,33 @@ class MainActivity : AppCompatActivity() {
 
     private val onEnter = View.OnKeyListener { view, keyCode, event ->
         if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-            val message: String = (view as EditText).text.toString().trim()
-
-            if (message.isNotBlank()) {
-                sendCommand(message)
-                messagesOutputEditText.setText("")
-            }
-
+            onSendEnter(view as EditText)
             return@OnKeyListener true
         }
 
         false
     }
 
-    private val bluetoothCallback: (status: BluetoothController.Status, message: String) -> Unit = { status, message ->
-        when (status) {
-            BluetoothController.Status.CONNECTED, BluetoothController.Status.DISCONNECTED -> {
-                connectionChanged(status)
-                activityUtil.sendSnack(message)
-            }
-
-            BluetoothController.Status.READ -> bluetoothMessageParser.parse(message)
-            BluetoothController.Status.WRITE_SUCCESS -> Log.d(this::class.simpleName ?: "-", message)
-            else -> activityUtil.sendSnack(message)
-        }
-    }
-
-    private val robotControllerCallback: (status: ArenaV2.Callback, message: String) -> Unit = { status, message ->
-        when (status) {
-            ArenaV2.Callback.MESSAGE -> activityUtil.sendSnack(message)
-            ArenaV2.Callback.SEND_COMMAND -> sendCommand(message)
-            ArenaV2.Callback.UPDATE_COORDINATES -> coordinatesCardLabel.text = message
-            ArenaV2.Callback.UPDATE_STATUS -> statusCardLabel.text = message
-
-            ArenaV2.Callback.LONG_PRESS_CHOICE -> {
-                activityUtil.sendYesNoDialog(LONG_PRESS_CHOICE_CODE, "Plot which?", leftLabel = "START", rightLabel = "GOAL")
-            }
-        }
-    }
-
-    private val messageParserCallback: (status: BluetoothMessageParser.MessageStatus, message: String) -> Unit = { status, message ->
-        when (status) {
-            BluetoothMessageParser.MessageStatus.GARBAGE -> displayInChat(MessageType.INCOMING, message)
-            BluetoothMessageParser.MessageStatus.ARENA -> robotController.updateArena(message)
-            BluetoothMessageParser.MessageStatus.IMAGE_POSITION -> updateImage(message)
-            BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> updateRobot(message)
-            BluetoothMessageParser.MessageStatus.INFO -> activityUtil.sendSnack(message)
-            BluetoothMessageParser.MessageStatus.ROBOT_STATUS -> statusCardLabel.text = message
-        }
-    }
-
-    private val explorationCallback: (callback: Callback) -> Unit = { callback ->
-        CoroutineScope(Dispatchers.Main).launch {
-            when (callback) {
-                Callback.WALL_HUGGING -> displayInChat(MessageType.INCOMING, getString(R.string.hugging_wall))
-                Callback.SEARCHING -> displayInChat(MessageType.INCOMING, getString(R.string.searching_unexplored))
-                Callback.GOING_HOME -> displayInChat(MessageType.INCOMING, getString(R.string.going_home))
-                Callback.COMPLETE -> onStartClicked(Mode.NONE)
-                Callback.START_CLOCK -> startTimer()
-            }
-        }
-    }
-
-    private val fastestPathCallback: (callback: Callback) -> Unit = { callback ->
-        CoroutineScope(Dispatchers.Main).launch {
-            when (callback) {
-                Callback.COMPLETE -> onStartClicked(Mode.NONE)
-                Callback.START_CLOCK -> startTimer()
-                else -> return@launch
-            }
-        }
-    }
+    private val bluetoothCallback       : (status: BluetoothController.Status, message: String) -> Unit = { status, message -> handleBluetoothCallback(status, message) }
+    private val robotControllerCallback : (status: ArenaMap.Callback, message: String) -> Unit = { status, message -> handleRobotControllerCallback(status, message) }
+    private val messageParserCallback   : (status: BluetoothMessageParser.MessageStatus, message: String) -> Unit = { status, message -> handleMessageParserCallback(status, message) }
+    private val explorationCallback     : (callback: Callback) -> Unit = { callback -> handleSimulationCallback(callback) }
+    private val fastestPathCallback     : (callback: Callback) -> Unit = { callback -> handleSimulationCallback(callback) }
 
     private lateinit var binding                : ActivityMainBinding
     private lateinit var activityUtil           : ActivityUtil
     private lateinit var bluetoothAdapter       : BluetoothAdapter
-    private lateinit var robotController        : RobotController
-    private lateinit var manualController        : ManualController
+    private lateinit var arenaMapController        : ArenaMapController
+    private lateinit var robotController       : RobotController
     private lateinit var bluetoothMessageParser : BluetoothMessageParser
     private lateinit var database               : AppDatabase
-    private lateinit var buttonList             : List<View>
+    private lateinit var buttonList             : ArrayList<View>
     private lateinit var timer                  : CountDownTimer
     private lateinit var exploration            : Exploration
     private lateinit var fastestPath            : FastestPath
     private lateinit var sensorManager          : SensorManager
-    private lateinit var gyroscopeSensor        : Sensor
+
+    private var gyroscopeSensor                 : Sensor? = null
     private var lastClickTime                   : Long = 0L
     private var isTablet                        : Boolean = false
 
@@ -182,41 +122,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        buttonList = listOf(bluetoothButton, communicationButton, tiltButton, darkModeButton, view3dButton, testButton, exploreButton, fastestPathButton, plotButton, plotPathButton, saveMapButton, loadMapButton, resetArenaButton, clearArenaButton, f1Button, f2Button, messagesOutputEditText, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
-        robotController = RobotController(this, robotControllerCallback)
-        manualController = ManualController(this, binding, robotController, robotControllerCallback)
+        buttonList = arrayListOf(bluetoothButton, communicationButton, tiltButton, darkModeButton, view3dButton, testButton, exploreButton, fastestPathButton, plotButton, plotPathButton, saveMapButton, loadMapButton, resetArenaButton, clearArenaButton, f1Button, f2Button, messagesOutputEditText, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
+        arenaMapController = ArenaMapController(this, robotControllerCallback)
+        robotController = RobotController(this, binding, arenaMapController, robotControllerCallback)
         bluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
         database = AppDatabase.getDatabase(applicationContext)
         isTablet = resources.getBoolean(R.bool.isTablet)
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        gyroscopeSensor =  sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-
-        padForwardButton.isClickable = false
-        padReverseButton.isClickable = false
-        padLeftButton.isClickable = false
-        padRightButton.isClickable = false
-        controllerPad.setOnTouchListener(manualController.touchListener)
+        gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        controllerPad.setOnTouchListener(robotController.touchListener)
         messagesOutputEditText.setOnKeyListener(onEnter)
 
-    }
-
-    override fun onStart() {
-        super.onStart()
-        if (BluetoothAdapter.getDefaultAdapter() == null) {
-            return
-        }
-
-        if (!bluetoothAdapter.isEnabled) {
-            //startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), BLUETOOTH_ENABLE_CODE)
+        if (gyroscopeSensor == null) {
+            buttonList.remove(tiltButton)
+            tiltButton.isEnabled = false
         }
     }
 
     override fun onResume() {
         super.onResume()
-
-        if (BluetoothAdapter.getDefaultAdapter() == null) {
-            return
-        }
+        if (BluetoothAdapter.getDefaultAdapter() == null) return
 
         if (isTablet) {
             f1Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default))
@@ -224,21 +149,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         statusCardLabel.text = getString(R.string.idle)
-
-        if (accelerometer) {
-            sensorManager.registerListener(manualController.gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
-        }
-
-        if (!bluetoothAdapter.isEnabled) {
-            activityUtil.sendSnack(getString(R.string.error_bluetooth_off))
-        } else {
-            startBluetoothListener()
-        }
+        if (accelerometer && gyroscopeSensor != null) sensorManager.registerListener(robotController.gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
+        if (bluetoothAdapter.isEnabled) startBluetoothListener()
     }
 
     override fun onPause() {
         super.onPause()
-        sensorManager.unregisterListener(manualController.gyroscopeSensorListener)
+        sensorManager.unregisterListener(robotController.gyroscopeSensorListener)
     }
 
     override fun onBackPressed() {
@@ -252,45 +169,40 @@ class MainActivity : AppCompatActivity() {
         }
 
         BluetoothController.callback = bluetoothCallback
-
-        if (autoUpdateArena) {
-            sendCommand(SEND_ARENA_COMMAND)
-        }
+        if (autoUpdateArena) sendCommand(SEND_ARENA_COMMAND)
     }
 
     @Suppress("unused")
     fun clickUiButton(view: View) {
-        if (System.currentTimeMillis() - lastClickTime < CLICK_DELAY) {
-            return
-        }
-
+        if (System.currentTimeMillis() - lastClickTime < CLICK_DELAY) return
         lastClickTime = System.currentTimeMillis()
 
         when (view.id) {
             R.id.bluetoothButton        -> activityUtil.startActivity(SettingsBluetoothActivity::class.java)
             R.id.communicationButton    -> activityUtil.startActivity(SettingsCommunicationActivity::class.java)
             R.id.testButton             -> activityUtil.startActivity(SettingsSimulationActivity::class.java)
-            R.id.view3dButton           -> activityUtil.sendDialog(0, "NO", "HAHA")
+            R.id.view3dButton           -> activityUtil.sendSnack(getString(R.string.coming_soon))
             R.id.messageCardClearButton -> activityUtil.sendYesNoDialog(CLEAR_MESSAGE_CODE, getString(R.string.clear_message_log))
             R.id.saveMapButton          -> onMapSaveClicked()
             R.id.loadMapButton          -> onMapLoadClicked()
             R.id.clearArenaButton       -> resetArena(true)
             R.id.resetArenaButton       -> resetArena(false)
-            R.id.plotPathButton         -> if (robotController.isWaypointSet()) activityUtil.sendYesNoDialog(PLOT_FASTEST_PATH_CODE, "Plot fastest path?")
+            R.id.plotPathButton         -> if (arenaMapController.isWaypointSet()) activityUtil.sendYesNoDialog(PLOT_FASTEST_PATH_CODE, "Plot fastest path?")
 
             R.id.tiltButton -> {
+                if (gyroscopeSensor == null) return
                 accelerometer = !accelerometer
                 PAD_MOVABLE = !accelerometer
                 TILT_MOVABLE = accelerometer
 
                 if (accelerometer) {
                     tiltButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.button_on_state_list)
-                    sensorManager.registerListener(manualController.gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
+                    sensorManager.registerListener(robotController.gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
                     activityUtil.sendSnack(getString(R.string.accelerometer_on))
                 } else {
                     tiltButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.button_state_list)
-                    sensorManager.unregisterListener(manualController.gyroscopeSensorListener)
-                    manualController.reset()
+                    sensorManager.unregisterListener(robotController.gyroscopeSensorListener)
+                    robotController.reset()
                     activityUtil.sendSnack(getString(R.string.accelerometer_off))
                 }
             }
@@ -316,7 +228,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.fastestPathButton -> {
-                if (!robotController.isWaypointSet()) {
+                if (!arenaMapController.isWaypointSet()) {
                     activityUtil.sendSnack("Please set a waypoint first.")
                     return
                 }
@@ -326,14 +238,14 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.plotButton -> {
-                if (robotController.getCurrentFunction() == ArenaV2.PlotFunction.NONE) {
-                    robotController.setPlotFunction(ArenaV2.PlotFunction.PLOT_OBSTACLE)
+                if (arenaMapController.getCurrentFunction() == ArenaMap.PlotFunction.NONE) {
+                    arenaMapController.setPlotFunction(ArenaMap.PlotFunction.PLOT_OBSTACLE)
                     buttonList.forEach { it.isEnabled = false }
                     plotButton.isEnabled = true
                     plotButton.icon = getDrawable(R.drawable.ic_done)
                 } else {
-                    robotController.setPlotFunction(ArenaV2.PlotFunction.NONE)
-                    robotController.resetActions()
+                    arenaMapController.setPlotFunction(ArenaMap.PlotFunction.NONE)
+                    arenaMapController.resetActions()
                     buttonList.forEach { it.isEnabled = true }
                     plotButton.icon = getDrawable(R.drawable.ic_plot_obstacles)
                 }
@@ -369,17 +281,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendCommand(command: String) {
         displayInChat(MessageType.OUTGOING, command)
-
-        if (!bluetoothAdapter.isEnabled) {
-            activityUtil.sendSnack(getString(R.string.error_bluetooth_off))
-            return
-        }
-
-        if (!BluetoothController.isSocketConnected()) {
-            activityUtil.sendSnack(getString(R.string.error_bluetooth_not_connected))
-            return
-        }
-
+        if (!bluetoothAdapter.isEnabled || !BluetoothController.isSocketConnected()) return
         if (command.isNotEmpty()) BluetoothController.write(command)
     }
 
@@ -414,10 +316,10 @@ class MainActivity : AppCompatActivity() {
                 Mode.EXPLORATION -> {
                     CoroutineScope(Dispatchers.Main).launch {
                         delay(simulationDelay)
-                        robotController.saveObstacles()
-                        robotController.resetGoalPoint()
+                        arenaMapController.saveObstacles()
+                        arenaMapController.resetGoalPoint()
                         if (::exploration.isInitialized) exploration.end()
-                        exploration = Exploration(robotController, explorationCallback)
+                        exploration = Exploration(arenaMapController, explorationCallback)
                         exploration.start()
                     }
                 }
@@ -425,10 +327,10 @@ class MainActivity : AppCompatActivity() {
                 Mode.FASTEST_PATH -> {
                     CoroutineScope(Dispatchers.Main).launch {
                         delay(simulationDelay)
-                        robotController.resetWaypoint()
-                        robotController.resetGoalPoint()
+                        arenaMapController.resetWaypoint()
+                        arenaMapController.resetGoalPoint()
                         if (::fastestPath.isInitialized) fastestPath.end()
-                        fastestPath = FastestPath(robotController, fastestPathCallback)
+                        fastestPath = FastestPath(arenaMapController, fastestPathCallback)
                         fastestPath.start()
                     }
                 }
@@ -443,11 +345,11 @@ class MainActivity : AppCompatActivity() {
 
         when (mode) {
             Mode.EXPLORATION -> {
-                if (accelerometer) {
-                    sensorManager.unregisterListener(manualController.gyroscopeSensorListener)
+                if (accelerometer && gyroscopeSensor != null) {
+                    sensorManager.unregisterListener(robotController.gyroscopeSensorListener)
                     accelerometer = false
                     tiltButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.button_state_list)
-                    manualController.reset()
+                    robotController.reset()
                 }
 
                 controllerPad.setOnTouchListener(null)
@@ -462,11 +364,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             Mode.FASTEST_PATH -> {
-                if (accelerometer) {
-                    sensorManager.unregisterListener(manualController.gyroscopeSensorListener)
+                if (accelerometer && gyroscopeSensor != null) {
+                    sensorManager.unregisterListener(robotController.gyroscopeSensorListener)
                     accelerometer = false
                     tiltButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.button_state_list)
-                    manualController.reset()
+                    robotController.reset()
                 }
 
                 controllerPad.setOnTouchListener(null)
@@ -483,7 +385,7 @@ class MainActivity : AppCompatActivity() {
             Mode.NONE -> {
                 sendCommand(sharedPreferences.getString(getString(R.string.app_pref_pause), getString(R.string.pause_default))!!)
                 stopTimer()
-                controllerPad.setOnTouchListener(manualController.touchListener)
+                controllerPad.setOnTouchListener(robotController.touchListener)
                 buttonList.forEach { it.isEnabled = true }
                 exploreButton.icon = getDrawable(R.drawable.ic_explore)
                 fastestPathButton.icon = getDrawable(R.drawable.ic_fastest)
@@ -497,14 +399,14 @@ class MainActivity : AppCompatActivity() {
     private fun startTimer() {
         timer = object: CountDownTimer(Long.MAX_VALUE, 1000) {
             var timerCounter: Int = -1
+
+            override fun onFinish() {}
             override fun onTick(p0: Long) {
                 timerCounter++
                 val seconds: Int = timerCounter % 60
                 val minutes: Int = Math.floorDiv(timerCounter, 60)
                 timerCardLabel.text = getString(R.string.timer_minute_second, minutes.toString().padStart(2, '0'), seconds.toString().padStart(2, '0'))
             }
-
-            override fun onFinish() {}
         }
 
         timer.start()
@@ -523,14 +425,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun connectionChanged(status: BluetoothController.Status) {
         if (status == BluetoothController.Status.CONNECTED) {
-            ArenaV2.isWaitingUpdate = true
+            ArenaMap.isWaitingUpdate = true
             sendCommand(SEND_ARENA_COMMAND)
         } else {
             startBluetoothListener()
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            robotController.updateRobotImage()
+            arenaMapController.updateRobotImage()
         }
     }
 
@@ -541,7 +443,7 @@ class MainActivity : AppCompatActivity() {
             val x = s[0].toInt()
             val y = s[1].toInt()
             val id = s[2].toInt()
-            robotController.setImage(x, y, id)
+            arenaMapController.setImage(x, y, id)
         } catch (e: NumberFormatException) {
             activityUtil.sendSnack(getString(R.string.something_went_wrong))
             return
@@ -556,7 +458,7 @@ class MainActivity : AppCompatActivity() {
             val y = s[1].toInt()
             val r = s[2].toInt()
             CoroutineScope(Dispatchers.Main).launch {
-                robotController.updateRobot(x, y, r)
+                arenaMapController.updateRobot(x, y, r)
             }
         } catch (e: NumberFormatException) {
             activityUtil.sendSnack(getString(R.string.something_went_wrong))
@@ -564,46 +466,75 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun handleMessageParserCallback(status: BluetoothMessageParser.MessageStatus, message: String) {
+        when (status) {
+            BluetoothMessageParser.MessageStatus.GARBAGE -> displayInChat(MessageType.INCOMING, message)
+            BluetoothMessageParser.MessageStatus.ARENA -> arenaMapController.updateArena(message)
+            BluetoothMessageParser.MessageStatus.IMAGE_POSITION -> updateImage(message)
+            BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> updateRobot(message)
+            BluetoothMessageParser.MessageStatus.INFO -> activityUtil.sendSnack(message)
+            BluetoothMessageParser.MessageStatus.ROBOT_STATUS -> statusCardLabel.text = message
+        }
+    }
+
+    private fun handleRobotControllerCallback(status: ArenaMap.Callback, message: String) {
+        when (status) {
+            ArenaMap.Callback.MESSAGE -> activityUtil.sendSnack(message)
+            ArenaMap.Callback.SEND_COMMAND -> sendCommand(message)
+            ArenaMap.Callback.UPDATE_COORDINATES -> coordinatesCardLabel.text = message
+            ArenaMap.Callback.UPDATE_STATUS -> statusCardLabel.text = message
+            ArenaMap.Callback.LONG_PRESS_CHOICE -> activityUtil.sendYesNoDialog(LONG_PRESS_CHOICE_CODE, "Plot which?", leftLabel = "START", rightLabel = "GOAL")
+        }
+    }
+
+    private fun handleBluetoothCallback(status: BluetoothController.Status, message: String) {
+        when (status) {
+            BluetoothController.Status.CONNECTED, BluetoothController.Status.DISCONNECTED -> {
+                connectionChanged(status)
+                activityUtil.sendSnack(message)
+            }
+
+            BluetoothController.Status.READ -> bluetoothMessageParser.parse(message)
+            BluetoothController.Status.WRITE_SUCCESS -> Log.d(this::class.simpleName ?: "-", message)
+            else -> activityUtil.sendSnack(message)
+        }
+    }
+
+    private fun onSendEnter(view: EditText) {
+        val message: String = view.text.toString().trim()
+
+        if (message.isNotBlank()) {
+            sendCommand(message)
+            messagesOutputEditText.setText("")
+        }
+    }
+
+    private fun handleSimulationCallback(callback: Callback) {
+        CoroutineScope(Dispatchers.Main).launch {
+            when (callback) {
+                Callback.WALL_HUGGING -> displayInChat(MessageType.INCOMING, getString(R.string.hugging_wall))
+                Callback.SEARCHING -> displayInChat(MessageType.INCOMING, getString(R.string.searching_unexplored))
+                Callback.GOING_HOME -> displayInChat(MessageType.INCOMING, getString(R.string.going_home))
+                Callback.COMPLETE -> onStartClicked(Mode.NONE)
+                Callback.START_CLOCK -> startTimer()
+            }
+        }
+    }
 
     private fun onMapSaveClicked() {
         startActivityForResult(Intent(this, MapSaveActivity::class.java), SAVE_REQUEST_CODE)
-
-        /*
-        activityUtil.sendYesNoDialog(getString(R.string.save_map_prompt), leftLabel = getString(R.string.yes), rightLabel = getString(R.string.no)) {
-            if (it) {
-                val save: String = robotController.getMapDescriptor()
-                sharedPreferences.edit().putString(getString(R.string.app_pref_map_descriptor_1), save).apply()
-                activityUtil.sendSnack(getString(R.string.map_saved))
-            }
-        }
-        */
     }
 
     private fun onMapLoadClicked() {
         startActivityForResult(Intent(this, MapLoadActivity::class.java), LOAD_REQUEST_CODE)
-        /*
-        activityUtil.sendYesNoDialog(getString(R.string.load_map_prompt), leftLabel = getString(R.string.yes), rightLabel = getString(R.string.no)) {
-            if (it) {
-                val load: String = sharedPreferences.getString(getString(R.string.app_pref_map_descriptor_1), "") ?: ""
-                if (load.isEmpty()) {
-                    activityUtil.sendSnack(getString(R.string.no_save_data))
-                } else {
-                    Log.e("LOAD", load)
-                    robotController.resetArena()
-                    robotController.updateArena(load)
-                }
-            }
-        }
-
-         */
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == LONG_PRESS_CHOICE_CODE) {
-            if (resultCode == Activity.RESULT_OK) robotController.selectPoint(true)
-            else if (resultCode == Activity.RESULT_CANCELED) robotController.selectPoint(false)
+            if (resultCode == Activity.RESULT_OK) arenaMapController.selectPoint(true)
+            else if (resultCode == Activity.RESULT_CANCELED) arenaMapController.selectPoint(false)
             return
         }
 
@@ -612,15 +543,15 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             BLUETOOTH_NOT_SUPPORTED_CODE, APP_EXIT_CODE -> activityUtil.finishActivity()
             CLEAR_MESSAGE_CODE -> messagesTextView?.text = ""
-            PLOT_FASTEST_PATH_CODE -> robotController.plotFastestPath()
+            PLOT_FASTEST_PATH_CODE -> arenaMapController.plotFastestPath()
 
             CLEAR_ARENA_CODE -> {
-                robotController.clearArena()
+                arenaMapController.clearArena()
                 timerCardLabel.text = getString(R.string.timer_default)
             }
 
             RESET_ARENA_CODE -> {
-                robotController.resetArena()
+                arenaMapController.resetArena()
                 timerCardLabel.text = getString(R.string.timer_default)
             }
 
@@ -632,16 +563,16 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-                val save: List<String> = robotController.getMapDescriptor().split("//")
+                val save: List<String> = arenaMapController.getMapDescriptor().split("//")
 
                 if (save.size != 2) {
                     activityUtil.sendSnack(getString(R.string.something_went_wrong))
                     return
                 }
 
-                val start: IntArray = robotController.getStartPosition()
-                val waypoint: IntArray = robotController.getWaypointPosition()
-                val goal: IntArray = robotController.getGoalPosition()
+                val start: IntArray = arenaMapController.getStartPosition()
+                val waypoint: IntArray = arenaMapController.getWaypointPosition()
+                val goal: IntArray = arenaMapController.getGoalPosition()
                 val arena = Arena(0, name, save[0], save[1], startX = start[0], startY = start[1], waypointX = waypoint[0], waypointY = waypoint[1], goalX = goal[0], goalY = goal[1])
 
                 CoroutineScope(Dispatchers.IO).launch {
@@ -670,13 +601,13 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        robotController.emptyArena()
-                        robotController.setStartPoint(arena.startX, arena.startY)
-                        robotController.setGoalPoint(arena.goalX, arena.goalY)
-                        if (robotController.isValidCoordinates(arena.waypointX, arena.waypointY)) robotController.setWaypoint(arena.waypointX, arena.waypointY)
+                        arenaMapController.emptyArena()
+                        arenaMapController.setStartPoint(arena.startX, arena.startY)
+                        arenaMapController.setGoalPoint(arena.goalX, arena.goalY)
+                        if (arenaMapController.isValidCoordinates(arena.waypointX, arena.waypointY)) arenaMapController.setWaypoint(arena.waypointX, arena.waypointY)
 
                         val descriptor = "${arena.map_descriptor}//${arena.obstacle_descriptor}"
-                        robotController.updateArena(descriptor)
+                        arenaMapController.updateArena(descriptor)
                     }
                 }.invokeOnCompletion {
                     activityUtil.sendSnack(getString(R.string.map_loaded))

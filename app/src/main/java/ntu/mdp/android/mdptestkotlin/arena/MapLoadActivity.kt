@@ -1,4 +1,4 @@
-package ntu.mdp.android.mdptestkotlin
+package ntu.mdp.android.mdptestkotlin.arena
 
 import android.app.Activity
 import android.content.Intent
@@ -21,11 +21,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.dialogTheme
+import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMapLoadBinding
 import ntu.mdp.android.mdptestkotlin.room.AppDatabase
 import ntu.mdp.android.mdptestkotlin.room.arena.Arena
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
-import ntu.mdp.android.mdptestkotlin.utils.SwipeController
+import ntu.mdp.android.mdptestkotlin.utils.AdapterSwipeController
 
 
 class MapLoadActivity : AppCompatActivity() {
@@ -71,7 +72,7 @@ class MapLoadActivity : AppCompatActivity() {
             }
         }
 
-        val swipeToDeleteCallback = object : SwipeController(this) {
+        val swipeToDeleteCallback = object : AdapterSwipeController(this) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, i: Int) {
                 val position = viewHolder.adapterPosition
                 val item: Arena = dataList[position]
