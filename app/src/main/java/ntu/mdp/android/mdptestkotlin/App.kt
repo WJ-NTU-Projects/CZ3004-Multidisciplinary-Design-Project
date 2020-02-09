@@ -14,10 +14,8 @@ class App: Application() {
         const val BLUETOOTH_UUID = "00001101-0000-1000-8000-00805F9B34FB"
         const val ANIMATOR_DURATION = 200L
         const val CLICK_DELAY = 100L
-        private const val SLOW_SIM_DELAY = 320L
 
-        @Volatile var appTheme: Int = R.style.AppTheme
-        @Volatile var dialogTheme: Int = R.style.DialogTheme
+        // Bluetooth Sockets & Threads
         var socket: BluetoothSocket? = null
         var bluetoothServerThread: BluetoothServer? = null
         var bluetoothClientThread: BluetoothClient? = null
@@ -25,21 +23,40 @@ class App: Application() {
 
         // Persistent Data
         lateinit var sharedPreferences: SharedPreferences
+        @Volatile var appTheme: Int = R.style.AppTheme
+        @Volatile var dialogTheme: Int = R.style.DialogTheme
         @Volatile var autoUpdateArena = false
         @Volatile var darkMode = false
         @Volatile var usingAmd = true
         @Volatile var simulationMode = false
-        @JvmStatic @Volatile var simulationDelay = SLOW_SIM_DELAY
-        @JvmStatic @Volatile var coverageLimit = 100
+        @Volatile var BLUETOOTH_CONNECTED_DEVICE = "-"
+
+        // COMMANDS
         @Volatile var SEND_ARENA_COMMAND = "sendArena"
         @Volatile var FORWARD_COMMAND = "f"
         @Volatile var REVERSE_COMMAND = "r"
         @Volatile var TURN_LEFT_COMMAND = "tl"
         @Volatile var TURN_RIGHT_COMMAND = "tr"
-        @Volatile var BLUETOOTH_CONNECTED_DEVICE = "-"
+        @Volatile var START_POINT_COMMAND = "startPoint"
+        @Volatile var WAYPOINT_COMMAND = "waypoint"
+        @Volatile var GOAL_POINT_COMMAND = "goalPoint"
+
+        @Volatile var COMMAND_PREFIX = "#"
+        @Volatile var COMMAND_DIVIDER = ":"
+        @Volatile var GRID_IDENTIFIER = "grid"
+        @Volatile var DESCRIPTOR_DIVIDER = "/"
+        @Volatile var SET_EXPLORED_IDENTIFIER = "setExplored"
+        @Volatile var SET_OBSTACLE_IDENTIFIER = "setObstacle"
+        @Volatile var SET_IMAGE_IDENTIFIER = "setImage"
+        @Volatile var ROBOT_POSITION_IDENTIFIER = "robotPosition"
+        @Volatile var ROBOT_STATUS_IDENTIFIER = "robotStatus"
+
+        // Java Compatible
         @JvmStatic @Volatile var accelerometer = false
         @JvmStatic @Volatile var PAD_MOVABLE = true
         @JvmStatic @Volatile var TILT_MOVABLE = true
+        @JvmStatic @Volatile var simulationDelay = 333L
+        @JvmStatic @Volatile var coverageLimit = 100
     }
 
     override fun onCreate() {

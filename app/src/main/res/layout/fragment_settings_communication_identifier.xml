@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    tools:context=".settings.SettingsCommunicationActivity">
+
+    <ScrollView style="@style/LayoutMatchWrap">
+        <LinearLayout style="@style/LayoutMatchWrap">
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/AppTextView.Gray.Settings.Title"
+                android:text="@string/general_config" />
+
+            <androidx.cardview.widget.CardView style="@style/DataCard">
+            <LinearLayout style="@style/DataCardInnerLayout.Settings">
+                <LinearLayout style="@style/LayoutMatchWrap"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+                    <LinearLayout style="@style/LayoutMatchWrap"
+                        android:layout_width="0dp"
+                        android:layout_weight="1.0"
+                        android:layout_marginEnd="@dimen/element_padding">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings.Title"
+                            android:layout_width="match_parent"
+                            android:text="@string/command_prefix"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:layout_width="match_parent"
+                            android:layout_marginTop="@dimen/element_padding"
+                            android:id="@+id/commandPrefixEditText"
+                            android:hint="@string/command_prefix_default"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap"
+                        android:layout_width="0dp"
+                        android:layout_weight="1.0"
+                        android:layout_marginStart="@dimen/element_padding"
+                        android:layout_marginEnd="@dimen/element_padding">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings.Title"
+                            android:layout_width="match_parent"
+                            android:text="@string/string_divider"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:layout_width="match_parent"
+                            android:layout_marginTop="@dimen/element_padding"
+                            android:id="@+id/stringDividerEditText"
+                            android:hint="@string/string_divider_default"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap"
+                        android:layout_width="0dp"
+                        android:layout_weight="1.0"
+                        android:layout_marginStart="@dimen/element_padding">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings.Title"
+                            android:layout_width="match_parent"
+                            android:text="@string/descriptor_divider"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:layout_width="match_parent"
+                            android:layout_marginTop="@dimen/element_padding"
+                            android:id="@+id/descriptorDividerEditText"
+                            android:hint="@string/descriptor_divider_default"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/UIButton.Settings"
+                    android:id="@+id/restoreStringCommon"
+                    android:text="@string/restore_defaults" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/AppTextView.Gray.Settings.Title"
+                android:text="@string/send_command_identifiers" />
+
+            <androidx.cardview.widget.CardView style="@style/DataCard">
+                <LinearLayout style="@style/DataCardInnerLayout.Settings">
+                    <LinearLayout style="@style/LayoutMatchWrap" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings.Title"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.5"
+                            android:text="@string/command_to_send"/>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings.Title"
+                            android:layout_width="0dp"
+                            android:layout_weight="1.0"
+                            android:text="@string/string_identifier"/>
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.5"
+                            android:text="@string/send_arena"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/sendArenaEditText"
+                            android:hint="@string/send_arena_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/exploration"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/explorationEditText"
+                            android:hint="@string/exploration_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/fastest_path"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/fastestPathEditText"
+                            android:hint="@string/fastest_path_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/pause"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/pauseEditText"
+                            android:hint="@string/pause_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/forward"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/forwardEditText"
+                            android:hint="@string/forward_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/reverse"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/reverseEditText"
+                            android:hint="@string/reverse_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/turn_left"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/turnLeftEditText"
+                            android:hint="@string/turn_left_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/turn_right"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/turnRightEditText"
+                            android:hint="@string/turn_right_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        style="@style/UIButton.Settings"
+                        android:id="@+id/restoreStringCommands"
+                        android:text="@string/restore_defaults" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/AppTextView.Gray.Settings.Title"
+                android:text="@string/receive_information_identifiers" />
+
+            <androidx.cardview.widget.CardView style="@style/DataCard">
+                <LinearLayout style="@style/DataCardInnerLayout.Settings">
+                    <LinearLayout style="@style/LayoutMatchWrap" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings.Title"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.5"
+                            android:text="@string/information"/>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings.Title"
+                            android:layout_width="0dp"
+                            android:layout_weight="1.0"
+                            android:text="@string/string_identifier"/>
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/grid_descriptor"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/gridDescriptorEditText"
+                            android:hint="@string/grid_descriptor_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/set_image"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/setImageEditText"
+                            android:hint="@string/set_image_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/robot_position"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/robotPositionEditText"
+                            android:hint="@string/robot_position_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/robot_status"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/robotStatusEditText"
+                            android:hint="@string/robot_status_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        style="@style/UIButton.Settings"
+                        android:id="@+id/restoreStringInfo"
+                        android:text="@string/restore_defaults" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/screen_padding"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

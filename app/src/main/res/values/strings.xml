@@ -10,6 +10,13 @@
     <string name="app_pref_reverse">COMMAND_REVERSE</string>
     <string name="app_pref_turn_left">COMMAND_TURN_LEFT</string>
     <string name="app_pref_turn_right">COMMAND_TURN_RIGHT</string>
+    <string name="app_pref_grid_identifier">IDENTIFIER_GRID</string>
+    <string name="app_pref_descriptor_divider">DESCRIPTOR_DIVIDER</string>
+    <string name="app_pref_set_image_identifier">IDENTIFIER_SET_IMAGE</string>
+    <string name="app_pref_robot_position_identifier">IDENTIFIER_ROBOT_POSITION</string>
+    <string name="app_pref_robot_status_identifier">IDENTIFIER_ROBOT_STATUS</string>
+    <string name="app_pref_command_prefix">COMMAND_PREFIX</string>
+    <string name="app_pref_command_divider">COMMAND_DIVIDER</string>
     <string name="app_pref_label_f1">LABEL_F1</string>
     <string name="app_pref_command_f1">COMMAND_F1</string>
     <string name="app_pref_label_f2">LABEL_F2</string>
@@ -79,7 +86,8 @@
     <string name="started_something">Started %s</string>
     <string name="timer_minute_second">%1$s:%2$s</string>
     <string name="exploration">Exploration</string>
-    <string name="fastest_path">Fastest</string>
+    <string name="fastest">Fastest</string>
+    <string name="fastest_path">Fastest Path</string>
     <string name="save_map_prompt">Save this map? Any existing saved map will be overwritten.</string>
     <string name="load_map_prompt">Load saved map? Existing grid map will be replaced.</string>
     <string name="no_save_data">No save data found.</string>
@@ -113,14 +121,22 @@
     <string name="other_devices">Other Devices</string>
 
     <!-- SETTINGS COMMUNICATION ACTIVITY -->
+    <string name="identifiers">Identifiers</string>
     <string name="arena_communication">Arena Communication</string>
     <string name="automatic_update">Automatically Update Arena</string>
-    <string name="automatic_update_description">Arena will be updated without user input. If disabled, swipe down on the grid map to update.</string>
     <string name="using_amd">Using AMDTool</string>
-    <string name="using_amd_description">Please check this option if connecting with AMDTool.</string>
-    <string name="string_commands">String Commands</string>
+
+    <string name="general_config">General Configuration</string>
+    <string name="string_divider">ID-Data Divider:</string>
+    <string name="string_divider_default">:</string>
+    <string name="command_prefix">Command Prefix:</string>
+    <string name="command_prefix_default">#</string>>
+
+    <string name="send_command_identifiers">Send Command Identifiers</string>
     <string name="command">Command</string>
-    <string name="command_output">String Output</string>
+    <string name="command_to_send">Command To Send</string>
+    <string name="information">Information To Receive</string>
+    <string name="string_identifier">String Identifier</string>
     <string name="send_arena">Send Arena Info</string>
     <string name="send_arena_default">sendArena</string>
     <string name="exploration_default">beginExploration</string>
@@ -135,8 +151,20 @@
     <string name="turn_right">Turn Right</string>
     <string name="turn_right_default">tr</string>
     <string name="restore_defaults">Restore Defaults</string>
-    <string name="restore_command_defaultsk">Restore commands to their default values?</string>
-    <string name="settings_command_description">These settings affect the command strings sent to the Raspberry Pi when the respective buttons are pressed.</string>
+
+    <string name="receive_information_identifiers">Receive Information Identifiers</string>
+    <string name="grid_descriptor">Grid Descriptor</string>
+    <string name="grid_descriptor_default">grid</string>
+    <string name="descriptor_divider">Descriptor Divider:</string>
+    <string name="descriptor_divider_default">/</string>
+    <string name="set_image">Image Position</string>
+    <string name="set_image_default">setImage</string>
+    <string name="robot_position">Robot Position</string>
+    <string name="robot_position_default">robotPosition</string>
+    <string name="robot_status">Robot Status</string>
+    <string name="robot_status_default">robotStatus</string>
+
+    <string name="restore_command_defaults">Restore commands to their default values?</string>
     <string name="unsaved_changes">Unsaved changes. Save or discard?</string>
     <string name="save">Save</string>
     <string name="discard">Discard</string>

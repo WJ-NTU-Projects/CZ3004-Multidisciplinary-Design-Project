@@ -109,6 +109,16 @@
         <item name="android:windowBackground">@drawable/bg_start_dark</item>
     </style>
 
+    <style name="LayoutMatchWrap">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="LayoutMatchWrap.MarginTop">
+        <item name="android:layout_marginTop">@dimen/screen_padding</item>
+    </style>
+
     <style name="ArenaGridLayout">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">0dp</item>
@@ -168,10 +178,17 @@
     </style>
 
     <style name="DataCardInnerLayout.Settings">
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingLeft">@dimen/screen_padding</item>
         <item name="android:paddingRight">@dimen/screen_padding</item>
         <item name="android:paddingTop">@dimen/screen_padding</item>
         <item name="android:paddingBottom">@dimen/screen_padding</item>
+    </style>
+
+    <style name="DataCardInnerLayout.Settings.Horizontal">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
     </style>
 
     <style name="DataCardInnerLayout.Main">
@@ -191,6 +208,13 @@
         <item name="android:insetTop">0dp</item>
         <item name="android:insetRight">0dp</item>
         <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="UIButton.Settings">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">@dimen/settings_button_height</item>
+        <item name="android:layout_marginTop">@dimen/screen_padding</item>
+        <item name="android:layout_gravity">end</item>
     </style>
 
     <style name="UIButton.IconOnly">
@@ -289,7 +313,11 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="AppTextView.Toolbar">
+    <style name="AppTextView.Settings">
+        <item name="android:layout_width">0dp</item>
+    </style>
+
+    <style name="AppTextView.Settings.Title">
         <item name="android:textSize">@dimen/text_size_small</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">true</item>
@@ -341,6 +369,7 @@
         <item name="android:inputType">text</item>
         <item name="android:textColorHint">@color/textColorHint</item>
         <item name="android:textColor">@color/textColor</item>
+        <item name="android:lines">1</item>
     </style>
 
     <style name="AppEditText.Dark">

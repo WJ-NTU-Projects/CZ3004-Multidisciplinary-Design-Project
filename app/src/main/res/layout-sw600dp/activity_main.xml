@@ -66,13 +66,13 @@
         <LinearLayout style="@style/ButtonLayout">
             <com.google.android.material.button.MaterialButton
                 style="@style/UIButton.IconOnly"
-                android:id="@+id/view3dButton"
-                app:icon="@drawable/ic_3d"/>
+                android:id="@+id/testButton"
+                app:icon="@drawable/ic_test"/>
 
             <com.google.android.material.button.MaterialButton
                 style="@style/UIButton.IconOnly"
-                android:id="@+id/testButton"
-                app:icon="@drawable/ic_test"/>
+                android:id="@+id/helpButton"
+                app:icon="@drawable/ic_help"/>
         </LinearLayout>
     </LinearLayout>
 

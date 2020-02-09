@@ -11,11 +11,16 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import kotlinx.coroutines.*
+import ntu.mdp.android.mdptestkotlin.App.Companion.COMMAND_DIVIDER
+import ntu.mdp.android.mdptestkotlin.App.Companion.DESCRIPTOR_DIVIDER
 import ntu.mdp.android.mdptestkotlin.App.Companion.FORWARD_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.GOAL_POINT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.REVERSE_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.START_POINT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_LEFT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_RIGHT_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.WAYPOINT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.autoUpdateArena
 import ntu.mdp.android.mdptestkotlin.App.Companion.coverageLimit
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
@@ -253,8 +258,8 @@ open class ArenaMap (private val context: Context, private val callback: (status
         val exploredIndices: ArrayList<Pair<Int, Int>> = arrayListOf()
         var s: ArrayList<String> = arrayListOf(explorationData)
 
-        if (explorationData.contains("//")) {
-            s = ArrayList(explorationData.split("//"))
+        if (explorationData.contains(DESCRIPTOR_DIVIDER)) {
+            s = ArrayList(explorationData.split(DESCRIPTOR_DIVIDER))
         }
 
         var skip = 2
@@ -697,7 +702,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
             }
         }
 
-        callback(Callback.SEND_COMMAND, "#startposition::$x, $y")
+        callback(Callback.SEND_COMMAND, "${START_POINT_COMMAND}${COMMAND_DIVIDER}$x, $y")
 
         CoroutineScope(Dispatchers.Main).launch {
             moveRobotToStart()
@@ -747,7 +752,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
         plot(x, y, GridType.WAYPOINT)
         waypointPosition[0] = x
         waypointPosition[1] = y
-        callback(Callback.SEND_COMMAND, "#waypoint::$x, $y")
+        callback(Callback.SEND_COMMAND, "${WAYPOINT_COMMAND}${COMMAND_DIVIDER}$x, $y")
     }
 
     fun setGoalPoint(x1: Int, y1: Int) {
@@ -786,6 +791,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
         goalPosition[0] = x
         goalPosition[1] = y
         sharedPreferences.edit().putString(context.getString(R.string.app_pref_goal_position), "$x, $y").apply()
+        callback(Callback.SEND_COMMAND, "${GOAL_POINT_COMMAND}${COMMAND_DIVIDER}$x, $y")
     }
 
     private fun setWaypointTouched() {
@@ -1411,7 +1417,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
         Log.e(this::class.simpleName, "\n")
         Log.e(this::class.simpleName, "Exploration Descriptor: $explorationDescriptor")
         Log.e(this::class.simpleName, "Obstacle Descriptor: $obstacleDescriptor")
-        return "$explorationDescriptor//$obstacleDescriptor"
+        return "${explorationDescriptor}${DESCRIPTOR_DIVIDER}${obstacleDescriptor}"
     }
 
     fun hasUnexploredGrid(): Boolean {

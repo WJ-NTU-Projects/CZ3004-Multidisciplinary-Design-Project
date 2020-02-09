@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App.Companion.CLICK_DELAY
+import ntu.mdp.android.mdptestkotlin.App.Companion.DESCRIPTOR_DIVIDER
 import ntu.mdp.android.mdptestkotlin.App.Companion.PAD_MOVABLE
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.TILT_MOVABLE
@@ -122,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-        buttonList = arrayListOf(bluetoothButton, communicationButton, tiltButton, darkModeButton, view3dButton, testButton, exploreButton, fastestPathButton, plotButton, plotPathButton, saveMapButton, loadMapButton, resetArenaButton, clearArenaButton, f1Button, f2Button, messagesOutputEditText, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
+        buttonList = arrayListOf(bluetoothButton, communicationButton, tiltButton, darkModeButton, helpButton, testButton, exploreButton, fastestPathButton, plotButton, plotPathButton, saveMapButton, loadMapButton, resetArenaButton, clearArenaButton, f1Button, f2Button, messagesOutputEditText, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
         arenaMapController = ArenaMapController(this, robotControllerCallback)
         robotController = RobotController(this, binding, arenaMapController, robotControllerCallback)
         bluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
@@ -169,7 +170,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         BluetoothController.callback = bluetoothCallback
-        if (autoUpdateArena) sendCommand(SEND_ARENA_COMMAND)
     }
 
     @Suppress("unused")
@@ -181,7 +181,7 @@ class MainActivity : AppCompatActivity() {
             R.id.bluetoothButton        -> activityUtil.startActivity(SettingsBluetoothActivity::class.java)
             R.id.communicationButton    -> activityUtil.startActivity(SettingsCommunicationActivity::class.java)
             R.id.testButton             -> activityUtil.startActivity(SettingsSimulationActivity::class.java)
-            R.id.view3dButton           -> activityUtil.sendSnack(getString(R.string.coming_soon))
+            R.id.helpButton             -> activityUtil.sendSnack(getString(R.string.coming_soon))
             R.id.messageCardClearButton -> activityUtil.sendYesNoDialog(CLEAR_MESSAGE_CODE, getString(R.string.clear_message_log))
             R.id.saveMapButton          -> onMapSaveClicked()
             R.id.loadMapButton          -> onMapLoadClicked()
@@ -377,7 +377,7 @@ class MainActivity : AppCompatActivity() {
                 buttonList.forEach { it.isEnabled = false }
                 fastestPathButton.isEnabled = true
                 fastestPathButton.icon = getDrawable(R.drawable.ic_pause)
-                modeCardLabel.text = getString(R.string.fastest_path)
+                modeCardLabel.text = getString(R.string.fastest)
                 displayInChat(MessageType.SYSTEM, getString(R.string.started_something, "fastest path."))
                 if (!simulationMode) startTimer()
             }
@@ -413,7 +413,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopTimer() {
-        val type: String = if (currentMode == Mode.EXPLORATION) getString(R.string.exploration) else getString(R.string.fastest_path)
+        val type: String = if (currentMode == Mode.EXPLORATION) getString(R.string.exploration) else getString(R.string.fastest)
         displayInChat(MessageType.SYSTEM, "$type - ${timerCardLabel.text.toString().trim()}")
         if (::timer.isInitialized) timer.cancel()
     }
@@ -563,7 +563,7 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-                val save: List<String> = arenaMapController.getMapDescriptor().split("//")
+                val save: List<String> = arenaMapController.getMapDescriptor().split(DESCRIPTOR_DIVIDER)
 
                 if (save.size != 2) {
                     activityUtil.sendSnack(getString(R.string.something_went_wrong))
@@ -606,7 +606,7 @@ class MainActivity : AppCompatActivity() {
                         arenaMapController.setGoalPoint(arena.goalX, arena.goalY)
                         if (arenaMapController.isValidCoordinates(arena.waypointX, arena.waypointY)) arenaMapController.setWaypoint(arena.waypointX, arena.waypointY)
 
-                        val descriptor = "${arena.map_descriptor}//${arena.obstacle_descriptor}"
+                        val descriptor = "${arena.map_descriptor}${DESCRIPTOR_DIVIDER}${arena.obstacle_descriptor}"
                         arenaMapController.updateArena(descriptor)
                     }
                 }.invokeOnCompletion {
