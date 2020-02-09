@@ -236,6 +236,8 @@ public class AStarSearch {
 
                 for (GridNode openNode : openList) {
                     if (openNode.x == successor.x && openNode.y == successor.y && successor.f < openNode.f) {
+                        openNode.facing = successor.facing;
+                        openNode.direction = successor.direction;
                         openNode.f = successor.f;
                         openNode.g = successor.g;
                         openNode.h = successor.h;
@@ -274,8 +276,8 @@ public class AStarSearch {
     static class GridNode {
         final int x;
         final int y;
-        final int facing;
-        final int direction;
+        int facing;
+        int direction;
         double f;
         double g;
         double h;
