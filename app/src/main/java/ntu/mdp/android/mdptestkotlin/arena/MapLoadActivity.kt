@@ -1,9 +1,14 @@
 package ntu.mdp.android.mdptestkotlin.arena
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
+import android.os.LocaleList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +24,7 @@ import kotlinx.android.synthetic.main.activity_map_load.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.appTheme
 import ntu.mdp.android.mdptestkotlin.App.Companion.dialogTheme
 import ntu.mdp.android.mdptestkotlin.R
@@ -27,6 +33,8 @@ import ntu.mdp.android.mdptestkotlin.room.AppDatabase
 import ntu.mdp.android.mdptestkotlin.room.arena.Arena
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 import ntu.mdp.android.mdptestkotlin.utils.AdapterSwipeController
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MapLoadActivity : AppCompatActivity() {
@@ -36,6 +44,27 @@ class MapLoadActivity : AppCompatActivity() {
     private lateinit var dataList       : ArrayList<Arena>
     private lateinit var deleteList     : ArrayList<Arena>
     private lateinit var recyclerAdapter: DeviceAdapter
+
+    override fun attachBaseContext(newBase: Context?) {
+        val res: Resources? = newBase?.resources
+        val configuration: Configuration? = res?.configuration
+        val newLocale = Locale(App.APP_LANGUAGE)
+        configuration?.setLocale(newLocale)
+        val localeList = LocaleList(newLocale)
+        LocaleList.setDefault(localeList)
+        configuration?.setLocales(localeList)
+
+        if (configuration != null) {
+            val context = newBase.createConfigurationContext(configuration)
+            super.attachBaseContext(ContextWrapper(context))
+        } else {
+            super.attachBaseContext(newBase)
+        }
+    }
+
+    override fun applyOverrideConfiguration(overrideConfiguration: Configuration) {
+        super.applyOverrideConfiguration(baseContext.resources.configuration);
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(dialogTheme)

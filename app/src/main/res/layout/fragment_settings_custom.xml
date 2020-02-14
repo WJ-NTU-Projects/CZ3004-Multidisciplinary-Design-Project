@@ -6,10 +6,15 @@
     android:layout_height="wrap_content"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".settings.SettingsCommunicationActivity">
+    tools:context=".settings.SettingsActivity">
 
     <ScrollView style="@style/LayoutMatchWrap">
         <LinearLayout style="@style/LayoutMatchWrap">
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/AppTextView.Gray.Settings.Title"
+                android:text="@string/custom_buttons"/>
+
             <androidx.cardview.widget.CardView style="@style/DataCard">
                 <LinearLayout style="@style/DataCardInnerLayout.Settings">
 

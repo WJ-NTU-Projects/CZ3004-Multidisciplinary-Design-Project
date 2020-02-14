@@ -122,15 +122,15 @@
     <style name="ArenaGridLayout">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">0dp</item>
-        <item name="android:rowCount">20</item>
-        <item name="android:columnCount">15</item>
-        <item name="layout_constraintWidth_percent">0.776</item>
-        <item name="layout_constraintHeight_percent">0.68</item>
+        <item name="android:rowCount">21</item>
+        <item name="android:columnCount">16</item>
+        <item name="layout_constraintWidth_percent">0.792</item>
+        <item name="layout_constraintHeight_percent">0.690</item>
     </style>
 
     <style name="ArenaGridLayout.Phone">
-        <item name="layout_constraintWidth_percent">0.74</item>
-        <item name="layout_constraintHeight_percent">0.514</item>
+        <item name="layout_constraintWidth_percent">0.756</item>
+        <item name="layout_constraintHeight_percent">0.518</item>
     </style>
 
     <style name="DataCard" parent="CardView">
@@ -227,8 +227,20 @@
         <item name="iconGravity">textStart</item>
     </style>
 
+    <style name="UIButton.IconOnly.Small">
+        <item name="android:layout_width">@dimen/main_button_height_sq_small</item>
+        <item name="android:layout_height">@dimen/main_button_height_sq_small</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
+        <item name="iconSize">20dp</item>
+    </style>
+
+    <style name="UIButton.IconOnly.Long">
+        <item name="android:layout_width">@dimen/main_button_height_sq_long</item>
+    </style>
+
     <style name="UIButton.Main">
-        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_width">@dimen/main_button_height_sq_long</item>
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetRight">0dp</item>
@@ -240,7 +252,7 @@
     <style name="UIButton.Dialog">
         <item name="android:layout_marginTop">@dimen/screen_padding</item>
         <item name="android:layout_marginEnd">@dimen/screen_padding</item>
-        <item name="android:layout_width">100dp</item>
+        <item name="android:layout_width">110dp</item>
     </style>
 
     <style name="CardParentLayout">

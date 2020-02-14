@@ -1,13 +1,13 @@
-package ntu.mdp.android.mdptestkotlin.settings
+package ntu.mdp.android.mdptestkotlin.bluetooth
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.os.LocaleList
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,30 +17,51 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
-import kotlinx.android.synthetic.main.settings_bluetooth.*
+import kotlinx.android.synthetic.main.activity_bluetooth.*
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.R
-import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
-import ntu.mdp.android.mdptestkotlin.databinding.SettingsBluetoothBinding
+import ntu.mdp.android.mdptestkotlin.databinding.ActivityBluetoothBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
+import java.util.*
+import kotlin.collections.ArrayList
 
-class SettingsBluetoothActivity : AppCompatActivity() {
+class BluetoothActivity : AppCompatActivity() {
 
     companion object {
         const val DISCOVERABILITY_REQUEST: Int = 1001
         const val BLUETOOTH_DISABLED_CODE: Int = 10000
     }
 
-    private lateinit var binding: SettingsBluetoothBinding
+    private lateinit var binding: ActivityBluetoothBinding
     private lateinit var activityUtil: ActivityUtil
     private lateinit var otherDeviceList: ArrayList<BluetoothDevice>
     private lateinit var othersAdapter: DeviceAdapter
 
+    override fun attachBaseContext(newBase: Context?) {
+        val res: Resources? = newBase?.resources
+        val configuration: Configuration? = res?.configuration
+        val newLocale = Locale(App.APP_LANGUAGE)
+        configuration?.setLocale(newLocale)
+        val localeList = LocaleList(newLocale)
+        LocaleList.setDefault(localeList)
+        configuration?.setLocales(localeList)
+
+        if (configuration != null) {
+            val context = newBase.createConfigurationContext(configuration)
+            super.attachBaseContext(ContextWrapper(context))
+        } else {
+            super.attachBaseContext(newBase)
+        }
+    }
+
+    override fun applyOverrideConfiguration(overrideConfiguration: Configuration) {
+        super.applyOverrideConfiguration(baseContext.resources.configuration);
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(App.appTheme)
         super.onCreate(savedInstanceState)
-        binding = SettingsBluetoothBinding.inflate(layoutInflater)
+        binding = ActivityBluetoothBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         activityUtil = ActivityUtil(this)
@@ -106,7 +127,7 @@ class SettingsBluetoothActivity : AppCompatActivity() {
             bluetoothBondedCard.visibility = View.VISIBLE
             bluetoothBondedRecycler.apply {
                 setHasFixedSize(true)
-                layoutManager = LinearLayoutManager(this@SettingsBluetoothActivity)
+                layoutManager = LinearLayoutManager(this@BluetoothActivity)
                 adapter = DeviceAdapter(ArrayList(pairedDevices))
             }
 
@@ -117,7 +138,7 @@ class SettingsBluetoothActivity : AppCompatActivity() {
         othersAdapter = DeviceAdapter(ArrayList(otherDeviceList))
         bluetoothOthersRecycler.apply {
             setHasFixedSize(false)
-            layoutManager = LinearLayoutManager(this@SettingsBluetoothActivity)
+            layoutManager = LinearLayoutManager(this@BluetoothActivity)
             adapter = othersAdapter
         }
 

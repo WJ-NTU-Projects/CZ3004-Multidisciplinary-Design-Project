@@ -14,6 +14,7 @@ class App: Application() {
         const val BLUETOOTH_UUID = "00001101-0000-1000-8000-00805F9B34FB"
         const val ANIMATOR_DURATION = 200L
         const val CLICK_DELAY = 100L
+        const val DEFAULT_DELAY = 65L
 
         // Bluetooth Sockets & Threads
         var socket: BluetoothSocket? = null
@@ -23,6 +24,7 @@ class App: Application() {
 
         // Persistent Data
         lateinit var sharedPreferences: SharedPreferences
+        @Volatile var APP_LANGUAGE: String = "en"
         @Volatile var appTheme: Int = R.style.AppTheme
         @Volatile var dialogTheme: Int = R.style.DialogTheme
         @Volatile var autoUpdateArena = false
@@ -78,7 +80,9 @@ class App: Application() {
         autoUpdateArena = sharedPreferences.getBoolean(getString(R.string.app_pref_auto_update), true)
         usingAmd = sharedPreferences.getBoolean(getString(R.string.app_pref_using_amd), true)
         simulationMode = sharedPreferences.getBoolean(getString(R.string.app_pref_simulation_mode), false)
-        simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else (1000 / 3)
+        simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else DEFAULT_DELAY
         coverageLimit = if (simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
+        coverageLimit = if (simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
+        APP_LANGUAGE = sharedPreferences.getString(getString(R.string.app_pref_language), getString(R.string.language_default)) ?: getString(R.string.language_default)
     }
 }

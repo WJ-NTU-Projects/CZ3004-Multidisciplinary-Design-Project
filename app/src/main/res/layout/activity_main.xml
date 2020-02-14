@@ -32,11 +32,14 @@
         android:id="@+id/buttonLayout"
         android:layout_marginTop="0dp"
         app:layout_constraintLeft_toRightOf="@id/gridParent"
-        app:layout_constraintTop_toTopOf="@id/gridParent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/gridParent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
 
-        <LinearLayout style="@style/ButtonLayout" android:layout_marginTop="0dp">
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/AppTextView.Gray.Small"
+            android:text="@string/settings"/>
+
+        <LinearLayout style="@style/ButtonLayout">
             <com.google.android.material.button.MaterialButton
                 style="@style/UIButton.IconOnly"
                 android:id="@+id/bluetoothButton"
@@ -44,35 +47,16 @@
 
             <com.google.android.material.button.MaterialButton
                 style="@style/UIButton.IconOnly"
-                android:id="@+id/communicationButton"
-                app:icon="@drawable/ic_communication"/>
+                android:id="@+id/settingsButton"
+                app:icon="@drawable/ic_settings"/>
         </LinearLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/AppTextView.Gray.Small"
+            android:layout_marginTop="@dimen/button_padding"
+            android:text="@string/arena"/>
 
         <LinearLayout style="@style/ButtonLayout">
-            <com.google.android.material.button.MaterialButton
-                style="@style/UIButton.IconOnly"
-                android:id="@+id/tiltButton"
-                app:icon="@drawable/ic_accelerometer"/>
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/UIButton.IconOnly"
-                android:id="@+id/darkModeButton"
-                app:icon="@drawable/ic_change_theme"/>
-        </LinearLayout>
-
-        <LinearLayout style="@style/ButtonLayout">
-            <com.google.android.material.button.MaterialButton
-                style="@style/UIButton.IconOnly"
-                android:id="@+id/testButton"
-                app:icon="@drawable/ic_test"/>
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/UIButton.IconOnly"
-                android:id="@+id/helpButton"
-                app:icon="@drawable/ic_help"/>
-        </LinearLayout>
-
-        <LinearLayout style="@style/ButtonLayout" android:layout_marginTop="@dimen/screen_padding">
             <com.google.android.material.button.MaterialButton
                 style="@style/UIButton.IconOnly"
                 android:id="@+id/exploreButton"
@@ -111,14 +95,31 @@
         <LinearLayout style="@style/ButtonLayout">
             <com.google.android.material.button.MaterialButton
                 style="@style/UIButton.IconOnly"
-                android:id="@+id/resetArenaButton"
-                app:icon="@drawable/ic_reset"/>
+                android:id="@+id/visibilityButton"
+                app:icon="@drawable/ic_explored"/>
 
             <com.google.android.material.button.MaterialButton
                 style="@style/UIButton.IconOnly"
                 android:id="@+id/clearArenaButton"
                 app:icon="@drawable/ic_clear"/>
         </LinearLayout>
+
+        <LinearLayout style="@style/ButtonLayout">
+            <com.google.android.material.button.MaterialButton
+                style="@style/UIButton.IconOnly"
+                android:id="@+id/infoButton"
+                app:icon="@drawable/ic_info"/>
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/UIButton.IconOnly"
+                android:id="@+id/imageButton"
+                app:icon="@drawable/ic_images"/>
+        </LinearLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/AppTextView.Gray.Small"
+            android:layout_marginTop="@dimen/button_padding"
+            android:text="@string/custom_buttons"/>
 
         <LinearLayout style="@style/ButtonLayout">
             <com.google.android.material.button.MaterialButton
@@ -253,6 +254,13 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 style="@style/DataCardInnerLayout.Main"
                 android:id="@+id/controllerPad">
+
+                <com.google.android.material.button.MaterialButton
+                    style="@style/UIButton.IconOnly.Small"
+                    android:id="@+id/tiltButton"
+                    app:icon="@drawable/ic_accelerometer"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"/>
 
                 <com.google.android.material.button.MaterialButton
                     style="@style/UIButton.IconOnly"

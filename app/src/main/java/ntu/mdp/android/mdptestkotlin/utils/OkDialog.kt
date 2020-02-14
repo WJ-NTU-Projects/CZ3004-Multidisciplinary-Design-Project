@@ -1,19 +1,47 @@
 package ntu.mdp.android.mdptestkotlin.utils
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.os.LocaleList
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.dialog_ok.*
+import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.dialogTheme
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.databinding.DialogOkBinding
+import java.util.*
 
 
 class OkDialog : AppCompatActivity() {
     private lateinit var binding        : DialogOkBinding
     private lateinit var activityUtil   : ActivityUtil
+
+    override fun attachBaseContext(newBase: Context?) {
+        val res: Resources? = newBase?.resources
+        val configuration: Configuration? = res?.configuration
+        val newLocale = Locale(App.APP_LANGUAGE)
+        configuration?.setLocale(newLocale)
+        val localeList = LocaleList(newLocale)
+        LocaleList.setDefault(localeList)
+        configuration?.setLocales(localeList)
+
+        if (configuration != null) {
+            val context = newBase.createConfigurationContext(configuration)
+            super.attachBaseContext(ContextWrapper(context))
+        } else {
+            super.attachBaseContext(newBase)
+        }
+    }
+
+    override fun applyOverrideConfiguration(overrideConfiguration: Configuration) {
+        super.applyOverrideConfiguration(baseContext.resources.configuration);
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(dialogTheme)

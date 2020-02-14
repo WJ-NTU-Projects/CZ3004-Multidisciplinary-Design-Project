@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_settings_communication_identifier.*
+import kotlinx.android.synthetic.main.fragment_settings_identifier.*
 import ntu.mdp.android.mdptestkotlin.App.Companion.COMMAND_DIVIDER
 import ntu.mdp.android.mdptestkotlin.App.Companion.COMMAND_PREFIX
 import ntu.mdp.android.mdptestkotlin.App.Companion.DESCRIPTOR_DIVIDER
@@ -23,24 +23,24 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_LEFT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_RIGHT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
-import ntu.mdp.android.mdptestkotlin.databinding.FragmentSettingsCommunicationIdentifierBinding
+import ntu.mdp.android.mdptestkotlin.databinding.FragmentSettingsIdentifierBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
-class SettingsCommunicationIdentifierFragment : Fragment() {
+class SettingsFragmentIdentifier : Fragment() {
 
-    private var binding: FragmentSettingsCommunicationIdentifierBinding? = null
+    private var binding: FragmentSettingsIdentifierBinding? = null
     private lateinit var activityUtil: ActivityUtil
     private lateinit var viewOnHold: EditText
     private var enterPressed = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentSettingsCommunicationIdentifierBinding.inflate(inflater, container, false)
+        binding = FragmentSettingsIdentifierBinding.inflate(inflater, container, false)
         return binding?.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        activityUtil = (activity as SettingsCommunicationActivity).activityUtil
+        activityUtil = (activity as SettingsActivity).activityUtil
 
         sendArenaEditText.setOnKeyListener(onEnter)
         sendArenaEditText.onFocusChangeListener = onFocusLost
@@ -88,6 +88,7 @@ class SettingsCommunicationIdentifierFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         refreshHints()
+        activityUtil.setTitle(getString(R.string.identifiers))
     }
 
     override fun onDestroyView() {

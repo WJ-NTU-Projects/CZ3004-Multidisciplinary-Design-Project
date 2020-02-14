@@ -9,7 +9,7 @@
     android:clipToPadding="false"
     android:clipChildren="false"
     android:orientation="vertical"
-    tools:context=".settings.SettingsCommunicationActivity">
+    tools:context=".settings.SettingsActivity">
 
     <include layout="@layout/addon_toolbar" />
 
@@ -24,5 +24,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:tabTextAppearance="@style/TabTextAppearance"
+        app:tabBackground="?attr/colorOnPrimary"
+        app:tabTextColor="?attr/colorTextTheme"
+        app:tabSelectedTextColor="?attr/colorPrimary"
         android:elevation="8dp" />
 </LinearLayout>

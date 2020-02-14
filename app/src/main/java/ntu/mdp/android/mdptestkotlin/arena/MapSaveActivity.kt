@@ -1,8 +1,13 @@
 package ntu.mdp.android.mdptestkotlin.arena
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.os.LocaleList
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_map_save.*
@@ -10,17 +15,40 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.dialogTheme
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.databinding.ActivityMapSaveBinding
 import ntu.mdp.android.mdptestkotlin.room.AppDatabase
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
+import java.util.*
 
 
 class MapSaveActivity : AppCompatActivity() {
     private lateinit var binding        : ActivityMapSaveBinding
     private lateinit var activityUtil   : ActivityUtil
     private lateinit var database       : AppDatabase
+
+    override fun attachBaseContext(newBase: Context?) {
+        val res: Resources? = newBase?.resources
+        val configuration: Configuration? = res?.configuration
+        val newLocale = Locale(App.APP_LANGUAGE)
+        configuration?.setLocale(newLocale)
+        val localeList = LocaleList(newLocale)
+        LocaleList.setDefault(localeList)
+        configuration?.setLocales(localeList)
+
+        if (configuration != null) {
+            val context = newBase.createConfigurationContext(configuration)
+            super.attachBaseContext(ContextWrapper(context))
+        } else {
+            super.attachBaseContext(newBase)
+        }
+    }
+
+    override fun applyOverrideConfiguration(overrideConfiguration: Configuration) {
+        super.applyOverrideConfiguration(baseContext.resources.configuration);
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(dialogTheme)

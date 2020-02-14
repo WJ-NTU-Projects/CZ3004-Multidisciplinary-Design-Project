@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    tools:context=".settings.SettingsActivity">
+
+    <ScrollView style="@style/LayoutMatchWrap">
+        <LinearLayout style="@style/LayoutMatchWrap">
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/AppTextView.Gray.Settings.Title"
+                android:text="@string/arena"/>
+
+            <androidx.cardview.widget.CardView style="@style/DataCard">
+                <LinearLayout style="@style/DataCardInnerLayout.Settings.Horizontal">
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/AppTextView.Big"
+                        android:text="@string/automatic_update"/>
+
+                    <Switch
+                        android:id="@+id/autoSwitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView style="@style/DataCard" android:layout_marginTop="1dp">
+                <LinearLayout style="@style/DataCardInnerLayout.Settings.Horizontal">
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/AppTextView.Big"
+                        android:text="@string/using_amd"/>
+
+                    <Switch
+                        android:id="@+id/amdSwitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/AppTextView.Gray.Settings.Title"
+                android:text="@string/dark_mode"/>
+
+            <androidx.cardview.widget.CardView style="@style/DataCard">
+                <LinearLayout style="@style/DataCardInnerLayout.Settings.Horizontal">
+                    <com.google.android.material.textview.MaterialTextView
+                        style="@style/AppTextView.Big"
+                        android:text="@string/dark_mode"/>
+
+                    <Switch
+                        android:id="@+id/themeSwitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/AppTextView.Gray.Settings"
+                android:text="@string/dark_mode_warning"/>
+
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/AppTextView.Gray.Settings.Title"
+                android:text="@string/language"/>
+
+            <androidx.cardview.widget.CardView style="@style/DataCard">
+                <LinearLayout style="@style/LayoutMatchWrap">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/languageRecycler"
+                        tools:listitem="@layout/listitem_language"
+                        tools:itemCount="1"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/AppTextView.Gray.Settings"
+                android:text="@string/dark_mode_warning"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/screen_padding"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

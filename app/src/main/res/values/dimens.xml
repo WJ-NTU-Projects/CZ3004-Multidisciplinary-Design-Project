@@ -6,14 +6,19 @@
     <dimen name="settings_padding">32dp</dimen>
     <dimen name="toolbar_padding">8dp</dimen>
     <dimen name="screen_padding">16dp</dimen>
+    <dimen name="screen_padding_big">24dp</dimen>
     <dimen name="element_padding">8dp</dimen>
     <dimen name="small_padding">4dp</dimen>
-    <dimen name="text_size_big">16sp</dimen>
-    <dimen name="text_size_default">14sp</dimen>
-    <dimen name="text_size_small">12sp</dimen>
-    <dimen name="text_size_smaller">10sp</dimen>
+    <dimen name="text_size_big">14sp</dimen>
+    <dimen name="text_size_default">12sp</dimen>
+    <dimen name="text_size_small">10sp</dimen>
+    <dimen name="text_size_smaller">8sp</dimen>
+    <dimen name="text_size_snack">5sp</dimen>
+    <dimen name="text_size_arena_label">3sp</dimen>
     <dimen name="main_button_height">40dp</dimen>
     <dimen name="main_button_height_sq">40dp</dimen>
+    <dimen name="main_button_height_sq_small">32dp</dimen>
+    <dimen name="main_button_height_sq_long">88dp</dimen>
     <dimen name="main_button_width">80dp</dimen>
     <dimen name="settings_button_height">40dp</dimen>
 </resources>

@@ -10,6 +10,7 @@ import kotlin.math.abs
 
 class GestureImageView(c: Context): AppCompatImageView(c) {
     enum class Gesture {
+        SINGLE_TAP,
         DOUBLE_TAP,
         LONG_PRESS,
         FLING_LEFT,
@@ -41,6 +42,7 @@ class GestureImageView(c: Context): AppCompatImageView(c) {
         }
 
         override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+            callback(this@GestureImageView, Gesture.SINGLE_TAP)
             return true
         }
 

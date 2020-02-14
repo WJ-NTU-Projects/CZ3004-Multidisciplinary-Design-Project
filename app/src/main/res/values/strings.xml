@@ -1,95 +1,83 @@
 <resources>
     <string name="app_name">MDP</string>
-    <string name="app_pref_key">MDP_PREF_KEY</string>
-    <string name="app_pref_auto_update">AUTO_UPDATE</string>
-    <string name="app_pref_send_arena">COMMAND_SEND_ARENA</string>
-    <string name="app_pref_exploration">COMMAND_EXPLORATION</string>
-    <string name="app_pref_fastest">COMMAND_FASTEST</string>
-    <string name="app_pref_pause">COMMAND_PAUSE</string>
-    <string name="app_pref_forward">COMMAND_FORWARD</string>
-    <string name="app_pref_reverse">COMMAND_REVERSE</string>
-    <string name="app_pref_turn_left">COMMAND_TURN_LEFT</string>
-    <string name="app_pref_turn_right">COMMAND_TURN_RIGHT</string>
-    <string name="app_pref_grid_identifier">IDENTIFIER_GRID</string>
-    <string name="app_pref_descriptor_divider">DESCRIPTOR_DIVIDER</string>
-    <string name="app_pref_set_image_identifier">IDENTIFIER_SET_IMAGE</string>
-    <string name="app_pref_robot_position_identifier">IDENTIFIER_ROBOT_POSITION</string>
-    <string name="app_pref_robot_status_identifier">IDENTIFIER_ROBOT_STATUS</string>
-    <string name="app_pref_command_prefix">COMMAND_PREFIX</string>
-    <string name="app_pref_command_divider">COMMAND_DIVIDER</string>
-    <string name="app_pref_label_f1">LABEL_F1</string>
-    <string name="app_pref_command_f1">COMMAND_F1</string>
-    <string name="app_pref_label_f2">LABEL_F2</string>
-    <string name="app_pref_command_f2">COMMAND_f2</string>
-    <string name="app_pref_dark_mode">DARK_MODE</string>
-    <string name="app_pref_sad_mode">SAD_MODE</string>
-    <string name="app_pref_using_amd">USING_AMD</string>
-    <string name="app_pref_simulation_mode">SIMULATION_MODE</string>
-    <string name="app_pref_map_descriptor_1">MAP_DESCRIPTOR_1</string>
-    <string name="app_pref_simulation_speed">SIMULATION_SPEED</string>
-    <string name="app_pref_simulation_coverage">SIMULATION_COVERAGE</string>
-    <string name="app_pref_simulation_time">SIMULATION_TIME</string>
-    <string name="app_pref_start_position">START_POSITION</string>
-    <string name="app_pref_goal_position">GOAL_POSITION</string>
-    <string name="app_pref_accelerometer">ACCELEROMETER_USE</string>
-    <string name="app_result_map_name">MAP_NAME</string>
-    <string name="app_result_map_id">MAP_ID</string>
+    <string name="app_pref_key" translatable="false">MDP_PREF_KEY</string>
+    <string name="app_pref_auto_update" translatable="false">AUTO_UPDATE</string>
+    <string name="app_pref_send_arena" translatable="false">COMMAND_SEND_ARENA</string>
+    <string name="app_pref_exploration" translatable="false">COMMAND_EXPLORATION</string>
+    <string name="app_pref_fastest" translatable="false">COMMAND_FASTEST</string>
+    <string name="app_pref_pause" translatable="false">COMMAND_PAUSE</string>
+    <string name="app_pref_forward" translatable="false">COMMAND_FORWARD</string>
+    <string name="app_pref_reverse" translatable="false">COMMAND_REVERSE</string>
+    <string name="app_pref_turn_left" translatable="false">COMMAND_TURN_LEFT</string>
+    <string name="app_pref_turn_right" translatable="false">COMMAND_TURN_RIGHT</string>
+    <string name="app_pref_grid_identifier" translatable="false">IDENTIFIER_GRID</string>
+    <string name="app_pref_descriptor_divider" translatable="false">DESCRIPTOR_DIVIDER</string>
+    <string name="app_pref_set_image_identifier" translatable="false">IDENTIFIER_SET_IMAGE</string>
+    <string name="app_pref_robot_position_identifier" translatable="false">IDENTIFIER_ROBOT_POSITION</string>
+    <string name="app_pref_robot_status_identifier" translatable="false">IDENTIFIER_ROBOT_STATUS</string>
+    <string name="app_pref_command_prefix" translatable="false">COMMAND_PREFIX</string>
+    <string name="app_pref_command_divider" translatable="false">COMMAND_DIVIDER</string>
+    <string name="app_pref_label_f1" translatable="false">LABEL_F1</string>
+    <string name="app_pref_command_f1" translatable="false">COMMAND_F1</string>
+    <string name="app_pref_label_f2" translatable="false">LABEL_F2</string>
+    <string name="app_pref_command_f2" translatable="false">COMMAND_f2</string>
+    <string name="app_pref_dark_mode" translatable="false">DARK_MODE</string>
+    <string name="app_pref_sad_mode" translatable="false">SAD_MODE</string>
+    <string name="app_pref_using_amd" translatable="false">USING_AMD</string>
+    <string name="app_pref_simulation_mode" translatable="false">SIMULATION_MODE</string>
+    <string name="app_pref_map_descriptor_1" translatable="false">MAP_DESCRIPTOR_1</string>
+    <string name="app_pref_simulation_speed" translatable="false">SIMULATION_SPEED</string>
+    <string name="app_pref_simulation_coverage" translatable="false">SIMULATION_COVERAGE</string>
+    <string name="app_pref_simulation_time" translatable="false">SIMULATION_TIME</string>
+    <string name="app_pref_start_position" translatable="false">START_POSITION</string>
+    <string name="app_pref_goal_position" translatable="false">GOAL_POSITION</string>
+    <string name="app_pref_accelerometer" translatable="false">ACCELEROMETER_USE</string>
+    <string name="app_pref_language" translatable="false">APP_LANGUAGE</string>
+    <string name="app_result_map_name" translatable="false">MAP_NAME</string>
+    <string name="app_result_map_id" translatable="false">MAP_ID</string>
 
     <string name="ok">OK</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
+    <string name="none">None</string>
+    <string name="x" translatable="false">×</string>
+    <string name="language_default" translatable="false">en</string>
 
     <string name="error_bluetooth_not_supported">Bluetooth is not supported on this device.</string>
     <string name="error_bluetooth_not_connected">No bluetooth device connected.</string>
     <string name="error_bluetooth_off">Bluetooth-related features are disabled until Bluetooth is turned on.</string>
 
     <string name="exit_the_app">Exit the app?</string>
-    <string name="coming_soon">Coming soon!</string>
+    <string name="not_available">This feature is currently not available.</string>
     <string name="something_went_wrong">Something went wrong.</string>
 
     <!-- MAIN ACTIVITY -->
-    <string name="home">Home</string>
     <string name="arena">Arena</string>
     <string name="settings">Settings</string>
-    <string name="start">Start</string>
     <string name="pause">Pause</string>
-    <string name="plot_mode">Plot Mode</string>
-    <string name="map_options">Map Options</string>
-    <string name="reset">Reset Arena</string>
-    <string name="f1_default">F1</string>
-    <string name="f2_default">F2</string>
+    <string name="f1_default" translatable="false">F1</string>
+    <string name="f2_default" translatable="false">F2</string>
     <string name="status">Status</string>
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
     <string name="mode">Mode</string>
-    <string name="none">None</string>
     <string name="coordinates">Position</string>
-    <string name="coordinates_default">1, 1</string>
+    <string name="coordinates_default" translatable="false">1, 1</string>
     <string name="timer">Timer</string>
-    <string name="timer_default">00:00</string>
+    <string name="timer_default" translatable="false">00:00</string>
     <string name="messages">Messages</string>
     <string name="clear">Clear</string>
-    <string name="clear_arena">Clear Arena</string>
-    <string name="messages_send_hint">Message to send…</string>
-    <string name="send">Send</string>
-    <string name="control_pad">Control Pad</string>
-    <string name="swipe">Swipe</string>
-    <string name="plot_obstacles">Plot Obstacles</string>
-    <string name="remove_obstacles">Remove Obstacles</string>
-    <string name="clear_all_obstacles">Clear All Obstacles</string>
+    <string name="messages_send_hint">Say something…</string>
     <string name="clear_message_log">Clear message log?</string>
-    <string name="reset_arena_timer">Reset the arena and timer?</string>
     <string name="clear_arena_timer">Completely clear the arena and timer?</string>
-    <string name="chat_prefix">[%1$s] %2$s</string>
+    <string name="chat_prefix" translatable="false">[%1$s] %2$s</string>
     <string name="prefix_robot">Robot:</string>
     <string name="prefix_tablet">Me:</string>
     <string name="started_something">Started %s</string>
-    <string name="timer_minute_second">%1$s:%2$s</string>
+    <string name="timer_minute_second" translatable="false">%1$s:%2$s</string>
     <string name="exploration">Exploration</string>
     <string name="fastest">Fastest</string>
     <string name="fastest_path">Fastest Path</string>
-    <string name="save_map_prompt">Save this map? Any existing saved map will be overwritten.</string>
-    <string name="load_map_prompt">Load saved map? Existing grid map will be replaced.</string>
     <string name="no_save_data">No save data found.</string>
     <string name="illegal_command">Illegal command.</string>
     <string name="hugging_wall">Hugging wall…</string>
@@ -98,20 +86,12 @@
     <string name="set_waypoint">Please set a waypoint first.</string>
     <string name="accelerometer_on">Accelerometer ON.</string>
     <string name="accelerometer_off">Accelerometer OFF.</string>
-
-    <!-- SETTINGS ACTIVITY -->
-    <string name="bluetooth">Bluetooth</string>
-    <string name="bluetooth_description">Bluetooth discovery, pairing and connection.</string>
-    <string name="communication">Communication</string>
-    <string name="robot_communication">Robot Communication</string>
-    <string name="robot_communication_description">Arena update mode &amp; communication commands.</string>
-    <string name="custom_buttons">Custom Buttons</string>
-    <string name="custom_buttons_description">Customise buttons F1 and F2.</string>
-    <string name="display">Display</string>
-    <string name="display_description">Dark mode &amp; SAD mode.</string>
-    <string name="simulation">Simulation</string>
+    <string name="set_arena_as">Set the entire arena as?</string>
+    <string name="explored">Explored</string>
+    <string name="unexplored">Unknown</string>
 
     <!-- BLUETOOTH ACTIVITY -->
+    <string name="bluetooth">Bluetooth</string>
     <string name="connected_device">Connected Device</string>
     <string name="device_name">Device Name: %s</string>
     <string name="disconnect">Disconnect</string>
@@ -120,17 +100,26 @@
     <string name="bonded_devices">Paired Devices</string>
     <string name="other_devices">Other Devices</string>
 
-    <!-- SETTINGS COMMUNICATION ACTIVITY -->
+    <!-- SETTINGS ACTIVITY -->
+    <string name="general">General</string>
     <string name="identifiers">Identifiers</string>
-    <string name="arena_communication">Arena Communication</string>
+    <string name="customise">Customise</string>
+    <string name="simulation">Simulation</string>
+
+    <!-- SETTINGS GENERAL -->
+    <string name="dark_mode">Dark Mode</string>
+    <string name="dark_mode_warning">WARNING! App restarts immediately when toggled!</string>
     <string name="automatic_update">Automatically Update Arena</string>
     <string name="using_amd">Using AMDTool</string>
+    <string name="language">Hi</string>
+    <string name="selected">Selected</string>
 
+    <!-- SETTINGS IDENTIFIERS -->
     <string name="general_config">General Configuration</string>
     <string name="string_divider">ID-Data Divider:</string>
-    <string name="string_divider_default">:</string>
+    <string name="string_divider_default" translatable="false">:</string>
     <string name="command_prefix">Command Prefix:</string>
-    <string name="command_prefix_default">#</string>>
+    <string name="command_prefix_default" translatable="false">#</string>>
 
     <string name="send_command_identifiers">Send Command Identifiers</string>
     <string name="command">Command</string>
@@ -138,62 +127,50 @@
     <string name="information">Information To Receive</string>
     <string name="string_identifier">String Identifier</string>
     <string name="send_arena">Send Arena Info</string>
-    <string name="send_arena_default">sendArena</string>
-    <string name="exploration_default">beginExploration</string>
-    <string name="fastest_path_default">beginFastest</string>
-    <string name="pause_default">pause</string>
+    <string name="send_arena_default" translatable="false">sendArena</string>
+    <string name="exploration_default" translatable="false">beginExploration</string>
+    <string name="fastest_path_default" translatable="false">beginFastest</string>
+    <string name="pause_default" translatable="false">pause</string>
     <string name="forward">Forward</string>
-    <string name="forward_default">f</string>
+    <string name="forward_default" translatable="false">f</string>
     <string name="reverse">Reverse</string>
-    <string name="reverse_default">r</string>
+    <string name="reverse_default" translatable="false">r</string>
     <string name="turn_left">Turn Left</string>
-    <string name="turn_left_default">tl</string>
+    <string name="turn_left_default" translatable="false">tl</string>
     <string name="turn_right">Turn Right</string>
-    <string name="turn_right_default">tr</string>
+    <string name="turn_right_default" translatable="false">tr</string>
     <string name="restore_defaults">Restore Defaults</string>
 
     <string name="receive_information_identifiers">Receive Information Identifiers</string>
     <string name="grid_descriptor">Grid Descriptor</string>
-    <string name="grid_descriptor_default">grid</string>
+    <string name="grid_descriptor_default" translatable="false">grid</string>
     <string name="descriptor_divider">Descriptor Divider:</string>
-    <string name="descriptor_divider_default">/</string>
+    <string name="descriptor_divider_default" translatable="false">/</string>
     <string name="set_image">Image Position</string>
-    <string name="set_image_default">setImage</string>
+    <string name="set_image_default" translatable="false">setImage</string>
     <string name="robot_position">Robot Position</string>
-    <string name="robot_position_default">robotPosition</string>
+    <string name="robot_position_default" translatable="false">robotPosition</string>
     <string name="robot_status">Robot Status</string>
-    <string name="robot_status_default">robotStatus</string>
+    <string name="robot_status_default" translatable="false">robotStatus</string>
 
     <string name="restore_command_defaults">Restore commands to their default values?</string>
     <string name="unsaved_changes">Unsaved changes. Save or discard?</string>
     <string name="save">Save</string>
     <string name="discard">Discard</string>
 
-    <!-- SETTINGS CUSTOM BUTTONS ACTIVITY -->
+    <!-- SETTINGS CUSTOMISE -->
+    <string name="custom_buttons">Custom Buttons</string>
     <string name="button_label">Button Label</string>
-    <string name="settings_custom_buttons_description">Changes the functionality and label of the two custom buttons, F1 and F2.</string>
-
-    <!-- SETTINGS DISPLAY ACTIVITY -->
-    <string name="experimental_warning">WARNING! App restarts when these settings are changed! NO POP UP!</string>
-    <string name="dark_mode">Dark Mode</string>
-    <string name="dark_mode_description">For when your eyes are so tired and sleepy after hours of MDP but you have to push on.</string>
-    <string name="simple_advanced_display">Simple, yet Advanced Display Mode (SAD Mode)</string>
-    <string name="simple_advanced_display_description">Minimal display for advanced users.</string>
 
     <!-- SETTINGS SIMULATION ACTIVITY -->
     <string name="very_traumatising">This is very traumatising!</string>
     <string name="simulation_mode">Simulation Mode</string>
-    <string name="very_critical">This is very critical!</string>
     <string name="simulation_speed">Simulation Speed</string>
-    <string name="simulation_speed_description">Measured in Actions Per Second (APS).</string>
     <string name="simulation_speed_placeholder_aps">%d Actions Per Second</string>
-    <string name="simulation_speed_placeholder_ms">%dms Per Action</string>
     <string name="simulation_speed_notification">Simulation speed is now %d.</string>
     <string name="simulation_coverage">Coverage Limit</string>
     <string name="simulation_coverage_description">Simulation terminates after exploring the set percentage of grids of the map.</string>
     <string name="simulation_coverage_placeholder">%d%% Coverage</string>
-    <string name="simulation_time">Time Limit</string>
-    <string name="simulation_time_description">Simulation terminates after exploring for the set amount of time.</string>
 
     <!-- ARENA -->
     <string name="cannot_plot">Unable to plot. Something is in the way.</string>

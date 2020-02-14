@@ -8,27 +8,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_settings_communication_custom.*
+import kotlinx.android.synthetic.main.fragment_settings_custom.*
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
-import ntu.mdp.android.mdptestkotlin.databinding.FragmentSettingsCommunicationCustomBinding
+import ntu.mdp.android.mdptestkotlin.databinding.FragmentSettingsCustomBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
-class SettingsCommunicationCustomFragment : Fragment() {
+class SettingsFragmentCustom : Fragment() {
 
-    private var binding: FragmentSettingsCommunicationCustomBinding? = null
+    private var binding: FragmentSettingsCustomBinding? = null
     private lateinit var activityUtil: ActivityUtil
     private lateinit var viewOnHold: EditText
     private var enterPressed = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentSettingsCommunicationCustomBinding.inflate(inflater, container, false)
+        binding = FragmentSettingsCustomBinding.inflate(inflater, container, false)
         return binding?.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        activityUtil = (activity as SettingsCommunicationActivity).activityUtil
+        activityUtil = (activity as SettingsActivity).activityUtil
 
         f1LabelEditText.setOnKeyListener(onEnter)
         f1LabelEditText.onFocusChangeListener = onFocusLost
@@ -45,6 +45,7 @@ class SettingsCommunicationCustomFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        activityUtil.setTitle(getString(R.string.customise))
         refreshHints()
     }
 

@@ -1,14 +1,19 @@
 package ntu.mdp.android.mdptestkotlin.settings
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.os.LocaleList
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import com.google.android.material.tabs.TabLayout
-import kotlinx.android.synthetic.main.settings_communication.*
+import kotlinx.android.synthetic.main.activity_settings.*
 import ntu.mdp.android.mdptestkotlin.App
 import ntu.mdp.android.mdptestkotlin.App.Companion.COMMAND_DIVIDER
 import ntu.mdp.android.mdptestkotlin.App.Companion.COMMAND_PREFIX
@@ -25,39 +30,72 @@ import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_RIGHT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
-import ntu.mdp.android.mdptestkotlin.databinding.SettingsCommunicationBinding
+import ntu.mdp.android.mdptestkotlin.databinding.ActivitySettingsBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
+import java.util.*
 
-class SettingsCommunicationActivity : AppCompatActivity() {
-    private lateinit var binding: SettingsCommunicationBinding
+class SettingsActivity : AppCompatActivity() {
+    private lateinit var binding: ActivitySettingsBinding
     lateinit var activityUtil: ActivityUtil
     private lateinit var mainTab: TabLayout.Tab
-    private lateinit var generalFragment: SettingsCommunicationGeneralFragment
-    private lateinit var identifierFragment: SettingsCommunicationIdentifierFragment
-    private lateinit var customFragment: SettingsCommunicationCustomFragment
+    private lateinit var generalFragment: SettingsFragmentGeneral
+    private lateinit var identifierFragment: SettingsFragmentIdentifier
+    private lateinit var customFragment: SettingsFragmentCustom
+    private lateinit var simulationFragment: SettingsFragmentSimulation
+    private var isTablet: Boolean = false
+
+    override fun attachBaseContext(newBase: Context?) {
+        val res: Resources? = newBase?.resources
+        val configuration: Configuration? = res?.configuration
+        val newLocale = Locale(App.APP_LANGUAGE)
+        configuration?.setLocale(newLocale)
+        val localeList = LocaleList(newLocale)
+        LocaleList.setDefault(localeList)
+        configuration?.setLocales(localeList)
+
+        if (configuration != null) {
+            val context = newBase.createConfigurationContext(configuration)
+            super.attachBaseContext(ContextWrapper(context))
+        } else {
+            super.attachBaseContext(newBase)
+        }
+    }
+
+    override fun applyOverrideConfiguration(overrideConfiguration: Configuration) {
+        super.applyOverrideConfiguration(baseContext.resources.configuration);
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(App.appTheme)
         super.onCreate(savedInstanceState)
-        binding = SettingsCommunicationBinding.inflate(layoutInflater)
+        binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         activityUtil = ActivityUtil(this)
-        activityUtil.setTitle(getString(R.string.robot_communication))
+        activityUtil.setTitle(getString(R.string.settings))
+        isTablet = resources.getBoolean(R.bool.isTablet)
         tabLayout.tabGravity = TabLayout.GRAVITY_FILL
 
         mainTab = tabLayout.newTab().apply {
-            text = getString(R.string.arena)
+            text = getString(R.string.general)
+            tag = text
         }
 
         tabLayout.addTab(mainTab)
 
         tabLayout.addTab(tabLayout.newTab().apply {
             text = getString(R.string.identifiers)
+            tag = text
         })
 
         tabLayout.addTab(tabLayout.newTab().apply {
-            text = getString(R.string.custom_buttons)
+            text = getString(R.string.customise)
+            tag = text
+        })
+
+        tabLayout.addTab(tabLayout.newTab().apply {
+            text = getString(R.string.simulation)
+            tag = text
         })
 
         val viewPagerAdapter = ViewPagerAdapter()
@@ -67,7 +105,12 @@ class SettingsCommunicationActivity : AppCompatActivity() {
         tabLayout.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if (tab != null)  {
-                    viewPager.currentItem = tab.position
+                    if (tab.tag == getString(R.string.simulation) && !isTablet) {
+                        activityUtil.sendDialog(-1, getString(R.string.not_available))
+                        tabLayout.selectTab(mainTab)
+                    } else {
+                        viewPager.currentItem = tab.position
+                    }
                 }
             }
 
@@ -109,18 +152,23 @@ class SettingsCommunicationActivity : AppCompatActivity() {
     private inner class ViewPagerAdapter: FragmentPagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         override fun getItem(position: Int): Fragment {
             when (position) {
+                3 -> {
+                    simulationFragment = SettingsFragmentSimulation()
+                    return simulationFragment
+                }
+
                 2 -> {
-                    customFragment = SettingsCommunicationCustomFragment()
+                    customFragment = SettingsFragmentCustom()
                     return customFragment
                 }
 
                 1 -> {
-                    identifierFragment = SettingsCommunicationIdentifierFragment()
+                    identifierFragment = SettingsFragmentIdentifier()
                     return identifierFragment
                 }
 
                 else -> {
-                    generalFragment = SettingsCommunicationGeneralFragment()
+                    generalFragment = SettingsFragmentGeneral()
                     return generalFragment
                 }
             }

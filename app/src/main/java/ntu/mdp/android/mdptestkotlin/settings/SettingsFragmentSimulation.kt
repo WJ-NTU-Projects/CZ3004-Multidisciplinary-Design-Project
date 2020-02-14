@@ -1,31 +1,35 @@
 package ntu.mdp.android.mdptestkotlin.settings
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.SeekBar
-import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.settings_simulation.*
-import ntu.mdp.android.mdptestkotlin.App
+import androidx.fragment.app.Fragment
+import kotlinx.android.synthetic.main.fragment_settings_simulation.*
+import ntu.mdp.android.mdptestkotlin.App.Companion.DEFAULT_DELAY
 import ntu.mdp.android.mdptestkotlin.App.Companion.coverageLimit
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationDelay
 import ntu.mdp.android.mdptestkotlin.App.Companion.simulationMode
 import ntu.mdp.android.mdptestkotlin.R
-import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
-import ntu.mdp.android.mdptestkotlin.databinding.SettingsSimulationBinding
+import ntu.mdp.android.mdptestkotlin.databinding.FragmentSettingsSimulationBinding
 import ntu.mdp.android.mdptestkotlin.utils.ActivityUtil
 
-class SettingsSimulationActivity : AppCompatActivity() {
-    private lateinit var binding: SettingsSimulationBinding
+class SettingsFragmentSimulation : Fragment() {
+
+    private var binding: FragmentSettingsSimulationBinding? = null
     private lateinit var activityUtil: ActivityUtil
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(App.appTheme)
-        super.onCreate(savedInstanceState)
-        binding = SettingsSimulationBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentSettingsSimulationBinding.inflate(inflater, container, false)
+        return binding?.root
+    }
 
-        activityUtil = ActivityUtil(this)
-        activityUtil.setTitle(getString(R.string.simulation))
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activityUtil = (activity as SettingsActivity).activityUtil
 
         simulationSwitch.isChecked = simulationMode
         simulationSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -33,7 +37,7 @@ class SettingsSimulationActivity : AppCompatActivity() {
             simulationMode = isChecked
             simulationSpeedSeekBar.isEnabled = isChecked
             coverageLimitSeekBar.isEnabled = isChecked
-            simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else (1000 / 3)
+            simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else DEFAULT_DELAY
             coverageLimit = if (simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
 
             simulationSpeedSeekBar.progress = (1000.0 / simulationDelay).toInt() - 1
@@ -83,10 +87,11 @@ class SettingsSimulationActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        BluetoothController.callback = { status, message ->
-            if (status != BluetoothController.Status.READ) {
-                activityUtil.sendSnack(message)
-            }
-        }
+        activityUtil.setTitle(getString(R.string.simulation))
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 }

@@ -8,9 +8,7 @@
     android:layout_height="wrap_content"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".settings.SettingsSimulationActivity">
-
-    <include layout="@layout/addon_toolbar" />
+    tools:context=".settings.SettingsActivity">
 
     <com.google.android.material.textview.MaterialTextView
         style="@style/AppTextView.Gray.Settings.Title"
@@ -171,30 +169,8 @@
         style="@style/AppTextView.Gray.Settings"
         android:text="@string/simulation_coverage_description" />
 
-    <com.google.android.material.textview.MaterialTextView
-        style="@style/AppTextView.Gray.Settings.Title"
-        android:text="@string/simulation_time" />
-
-    <androidx.cardview.widget.CardView
-        style="@style/DataCard"
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/screen_padding"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-
-            <com.google.android.material.textview.MaterialTextView
-                style="@style/AppTextView.Gray.Settings"
-                android:layout_gravity="center"
-                android:text="@string/coming_soon" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <com.google.android.material.textview.MaterialTextView
-        style="@style/AppTextView.Gray.Settings"
-        android:text="@string/simulation_time_description" />
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/screen_padding"/>
 </LinearLayout>

@@ -5,14 +5,22 @@ import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
+import android.os.LocaleList
 import android.os.Parcelable
-import android.util.Log
+import android.util.DisplayMetrics
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.App.Companion.APP_LANGUAGE
+import ntu.mdp.android.mdptestkotlin.App.Companion.darkMode
 import ntu.mdp.android.mdptestkotlin.R
 import java.io.Serializable
+import java.util.*
+
 
 class ActivityUtil(private val context: Context) {
     /**
@@ -75,7 +83,26 @@ class ActivityUtil(private val context: Context) {
         val windowLayout: View = (context as Activity).findViewById(R.id.window_layout)
         val snackBar: Snackbar = Snackbar.make(windowLayout, message, Snackbar.LENGTH_LONG)
         snackBar.show()
-        Log.e(this::class.simpleName ?: "-", "Broadcasted from ${context::class.simpleName}")
+        //Log.e(this::class.simpleName ?: "-", "Broadcasted from ${context::class.simpleName}")
+    }
+
+    fun sendSnackIndefinite(message: String?) {
+        if (message == null) return
+        val windowLayout: View = (context as Activity).findViewById(R.id.window_layout)
+        val snackBar: Snackbar = Snackbar.make(windowLayout, message, Snackbar.LENGTH_INDEFINITE)
+
+        snackBar.setAction(context.getString(R.string.x)) {
+            snackBar.dismiss()
+        }
+
+        if (darkMode) snackBar.setActionTextColor(context.getColor(R.color.colorPrimaryDark))
+        else snackBar.setActionTextColor(context.getColor(R.color.colorPrimary))
+
+        val textView = snackBar.view.findViewById(com.google.android.material.R.id.snackbar_text) as TextView
+        textView.maxLines = 99
+        textView.textSize = context.resources.getDimension(R.dimen.text_size_snack)
+        snackBar.show()
+        //Log.e(this::class.simpleName ?: "-", "Broadcasted from ${context::class.simpleName}")
     }
 
     fun setTitle(title: String) {
@@ -83,7 +110,7 @@ class ActivityUtil(private val context: Context) {
         toolbar?.title = title
     }
 
-    fun sendDialog(requestCode: Int, message: String, label: String = "OK", title: String = "") {
+    fun sendDialog(requestCode: Int, message: String, label: String = context.getString(R.string.ok), title: String = "") {
         val intent = Intent(context, OkDialog::class.java)
         intent.putExtra("message", message)
         intent.putExtra("label", label)
@@ -91,7 +118,7 @@ class ActivityUtil(private val context: Context) {
         (context as Activity).startActivityForResult(intent, requestCode)
     }
 
-    fun sendYesNoDialog(requestCode: Int, message: String, leftLabel: String = "YES", rightLabel: String = "NO", title: String = "") {
+    fun sendYesNoDialog(requestCode: Int, message: String, leftLabel: String = context.getString(R.string.yes), rightLabel: String = context.getString(R.string.no), title: String = "") {
         val intent = Intent(context, YesNoDialog::class.java)
         intent.putExtra("message", message)
         intent.putExtra("leftLabel", leftLabel)
