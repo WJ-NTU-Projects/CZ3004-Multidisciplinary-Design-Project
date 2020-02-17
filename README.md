@@ -1,5 +1,5 @@
 # MDP Project Files
-### Android Remote Controller Module
+### Android
 [Changelog](https://github.com/101011101001010/MDP/wiki/Android-Changelog)
 
 [Grid Map User Manual](https://github.com/101011101001010/MDP-Android/wiki/Grid-Map-User-Manual)
