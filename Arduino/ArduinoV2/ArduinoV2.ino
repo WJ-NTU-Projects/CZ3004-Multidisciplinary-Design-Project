@@ -1,7 +1,6 @@
 #include <DualVNH5019MotorShield.h>
 #include <EnableInterrupt.h>
 #include <PID_v1.h>
-#include <QuickMedianLib.h>
 
 #define M1E1Right 11
 #define M2E2Left 3
@@ -202,10 +201,11 @@ int getIRDistance(char sensor, double m, double c) {
 
     average = (average / count);
     double volts = map(raw, 0, 1023, 0, 5000) / 1000.0;
-    int dist = round((1 / (volts * m + c)) - 1.32);
+    int dist = round((1 / (volts * m + c)) - ((index < 5)? 1.32 : 1.02));
     int t10 = sensorRaw[index];
     if (dist <= 20 && average >= t10) dist = 10;
     if (sensorDistance[index] == 10 && dist <= 20) return 10;
+    if ((dist > 25) && (index < 5 || (index == 5 && dist <= 48))) dist += 1.5; 
     sensorDistance[index] = dist;
     return dist;
 }
