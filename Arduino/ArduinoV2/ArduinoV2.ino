@@ -34,11 +34,13 @@ volatile long previousPulseRight = 0;
 volatile long pulseTimeRight = 0;
 volatile boolean enabled = false;
 volatile boolean obstacleAhead = false;
+boolean avoiding = false;
 
 double kp = 1.8, ki = 35, kd = 0;
 double speedLeft = 0, speedRight = 0;
 double speedOutputLeft = 0, speedOutputRight = 0;
 double rpmLeft = 0, rpmRight = 0, rpmTarget = 0;
+double totalDistance = 0;
 
 int sensorCounter[6] = {0, 0, 0, 0, 0, 0};
 int sensorValues[6][25];
@@ -69,24 +71,13 @@ void setup() {
     }
     
     delay(2000);
-    moveForward(1);
-    delay(1000);
-    moveReverse(1);
-    delay(1000);
-    moveForward(2);
-    delay(1000);
-    moveReverse(2);
-    delay(1000);
-    moveForward(3);
-    delay(1000);
-    moveReverse(3);
-    delay(1000);
-    moveForward(4);
-    delay(1000);
-    moveReverse(4);
+    Serial.println("Start.");
+    moveForward(15);
 }
 
-void loop() {}
+void loop() {
+    
+}
 
 void setupPID(boolean a) {
     pidLeft.SetMode(a? AUTOMATIC : MANUAL);
@@ -106,6 +97,7 @@ void moveRobot(int directionRight, int directionLeft) {
     setupPID(true);
 
     while (enabled) {
+        if (!obstacleAhead) totalDistance = wavesLeft / 562.25 * 18.8495559;
         if (directionRight == directionLeft) checkForObstacleAhead();
         pidLeft.Compute();
         pidRight.Compute();
@@ -115,14 +107,15 @@ void moveRobot(int directionRight, int directionLeft) {
         rpmLeft = (pulseTimeLeft == 0)? 0 : max(round(60000000.0 / (pulseTimeLeft * 562.25)), 0);
         rpmRight = (pulseTimeRight == 0)? 0 : max(round(60000000.0 / (pulseTimeRight * 562.25)), 0); 
         if (abs(rpmTarget - min(rpmLeft, rpmRight)) <= 10 && rpmTarget < 60) rpmTarget += 10;
-        Serial.println("Speed: " + String(speedLeft) + "/" + String(speedRight) + ", RPM: " + String(rpmLeft) + "/" + String(rpmRight) + ", RPM Target: " + String(rpmTarget));
+        //Serial.println("Speed: " + String(speedLeft) + "/" + String(speedRight) + ", RPM: " + String(rpmLeft) + "/" + String(rpmRight) + ", RPM Target: " + String(rpmTarget));
     }
 
     wavesThreshold = 150;
     wavesLeft = 0;
     wavesRight = 0;
     enabled = true;
-
+    Serial.println("Braking.");
+    
     while (enabled) {
         pidLeft.Compute();
         pidRight.Compute();
@@ -132,36 +125,92 @@ void moveRobot(int directionRight, int directionLeft) {
         rpmLeft = (pulseTimeLeft == 0)? 0 : max(round(60000000.0 / (pulseTimeLeft * 562.25)), 0);
         rpmRight = (pulseTimeRight == 0)? 0 : max(round(60000000.0 / (pulseTimeRight * 562.25)), 0); 
         if (abs(rpmTarget - min(rpmLeft, rpmRight)) < 10 && rpmTarget > 10) rpmTarget -= 10;
-        Serial.println("Speed: " + String(speedLeft) + "/" + String(speedRight) + ", RPM: " + String(rpmLeft) + "/" + String(rpmRight) + ", RPM Target: " + String(rpmTarget));
+        //Serial.println("Speed: " + String(speedLeft) + "/" + String(speedRight) + ", RPM: " + String(rpmLeft) + "/" + String(rpmRight) + ", RPM Target: " + String(rpmTarget));
     }
     
     setupPID(false);
     md.setSpeeds(0, 0);
 }
 
-void moveForward(int moveDistance) {
+void moveForward(double moveDistance) {
     wavesThreshold = round(298.28289 * moveDistance - 149);
+    Serial.println("Moving forward.");
     moveRobot(1, 1);
-    if (obstacleAhead) turnRight(90);
+    
+    if (obstacleAhead) {
+        avoiding = true;
+        obstacleAhead = false;
+        boolean left = true;
+        
+        if (getIRDistance(sensor4, A3m, A3c) < 20 || getIRDistance(sensor5, A4m, A4c) < 20) {
+            left = false;    
+        }
+
+        
+        // EVASIVE MANEUVER?
+        int travelledDistance = totalDistance + 2;        
+        if (left) turnLeft(90); else turnRight(90);
+        delay(100);
+        moveForward(2);
+        delay(100);
+        if (left) turnRight(90); else turnLeft(90);
+        delay(100);
+        moveForward(4);
+        delay(100);
+        if (left) turnRight(90); else turnLeft(90);
+        delay(100);
+        moveForward(2);
+        delay(100);
+        if (left) turnLeft(90); else turnRight(90);
+        delay(100);
+        moveForward(moveDistance - round(travelledDistance / 10) - 1 - 4);
+        
+        /*
+        // DIAGONAL?
+        int travelledDistance = totalDistance + 2;
+        Serial.println(travelledDistance);
+        Serial.println(moveDistance - round(travelledDistance / 10) - 1 - 6);
+        if (left) turnLeft(45); else turnRight(45);
+        delay(100);
+        moveForward(sqrt(18));
+        delay(100);
+        if (left) turnRight(90); else turnLeft(90);
+        delay(100);
+        moveForward(sqrt(18));
+        delay(100);
+        if (left) turnLeft(45); else turnRight(45);
+        delay(100);
+        moveForward(moveDistance - round(travelledDistance / 10) - 1 - 6);
+        */
+        avoiding = false;
+        
+    }
 }
 
 void moveReverse(int moveDistance) {
     wavesThreshold = round(298.28289 * moveDistance - 149);
+    Serial.println("Reversing.");
     moveRobot(-1, -1);
 }
 
 void turnLeft(int angle) {
-    wavesThreshold = round(4.72 * angle) - 71;
+    //wavesThreshold = round(4.68 * angle - 149);
+    wavesThreshold = round(4.646 * angle - 149);
+    Serial.println("Turning Left.");
     moveRobot(1, -1);
 }
 
 void turnRight(int angle) {
-    wavesThreshold = round(4.72 * angle) - 71;
+    //wavesThreshold = round(4.68 * angle - 149);
+    wavesThreshold = round(4.646 * angle - 149);
+    Serial.println("Turning Right.");
     moveRobot(-1, 1);
 }
 
 void checkForObstacleAhead() {
-    if (getIRDistance(sensor2, A1m, A1c) == 10 && !obstacleAhead) {
+    //if (getIRDistance(sensor2, A1m, A1c) <= 26 && !obstacleAhead && !avoiding) {
+    if (getIRDistance(sensor2, A1m, A1c) == 10 && !obstacleAhead && !avoiding) {
+        Serial.println("Detected obstacle ahead.");
         obstacleAhead = true;
         wavesLeft = 0;
         wavesRight = 0;
@@ -203,10 +252,16 @@ int getIRDistance(char sensor, double m, double c) {
     double volts = map(raw, 0, 1023, 0, 5000) / 1000.0;
     int dist = round((1 / (volts * m + c)) - ((index < 5)? 1.32 : 1.02));
     int t10 = sensorRaw[index];
-    if (dist <= 20 && average >= t10) dist = 10;
-    if (sensorDistance[index] == 10 && dist <= 20) return 10;
+
+    if (index == 1) {
+        if (dist <= 20 && average >= t10) dist = 10;
+        if (sensorDistance[index] == 10 && dist <= 20) return 10;
+    }
+    
     if ((dist > 25) && (index < 5 || (index == 5 && dist <= 48))) dist += 1.5; 
+    dist = abs(dist);
     sensorDistance[index] = dist;
+    Serial.println("Average Reading = " + String(average));
     return dist;
 }
 
