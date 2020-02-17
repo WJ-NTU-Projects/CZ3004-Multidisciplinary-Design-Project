@@ -1,11 +1,13 @@
 # MDP Project Files
 ### Android Remote Controller Module
-[Changelog](https://github.com/101011101001010/MDP-Android/wiki/Changelog)
+[Changelog](https://github.com/101011101001010/MDP/wiki/Android-Changelog)
 
 [Grid Map User Manual](https://github.com/101011101001010/MDP-Android/wiki/Grid-Map-User-Manual)
 
 ### Arduino
 Do configuration under MDP header --> CONFIGURATION section.
+
+[Logs](https://github.com/101011101001010/MDP/wiki/Arduino-Logs)
 
 ## Project Requirements (Updated 26 Jan 2020)
 | Stuff          | Minimum Requirement |	
