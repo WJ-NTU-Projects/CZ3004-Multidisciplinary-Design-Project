@@ -38,38 +38,18 @@ volatile long pulseTimeRight = 0;
 volatile boolean enabled = false;
 volatile boolean obstacleAhead = false;
 
-double currentL = 0;
-double currentR = 0;
+double kp = 1.8, ki = 35, kd = 0;
+double speedLeft = 0, speedRight = 0;
+double rpmLeft = 0, rpmRight = 0, rpmTarget = 15;
+double speedOffsetLeft = 0, speedOffsetRight = 0;
 
-//PID
-double rpml = 0;
-double rpmr = 0;
-double targetRpm = 15;
-double speedOffsetLeft = 0;
-double speedOffsetRight = 0;
-double maxRpmLeft = 0;
-double maxRpmRight = 0;
-
-// Sensor
 int sensorCounter[6] = {0, 0, 0, 0, 0, 0};
 int sensorValues[6][25];
-
 int sensorRaw[2] = {0, 580};
-
 int sensorDistance[6] = {999, 999, 999, 999, 999, 999};
 
-PID leftPID(&rpml, &speedOffsetLeft, &targetRpm, 1.8, 35, 0, REVERSE);
-PID rightPID(&rpmr, &speedOffsetRight, &targetRpm, 1.8, 35, 0, REVERSE);
-
-void setupPID(boolean a) {
-    if (a) {
-        leftPID.SetMode(AUTOMATIC);
-        rightPID.SetMode(AUTOMATIC);
-    } else {
-        leftPID.SetMode(MANUAL);
-        rightPID.SetMode(MANUAL);
-    }
-}
+PID pidLeft(&rpmLeft, &speedOffsetLeft, &rpmTarget, kp, ki, kd, REVERSE);
+PID pidRight(&rpmRight, &speedOffsetRight, &rpmTarget, kp, ki, kd, REVERSE);
 
 void setup() {
     pinMode(M1E1Right, INPUT);
@@ -82,10 +62,10 @@ void setup() {
     Serial.println("Dual VNH5019 Motor Shield");
     
     md.init();
-    leftPID.SetOutputLimits(-50, 50);   // change this value for PID calibration. This is the maximum speed PID sets to
-    leftPID.SetSampleTime(5);
-    rightPID.SetOutputLimits(-50, 50);   // change this value for PID calibration. This is the maximum speed PID sets to
-    rightPID.SetSampleTime(5);
+    pidLeft.SetOutputLimits(-350, 350);   // change this value for PID calibration. This is the maximum speed PID sets to
+    pidLeft.SetSampleTime(5);
+    pidRight.SetOutputLimits(-350, 350);   // change this value for PID calibration. This is the maximum speed PID sets to
+    pidRight.SetSampleTime(5);
 
     for (int i = 0; i < 6; i++) {
         memset(sensorValues[i], 0, sizeof(sensorValues[i])); 
@@ -93,143 +73,91 @@ void setup() {
     
     Serial.println("start");  
     delay(2000);
-        
-    moveRobot(1, 4, 60);
-    delay(500);
-    moveRobot(-1, 1, 60);
-    delay(500);
-    moveRobot(-1, 1, 60);
-    delay(500);
-    moveRobot(-1, 1, 60);
-    delay(500);
-    moveRobot(-1, 1, 60);
-    delay(500);
-    moveRobot(1, 3, 60);
-    delay(500);
-    moveRobot(-1, 1, 60);
-    delay(500);
-    moveRobot(-1, 1, 60);
-    delay(500);
-    moveRobot(-1, 1, 60);
-    delay(500);
-    moveRobot(1, 2, 60);
-    delay(500);
-    moveRobot(-1, 1, 60);
-    delay(500);
-    moveRobot(-1, 1, 60);
-    delay(500);
-    moveRobot(1, 1, 60);
-    delay(500);
-    moveRobot(-1, 1, 60);
-    delay(500);
-    moveRobot(1, 2, 60);
+    //turnRight(2150);
 }
 
 void loop() {}
 
-void reset() {
-    wavesLeft = 0;
-    wavesRight = 0; 
-    rpml = 0;
-    rpmr = 0;
-    targetRpm = 10;
-    currentL = 1;
-    currentR = 0;
-    speedOffsetLeft = 0;
-    speedOffsetRight = 0;
-    pulseTimeLeft = 0;
-    pulseTimeRight = 0;
-    enabled = true;
+void setupPID(boolean a) {
+    pidLeft.SetMode(a? AUTOMATIC : MANUAL);
+    pidRight.SetMode(a? AUTOMATIC : MANUAL);
 }
 
-void results(int dir, int dist, int offset) {
-    if (obstacleAhead) return;
-    wavesThreshold = 298 * dist - 81;
+void reset() {
+    rpmTarget = 10;
+    wavesLeft = wavesRight = rpmLeft = rpmRight = speedLeft = speedRight = speedOffsetLeft = speedOffsetRight = pulseTimeLeft = pulseTimeRight = 0;
+    enabled = true;
+    previousPulseLeft = micros();
+    previousPulseRight = micros();
+}
+
+void moveRobot(int directionRight, int directionLeft) {
+    if (directionRight == directionLeft && obstacleAhead) return;
     reset();
     setupPID(true);
-    
-    while(enabled) {
-        if (getIRDistance(sensor2, A1m, A1c) == 10 && !obstacleAhead) {
-            obstacleAhead = true;
-            wavesLeft = 0;
-            wavesRight = 0;
-            wavesThreshold = 149;
-        }
-        
-        leftPID.Compute();
-        rightPID.Compute();
-        currentL -= (speedOffsetLeft* 1.05);
-        currentL = min(currentL, 350);
-        currentR -= (speedOffsetRight); 
-        currentR = min(currentR, 350);
-        md.setSpeeds(dir * currentR, dir * currentL);   
+
+    while (enabled) {
+        if (directionRight == directionLeft) checkForObstacleAhead();
+        pidLeft.Compute();
+        pidRight.Compute();
+        speedLeft = min(speedLeft - speedOffsetLeft * 1.05, 400);
+        speedRight = min(speedRight - speedOffsetRight * 1, 400);
+        md.setSpeeds(directionRight * speedRight, directionLeft * speedLeft);
         delay(25);
-        
-        if (getIRDistance(sensor2, A1m, A1c) == 10 && !obstacleAhead) {
-            obstacleAhead = true;
-            wavesLeft = 0;
-            wavesRight = 0;
-            wavesThreshold = 149;
-        }
-         
-        rpml = max(round(60000000.0 / (pulseTimeLeft * 562.25)), 0);
-        rpmr = max(round(60000000.0 / (pulseTimeRight * 562.25)), 0); 
-        if (pulseTimeLeft == 0) rpml = 0;
-        if (pulseTimeRight == 0) rpmr = 0;
-        if (targetRpm < 60) targetRpm += 10;
+
+        if (directionRight == directionLeft) checkForObstacleAhead();
+        rpmLeft = (pulseTimeLeft == 0)? 0 : max(round(60000000.0 / (pulseTimeLeft * 562.25)), 0);
+        rpmRight = (pulseTimeRight == 0)? 0 : max(round(60000000.0 / (pulseTimeRight * 562.25)), 0); 
+        if (abs(rpmTarget - min(rpmLeft, rpmRight) < 5) && rpmTarget < 60) rpmTarget += 10;
+        Serial.println("Speed: " + String(speedLeft) + "/" + String(speedRight) + ", Offset: " + String(speedOffsetLeft) + "/" + String(speedOffsetRight) + ", RPM: " + String(rpmLeft) + "/" + String(rpmRight) + ", RPM Target: " + String(rpmTarget));
     }
 
+    rpmTarget -= 10;
     
-    brake(dir, dir);
-    if (obstacleAhead) turn(false, 90);
-}
-
-void brake(int dirR, int dirL) {
-    targetRpm -= 10;
-    
-    for (targetRpm; targetRpm >= 0; targetRpm -= 10) {
-        if (targetRpm < 0) targetRpm = 0;
-        leftPID.Compute();
-        rightPID.Compute();
-        currentL -= (speedOffsetLeft * 1.05);
-        currentL = min(currentL, 350);
-        currentR -= (speedOffsetRight); 
-        currentR = min(currentR, 350);
-        md.setSpeeds(dirR * currentR, dirL * currentL);   
+    for (rpmTarget; rpmTarget >= 0; rpmTarget -= 10) {
+        if (rpmTarget < 0) rpmTarget = 0;
+        pidLeft.Compute();
+        pidRight.Compute();
+        speedLeft = min(speedLeft - speedOffsetLeft * 1, 400);
+        speedRight = min(speedRight - speedOffsetRight * 1, 400);
+        md.setSpeeds(directionRight * speedRight, directionLeft * speedLeft);
         delay(25);      
-        rpml = max(round(60000000.0 / (pulseTimeLeft * 562.25)), 0);
-        rpmr = max(round(60000000.0 / (pulseTimeRight * 562.25)), 0);
+        rpmLeft = (pulseTimeLeft == 0)? 0 : max(round(60000000.0 / (pulseTimeLeft * 562.25)), 0);
+        rpmRight = (pulseTimeRight == 0)? 0 : max(round(60000000.0 / (pulseTimeRight * 562.25)), 0); 
     }
     
     setupPID(false);
-    Serial.println("OK");
     md.setSpeeds(0, 0);
 }
 
-void turn(boolean left, int angle) {
-    int dirL = left? -1 : 1;
-    int dirR = left? 1 : -1;    
-    wavesThreshold = round(4.7 * angle) - 71;
-    reset();
-    setupPID(true);
-    
-    while (enabled) {
-        leftPID.Compute();
-        rightPID.Compute();
-        currentL -= (speedOffsetLeft * 1.05);
-        currentL = min(currentL, 350);
-        currentR -= (speedOffsetRight); 
-        currentR = min(currentR, 350);
-        md.setSpeeds(dirR * currentR, dirL * currentL);   
-        delay(25);  
-        rpml = max(round(60000000.0 / (pulseTimeLeft * 562.25)), 0);
-        rpmr = max(round(60000000.0 / (pulseTimeRight * 562.25)), 0);
-        if (pulseTimeLeft == 0) rpml = 0;
-        if (pulseTimeRight == 0) rpmr = 0;
-        if (targetRpm < 60) targetRpm += 5;
+void checkForObstacleAhead() {
+    if (getIRDistance(sensor2, A1m, A1c) == 10 && !obstacleAhead) {
+        obstacleAhead = true;
+        wavesLeft = 0;
+        wavesRight = 0;
+        wavesThreshold = 149;
     }
-    
-    brake(dirR, dirL);
+}
+
+void moveForward(int moveDistance) {
+    wavesThreshold = round(298.28289 * moveDistance - 71);
+    moveRobot(1, 1);
+    if (obstacleAhead) turnRight(90);
+}
+
+void moveReverse(int moveDistance) {
+    wavesThreshold = round(298.28289 * moveDistance - 74);
+    moveRobot(-1, -1);
+}
+
+void turnLeft(int angle) {
+    wavesThreshold = round(4.72 * angle) - 71;
+    moveRobot(1, -1);
+}
+
+void turnRight(int angle) {
+    wavesThreshold = round(4.72 * angle) - 71;
+    moveRobot(-1, 1);
 }
 
 int getIRDistance(char sensor, double m, double c) {
@@ -266,15 +194,8 @@ int getIRDistance(char sensor, double m, double c) {
     double volts = map(raw, 0, 1023, 0, 5000) / 1000.0;
     int dist = round((1 / (volts * m + c)) - 1.32);
     int t10 = sensorRaw[index];
-    
-    if (dist <= 20 && average >= t10) {
-        dist = 10;
-    }
-
-    if (sensorDistance[index] == 10 && dist <= 20) {
-        return 10;
-    }
-    
+    if (dist <= 20 && average >= t10) dist = 10;
+    if (sensorDistance[index] == 10 && dist <= 20) return 10;
     sensorDistance[index] = dist;
     return dist;
 }
@@ -300,49 +221,35 @@ void serialEvent() {
         String distanceStr = inputString.substring(1);
         
         if (isNumber(distanceStr)) {
-            int dist = distanceStr.toInt();
-            moveRobot(1, dist, 60);
+            int distance = distanceStr.toInt();
+            moveForward(distance);
         }  
     } else if (inputString.indexOf("r") == 0) {        
         String distanceStr = inputString.substring(1);
         
         if (isNumber(distanceStr)) {
-            int dist = distanceStr.toInt();
-            moveRobot(-1, dist, 60);
+            int distance = distanceStr.toInt();
+            moveReverse(distance);
         }   
     } else if (inputString.indexOf("tl") == 0) {
         String angleStr = inputString.substring(2);
         
         if (isNumber(angleStr)) {
             int angle = angleStr.toInt();
-            turn(true, angle);
+            turnLeft(angle);
         }
     } else if (inputString.indexOf("tr") == 0) {
         String angleStr = inputString.substring(2);
         
         if (isNumber(angleStr)) {
             int angle = angleStr.toInt();
-            turn(false, angle);
+            turnRight(angle);
         } 
     }
 
     if (inputString.indexOf("reset") == 0) {
         obstacleAhead = false;
-        Serial.println("OK");
     }
-}
-
-void moveRobot(int dir, int dist, int rpm) {
-    // Movement Distance
-    // Theoretically -> 1  rotation = 18.8495559 cm (Wheel circumference * pi = 6cm * pi)
-    // 10cm -> 10 / 18.8495559 = 0.53051648 rotation
-    // 1 rotation -> 562.25 waves
-    // 0.53051648 rotation -> 298.28289 waves
-    // Alternatively, calculate using timing? Might be inaccurate.
-    
-    double multiplier = 1.0 / (60.0 / (60000.0 / ((rpm / 5.0) * 25)));
-    int offset = round(562.25 / multiplier);
-    results(dir, dist, offset);
 }
 
 void E1() {
