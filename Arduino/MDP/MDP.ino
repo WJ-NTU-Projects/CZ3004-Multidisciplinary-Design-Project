@@ -28,11 +28,14 @@ void setup() {
     
     delay(3000);
     Serial.println("Start.");
-    moveForward(15);
+    //moveForward(15);
+    turnRight(850);
+    delay(500);
+    turnRight(230);
 }
 
 void loop() {
-    // Hello World
+
 }
 
 void enablePID(boolean a) {
@@ -72,8 +75,8 @@ void moveLoop(int directionR, int directionL, boolean braking) {
         
         pidLeft.Compute();
         pidRight.Compute();
-        currentSpeedL = max(outputSpeedL * 1.061, 0);
-        currentSpeedR = max(outputSpeedR, 0);
+        currentSpeedL = max(outputSpeedL * 1.061, 0); //150cm 1.061 
+        currentSpeedR = max(outputSpeedR, 0); 
         md.setSpeeds(directionR * currentSpeedR, directionL * currentSpeedL);
         rpmL = (pulsePeriodL == 0)? 0 : max(round(60000000.0 / (pulsePeriodL * WAVES_PER_ROTATION)), 0);
         rpmR = (pulsePeriodR == 0)? 0 : max(round(60000000.0 / (pulsePeriodR * WAVES_PER_ROTATION)), 0); 
@@ -84,7 +87,7 @@ void moveLoop(int directionR, int directionL, boolean braking) {
             if (abs(rpmTarget - min(rpmL, rpmR)) <= 10 && rpmTarget < 60) rpmTarget += 10;
         }
         
-        //Serial.println("Speed: " + String(currentSpeedL) + "/" + String(currentSpeedR) + ", RPM: " + String(rpmL) + "/" + String(rpmR) + ", RPM Target: " + String(rpmTarget));
+        Serial.println("Speed: " + String(currentSpeedL) + "/" + String(currentSpeedR) + ", RPM: " + String(rpmL) + "/" + String(rpmR) + ", RPM Target: " + String(rpmTarget));
     }
 }
 
@@ -94,7 +97,7 @@ void evade(double grids, boolean diagonal) {
     
     avoiding = true;
     obstacleAhead = false;
-    boolean left = (getIRDistance(sensor4, A3m, A3c) >= 20 && getIRDistance(sensor5, A4m, A4c) >= 20); 
+    boolean left = (getIRDistance(sensor4, A3m, A3c) >= 30 && getIRDistance(sensor5, A4m, A4c) >= 30); 
 
     if (diagonal) {
         if (left) turnLeft(45); else turnRight(45);
