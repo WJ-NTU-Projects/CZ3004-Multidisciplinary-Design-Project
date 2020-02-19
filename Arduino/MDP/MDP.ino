@@ -28,14 +28,23 @@ void setup() {
     
     delay(3000);
     Serial.println("Start.");
-    //moveForward(15);
-    turnRight(850);
-    delay(500);
-    turnRight(230);
+    moveForward(15);
+    //delay(1000);
+    //moveReverse(15);
+    //turnRight(1080);
+    //delay(1000);
+    //turnRight(720);
 }
 
 void loop() {
-
+    Serial.print("Sensor 1: ");
+    Serial.println(getIRDistance(sensor1, A0m, A0c));
+    Serial.print("Sensor 2: ");
+    Serial.println(getIRDistance(sensor2, A1m, A1c));
+    Serial.print("Sensor 3: ");
+    Serial.println(getIRDistance(sensor3, A2m, A2c));
+    Serial.println();
+    delay(1000);
 }
 
 void enablePID(boolean a) {
@@ -55,12 +64,11 @@ void moveRobot(int directionR, int directionL) {
     reset();
     enablePID(true);
     moveLoop(directionR, directionL, false);
+    Serial.println("Braking.");
+    moveEnabled = true;
     wavesLimit = WAVES_BRAKE + 1;
     wavesL = 0;
     wavesR = 0;
-    moveEnabled = true;
-    
-    Serial.println("Braking.");
     moveLoop(directionR, directionL, true);
     enablePID(false);
     md.setSpeeds(0, 0);
@@ -170,7 +178,7 @@ void checkForObstacleAhead() {
             obstacleAhead = true;
             wavesL = 0;
             wavesR = 0;
-            wavesLimit = WAVES_BRAKE;
+            wavesLimit = WAVES_BRAKE * 0.667;
         }
 
         return;
@@ -228,7 +236,7 @@ int getIRDistance(char sensor, double m, double c) {
     if ((dist > 25) && (index < 5 || (index == 5 && dist <= 48))) dist += 1.5; 
     dist = abs(dist);
     sensorDistance[index] = dist;
-    Serial.println("Average Reading = " + String(average));
+    //Serial.println("Average Reading = " + String(average));
     return dist;
 }
 
