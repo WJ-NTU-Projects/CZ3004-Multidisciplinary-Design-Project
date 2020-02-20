@@ -22,7 +22,7 @@ void setup() {
     pidRight.SetOutputLimits(-MAX_SPEED, MAX_SPEED);   
     pidRight.SetSampleTime(PID_SAMPLE_TIME);
     enablePID(false);
-    return;
+
     delay(3000);
     moveRobot(forward, 15);
     return;
@@ -53,20 +53,18 @@ void setup() {
 }
 
 void loop() {
-    Serial.println(getIRDistance(sensor1, A0m, A0c));
-    Serial.println(getIRDistance(sensor2, A1m, A1c));
-    Serial.println(getIRDistance(sensor3, A2m, A2c));
-    Serial.println();
-    delay(1000);
-    /*
-    moveRobot(forward, loopCounter);
-    delay(3000);
-    moveRobot(reverse, loopCounter);
-    delay(3000);
-    loopCounter++;
-    if (loopCounter > 4) loopCounter = 1;
-    delay(500);
-    */
+//    Serial.println(getIRDistance(sensor1, A0m, A0c));
+//    Serial.println(getIRDistance(sensor2, A1m, A1c));
+//    Serial.println(getIRDistance(sensor3, A2m, A2c));
+//    Serial.println();
+//    delay(1000);
+//    moveRobot(forward, loopCounter);
+//    delay(3000);
+//    moveRobot(reverse, loopCounter);
+//    delay(3000);
+//    loopCounter++;
+//    if (loopCounter > 4) loopCounter = 1;
+//    delay(500);
 }
 
 void enablePID(boolean a) {
@@ -111,7 +109,7 @@ void moveRobot(Direction direction, int distance) {
             }
         }
         
-        Serial.println("Speed: " + String(currentSpeedL) + "/" + String(currentSpeedR) + ", RPM: " + String(round(rpmL)) + "/" + String(round(rpmR)) + ", RPM Target: " + String(rpmTarget));
+        Serial.println("Speed: " + String(currentSpeedL) + " / " + String(currentSpeedR) + ", RPM: " + String(round(rpmL)) + " / " + String(round(rpmR)) + ", RPM Target: " + String(rpmTarget));
     }
     
     motor.brake();
@@ -135,7 +133,6 @@ void turnRobot(Direction direction, int angle) {
         else if (direction == left) motor.turnLeft(currentSpeedR, currentSpeedL);
         rpmL = (pulsePeriodL == 0)? 0 : max(60000000.0 / (pulsePeriodL * WAVES_PER_ROTATION), 0);
         rpmR = (pulsePeriodR == 0)? 0 : max(60000000.0 / (pulsePeriodR * WAVES_PER_ROTATION), 0); 
-        
         Serial.println("Speed: " + String(currentSpeedL) + " / " + String(currentSpeedR) + ", RPM: " + String(round(rpmL)) + " / " + String(round(rpmR)) + ", RPM Target: " + String(rpmTarget));
     }
     
