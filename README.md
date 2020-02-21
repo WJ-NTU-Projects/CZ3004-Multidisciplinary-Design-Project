@@ -1,6 +1,6 @@
 # MDP Project Files
 ### Android
-Custom-made icons can be edited images folder (PSD format).
+Custom-made icons can be edited in images folder (PSD format).
 
 [Grid Map User Manual](https://github.com/101011101001010/MDP-Android/wiki/Grid-Map-User-Manual)
 
