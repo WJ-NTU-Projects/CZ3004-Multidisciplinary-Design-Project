@@ -5,9 +5,10 @@
 
 Motor motor;
 PID pidLeft(&rpmL, &outputSpeedL, &rpmTarget, 2, 40, kd, DIRECT);
-PID pidRight(&rpmR, &outputSpeedR, &rpmTarget, 2, 35, kd, DIRECT);
+PID pidRight(&rpmR, &outputSpeedR, &rpmTarget, 1.25, 32, kd, DIRECT);
 int loopCounter = 1;
-
+boolean stopp = false;
+boolean dir = forward;
 void setup() {
     pinMode(M1E1Right, INPUT);
     pinMode(M2E2Left, INPUT);
@@ -24,47 +25,125 @@ void setup() {
     enablePID(false);
 
     delay(3000);
+    //turnRobot(right, 900);
     moveRobot(forward, 15);
-    return;
-    delay(1000);
-    turnRobot(right, 90);
-    delay(500);
-    turnRobot(right, 90);
-    delay(500);
-    turnRobot(right, 90);
-    delay(500);
-    turnRobot(right, 90);
-    delay(500);
-    turnRobot(left, 90);
-    delay(500);
-    turnRobot(left, 90);
-    delay(500);
-    turnRobot(left, 90);
-    delay(500);
-    turnRobot(left, 90);
-    delay(500);
-    turnRobot(right, 850);
-    delay(500);
-    turnRobot(right, 230);
-    delay(500);
-    turnRobot(left, 850);
-    delay(500);
-    turnRobot(left, 230);
+    //if (obstacleAhead) evade(15, true);
+//    return;
+    
+//    delay(500);
+//    turnRobot(right, 90);
+//    delay(500);
+//    moveRobot(forward, 10);
+//    delay(500);
+//    turnRobot(right, 90);
+//    delay(500);
+//    moveRobot(forward, 10);
+//    delay(500);
+//    turnRobot(right, 90);
+//    delay(500);
+//    moveRobot(forward, 10);
+//    return;
+//    turnRobot(right, 90);
+//    delay(500);
+//    turnRobot(right, 90);
+//    delay(500);
+//    turnRobot(right, 90);
+//    return;
+//    delay(500);
+//    turnRobot(left, 90);
+//    delay(500);
+//    turnRobot(left, 90);
+//    delay(500);
+//    turnRobot(left, 90);
+//    delay(500);
+//    turnRobot(left, 90);
+//    delay(500);
+//    turnRobot(right, 850);
+//    delay(500);
+//    turnRobot(right, 230);
+//    delay(500);
+//    turnRobot(left, 850);
+//    delay(500);
+//    turnRobot(left, 230);
 }
 
 void loop() {
-//    Serial.println(getIRDistance(sensor1, A0m, A0c));
-//    Serial.println(getIRDistance(sensor2, A1m, A1c));
-//    Serial.println(getIRDistance(sensor3, A2m, A2c));
+//    Serial.println(IRSensor(sensor1, A0m, A0c));
+//    Serial.println(IRSensor(sensor3, A2m, A2c));
 //    Serial.println();
 //    delay(1000);
-//    moveRobot(forward, loopCounter);
-//    delay(3000);
-//    moveRobot(reverse, loopCounter);
-//    delay(3000);
-//    loopCounter++;
-//    if (loopCounter > 4) loopCounter = 1;
-//    delay(500);
+//    alignFrontToWall();
+}
+
+void alignFrontToWall() {
+    float readingSensorA = IRSensor(sensor1, A0m, A0c);
+    float readingSensorB = IRSensor(sensor3, A2m, A2c);
+    if (readingSensorA < 0 || readingSensorB < 0) return;
+    
+    float average = (readingSensorA + readingSensorB) / 2;
+    if (average <= 10) motor.brake(); 
+    else {
+        dir = forward;
+        motor.moveForward(100, 130);
+        return;
+    }
+    
+    float error = readingSensorA - readingSensorB;
+    
+    while (average > 0 && average <= 10 && abs(error) > 0.5) {
+        // adjustment to ensure front of robot is parallel to wall
+        if (error > 0.5) {
+          turnRobot(right, 1);
+          error = IRSensor(sensor1, A0m, A0c) - IRSensor(sensor3, A2m, A2c);
+        } else if (error < -0.5) {
+          turnRobot(left, 1);
+          error = IRSensor(sensor1, A0m, A0c) - IRSensor(sensor3, A2m, A2c);
+        }
+    }
+  
+    int count = 0;
+    // adjustment to ensure front of robot is of an acceptable range between front and wall
+    float avgReading = (IRSensor(sensor1, A0m, A0c) + IRSensor(sensor3, A2m, A2c)) / 2;
+
+    if (avgReading > 0 && avgReading <= 10) {
+        while (count < 10) {
+            int difference = avgReading - 6;
+    
+            if (dir == forward) {
+                obstacleAhead = false;
+                
+                if (difference < 0) {
+                    moveRobot(reverse, abs(difference * 0.1));
+                    avgReading = (IRSensor(sensor1, A0m, A0c) + IRSensor(sensor3, A2m, A2c)) / 2;
+                    count++;
+                } else if (difference > 0) {
+                    moveRobot(forward, abs(difference * 0.1));
+                    avgReading = (IRSensor(sensor1, A0m, A0c) + IRSensor(sensor3, A2m, A2c)) / 2;
+                    count++;
+                }
+                
+                Serial.println(difference);
+            }
+        }
+
+        turnRobot(right, 90);
+
+        readingSensorA = IRSensor(sensor4, A3m, A0c);
+        readingSensorB = IRSensor(sensor5, A4m, A2c);
+        error = readingSensorA - readingSensorB;
+    
+        while (abs(error) > 0.5) {
+            // adjustment to ensure front of robot is parallel to wall
+            if (error > 0.5) {
+              turnRobot(right, 1);
+              error = IRSensor(sensor4, A3m, A3c) - IRSensor(sensor5, A4m, A4c);
+            } else if (error < -0.5) {
+              turnRobot(left, 1);
+              error = IRSensor(sensor4, A3m, A3c) - IRSensor(sensor5, A4m, A4c);
+            }
+        }
+    }
+
 }
 
 void enablePID(boolean a) {
@@ -79,7 +158,7 @@ void reset() {
     pulseTimeLastR = micros();
 }
 
-void moveRobot(Direction direction, int distance) {
+void moveRobot(Direction direction, double distance) {
     if (obstacleAhead) return;
     if (direction == left || direction == right) return;
     reset();
@@ -109,7 +188,7 @@ void moveRobot(Direction direction, int distance) {
             }
         }
         
-        Serial.println("Speed: " + String(currentSpeedL) + " / " + String(currentSpeedR) + ", RPM: " + String(round(rpmL)) + " / " + String(round(rpmR)) + ", RPM Target: " + String(rpmTarget));
+        //Serial.println("Speed: " + String(currentSpeedL) + " / " + String(currentSpeedR) + ", RPM: " + String(round(rpmL)) + " / " + String(round(rpmR)) + ", RPM Target: " + String(rpmTarget));
     }
     
     motor.brake();
@@ -117,12 +196,12 @@ void moveRobot(Direction direction, int distance) {
     reset();
 }
 
-void turnRobot(Direction direction, int angle) {
+void turnRobot(Direction direction, double angle) {
     if (direction == forward || direction == reverse) return;
     reset();
     rpmTarget = 40;
     enablePID(true);
-    wavesLimit = round((direction == right? WAVES_PER_ANGLE_RIGHT : WAVES_PER_ANGLE_LEFT) * angle);
+    wavesLimit = round((direction == right? WAVES_PER_ANGLE_COMPASS : WAVES_PER_ANGLE_COMPASS) * angle);
 
     while (moveEnabled) {
         pidLeft.Compute();
@@ -133,7 +212,7 @@ void turnRobot(Direction direction, int angle) {
         else if (direction == left) motor.turnLeft(currentSpeedR, currentSpeedL);
         rpmL = (pulsePeriodL == 0)? 0 : max(60000000.0 / (pulsePeriodL * WAVES_PER_ROTATION), 0);
         rpmR = (pulsePeriodR == 0)? 0 : max(60000000.0 / (pulsePeriodR * WAVES_PER_ROTATION), 0); 
-        Serial.println("Speed: " + String(currentSpeedL) + " / " + String(currentSpeedR) + ", RPM: " + String(round(rpmL)) + " / " + String(round(rpmR)) + ", RPM Target: " + String(rpmTarget));
+        //Serial.println("Speed: " + String(currentSpeedL) + " / " + String(currentSpeedR) + ", RPM: " + String(round(rpmL)) + " / " + String(round(rpmR)) + ", RPM Target: " + String(rpmTarget));
     }
     
     motor.brake();
@@ -142,13 +221,92 @@ void turnRobot(Direction direction, int angle) {
 }
 
 void checkForObstacleAhead() {
-    if (getIRDistance(sensor2, A1m, A1c) <= 26 && !obstacleAhead && !avoiding) {
+    if (IRSensor2(sensor2, A1m, A1c) <= 20 && !obstacleAhead && !avoiding) {
         Serial.println("Detected obstacle ahead.");
         obstacleAhead = true;
         wavesL = 0;
         wavesR = 0;
-        wavesLimit = round(WAVES_PER_GRID * 1.9);
+        wavesLimit = round(WAVES_PER_GRID * 0.75);
     }
+}
+
+void evade(double grids, boolean diagonal) {
+    int travelledGrids = ((totalDistance + 2) / 10) + 1 ;     
+    if (grids == travelledGrids) return;
+    
+    avoiding = true;
+    obstacleAhead = false;
+    boolean l = (IRSensor(sensor4, A3m, A3c) >= 30 && IRSensor(sensor5, A4m, A4c) >= 30); 
+
+    if (l) turnRobot(left, 45); else turnRobot(right, 45);
+    delay(100);
+    moveRobot(forward, sqrt(18));
+    delay(100);
+    if (l) turnRobot(right, 90); else turnRobot(left, 90);
+    delay(100);
+    moveRobot(forward, sqrt(18));
+    delay(100);
+    if (l) turnRobot(left, 45); else turnRobot(right, 45);
+    delay(100);
+    moveRobot(forward, grids - travelledGrids - 6);
+    
+    avoiding = false;
+}
+
+float IRSensor(char sensor, float m, float c) {
+   // for sensors 1-5
+  int raw=analogRead(sensor);
+  int voltFromRaw=map(raw, 0, 1023, 0, 5000);
+    
+  float volts = voltFromRaw/1000.0;
+  float distance = (1/((volts)*m + c))-0.42;
+  delay(10);                    // decrease value for faster readings 
+  //return distance;
+  if (distance<12) {
+    return distance - 0.5;
+  }
+  else if (distance> 20) {
+    return distance+1;
+  }
+  else if(distance>17.5){
+    return distance+0.5;
+  }
+  else{
+    return distance;
+  }
+}
+
+float IRSensor2(char sensor, float m, float c) {
+  //only for sensor 6, eff range 22-60cm, >60cm range deviation too large
+  int raw=analogRead(sensor);
+  int voltFromRaw=map(raw, 0, 1023, 0, 5000);
+    
+  float volts = voltFromRaw/1000.0;
+  float distance = (1/(volts*m + c))-1.52;          
+  delay(10);                    // decrease value for faster readings 
+  if (distance>30){
+    return distance+1;
+  }
+  else{
+    return distance;
+  }
+}
+
+float IRSensor6(char sensor, float m, float c) {
+  //only for sensor 6, eff range 22-60cm, >60cm range deviation too large
+  int raw=analogRead(sensor);
+  int voltFromRaw=map(raw, 0, 1023, 0, 5000);
+    
+  float volts = voltFromRaw/1000.0;
+  float distance = (1/(volts*m + c))-1.52;          
+  delay(10);                    // decrease value for faster readings 
+  if (distance<25){
+    return distance-1;
+  }
+  else{
+    return distance;
+  }
+//   return distance;
 }
 
 int getIRDistance(char sensor, double m, double c) {
@@ -221,6 +379,8 @@ void E2() {
         motor.brake();
     }
 }
+
+
 
 boolean isNumber(String str) {
     for (byte i = 0; i < str.length(); i++) {

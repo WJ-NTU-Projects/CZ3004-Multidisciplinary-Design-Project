@@ -2,8 +2,8 @@
 #include "Motor.h"
 
 Motor::Motor() {
-    pinModeFast(INA1, OUTPUT);
-    pinModeFast(INB1, OUTPUT);
+    pinMode(INA1, OUTPUT);
+    pinMode(INB1, OUTPUT);
     pinModeFast(INA2, OUTPUT);
     pinModeFast(INB2, OUTPUT);
     pinMode(PWM1, OUTPUT);
@@ -32,8 +32,8 @@ void Motor::moveReverse(double speedR, double speedL) {
     analogWrite(PWM1, map(speedR, 0, 400, 0, 255));
     digitalWriteFast2(INA2, LOW);
     digitalWriteFast2(INB2, HIGH);
-    digitalWriteFast2(INA1, LOW);
-    digitalWriteFast2(INB1, HIGH);
+    digitalWrite(INA1, LOW);
+    digitalWrite(INB1, HIGH);
 }
 
 void Motor::turnRight(double speedR, double speedL) {
@@ -45,8 +45,8 @@ void Motor::turnRight(double speedR, double speedL) {
     analogWrite(PWM1, map(speedR, 0, 400, 0, 255));
     digitalWriteFast2(INA2, HIGH);
     digitalWriteFast2(INB2, LOW);
-    digitalWriteFast2(INA1, LOW);
-    digitalWriteFast2(INB1, HIGH);
+    digitalWrite(INA1, LOW);
+    digitalWrite(INB1, HIGH);
 }
 
 void Motor::turnLeft(double speedR, double speedL) {
@@ -58,13 +58,13 @@ void Motor::turnLeft(double speedR, double speedL) {
     analogWrite(PWM1, map(speedR, 0, 400, 0, 255));
     digitalWriteFast2(INA2, LOW);
     digitalWriteFast2(INB2, HIGH);
-    digitalWriteFast2(INA1, HIGH);
-    digitalWriteFast2(INB1, LOW);
+    digitalWrite(INA1, HIGH);
+    digitalWrite(INB1, LOW);
 }
 
 void Motor::brake() {
-    digitalWriteFast2(INA1, LOW);
-    digitalWriteFast2(INB1, LOW);
+    digitalWrite(INA1, LOW);
+    digitalWrite(INB1, LOW);
     digitalWriteFast2(INA2, LOW);
     digitalWriteFast2(INB2, LOW);
     analogWrite(PWM1, 255);
