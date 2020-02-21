@@ -7,7 +7,7 @@ Custom-made icons can be edited in images folder (PSD format).
 [Logs](https://github.com/101011101001010/MDP/wiki/Android-Changelog)
 
 ### Arduino
-[References](https://github.com/101011101001010/MDP/wiki/(AR)-00:-Arduino-References)
+[References](https://github.com/101011101001010/MDP/wiki/Arduino-References)
 
 External libraries required:
 * [EnableInterrupt](https://github.com/GreyGnome/EnableInterrupt)
