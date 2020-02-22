@@ -1,15 +1,16 @@
 # MDP Project Files
 ### Android
-Custom-made icons can be edited images folder (PSD format).
+Custom-made icons can be edited in images folder (PSD format).
 
 [Grid Map User Manual](https://github.com/101011101001010/MDP-Android/wiki/Grid-Map-User-Manual)
 
-[Changelog](https://github.com/101011101001010/MDP/wiki/Android-Changelog)
+[Logs](https://github.com/101011101001010/MDP/wiki/Android-Changelog)
 
 ### Arduino
-Do configuration under MDP header --> CONFIGURATION section.
+[References](https://github.com/101011101001010/MDP/wiki/Arduino-References)
 
-[Logs](https://github.com/101011101001010/MDP/wiki/Arduino-Logs)
+External libraries required:
+* [EnableInterrupt](https://github.com/GreyGnome/EnableInterrupt)
 
 ## Project Requirements (Updated 26 Jan 2020)
 | Stuff          | Minimum Requirement |	
