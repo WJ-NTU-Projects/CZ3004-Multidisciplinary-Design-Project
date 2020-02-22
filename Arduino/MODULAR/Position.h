@@ -7,6 +7,7 @@ class Position {
     public:
         Position(int*, int*, float);
         void compute();
+        void reset();
         float getX();
         float getY();
         int getHeading();
@@ -21,6 +22,5 @@ class Position {
         int headingDegree;
         float deltaLeft;
         float deltaRight;
-        void reset();
         int boundAngle(int);
 };

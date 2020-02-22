@@ -14,11 +14,9 @@ class PID {
         float kp;
         float ki;
         float kd;
-
         float *input;
         float *output;
         int *setPoint;
-
         float outputSum;
         float lastInput;
         float outputMin;

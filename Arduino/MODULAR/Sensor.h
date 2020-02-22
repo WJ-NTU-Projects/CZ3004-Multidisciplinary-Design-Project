@@ -19,17 +19,20 @@
 #define S5c -0.0046
 #define S6m 0.0178
 #define S6c -0.0012
+#define FINE 1
+#define COARSE 0
 
 class Sensor {
     public:
         Sensor();
-        float getSensorDistance1();
-        float getSensorDistance2();
-        float getSensorDistance3();
-        float getSensorDistance4();
-        float getSensorDistance5();
-        float getSensorDistance6();
+        float getSensorDistance1(int);
+        float getSensorDistance2(int);
+        float getSensorDistance3(int);
+        float getSensorDistance4(int);
+        float getSensorDistance5(int);
+        float getSensorDistance6(int);
         boolean mayAlignFront();
+        boolean mayAlignLeft();
         boolean hasObstacleFront(float);
         boolean hasObstacleLeft(float);
 };
