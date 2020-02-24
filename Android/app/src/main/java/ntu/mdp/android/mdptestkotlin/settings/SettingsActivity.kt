@@ -15,18 +15,22 @@ import androidx.fragment.app.FragmentPagerAdapter
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_settings.*
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.App.Companion.ARDUINO_PREFIX
 import ntu.mdp.android.mdptestkotlin.App.Companion.COMMAND_DIVIDER
 import ntu.mdp.android.mdptestkotlin.App.Companion.COMMAND_PREFIX
 import ntu.mdp.android.mdptestkotlin.App.Companion.DESCRIPTOR_DIVIDER
 import ntu.mdp.android.mdptestkotlin.App.Companion.FORWARD_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.GOAL_POINT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.GRID_IDENTIFIER
 import ntu.mdp.android.mdptestkotlin.App.Companion.REVERSE_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.ROBOT_POSITION_IDENTIFIER
 import ntu.mdp.android.mdptestkotlin.App.Companion.ROBOT_STATUS_IDENTIFIER
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.SET_IMAGE_IDENTIFIER
+import ntu.mdp.android.mdptestkotlin.App.Companion.START_POINT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_LEFT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_RIGHT_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.WAYPOINT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.bluetooth.BluetoothController
@@ -195,10 +199,12 @@ class SettingsActivity : AppCompatActivity() {
                 COMMAND_PREFIX = getString(R.string.command_prefix_default)
                 COMMAND_DIVIDER = getString(R.string.string_divider_default)
                 DESCRIPTOR_DIVIDER = getString(R.string.descriptor_divider_default)
+                ARDUINO_PREFIX = getString(R.string.arduino_prefix_default)
 
                 sharedPreferences.edit().putString(getString(R.string.app_pref_command_prefix), COMMAND_PREFIX).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_command_divider), COMMAND_DIVIDER).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_descriptor_divider), DESCRIPTOR_DIVIDER).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_arduino_prefix), ARDUINO_PREFIX).apply()
 
                 identifierFragment.refreshHints()
             }
@@ -210,6 +216,9 @@ class SettingsActivity : AppCompatActivity() {
                 REVERSE_COMMAND = getString(R.string.reverse_default)
                 TURN_LEFT_COMMAND = getString(R.string.turn_left_default)
                 TURN_RIGHT_COMMAND = getString(R.string.turn_right_default)
+                START_POINT_COMMAND = getString(R.string.start_point_default)
+                GOAL_POINT_COMMAND = getString(R.string.goal_point_default)
+                WAYPOINT_COMMAND = getString(R.string.waypoint_default)
 
                 sharedPreferences.edit().putString(getString(R.string.app_pref_send_arena), SEND_ARENA_COMMAND).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_exploration), getString(R.string.exploration_default)).apply()
@@ -219,6 +228,9 @@ class SettingsActivity : AppCompatActivity() {
                 sharedPreferences.edit().putString(getString(R.string.app_pref_reverse), REVERSE_COMMAND).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_turn_left), TURN_LEFT_COMMAND).apply()
                 sharedPreferences.edit().putString(getString(R.string.app_pref_turn_right), TURN_RIGHT_COMMAND).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_command_start_point), START_POINT_COMMAND).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_command_goal_point), GOAL_POINT_COMMAND).apply()
+                sharedPreferences.edit().putString(getString(R.string.app_pref_command_waypoint), WAYPOINT_COMMAND).apply()
 
                 identifierFragment.refreshHints()
             }

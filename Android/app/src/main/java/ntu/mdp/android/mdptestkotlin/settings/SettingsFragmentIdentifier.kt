@@ -9,18 +9,22 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_settings_identifier.*
+import ntu.mdp.android.mdptestkotlin.App.Companion.ARDUINO_PREFIX
 import ntu.mdp.android.mdptestkotlin.App.Companion.COMMAND_DIVIDER
 import ntu.mdp.android.mdptestkotlin.App.Companion.COMMAND_PREFIX
 import ntu.mdp.android.mdptestkotlin.App.Companion.DESCRIPTOR_DIVIDER
 import ntu.mdp.android.mdptestkotlin.App.Companion.FORWARD_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.GOAL_POINT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.GRID_IDENTIFIER
 import ntu.mdp.android.mdptestkotlin.App.Companion.REVERSE_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.ROBOT_POSITION_IDENTIFIER
 import ntu.mdp.android.mdptestkotlin.App.Companion.ROBOT_STATUS_IDENTIFIER
 import ntu.mdp.android.mdptestkotlin.App.Companion.SEND_ARENA_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.SET_IMAGE_IDENTIFIER
+import ntu.mdp.android.mdptestkotlin.App.Companion.START_POINT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_LEFT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.TURN_RIGHT_COMMAND
+import ntu.mdp.android.mdptestkotlin.App.Companion.WAYPOINT_COMMAND
 import ntu.mdp.android.mdptestkotlin.App.Companion.sharedPreferences
 import ntu.mdp.android.mdptestkotlin.R
 import ntu.mdp.android.mdptestkotlin.databinding.FragmentSettingsIdentifierBinding
@@ -83,6 +87,18 @@ class SettingsFragmentIdentifier : Fragment() {
 
         robotStatusEditText.setOnKeyListener(onEnter)
         robotStatusEditText.onFocusChangeListener = onFocusLost
+
+        startPointEditText.setOnKeyListener(onEnter)
+        startPointEditText.onFocusChangeListener = onFocusLost
+
+        goalPointEditText.setOnKeyListener(onEnter)
+        goalPointEditText.onFocusChangeListener = onFocusLost
+
+        waypointEditText.setOnKeyListener(onEnter)
+        waypointEditText.onFocusChangeListener = onFocusLost
+
+        arduinoPrefixEditText.setOnKeyListener(onEnter)
+        arduinoPrefixEditText.onFocusChangeListener = onFocusLost
     }
 
     override fun onResume() {
@@ -105,6 +121,26 @@ class SettingsFragmentIdentifier : Fragment() {
             R.id.explorationEditText -> sharedPreferences.edit().putString(getString(R.string.app_pref_exploration), input).apply()
             R.id.fastestPathEditText -> sharedPreferences.edit().putString(getString(R.string.app_pref_fastest), input).apply()
             R.id.pauseEditText -> sharedPreferences.edit().putString(getString(R.string.app_pref_pause), input).apply()
+
+            R.id.arduinoPrefixEditText -> {
+                sharedPreferences.edit().putString(getString(R.string.app_pref_arduino_prefix), input).apply()
+                ARDUINO_PREFIX = input
+            }
+
+            R.id.startPointEditText -> {
+                sharedPreferences.edit().putString(getString(R.string.app_pref_command_start_point), input).apply()
+                START_POINT_COMMAND = input
+            }
+
+            R.id.goalPointEditText -> {
+                sharedPreferences.edit().putString(getString(R.string.app_pref_command_goal_point), input).apply()
+                GOAL_POINT_COMMAND = input
+            }
+
+            R.id.waypointEditText -> {
+                sharedPreferences.edit().putString(getString(R.string.app_pref_command_waypoint), input).apply()
+                WAYPOINT_COMMAND = input
+            }
 
             R.id.forwardEditText -> {
                 sharedPreferences.edit().putString(getString(R.string.app_pref_forward), input).apply()
@@ -187,6 +223,10 @@ class SettingsFragmentIdentifier : Fragment() {
         setImageEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_set_image_identifier), getString(R.string.set_image_default))
         robotPositionEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_robot_position_identifier), getString(R.string.robot_position_default))
         robotStatusEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_robot_status_identifier), getString(R.string.robot_status_default))
+        startPointEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_command_start_point), getString(R.string.start_point_default))
+        goalPointEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_command_goal_point), getString(R.string.goal_point_default))
+        waypointEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_command_waypoint), getString(R.string.waypoint_default))
+        arduinoPrefixEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_arduino_prefix), getString(R.string.arduino_prefix_default))
     }
 
     fun saveOnHold(resultCode: Int) {

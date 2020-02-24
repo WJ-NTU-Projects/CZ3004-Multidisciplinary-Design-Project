@@ -10,6 +10,9 @@
     <string name="app_pref_reverse" translatable="false">COMMAND_REVERSE</string>
     <string name="app_pref_turn_left" translatable="false">COMMAND_TURN_LEFT</string>
     <string name="app_pref_turn_right" translatable="false">COMMAND_TURN_RIGHT</string>
+    <string name="app_pref_command_start_point" translatable="false">COMMAND_START_POINT</string>
+    <string name="app_pref_command_goal_point" translatable="false">COMMAND_GOAL_POINT</string>
+    <string name="app_pref_command_waypoint" translatable="false">COMMAND_WAYPOINT</string>
     <string name="app_pref_grid_identifier" translatable="false">IDENTIFIER_GRID</string>
     <string name="app_pref_descriptor_divider" translatable="false">DESCRIPTOR_DIVIDER</string>
     <string name="app_pref_set_image_identifier" translatable="false">IDENTIFIER_SET_IMAGE</string>
@@ -17,6 +20,7 @@
     <string name="app_pref_robot_status_identifier" translatable="false">IDENTIFIER_ROBOT_STATUS</string>
     <string name="app_pref_command_prefix" translatable="false">COMMAND_PREFIX</string>
     <string name="app_pref_command_divider" translatable="false">COMMAND_DIVIDER</string>
+    <string name="app_pref_arduino_prefix" translatable="false">ARDUINO_PREFIX</string>
     <string name="app_pref_label_f1" translatable="false">LABEL_F1</string>
     <string name="app_pref_command_f1" translatable="false">COMMAND_F1</string>
     <string name="app_pref_label_f2" translatable="false">LABEL_F2</string>
@@ -119,7 +123,9 @@
     <string name="string_divider">ID-Data Divider:</string>
     <string name="string_divider_default" translatable="false">:</string>
     <string name="command_prefix">Command Prefix:</string>
-    <string name="command_prefix_default" translatable="false">#</string>>
+    <string name="command_prefix_default" translatable="false">#</string>
+    <string name="arduino_prefix">Arduino Prefix:</string>
+    <string name="arduino_prefix_default" translatable="false">A</string>
 
     <string name="send_command_identifiers">Send Command Identifiers</string>
     <string name="command">Command</string>
@@ -139,6 +145,12 @@
     <string name="turn_left_default" translatable="false">tl</string>
     <string name="turn_right">Turn Right</string>
     <string name="turn_right_default" translatable="false">tr</string>
+    <string name="start_point">Start Point</string>
+    <string name="start_point_default" translatable="false">startPoint</string>
+    <string name="goal_point">Goal Point</string>
+    <string name="goal_point_default" translatable="false">goalPoint</string>
+    <string name="waypoint">Waypoint</string>
+    <string name="waypoint_default" translatable="false">waypoint</string>
     <string name="restore_defaults">Restore Defaults</string>
 
     <string name="receive_information_identifiers">Receive Information Identifiers</string>

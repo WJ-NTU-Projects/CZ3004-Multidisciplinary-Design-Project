@@ -25,14 +25,14 @@
 class Sensor {
     public:
         Sensor();
-        float getSensorDistance1(int);
-        float getSensorDistance2(int);
-        float getSensorDistance3(int);
-        float getSensorDistance4(int);
-        float getSensorDistance5(int);
-        float getSensorDistance6(int);
+        double getSensorDistance1(int);
+        double getSensorDistance2(int);
+        double getSensorDistance3(int);
+        double getSensorDistance4(int);
+        double getSensorDistance5(int);
+        double getSensorDistance6(int);
         boolean mayAlignFront();
         boolean mayAlignLeft();
-        boolean hasObstacleFront(float);
-        boolean hasObstacleLeft(float);
+        boolean hasObstacleFront(double);
+        boolean hasObstacleLeft(double);
 };

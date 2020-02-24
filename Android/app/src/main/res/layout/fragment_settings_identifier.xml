@@ -43,8 +43,7 @@
                     <LinearLayout style="@style/LayoutMatchWrap"
                         android:layout_width="0dp"
                         android:layout_weight="1.0"
-                        android:layout_marginStart="@dimen/element_padding"
-                        android:layout_marginEnd="@dimen/element_padding">
+                        android:layout_marginStart="@dimen/element_padding">
 
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/AppTextView.Settings.Title"
@@ -57,6 +56,31 @@
                             android:layout_marginTop="@dimen/element_padding"
                             android:id="@+id/stringDividerEditText"
                             android:hint="@string/string_divider_default"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout style="@style/LayoutMatchWrap"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false"
+                    android:layout_marginTop="@dimen/screen_padding">
+                    <LinearLayout style="@style/LayoutMatchWrap"
+                        android:layout_width="0dp"
+                        android:layout_weight="1.0"
+                        android:layout_marginEnd="@dimen/element_padding">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings.Title"
+                            android:layout_width="match_parent"
+                            android:text="@string/arduino_prefix"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:layout_width="match_parent"
+                            android:layout_marginTop="@dimen/element_padding"
+                            android:id="@+id/arduinoPrefixEditText"
+                            android:hint="@string/arduino_prefix_default"
                             android:inputType="text"
                             android:importantForAutofill="no" />
                     </LinearLayout>
@@ -225,6 +249,51 @@
                             style="?attr/appEditText"
                             android:id="@+id/turnRightEditText"
                             android:hint="@string/turn_right_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/start_point"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/startPointEditText"
+                            android:hint="@string/start_point_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/goal_point"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/goalPointEditText"
+                            android:hint="@string/goal_point_default"
+                            android:layout_weight="1.0"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings"
+                            android:layout_weight="0.5"
+                            android:text="@string/waypoint"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:id="@+id/waypointEditText"
+                            android:hint="@string/waypoint_default"
                             android:layout_weight="1.0"
                             android:inputType="text"
                             android:importantForAutofill="no" />

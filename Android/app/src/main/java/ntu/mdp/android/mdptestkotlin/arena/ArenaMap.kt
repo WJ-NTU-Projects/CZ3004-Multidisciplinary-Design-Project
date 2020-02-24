@@ -387,10 +387,8 @@ open class ArenaMap (private val context: Context, private val callback: (status
 
             if (facingOffset == 90 || facingOffset == -270) {
                 callback(Callback.SEND_COMMAND, TURN_LEFT_COMMAND)
-                return@withContext
             } else if (facingOffset == -90 || facingOffset == 270) {
                 callback(Callback.SEND_COMMAND, TURN_RIGHT_COMMAND)
-                return@withContext
             }
         } else {
             val elapsed: Long = System.currentTimeMillis() - lastMoveTime
@@ -494,13 +492,11 @@ open class ArenaMap (private val context: Context, private val callback: (status
             cancel = false
             val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], robotPosition[2]) else booleanArrayOf(false, false, false)
             broadcast(Broadcast.MOVE_COMPLETE, sensorData)
-            return@withContext
         }
 
         if (BluetoothController.isSocketConnected()) {
             if (facingDifference == 180 && !noReverse) callback(Callback.SEND_COMMAND, REVERSE_COMMAND)
             else callback(Callback.SEND_COMMAND, FORWARD_COMMAND)
-            return@withContext
         }
 
         travelComplete = false

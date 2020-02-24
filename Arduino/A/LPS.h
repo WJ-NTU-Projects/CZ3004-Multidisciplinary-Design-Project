@@ -5,22 +5,24 @@
 
 class LPS {
     public:
-        LPS(int *tl, int *tr, float tpmm);
+        LPS(double *tl, double *tr, double tpmm);
         void computePosition();
         void reset();
-        float getX();
-        float getY();
+        double getX();
+        double getY();
         int getHeading();
 
     private:
-        int *ticksLeft;
-        int *ticksRight;
-        float ticksPerMillimeter;
-        float x;
-        float y;
-        float headingRadian;
+        double *ticksLeft;
+        double *ticksRight;
+        double previousTicksLeft;
+        double previousTicksRight;
+        double ticksPerMillimeter;
+        double x;
+        double y;
+        double headingRadian;
         int headingDegree;
-        float deltaLeft;
-        float deltaRight;
+        double deltaLeft;
+        double deltaRight;
         int boundAngle(int angle);
 };

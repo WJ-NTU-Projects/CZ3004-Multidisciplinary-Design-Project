@@ -43,6 +43,7 @@ class App: Application() {
         @Volatile var WAYPOINT_COMMAND = "waypoint"
         @Volatile var GOAL_POINT_COMMAND = "goalPoint"
 
+        @Volatile var ARDUINO_PREFIX = "A"
         @Volatile var COMMAND_PREFIX = "#"
         @Volatile var COMMAND_DIVIDER = ":"
         @Volatile var GRID_IDENTIFIER = "grid"
@@ -69,6 +70,10 @@ class App: Application() {
         REVERSE_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_reverse), getString(R.string.reverse_default))!!
         TURN_LEFT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_turn_left), getString(R.string.turn_left_default))!!
         TURN_RIGHT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_turn_right), getString(R.string.turn_right_default))!!
+        START_POINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_start_point), getString(R.string.start_point_default))!!
+        GOAL_POINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_goal_point), getString(R.string.goal_point_default))!!
+        WAYPOINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_waypoint), getString(R.string.waypoint_default))!!
+        ARDUINO_PREFIX = sharedPreferences.getString(getString(R.string.app_pref_arduino_prefix), getString(R.string.arduino_prefix_default))!!
 
         darkMode = sharedPreferences.getBoolean(getString(R.string.app_pref_dark_mode), false)
 

@@ -1,6 +1,6 @@
 #include "LPS.h"
 
-LPS::LPS(int *tl, int *tr, float tpmm) {
+LPS::LPS(double *tl, double *tr, double tpmm) {
     ticksLeft = tl;
     ticksRight = tr;
     ticksPerMillimeter = tpmm * 1.0;
@@ -10,6 +10,8 @@ LPS::LPS(int *tl, int *tr, float tpmm) {
 void LPS::reset() {
     x = 0;
     y = 0;
+    previousTicksLeft = 0;
+    previousTicksRight = 0;
     headingRadian = 0;
     headingDegree = 0;
     deltaLeft = 0;
@@ -17,30 +19,35 @@ void LPS::reset() {
 }
 
 void LPS::computePosition() {
-    deltaLeft = *ticksLeft / ticksPerMillimeter;
-    deltaRight = *ticksRight / ticksPerMillimeter;
-
-    if (fabs(deltaLeft - deltaRight) < 1.0e-6) {
-        x += deltaLeft * cos(headingRadian);
-        y += deltaRight * sin(headingRadian);
-        return;
-    }
-
-    float radius = WHEEL_AXIS * (deltaLeft + deltaRight) / (2 * (deltaRight - deltaLeft));
-    float diff = (deltaRight - deltaLeft) / WHEEL_AXIS;
-    x = x + (radius * sin(headingRadian + diff) - radius * sin(headingRadian));
-    y = y - (radius * cos(headingRadian + diff) + radius * cos(headingRadian));
+    double currentTicksLeft = *ticksLeft;
+    double currentTicksRight = *ticksRight;
+    
+    double ticksDiffLeft = currentTicksLeft - previousTicksLeft;
+    double ticksDiffRight = currentTicksRight - previousTicksRight;
+    deltaLeft = ticksDiffLeft / ticksPerMillimeter;
+    deltaRight = ticksDiffRight / ticksPerMillimeter;
+    
+    double deltaMean = (deltaLeft + deltaRight) * 0.5;
+    double diff = (deltaRight - deltaLeft) / WHEEL_AXIS;
     headingRadian += diff;
+
+    double circle = 2 * PI;
+    if (headingRadian >= circle) headingRadian -= circle;      
+    if (headingRadian <= -circle) headingRadian += circle;     
+     
+    x += deltaMean * cos(headingRadian);
+    y += deltaMean * sin(headingRadian); 
     headingDegree = round((headingRadian * 4068) / 71.0);
-    headingDegree = boundAngle(headingDegree);
-    headingRadian = (headingDegree * 71 / 4068.0);
+
+    previousTicksLeft = currentTicksLeft;
+    previousTicksRight = currentTicksRight;
 }
 
-float LPS::getX() {
+double LPS::getX() {
     return x;
 }
 
-float LPS::getY() {
+double LPS::getY() {
     return y;
 }
 

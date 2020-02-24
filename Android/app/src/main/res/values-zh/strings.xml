@@ -61,7 +61,7 @@
     <string name="language">你好</string>
     <string name="general_config">一般配置</string>
     <string name="string_divider">识别号与数据分频器：</string>
-    <string name="command_prefix">命令前缀</string>
+    <string name="command_prefix">命令前缀：</string>
     <string name="send_command_identifiers">发送命令的识别号</string>
     <string name="command">命令</string>
     <string name="command_to_send">将发送的命令</string>
@@ -114,4 +114,8 @@
     <string name="error_name_blank">请输入地图名称。</string>
     <string name="error_name_not_available">名称不可用。请使用其他名称。</string>
     <string name="selected">已选</string>
+    <string name="start_point">出发点</string>
+    <string name="goal_point">目的地点</string>
+    <string name="waypoint">航点</string>
+    <string name="arduino_prefix">Arduino 前缀：</string>
 </resources>

@@ -21,12 +21,12 @@ void setup() {
     pidRight.SetOutputLimits(-350, 350);   
     pidRight.SetSampleTime(2);
     enablePID(false);
-    
     delay(1000);
     //move(forward, 1500);
 }
 
 void loop() {
+    
     if (moving || turning) {
         deadReckoning();
 
@@ -41,14 +41,17 @@ void loop() {
         
         return;
     }
-    
-    if (millis() - lastMoveTime < 2000 && !moving && !turning && !aligning) {
-        if (robot.hasObstacleFront()) alignFront();
-        else alignLeft();
-        return;
-    }
 
-    move(forward, 1500);
+//    Serial.println("HELLO");
+//    Serial.flush();
+    
+//    if (millis() - lastMoveTime < 2000 && !moving && !turning && !aligning) {
+//        if (robot.hasObstacleFront()) alignFront();
+//        else alignLeft();
+//        return;
+//    }
+
+//    move(forward, 1500);
 }
 
 void move(Direction direction, double speedR, double speedL) {
@@ -213,7 +216,85 @@ void alignLeft() {
 }
 
 
+void serialEvent() {
+    String inputString = "";  
+    unsigned long timeNow = millis();
+    
+    while (true) {
+        if (Serial.available()) {
+            char inChar = (char) Serial.read();
+            //Serial.println(inChar);
+            if (inChar == '\n') break;        
+            inputString += inChar;
+        }
 
+        if (millis() - timeNow >= 2000) break;
+    } 
+//
+//    Serial.println(inputString);
+//    Serial.flush();
+//
+//    if (inputString.indexOf("EX") == 0) {
+//        speedDefault = EXPLORE_SPEED;
+//        speedMax = EXPLORE_SPEED_MAX;
+//        return;
+//    }
+//
+//    if (inputString.indexOf("FP") == 0) {
+//        speedDefault = FAST_SPEED;
+//        speedMax = FAST_SPEED_MAX;
+//        return;
+//    }
+
+    int distance = 100;
+    int angle = 90;
+    
+    if (inputString.length() > 1) {
+        String distanceStr = inputString.substring(1);
+        
+        if (isNumber(distanceStr)) {
+            distance = distanceStr.toInt();
+            angle = distance;
+        }
+    }
+ 
+    if (inputString.indexOf('M') == 0) {
+        move(forward, distance);
+        return;
+    }
+    
+    if (inputString.indexOf("L") == 0) {
+        move(left, angle);
+        return;
+    }
+    
+    if (inputString.indexOf("R") == 0) {
+        move(right, angle);
+        return;
+    }
+    
+//    if (inputString.indexOf("C") == 0) {
+//        if (sensor.mayAlignFront()) alignFront();
+//        else alignLeft(); 
+//        return;
+//    }
+
+//    if (inputString.indexOf("I") == 0) {
+//        String s1 = String(sensor.getSensorDistance1(FINE));
+//        String s2 = String(sensor.getSensorDistance2(FINE));
+//        String s3 = String(sensor.getSensorDistance3(FINE));
+//        String s4 = String(sensor.getSensorDistance4(FINE));
+//        String s5 = String(sensor.getSensorDistance5(FINE));
+//        String s6 = String(sensor.getSensorDistance6(FINE));
+//        Serial.println(s1 + VAR_DIV + s2 + VAR_DIV + s3 + VAR_DIV + s4 + VAR_DIV + s5 + VAR_DIV + s6);
+//        return;
+//    }
+}
+
+boolean isNumber(String str) {
+    for (byte i = 0; i < str.length(); i++) if (!isDigit(str.charAt(i))) return false;
+    return true;
+}
 
 
 // INTERRUPT ROUTINES

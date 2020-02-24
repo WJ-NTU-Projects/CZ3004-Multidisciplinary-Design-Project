@@ -8,6 +8,8 @@ void setup() {
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
+    delay(1000);
+    move(FORWARD, 400);
 }
 
 void loop() {
@@ -21,88 +23,77 @@ void loop() {
             return;
         }
 
-        // EVERYTHING BELOW IS DEBUGGING ONLY
-        if (!DEBUGGING) return;
-        
-        if (sensor.hasObstacleFront(10)) {
-            return;
-            if (sensor.hasObstacleLeft(10)) move(RIGHT, 90);
-            else move(LEFT, 90);
+        if (test) {
+            test = false;
+            delay(1000);
+            move(RIGHT, 90);
             return;
         }
-        
-        move(FORWARD, 1500);
+
+        if (test2) {
+            test2 = false;
+            delay(1000);
+            move(LEFT, 90);
+        }
         return;
     }   
-
-    // MOVING
     
-    if (currentDirection == FORWARD || currentDirection == REVERSE) lps.computePosition();    
-    localX = lps.getX();
-    localY = lps.getY();
-    heading = lps.getHeading();
-
+    if (currentDirection == FORWARD || currentDirection == REVERSE) {
+        lps.computePosition();    
+        localX = lps.getX();
+        localY = lps.getY();
+        heading = lps.getHeading();
+    }
+    
     if (!movingLeft && !movingRight) {
-        moving = false;            
+        moving = false;         
         return;
     }
 
-    if (fabs(localY) < 1.0e-6) return;
-    
+    if (localY == 0) return;
     speedOffset = pid.computeOffset();
-    speedLeft += (localY > 0) ? speedOffset : -speedOffset;
-    speedRight += (localY > 0) ? -speedOffset : speedOffset;
-    speedLeft = constrain(speedLeft, 0, speedMax);
-    speedRight = constrain(speedRight, 0, speedMax);
-    motor.setSpeed(speedLeft, speedRight);
-
-    if (localX - localRef < 100) return;
-    
-    switch (globalHeading) {
-        case 0  : globalY++; break;
-        case 90 : globalX++; break;
-        case 180: globalY--; break;
-        case 270: globalX--; break;
-    } 
-
-    globalX = constrain(globalX, 1, 13);
-    globalY = constrain(globalY, 1, 18);
-    localRef = floor(localX * 0.01) * 100;
-    Serial.println("#robotPosition:" + String(globalX) + VAR_DIV + String(globalY) + VAR_DIV + String(globalHeading));
+    double newSpeedLeft = speedLeft - speedOffset;
+    newSpeedLeft = constrain(newSpeedLeft, 1, 400);
+    double newSpeedRight = speedRight + speedOffset;
+    newSpeedRight = constrain(newSpeedRight, 1, 400);
+    motor.setSpeed(newSpeedLeft, newSpeedRight);
+    Serial.println(localY);
 }
 
 void move(int direction, int distance) {
     if (direction == FORWARD || direction == REVERSE) {
-        distance += round(localY);
+        if (currentDirection != FORWARD) distance += round(localY);
         ticksTarget = distance * TICKS_PER_MM;    
+        localX = 0;
+        localY = 0;
+        heading = 0;
+        speedLeft = speedDefaultLeft;
+        speedRight = speedDefaultRight;
     } else {
-        distance -= heading;
+        if (currentDirection == FORWARD) distance -= heading;
         ticksTarget = distance * TICKS_PER_ANGLE;
         globalHeading += (direction == RIGHT) ? 90 : -90;
         if (globalHeading < 0) globalHeading += 360;
         if (globalHeading >= 360) globalHeading -= 360;
+        speedLeft = TURNING_SPEED_LEFT;
+        speedRight = TURNING_SPEED_RIGHT;
     }
 
     currentDirection = direction;
-    ticksLeft = 0;
-    ticksRight = 0;
-    speedLeft = (distance > 100) ? speedDefault : SPEED_SLOW;
-    speedRight = (distance > 100) ? speedDefault : SPEED_SLOW;
-    speedOffset = 0;
-    localX = 0;
-    localY = 0;
-    localRef = 0;
-    heading = 0;
-    pid.reset();
-    lps.reset();
     movingLeft = true;
     movingRight = true;
+    ticksLeft = 0;
+    ticksRight = 0;
+    speedOffset = 0;
+    localRef = 0;
+    pid.reset();
+    lps.reset();
     moving = true;
 
     if      (direction == FORWARD)  motor.forward(speedLeft, speedRight);
     else if (direction == REVERSE)  motor.reverse(speedLeft, speedRight);
-    else if (direction == LEFT)     motor.turnRight(speedLeft, speedRight);
-    else if (direction == RIGHT)    motor.turnLeft(speedLeft, speedRight);
+    else if (direction == RIGHT)    motor.turnRight(speedLeft, speedRight);
+    else if (direction == LEFT)     motor.turnLeft(speedLeft, speedRight);
 }
 
 void alignFront() {
@@ -161,86 +152,45 @@ void alignLeft() {
 }
 
 void serialEvent() {
-    String inputString = "";  
-    unsigned long timeNow = millis();
-    
-    while (true) {
-        if (Serial.available()) {
-            char inChar = (char) Serial.read();
-            if (inChar == '\n') break;        
-            inputString += inChar;
-        }
+    if (!Serial.available()) return;
+    char input = (char) Serial.read();
 
-        if (millis() - timeNow >= 2000) break;
-    } 
-
-    if (inputString.indexOf("EX") == 0) {
-        speedDefault = EXPLORE_SPEED;
-        speedMax = EXPLORE_SPEED_MAX;
-        return;
-    }
-
-    if (inputString.indexOf("FP") == 0) {
-        speedDefault = FAST_SPEED;
-        speedMax = FAST_SPEED_MAX;
-        return;
-    }
-
-    int distance = 100;
-    int angle = 90;
-    
-    if (inputString.length() > 1) {
-        String distanceStr = inputString.substring(1);
+    switch (input) {
+        case 'M':    
+            if (!moving) move(FORWARD, 1); 
+            return;
         
-        if (isNumber(distanceStr)) {
-            distance = distanceStr.toInt();
-            angle = distance;
-        }
+                
+        case 'L':    
+            if (!moving) move(LEFT, 90); 
+            return;
+                
+        case 'R':    
+            if (!moving) move(RIGHT, 90); 
+            return;
+        
+        case 'C':    
+            if (sensor.mayAlignFront()) alignFront();
+            else alignLeft(); 
+            return;
+                
+        case 'I':    
+            String s1 = String(sensor.getSensorDistance1(FINE));
+            String s2 = String(sensor.getSensorDistance2(FINE));
+            String s3 = String(sensor.getSensorDistance3(FINE));
+            String s4 = String(sensor.getSensorDistance4(FINE));
+            String s5 = String(sensor.getSensorDistance5(FINE));
+            String s6 = String(sensor.getSensorDistance6(FINE));
+            Serial.println(s1 + VAR_DIV + s2 + VAR_DIV + s3 + VAR_DIV + s4 + VAR_DIV + s5 + VAR_DIV + s6);
+            return;    
     }
- 
-    if (inputString.indexOf("M") == 0) {
-        move(FORWARD, distance);
-        return;
-    }
-    
-    if (inputString.indexOf("L") == 0) {
-        move(LEFT, angle);
-        return;
-    }
-    
-    if (inputString.indexOf("R") == 0) {
-        move(RIGHT, angle);
-        return;
-    }
-    
-    if (inputString.indexOf("C") == 0) {
-        if (sensor.mayAlignFront()) alignFront();
-        else alignLeft(); 
-        return;
-    }
-
-    if (inputString.indexOf("I") == 0) {
-        String s1 = String(sensor.getSensorDistance1(FINE));
-        String s2 = String(sensor.getSensorDistance2(FINE));
-        String s3 = String(sensor.getSensorDistance3(FINE));
-        String s4 = String(sensor.getSensorDistance4(FINE));
-        String s5 = String(sensor.getSensorDistance5(FINE));
-        String s6 = String(sensor.getSensorDistance6(FINE));
-        Serial.println(s1 + VAR_DIV + s2 + VAR_DIV + s3 + VAR_DIV + s4 + VAR_DIV + s5 + VAR_DIV + s6);
-        return;
-    }
-}
-
-boolean isNumber(String str) {
-    for (byte i = 0; i < str.length(); i++) if (!isDigit(str.charAt(i))) return false;
-    return true;
 }
 
 void interruptLeft() {
     if (!movingLeft) return;
-    ticksLeft += 50;
-
-    if (abs(ticksLeft - ticksTarget) <= 25) {
+    ticksLeft += 0.5;
+    
+    if (abs(ticksLeft - ticksTarget) <= 0.25) {
         motor.brakeLeft();
         movingLeft = false;
         lastMoveTime = millis();
@@ -249,9 +199,9 @@ void interruptLeft() {
 
 void interruptRight() {
     if (!movingRight) return;
-    ticksRight += 50;
+    ticksRight += 0.5;
 
-    if (abs(ticksRight - ticksTarget) <= 25) {
+    if (abs(ticksRight - ticksTarget) <= 0.25) {
         motor.brakeRight();
         movingRight = false;
         lastMoveTime = millis();

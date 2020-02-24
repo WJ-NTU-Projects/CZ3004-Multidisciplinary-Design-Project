@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import ntu.mdp.android.mdptestkotlin.App.Companion.APP_LANGUAGE
+import ntu.mdp.android.mdptestkotlin.App.Companion.ARDUINO_PREFIX
 import ntu.mdp.android.mdptestkotlin.App.Companion.CLICK_DELAY
 import ntu.mdp.android.mdptestkotlin.App.Companion.DESCRIPTOR_DIVIDER
 import ntu.mdp.android.mdptestkotlin.App.Companion.PAD_MOVABLE
@@ -294,7 +295,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendCommand(command: String) {
+    private fun sendCommand(c: String) {
+        val command = "$ARDUINO_PREFIX$c"
         displayInChat(MessageType.OUTGOING, command)
         if (!bluetoothAdapter.isEnabled || !BluetoothController.isSocketConnected()) return
         if (command.isNotEmpty()) BluetoothController.write(command)
