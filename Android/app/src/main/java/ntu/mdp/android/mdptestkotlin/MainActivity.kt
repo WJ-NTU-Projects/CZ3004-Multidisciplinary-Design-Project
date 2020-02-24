@@ -175,6 +175,10 @@ class MainActivity : AppCompatActivity() {
         statusCardLabel.text = getString(R.string.idle)
         if (accelerometer && gyroscopeSensor != null) sensorManager.registerListener(robotController.gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
         if (bluetoothAdapter.isEnabled) startBluetoothListener()
+
+        CoroutineScope(Dispatchers.Main).launch {
+            arenaMapController.updateRobotImage()
+        }
     }
 
     override fun onPause() {

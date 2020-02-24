@@ -9,7 +9,7 @@ void setup() {
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
     delay(1000);
-    move(FORWARD, 400);
+    //move(FORWARD, 400);
 }
 
 void loop() {
@@ -22,7 +22,7 @@ void loop() {
             else if (sensor.mayAlignLeft()) alignLeft();
             return;
         }
-
+        return;
         if (test) {
             test = false;
             delay(1000);
@@ -157,7 +157,7 @@ void serialEvent() {
 
     switch (input) {
         case 'M':    
-            if (!moving) move(FORWARD, 1); 
+            if (!moving) move(FORWARD, 100); 
             return;
         
                 

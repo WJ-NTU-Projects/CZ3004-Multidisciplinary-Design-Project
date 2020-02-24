@@ -390,19 +390,21 @@ open class ArenaMap (private val context: Context, private val callback: (status
             } else if (facingOffset == -90 || facingOffset == 270) {
                 callback(Callback.SEND_COMMAND, TURN_RIGHT_COMMAND)
             }
-        } else {
-            val elapsed: Long = System.currentTimeMillis() - lastMoveTime
 
-            if (elapsed < simulationDelay) {
-                delay(simulationDelay - elapsed)
-            }
-
-            travelComplete = false
-            updateRobotImage(facing)
-            val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], facing) else booleanArrayOf(false, false, false)
-            lastMoveTime = System.currentTimeMillis()
-            broadcast(Broadcast.TURN_COMPLETE, sensorData)
+            return@withContext
         }
+
+        val elapsed: Long = System.currentTimeMillis() - lastMoveTime
+
+        if (elapsed < simulationDelay) {
+            delay(simulationDelay - elapsed)
+        }
+
+        travelComplete = false
+        updateRobotImage(facing)
+        val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], facing) else booleanArrayOf(false, false, false)
+        lastMoveTime = System.currentTimeMillis()
+        broadcast(Broadcast.TURN_COMPLETE, sensorData)
     }
 
     suspend fun moveRobot(x: Int, y: Int, noReverse: Boolean = false) = withContext(Dispatchers.Main) {
@@ -492,11 +494,13 @@ open class ArenaMap (private val context: Context, private val callback: (status
             cancel = false
             val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], robotPosition[2]) else booleanArrayOf(false, false, false)
             broadcast(Broadcast.MOVE_COMPLETE, sensorData)
+            return@withContext
         }
 
         if (BluetoothController.isSocketConnected()) {
             if (facingDifference == 180 && !noReverse) callback(Callback.SEND_COMMAND, REVERSE_COMMAND)
             else callback(Callback.SEND_COMMAND, FORWARD_COMMAND)
+            return@withContext
         }
 
         travelComplete = false
@@ -579,6 +583,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
         if (params.leftMargin != anchorX) params.leftMargin = anchorX
         if (params.topMargin != anchorY) params.topMargin = anchorY
         robotDisplay.layoutParams = params
+        updateRobotImage()
         travelComplete = true
         callback(Callback.UPDATE_COORDINATES, "$x, $y")
     }
@@ -590,10 +595,12 @@ open class ArenaMap (private val context: Context, private val callback: (status
         val modifier = if (offset == 90 || offset == -270) 10 else -10
         val delay = ceil(1.0 * simulationDelay / 9.0).toLong()
 
-        while (currentFacing != facing) {
-            currentFacing = Math.floorMod((currentFacing + modifier), 360)
-            robotDisplay.rotation += modifier
-            delay(delay)
+        if (facing != currentFacing) {
+            while (currentFacing != facing) {
+                currentFacing = Math.floorMod((currentFacing + modifier), 360)
+                robotDisplay.rotation += modifier
+                delay(delay)
+            }
         }
 
         val drawable: Int = when (facing) {
