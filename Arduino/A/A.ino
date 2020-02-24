@@ -9,7 +9,7 @@ void setup() {
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
     delay(1000);
-    //move(FORWARD, 400);
+    move(FORWARD, 400);
 }
 
 void loop() {
@@ -22,7 +22,7 @@ void loop() {
             else if (sensor.mayAlignLeft()) alignLeft();
             return;
         }
-        return;
+
         if (test) {
             test = false;
             delay(1000);
@@ -50,7 +50,6 @@ void loop() {
         return;
     }
 
-    if (localY == 0) return;
     speedOffset = pid.computeOffset();
     double newSpeedLeft = speedLeft - speedOffset;
     newSpeedLeft = constrain(newSpeedLeft, 1, 400);
@@ -75,8 +74,8 @@ void move(int direction, int distance) {
         globalHeading += (direction == RIGHT) ? 90 : -90;
         if (globalHeading < 0) globalHeading += 360;
         if (globalHeading >= 360) globalHeading -= 360;
-        speedLeft = TURNING_SPEED_LEFT;
-        speedRight = TURNING_SPEED_RIGHT;
+        speedLeft = EXPLORE_SPEED_LEFT;
+        speedRight = EXPLORE_SPEED_RIGHT;
     }
 
     currentDirection = direction;
