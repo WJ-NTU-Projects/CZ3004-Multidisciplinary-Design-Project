@@ -27,18 +27,17 @@
 #define A3r 7.28
 #define A4r 7.64
 #define A5r 17.72
-#define FINE 1
-#define COARSE 0
 
-class Sensor {
+class Sensors {
     public:
-        Sensor();
-        double getSensorDistance(char, double, double, double);
-        double getSensorAverageLeft();
-        double getSensorErrorLeft();
-        double getSensorErrorFront();
-        boolean mayAlignFront();
+        Sensors();
+        double getDistance(char, double, double, double);
+        double getDistance(int);
+        int getDistanceR(int);
+        double getErrorLeft();
+        double getErrorFront();
+        boolean hasObstacleFront(int);
+        boolean hasObstacleLeft(int);
         boolean mayAlignLeft();
-        boolean hasObstacleFront(double);
-        boolean hasObstacleLeft(double);
+        boolean mayAlignFront();
 };

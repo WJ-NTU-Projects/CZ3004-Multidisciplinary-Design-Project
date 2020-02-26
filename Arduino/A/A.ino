@@ -9,145 +9,112 @@ void setup() {
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
     delay(1000);
-    if (sensor.mayAlignLeft()) alignLeft();
 }
 
 void loop() {
-    if (millis() - loopTime < 10) return;
-    loopTime = millis();
-
-//    Serial.println(sensor.getSensorErrorLeft());
-//    delay(500);
+    if (!aligned) align();    
+//    debugRun();
 //    return;
-    
-    if (moving) {
-        if (!movingLeft && !movingRight) {
+
+    while (Serial.available() > 0) {
+        char input = (char) Serial.read();
+        if (input == '\n') break;
+        if (input == 'I') printSensorValues();
+        else if (input == 'M') move(FORWARD, 100);
+        else if (input == 'L') turn(LEFT, 90);
+        else if (input == 'R') turn(RIGHT, 90);
+        else if (input == 'C') align();
+    }
+}
+
+void debugRun() {
+    if (!sensors.hasObstacleLeft(12)) {
+        delay(100);
+        turn(LEFT, 90);
+    } else if (sensors.hasObstacleFront(7) || sensor2Close) {
+        delay(100);
+        turn(RIGHT, 90);
+        
+        if (sensors.hasObstacleFront(7)) {
+            delay(100);
+            turn(RIGHT, 90);
+        }
+    }
+        
+    delay(100);
+    move(FORWARD, 100);
+}
+
+void move(int direction, int distance) {
+    if (direction != FORWARD && direction != REVERSE) return;
+    ticksTarget = distance * TICKS_PER_MM;
+    localX = 0;
+    localY = 0;
+    speedLeft = speedDefault;
+    speedRight = speedDefault - 30;;
+    aligned = false;
+    resetMoveVars();
+
+    if (direction == FORWARD)  motor.forward(speedLeft, speedRight);
+    else motor.reverse(speedLeft, speedRight);
+
+    while (movingLeft || movingRight) {   
+        if (sensors.getDistanceR(2) <= 15 && !sensor2Close) sensor2Close = true;   
+             
+        if (sensors.hasObstacleFront(7)) {
             eBrake();
             return;
         }
 
-        if (aligning) {
-            double error = (aligningFront) ? sensor.getSensorErrorFront() : sensor.getSensorErrorLeft();
-
-            if (alignCounter < 10) {
-                alignCounter++;
-            } else {
-                eBrake();
-                alignCounter = 0;
-                return;
-            }
-            
-            if (aligningFront && error >= -0.3 && error <= -0.1) {
-                eBrake();            
-                return;
-            }
-            
-            if (aligningLeft && error >= 0.2 && error <= 0.4) {
-                eBrake();            
-                return;
-            }
-
-            
-            return;
-        }    
-    
-        if (currentDirection == LEFT || currentDirection == RIGHT) {
-            lps.computePosition();    
-            localX = lps.getX();
-            localY = lps.getY();
-            speedOffset = pid.computeOffset();
-            applyPID();
-            return;
-        }
-
-//        double distance4 = sensor.getSensorDistance(sensor4, A3m, A3c, A3r);
-//        double distance5 = sensor.getSensorDistance(sensor5, A4m, A4c, A4r);
-
-        lps.computePosition();    
-        localX = lps.getX();
-        localY = lps.getY();
-        speedOffset = pid.computeOffset();
-        applyPID();
-
-        if (localX - localRef >= 100) {
-            Serial.println("Travelled one grid.");
-            localRef = floor(localX * 0.01) * 100;
-
-//            if (distance4 > 10 && distance5 > 10 && !leftEmpty && localX >= 200) {
-//                eBrake();
-//                delay(10);
-//                move(LEFT, 90);
-//                leftEmpty = true;
-//                return;
-//            }
-
-            if (sensor.mayAlignLeft()) {
-                double error = sensor.getSensorErrorLeft();
-                
-                if (fabs(error) < 5) {
-                    if (error < 0.2) {
-                        setpoint = 0.5;
-                    } else if (error > 0.4) {
-                        setpoint = -0.5;
-                    } else {
-                        setpoint = 0;
-                    }
-                }
-            } else if (sensor.mayAlignFront()) {
-                setpoint = 0;
-                return;
-                double error = sensor.getSensorErrorFront();
-                
-                if (fabs(error) < 5) {
-                    if (error < -0.3) {
-                        setpoint = -0.1;
-                    } else if (error > 0.1) {
-                        setpoint = 0.1;
-                    } else {
-                        setpoint = 0;
-                    }
-                }
+        double setpointOffset = 0.1;
+        
+        if (sensors.mayAlignLeft()) {
+            double error = sensors.getErrorLeft();
+            if (error < 0.2) setpoint = setpointOffset;
+            else if (error > 0.4) setpoint = -setpointOffset;
+            else setpoint = 0; 
+        } else {
+            if (sensors.mayAlignFront()) {
+                double error = sensors.getErrorFront();                
+                if (error < -0.3) setpoint = -setpointOffset;
+                else if (error > -0.1) setpoint = setpointOffset;
+                else setpoint = 0; 
             } else {
                 setpoint = 0;
             }
         }
         
-        return;
+        lps.computePosition();
+        localX = lps.getX();
+        localY = lps.getY();
+        speedOffset = pid.computeOffset();
+        applyPID();
+        delay(5);
     }
 
+    eBrake();
+}
 
-    // NOT MOVING
+void turn(int direction, double angle) {
+    if (direction != LEFT && direction != RIGHT) return;
+    ticksTarget = angle * TICKS_PER_ANGLE;
+    speedLeft = EXPLORE_SPEED_LEFT;
+    speedRight = speedLeft - 30;
+    resetMoveVars();
     
-    if (aligning) {
-        aligning = false;
+    if (direction == RIGHT) motor.turnRight(speedLeft, speedRight);
+    else motor.turnLeft(speedLeft, speedRight);
 
-        if (alignCounter < 10) {
-            delay(10);
-            if (aligningFront) alignFront();
-            else if (aligningLeft) alignLeft();
-            alignCounter++;
-            return;
-        }
-
-        alignCounter = 0;
-        aligningFront = false;
-        aligningLeft = false;
-    } else {
-        if (millis() - lastMoveTime > 250) return;
-        double errorLeft = sensor.getSensorErrorLeft();
-        double errorFront = sensor.getSensorErrorFront();
-        if (sensor.mayAlignLeft()) alignLeft();
-        //else if (sensor.mayAlignFront()) alignFront();
-        if (aligning) return;
+    while (movingLeft || movingRight) {
+        delay(5);        
+        lps.computePosition();
+        localX = lps.getX();
+        localY = lps.getY();
+        speedOffset = pid.computeOffset();
+        applyPID();
     }
-    
-//    if (sensor.hasObstacleFront(6) || sensor2Close) {
-//        if (sensor.hasObstacleLeft(10)) move(RIGHT, 90);
-//        else move(LEFT, 90);
-//        return;
-//    }
-//    
-//    move(FORWARD, 2000);
+
+    eBrake();
 }
 
 void applyPID() {
@@ -156,57 +123,6 @@ void applyPID() {
     double newSpeedRight = speedRight + speedOffset;
     newSpeedRight = constrain(newSpeedRight, speedDefault - 90, speedDefault + 10);
     motor.setSpeed(newSpeedLeft, newSpeedRight);
-}
-
-void move(int direction, double distance) {
-    if (direction == FORWARD || direction == REVERSE) {
-        ticksTarget = distance * TICKS_PER_MM;    
-        localX = 0;
-        localY = 0;
-        speedLeft = speedDefault;
-        speedRight = speedDefault - 40;
-        leftEmpty = false;
-    } else {
-        ticksTarget = distance * TICKS_PER_ANGLE;
-        speedLeft = EXPLORE_SPEED_LEFT;
-        speedRight = speedLeft - 40;
-    }
-
-    currentDirection = direction;
-    movingLeft = true;
-    movingRight = true;
-    sensor2Close = false;
-    ticksLeft = 0;
-    ticksRight = 0;
-    speedOffset = 0;
-    localRef = 0;
-    pid.reset();
-    lps.reset();
-    moving = true;
-
-    if      (direction == FORWARD)  motor.forward(speedLeft, speedRight);
-    else if (direction == REVERSE)  motor.reverse(speedLeft, speedRight);
-    else if (direction == RIGHT)    motor.turnRight(speedLeft, speedRight);
-    else if (direction == LEFT)     motor.turnLeft(speedLeft, speedRight);
-}
-
-void moveAlign(int direction) {
-    speedLeft = TURN_SPEED_LEFT;
-    speedRight = speedLeft - 40;
-    ticksTarget = 100000;
-    movingLeft = true;
-    movingRight = true;
-    ticksLeft = 0;
-    ticksRight = 0;
-    speedOffset = 0;
-    pid.reset();
-    lps.reset();
-    moving = true;
-    aligning = true;
-    alignStartTime = millis();
-
-    if (direction == RIGHT) motor.turnRight(speedLeft, speedRight);
-    else if (direction == LEFT) motor.turnLeft(speedLeft, speedRight);
 }
 
 void eBrake() {
@@ -218,107 +134,65 @@ void eBrake() {
     lastMoveTime = millis();
 }
 
-void alignFront() {    
-    int directionBeforeAlign = currentDirection;
-    double distance1 = sensor.getSensorDistance(sensor1, A0m, A0c, A0r);
-    double distance3 = sensor.getSensorDistance(sensor3, A2m, A2c, A2r);
-    if (distance1 < 0 || distance3 < 0) return;
+void resetMoveVars() {
+    movingLeft = true;
+    movingRight = true;
+    sensor2Close = false;
+    ticksLeft = 0;
+    ticksRight = 0;
+    speedOffset = 0;
+    pid.reset();
+    lps.reset();
+    moving = true;
+}
+
+void align() {
+    aligned = true;
     
-    double distanceAverage = (distance1 + distance3) * 0.5;
-    double distanceError = distance1 - distance3;
-    
-    if (distanceAverage > 0 && distanceAverage <= 10) {
-        heading = 0;
-        
-        if (distanceError < -0.3) {
-            aligningFront = true;
-            moveAlign(RIGHT);
-        } else if (distanceError > -0.1) {
-            aligningFront = true;
-            moveAlign(LEFT);
-        }
+    if (sensors.mayAlignLeft()) {
+        alignLeft();
+        return;
     }
 
-    currentDirection = directionBeforeAlign;
+    if (sensors.mayAlignFront()) alignFront();
 }
 
 void alignLeft() {
-        
-    int directionBeforeAlign = currentDirection;
-    double distance4 = sensor.getSensorDistance(sensor4, A3m, A3c, A3r);
-    double distance5 = sensor.getSensorDistance(sensor5, A4m, A4c, A4r);
-    if (distance4 < 0 || distance5 < 0) return;
+    double alignCounter = 0;
     
-    double distanceAverage = (distance4 + distance5) * 0.5;
-    double distanceError = distance4 - distance5;
-    
-    if (distanceAverage > 0 && distanceAverage <= 10) {
-        if (distanceError < 0.2) {
-            aligningLeft = true;
-            moveAlign(LEFT);
-        } else if (distanceError > 0.4) {
-            aligningLeft = true;
-            moveAlign(RIGHT);
-        }
+    while (alignCounter < 10) {
+        double error = sensors.getErrorLeft();
+        if (error >= 0.2 && error < 0.4) return;
+        turn((error < 0.2) ? LEFT : RIGHT, 0.15);
+        alignCounter++;
     }
-    
-    currentDirection = directionBeforeAlign;
+
+    eBrake();
 }
 
-void serialEvent() {
-    if (moving) return;
-    String inputString = "";  
-    unsigned long timeNow = millis();
+void alignFront() {
+    double alignCounter = 0;
     
-    while (true) {
-        if (Serial.available()) {
-            char inChar = (char) Serial.read();
-            //Serial.println(inChar);
-            if (inChar == '\n') break;        
-            inputString += inChar;
-        }
-
-        if (millis() - timeNow >= 500) break;
-    } 
-
-    char input = inputString.charAt(0);
-
-    if (input == 'I') {
-        String s1 = String(sensor.getSensorDistance(sensor1, A0m, A0c, A0r));
-        String s2 = String(sensor.getSensorDistance(sensor2, A1m, A1c, A1r));
-        String s3 = String(sensor.getSensorDistance(sensor3, A2m, A2c, A2r));
-        String s4 = String(sensor.getSensorDistance(sensor4, A3m, A3c, A3r));
-        String s5 = String(sensor.getSensorDistance(sensor5, A4m, A4c, A4r));
-        String s6 = String(sensor.getSensorDistance(sensor6, A5m, A5c, A5r));
-        Serial.println("P" + s1 + "#" + s2 + "#" + s3 + "#" + s4 + "#" + s5 + "#" + s6);
-        Serial.flush();
-        return;   
+    while (alignCounter < 10) {
+        double error = sensors.getErrorFront();
+        if (error >= -0.3 && error < -0.1) return;
+        turn((error < -0.3) ? RIGHT : LEFT, 0.15);
+        alignCounter++;
     }
 
-    if (input == 'M') {
-        move(FORWARD, 100); 
-        return;
-    }
+    eBrake();
+    
+}
 
-    if (input == 'L') {
-        move(LEFT, 90); 
-        return;
-    }
-
-    if (input == 'R') {
-        move(RIGHT, 90); 
-        return;
-    }
-
-    if (input == 'C') {
-            double errorLeft = sensor.getSensorErrorLeft();
-            double errorFront = sensor.getSensorErrorFront();
-            Serial.println(errorLeft);
-            Serial.println(sensor.mayAlignLeft());
-            if (sensor.mayAlignLeft() && errorLeft < 0.2 && errorLeft > 0.4) alignLeft();
-            else if (sensor.mayAlignFront() && errorFront < -0.3 && errorFront > -0.1) alignFront();
-            return;
-    }
+void printSensorValues() {
+    String s1 = String(sensors.getDistance(1));
+    String s2 = String(sensors.getDistance(2));
+    String s3 = String(sensors.getDistance(3));
+    String s4 = String(sensors.getDistance(4));
+    String s5 = String(sensors.getDistance(5));
+    String s6 = String(sensors.getDistance(6));
+    Serial.println("P" + s1 + "#" + s2 + "#" + s3 + "#" + s4 + "#" + s5 + "#" + s6);
+    Serial.flush();
 }
 
 void interruptLeft() {

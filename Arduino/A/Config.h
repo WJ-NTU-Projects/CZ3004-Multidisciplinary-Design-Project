@@ -7,8 +7,8 @@
 #define EXPLORE_SPEED_LEFT 200
 #define FAST_SPEED_LEFT 280
 
-#define TICKS_PER_MM 3.02
-#define TICKS_PER_ANGLE 4.635
+#define TICKS_PER_MM 2.99
+#define TICKS_PER_ANGLE 4.62
 
 #define START_X 1
 #define START_Y 1
