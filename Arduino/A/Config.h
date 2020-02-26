@@ -1,19 +1,14 @@
 #pragma once
 
-#define ALIGN_ENABLED false
+#define ALIGN_ENABLED true
 #define DEBUGGING true
 
-#define TURNING_SPEED_LEFT 150
-#define TURNING_SPEED_RIGHT 135
-
-#define EXPLORE_SPEED_LEFT 200
-#define EXPLORE_SPEED_RIGHT 180
-
+#define TURN_SPEED_LEFT 80
+#define EXPLORE_SPEED_LEFT 150
 #define FAST_SPEED_LEFT 280
-#define FAST_SPEED_RIGHT 250
 
-#define TICKS_PER_MM 2.98
-#define TICKS_PER_ANGLE 4.3
+#define TICKS_PER_MM 3.02
+#define TICKS_PER_ANGLE 4.64
 
 #define START_X 1
 #define START_Y 1
