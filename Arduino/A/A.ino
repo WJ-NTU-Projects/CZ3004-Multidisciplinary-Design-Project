@@ -23,13 +23,20 @@ void loop() {
     if (moving) {
         if (!movingLeft && !movingRight) {
             eBrake();
-            delay(50);
             return;
         }
 
         if (aligning) {
             double error = (aligningFront) ? sensor.getSensorErrorFront() : sensor.getSensorErrorLeft();
 
+            if (alignCounter < 10) {
+                alignCounter++;
+            } else {
+                eBrake();
+                alignCounter = 0;
+                return;
+            }
+            
             if (aligningFront && error >= -0.3 && error <= -0.1) {
                 eBrake();            
                 return;
@@ -53,23 +60,8 @@ void loop() {
             return;
         }
 
-        double distance1 = sensor.getSensorDistance(sensor1, A0m, A0c, A0r);
-        double distance2 = sensor.getSensorDistance(sensor2, A1m, A1c, A1r);
-        double distance3 = sensor.getSensorDistance(sensor3, A2m, A2c, A2r);
-        double distance4 = sensor.getSensorDistance(sensor4, A3m, A3c, A3r);
-        double distance5 = sensor.getSensorDistance(sensor5, A4m, A4c, A4r);
-
-//        if (sensor.hasObstacleFront(6)) {
-//            eBrake();
-//            return;
-//        }
-//
-//        if (distance2 <= 15 && !sensor2Close) {
-//            eBrake();
-//            move(FORWARD, 130);
-//            sensor2Close = true;
-//            return;
-//        }
+//        double distance4 = sensor.getSensorDistance(sensor4, A3m, A3c, A3r);
+//        double distance5 = sensor.getSensorDistance(sensor5, A4m, A4c, A4r);
 
         lps.computePosition();    
         localX = lps.getX();
@@ -94,9 +86,9 @@ void loop() {
                 
                 if (fabs(error) < 5) {
                     if (error < 0.2) {
-                        setpoint = 0.1;
+                        setpoint = 0.5;
                     } else if (error > 0.4) {
-                        setpoint = -0.1;
+                        setpoint = -0.5;
                     } else {
                         setpoint = 0;
                     }
@@ -148,10 +140,7 @@ void loop() {
         //else if (sensor.mayAlignFront()) alignFront();
         if (aligning) return;
     }
-
-//    double distance1 = sensor.getSensorDistance(sensor1, A0m, A0c, A0r);
-//    double distance3 = sensor.getSensorDistance(sensor3, A2m, A2c, A2r);
-//    
+    
 //    if (sensor.hasObstacleFront(6) || sensor2Close) {
 //        if (sensor.hasObstacleLeft(10)) move(RIGHT, 90);
 //        else move(LEFT, 90);
@@ -277,6 +266,7 @@ void alignLeft() {
 }
 
 void serialEvent() {
+    if (moving) return;
     String inputString = "";  
     unsigned long timeNow = millis();
     
@@ -300,23 +290,23 @@ void serialEvent() {
         String s4 = String(sensor.getSensorDistance(sensor4, A3m, A3c, A3r));
         String s5 = String(sensor.getSensorDistance(sensor5, A4m, A4c, A4r));
         String s6 = String(sensor.getSensorDistance(sensor6, A5m, A5c, A5r));
-        Serial.println(s1 + "#" + s2 + "#" + s3 + "#" + s4 + "#" + s5 + "#" + s6);
+        Serial.println("P" + s1 + "#" + s2 + "#" + s3 + "#" + s4 + "#" + s5 + "#" + s6);
         Serial.flush();
         return;   
     }
 
     if (input == 'M') {
-        if (!moving) move(FORWARD, 100); 
+        move(FORWARD, 100); 
         return;
     }
 
     if (input == 'L') {
-            if (!moving) move(LEFT, 90); 
+        move(LEFT, 90); 
         return;
     }
 
     if (input == 'R') {
-            if (!moving) move(RIGHT, 90); 
+        move(RIGHT, 90); 
         return;
     }
 

@@ -37,6 +37,35 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             return
         }
 
+        if ((App.autoUpdateArena || ArenaMap.isWaitingUpdate) && s[0] == "robot") {
+            ArenaMap.isWaitingUpdate = false;
+
+            val strings = s[1].split(",")
+
+            if (strings.size != 4) {
+                callback(MessageStatus.INFO, "Something went wrong.")
+                return
+            }
+
+            val exploreDescriptor: String = strings[0]
+            val obstacleDescriptor: String = strings[1]
+            val s2 = "${exploreDescriptor}${DESCRIPTOR_DIVIDER}${obstacleDescriptor}"
+            callback(MessageStatus.ARENA, s2)
+
+
+            try {
+                val x = strings[2].toInt()
+                val y = strings[3].toInt()
+                val r = strings[4].toInt()
+                s[1] = "$x, $y, $r"
+                callback(MessageStatus.ROBOT_POSITION, s[1])
+            }  catch (e: NumberFormatException) {
+                Log.e(this::class.simpleName ?: "-", "Something went wrong.", e)
+                callback(MessageStatus.INFO, "Something went wrong.")
+                return
+            }
+        }
+
         if ((App.autoUpdateArena || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}${GRID_IDENTIFIER}") {
             ArenaMap.isWaitingUpdate = false
 
