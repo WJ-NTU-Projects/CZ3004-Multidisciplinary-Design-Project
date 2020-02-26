@@ -4,11 +4,11 @@
 #define DEBUGGING true
 
 #define TURN_SPEED_LEFT 80
-#define EXPLORE_SPEED_LEFT 150
+#define EXPLORE_SPEED_LEFT 200
 #define FAST_SPEED_LEFT 280
 
 #define TICKS_PER_MM 3.02
-#define TICKS_PER_ANGLE 4.64
+#define TICKS_PER_ANGLE 4.635
 
 #define START_X 1
 #define START_Y 1

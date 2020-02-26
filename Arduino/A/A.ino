@@ -59,17 +59,17 @@ void loop() {
         double distance4 = sensor.getSensorDistance(sensor4, A3m, A3c, A3r);
         double distance5 = sensor.getSensorDistance(sensor5, A4m, A4c, A4r);
 
-        if (sensor.hasObstacleFront(6)) {
-            eBrake();
-            return;
-        }
-
-        if (distance2 < 16 && !sensor2Close) {
-            eBrake();
-            move(FORWARD, 100);
-            sensor2Close = true;
-            return;
-        }
+//        if (sensor.hasObstacleFront(6)) {
+//            eBrake();
+//            return;
+//        }
+//
+//        if (distance2 <= 15 && !sensor2Close) {
+//            eBrake();
+//            move(FORWARD, 130);
+//            sensor2Close = true;
+//            return;
+//        }
 
         lps.computePosition();    
         localX = lps.getX();
@@ -81,13 +81,13 @@ void loop() {
             Serial.println("Travelled one grid.");
             localRef = floor(localX * 0.01) * 100;
 
-            if (distance4 > 10 && distance5 > 10 && !leftEmpty && localX >= 200) {
-                eBrake();
-                delay(10);
-                move(LEFT, 90);
-                leftEmpty = true;
-                return;
-            }
+//            if (distance4 > 10 && distance5 > 10 && !leftEmpty && localX >= 200) {
+//                eBrake();
+//                delay(10);
+//                move(LEFT, 90);
+//                leftEmpty = true;
+//                return;
+//            }
 
             if (sensor.mayAlignLeft()) {
                 double error = sensor.getSensorErrorLeft();
@@ -102,6 +102,8 @@ void loop() {
                     }
                 }
             } else if (sensor.mayAlignFront()) {
+                setpoint = 0;
+                return;
                 double error = sensor.getSensorErrorFront();
                 
                 if (fabs(error) < 5) {
@@ -139,26 +141,24 @@ void loop() {
         aligningFront = false;
         aligningLeft = false;
     } else {
+        if (millis() - lastMoveTime > 250) return;
         double errorLeft = sensor.getSensorErrorLeft();
         double errorFront = sensor.getSensorErrorFront();
-        if (sensor.mayAlignLeft() && errorLeft < 0.2 && errorLeft > 0.4) alignLeft();
-        else if (sensor.mayAlignFront() && errorFront < -0.3 && errorFront > -0.1) alignFront();
-        Serial.println(aligningLeft);
-        Serial.println(aligningFront);
-        Serial.println();
+        if (sensor.mayAlignLeft()) alignLeft();
+        //else if (sensor.mayAlignFront()) alignFront();
         if (aligning) return;
     }
 
-    double distance1 = sensor.getSensorDistance(sensor1, A0m, A0c, A0r);
-    double distance3 = sensor.getSensorDistance(sensor3, A2m, A2c, A2r);
-    
-    if (sensor.hasObstacleFront(6) || sensor2Close) {
-        if (sensor.hasObstacleLeft(10)) move(RIGHT, 90);
-        else move(LEFT, 90);
-        return;
-    }
-    
-    move(FORWARD, 2000);
+//    double distance1 = sensor.getSensorDistance(sensor1, A0m, A0c, A0r);
+//    double distance3 = sensor.getSensorDistance(sensor3, A2m, A2c, A2r);
+//    
+//    if (sensor.hasObstacleFront(6) || sensor2Close) {
+//        if (sensor.hasObstacleLeft(10)) move(RIGHT, 90);
+//        else move(LEFT, 90);
+//        return;
+//    }
+//    
+//    move(FORWARD, 2000);
 }
 
 void applyPID() {
@@ -277,37 +277,57 @@ void alignLeft() {
 }
 
 void serialEvent() {
-    if (!Serial.available()) return;
-    char input = (char) Serial.read();
+    String inputString = "";  
+    unsigned long timeNow = millis();
+    
+    while (true) {
+        if (Serial.available()) {
+            char inChar = (char) Serial.read();
+            //Serial.println(inChar);
+            if (inChar == '\n') break;        
+            inputString += inChar;
+        }
 
-    switch (input) {
-        case 'M':    
-            if (!moving) move(FORWARD, 100); 
-            return;
-        
-                
-        case 'L':    
+        if (millis() - timeNow >= 500) break;
+    } 
+
+    char input = inputString.charAt(0);
+
+    if (input == 'I') {
+        String s1 = String(sensor.getSensorDistance(sensor1, A0m, A0c, A0r));
+        String s2 = String(sensor.getSensorDistance(sensor2, A1m, A1c, A1r));
+        String s3 = String(sensor.getSensorDistance(sensor3, A2m, A2c, A2r));
+        String s4 = String(sensor.getSensorDistance(sensor4, A3m, A3c, A3r));
+        String s5 = String(sensor.getSensorDistance(sensor5, A4m, A4c, A4r));
+        String s6 = String(sensor.getSensorDistance(sensor6, A5m, A5c, A5r));
+        Serial.println(s1 + "#" + s2 + "#" + s3 + "#" + s4 + "#" + s5 + "#" + s6);
+        Serial.flush();
+        return;   
+    }
+
+    if (input == 'M') {
+        if (!moving) move(FORWARD, 100); 
+        return;
+    }
+
+    if (input == 'L') {
             if (!moving) move(LEFT, 90); 
-            return;
-                
-        case 'R':    
+        return;
+    }
+
+    if (input == 'R') {
             if (!moving) move(RIGHT, 90); 
+        return;
+    }
+
+    if (input == 'C') {
+            double errorLeft = sensor.getSensorErrorLeft();
+            double errorFront = sensor.getSensorErrorFront();
+            Serial.println(errorLeft);
+            Serial.println(sensor.mayAlignLeft());
+            if (sensor.mayAlignLeft() && errorLeft < 0.2 && errorLeft > 0.4) alignLeft();
+            else if (sensor.mayAlignFront() && errorFront < -0.3 && errorFront > -0.1) alignFront();
             return;
-        
-        case 'C':    
-            if (sensor.mayAlignFront()) alignFront();
-            else alignLeft(); 
-            return;
-                
-        case 'I':    
-//            String s1 = String(sensor.getSensorDistance1(FINE));
-//            String s2 = String(sensor.getSensorDistance2(FINE));
-//            String s3 = String(sensor.getSensorDistance3(FINE));
-//            String s4 = String(sensor.getSensorDistance4(FINE));
-//            String s5 = String(sensor.getSensorDistance5(FINE));
-//            String s6 = String(sensor.getSensorDistance6(FINE));
-//            Serial.println(s1 + VAR_DIV + s2 + VAR_DIV + s3 + VAR_DIV + s4 + VAR_DIV + s5 + VAR_DIV + s6);
-            return;    
     }
 }
 
