@@ -15,6 +15,7 @@ boolean aligned = false;
 boolean sensor2Close = false;
 volatile boolean movingLeft = false;
 volatile boolean movingRight = false;
+int moveCounter = 0;
 
 // MOTOR
 Motor motor;
