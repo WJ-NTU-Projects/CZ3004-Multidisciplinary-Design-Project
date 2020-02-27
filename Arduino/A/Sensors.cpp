@@ -18,18 +18,11 @@ int Sensors::getDistanceR(int sensor) {
 }
 
 double Sensors::getDistance(char sensor, double m, double c, double r) {
-    double totalDistance = 0;
-
-    for (int i = 0; i < 50; i++) {
-        int raw = analogRead(sensor);
-        int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
-        double volts = voltsFromRaw * 0.001;
-        double distance = (1 / ((volts * m) + c)) - r;
-        totalDistance += distance;
-    }
-
-    totalDistance *= 0.02;
-    return totalDistance;
+    int raw = analogRead(sensor);
+    int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
+    double volts = voltsFromRaw * 0.001;
+    double distance = (1 / ((volts * m) + c)) - r;
+    return distance;
 }
 
 double Sensors::getErrorLeft() {
@@ -63,11 +56,11 @@ boolean Sensors::hasObstacleLeft(int distance) {
 boolean Sensors::mayAlignLeft() {
     int distance1 = getDistanceR(4);
     int distance2 = getDistanceR(5);    
-    return (distance1 > 0 && distance1 <= 30 && distance2 > 0 && distance2 <= 30);    
+    return (distance1 > 0 && distance1 <= 40 && distance2 > 0 && distance2 <= 40);    
 }
 
 boolean Sensors::mayAlignFront() {
     int distance1 = getDistanceR(1);
     int distance2 = getDistanceR(3);    
-    return (distance1 > 0 && distance1 <= 30 && distance2 > 0 && distance2 <= 30);   
+    return (distance1 > 0 && distance1 <= 40 && distance2 > 0 && distance2 <= 40);   
 }

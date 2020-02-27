@@ -19,16 +19,6 @@ double PID::computeOffset() {
     double output = kp * error + ki * integral + kd * derivative;
     previousError = error;
     return output;
-//    double error = *setpoint - in;
-//    double inputDifference = in - previousInput;
-//    outputSum += ki * error;
-//    outputSum = constrain(outputSum, -OUTPUT_MAX, OUTPUT_MAX);
-//
-//    double out = kp * error;
-//    out += outputSum - (kd * inputDifference);
-//    out = constrain(out, -OUTPUT_MAX, OUTPUT_MAX);
-//    previousInput = in;
-//    return out;
 }
 
 void PID::reset() {
