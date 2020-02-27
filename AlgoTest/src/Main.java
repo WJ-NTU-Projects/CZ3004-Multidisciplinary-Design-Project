@@ -8,12 +8,14 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String input = "";
         WifiSocket socket = WifiSocket.getInstance();
+        Exploration exploration = null;
 
         while (!input.equalsIgnoreCase("exit")) {
             input = scanner.nextLine();
 
             if (input.equalsIgnoreCase("c")) {
                 if (!socket.isConnected()) socket.connect();
+                exploration = new Exploration();
                 continue;
             }
 
@@ -28,7 +30,7 @@ public class Main {
             }
 
             if (input.equalsIgnoreCase("exs")) {
-                (new Exploration()).test();
+                if (exploration != null) exploration.start();
             }
         }
     }

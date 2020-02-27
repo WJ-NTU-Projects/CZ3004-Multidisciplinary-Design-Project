@@ -25,32 +25,29 @@ void loop() {
 
             case 'M':
                 move(FORWARD, 100);
-                Serial.println("PK");
+                Serial.println("PM");
                 break;
 
             case 'N':
                 move(FORWARD, 2000);
-                Serial.println("PK");
+                Serial.println("PN");
                 break;                
 
             case 'L':
                 move(LEFT, 90);
-                Serial.println("PK");
+                Serial.println("PL");
                 break;
 
             case 'R':
                 move(RIGHT, 90);
-                Serial.println("PK");
+                Serial.println("PR");
                 break;
 
             case 'C':
                 align();
-                Serial.println("PK");
+                Serial.println("PC");
                 break;
         }
-
-        Serial.flush();
-        delay(50);
     }
 }
 
@@ -165,7 +162,6 @@ void printSensorValues() {
     String s5 = String(sensors.getDistance(5));
     String s6 = String(sensors.getDistance(6));
     Serial.println("P" + s1 + "#" + s2 + "#" + s3 + "#" + s4 + "#" + s5 + "#" + s6);
-    Serial.flush();
 }
 
 void interruptLeft() {
