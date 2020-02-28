@@ -25,27 +25,31 @@ void loop() {
 
             case 'M':
                 move(FORWARD, 100);
-                Serial.println("PM");
+                printSensorValues();
+                //Serial.println("PM");
                 break;
 
             case 'N':
                 move(FORWARD, 2000);
-                Serial.println("PN");
+                printSensorValues();
+                ///Serial.println("PN");
                 break;                
 
             case 'L':
                 move(LEFT, 90);
-                Serial.println("PL");
+                printSensorValues();
+                //Serial.println("PL");
                 break;
 
             case 'R':
                 move(RIGHT, 90);
-                Serial.println("PR");
+                printSensorValues();
+                //Serial.println("PR");
                 break;
 
             case 'C':
                 align();
-                Serial.println("PC");
+                //Serial.println("PC");
                 break;
         }
     }

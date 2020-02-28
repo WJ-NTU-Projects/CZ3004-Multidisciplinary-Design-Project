@@ -21,32 +21,27 @@ public class Exploration implements MessageListener {
 
     @Override
     public void messageReceived(String message) {
-        switch (message) {
-            case "M":
-                arena.move(FORWARD, 1);
-                previousCommand = FORWARD;
-                socket.write("A", "I");
-                break;
-            case "L":
-                arena.move(LEFT, 1);
-                previousCommand = LEFT;
-                socket.write("A", "I");
-                break;
-            case "R":
-                arena.move(RIGHT, 1);
-                previousCommand = RIGHT;
-                socket.write("A", "I");
-                break;
-            case "exs":
-                start();
-                break;
-            default:
-                if (message.contains("#")) {
-                    parseSensorReadings(message);
-                    arena.displayGrid();
-                    if (started) test();
-                }
+        if (message.contains("#")) {
+            parseSensorReadings(message);
+            arena.displayGrid();
+
+            switch (previousCommand) {
+                case FORWARD:
+                    arena.move(FORWARD, 1);
+                    break;
+                case LEFT:
+                    arena.move(LEFT, 1);
+                    break;
+                case RIGHT:
+                    arena.move(RIGHT, 1);
+                    break;
+            }
+
+            if (started) test();
+            return;
         }
+
+        if (message.equals("exs")) start();
     }
 
     public void start() {
@@ -58,16 +53,19 @@ public class Exploration implements MessageListener {
         if (arena.isMovable(LEFT)) {
             if (previousCommand == FORWARD) {
                 socket.write("A", "L");
+                previousCommand = LEFT;
                 return;
             }
         }
 
         if (arena.isMovable(FORWARD)) {
             socket.write("A", "M");
+            previousCommand = FORWARD;
             return;
         }
 
         socket.write("A", "R");
+        previousCommand = RIGHT;
     }
 
     private void parseSensorReadings(String message) {
