@@ -14,27 +14,20 @@
 #define TICKS_PER_MM 2.98
 #define TICKS_PER_ANGLE 4.54
 
-// CONTROLS
-boolean fast = false;
-boolean moving = false;
 volatile boolean movingLeft = false;
 volatile boolean movingRight = false;
-
-// MOTOR
-Motor motor;
 volatile double ticksLeft = 0;
 volatile double ticksRight = 0;
-double ticksTarget = 0;
 
-// LPS
+boolean moving = false;
+boolean fast = false;
+double ticksTarget = 0;
 double localX = 0;
 double localY = 0;
-LPS lps(&ticksLeft, &ticksRight, TICKS_PER_MM);
-
-// Sensor
-Sensors sensors;
-
-// PID
 double setpoint = 0;
 double speedOffset = 0;
+
+Motor motor;
+Sensors sensors;
+LPS lps(&ticksLeft, &ticksRight, TICKS_PER_MM);
 PID pid(&localY, &setpoint, 50, 10, 200);

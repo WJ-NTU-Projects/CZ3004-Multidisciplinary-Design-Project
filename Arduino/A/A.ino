@@ -8,6 +8,7 @@ void setup() {
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
+    align();
 }
 
 void loop() {
@@ -18,57 +19,44 @@ void loop() {
             case '\0':
             case '\n':
                 break;
-
             case 'I':
                 printSensorValues();
                 break;
-
             case 'M':
                 move(FORWARD, 100);
+                align();
                 printSensorValues();
-                //Serial.println("PM");
                 break;
-
             case 'N':
                 move(FORWARD, 2000);
+                align();
                 printSensorValues();
-                ///Serial.println("PN");
-                break;                
-
+                break;     
             case 'L':
                 move(LEFT, 90);
+                align();
                 printSensorValues();
-                //Serial.println("PL");
                 break;
-
             case 'R':
                 move(RIGHT, 90);
+                align();
                 printSensorValues();
-                //Serial.println("PR");
                 break;
-
             case 'C':
                 align();
-                //Serial.println("PC");
                 break;
         }
     }
 }
 
-void move(int direction, int distance) {    
-    double speedLeft = 100;
+void move(int direction, double distance) {    
+    double speedLeft = (fast) ? FAST_SPEED_LEFT : EXPLORE_SPEED_LEFT;
     double speedRight = speedLeft - 30;
-    int speedCap = (fast) ? FAST_SPEED_LEFT : EXPLORE_SPEED_LEFT;
-    
-    if (direction == FORWARD || direction == REVERSE) {
-        ticksTarget = distance * TICKS_PER_MM;
-        localX = 0;
-        localY = 0;
-    } else {
-        ticksTarget = distance * TICKS_PER_ANGLE;
-        speedCap = EXPLORE_SPEED_LEFT;
-    }
-    
+    if (direction == FORWARD || direction == REVERSE) ticksTarget = distance * TICKS_PER_MM;
+    else ticksTarget = distance * TICKS_PER_ANGLE;
+
+    localX = 0;
+    localY = 0;
     movingLeft = true;
     movingRight = true;
     ticksLeft = 0;
@@ -82,15 +70,12 @@ void move(int direction, int distance) {
         case FORWARD:
             motor.forward(speedLeft, speedRight);
             break;
-
         case LEFT:
             motor.turnLeft(speedLeft, speedRight);
             break;
-
         case RIGHT:
             motor.turnRight(speedLeft, speedRight);
             break;
-
         default:
             return;
     }
@@ -104,23 +89,35 @@ void move(int direction, int distance) {
         lps.computePosition();
         localX = lps.getX();
         localY = lps.getY();
-        speedOffset = pid.computeOffset();              
+        speedOffset = pid.computeOffset();       
+
+        if (sensors.getDistanceR(2) <= 5) {
+            brake();
+            break;
+        } else if (sensors.getDistanceR(1) <= 5) {
+            brake();
+            break;
+        } else if (sensors.getDistanceR(3) <= 5) {
+            brake();
+            break;
+        }
 
         double newSpeedLeft = speedLeft - speedOffset;
-        newSpeedLeft = constrain(newSpeedLeft, speedCap - 50, speedCap + 50);
+        newSpeedLeft = constrain(newSpeedLeft, speedLeft - 50, speedLeft + 50);
         double newSpeedRight = speedRight + speedOffset;
-        newSpeedRight = constrain(newSpeedRight, speedCap - 80, speedCap + 20);
+        newSpeedRight = constrain(newSpeedRight, speedRight - 50, speedRight + 50);
         motor.setSpeed(newSpeedLeft, newSpeedRight);
         counter++;
-
-        if (speedLeft < speedCap && counter >= 10) {
-            speedLeft += 20;
-            speedRight += 20;
-            counter = 0;
-        }
     }
 
     moving = false;
+}
+
+void brake() {
+    motor.brakeLeft();
+    motor.brakeRight();
+    movingLeft = false;
+    movingRight = false;
 }
 
 void align() {    
@@ -130,42 +127,47 @@ void align() {
 
 void alignLeft() {
     double alignCounter = 0;
-    
-    while (alignCounter < 20) {
+
+    while (alignCounter < 30) {
         double error = sensors.getErrorLeft();
-        double lowerBound = -0.5;
-        double upperBound = 0.5;
+        double lowerBound = 0.05;
+        double upperBound = 0.25;
         
         if (error >= lowerBound && error <= upperBound) return;
-        move((error < lowerBound) ? LEFT : RIGHT, 0.2);
+        move((error < lowerBound) ? RIGHT : LEFT, 0.5);
         alignCounter++;
-        delay(10);
+        delay(5);
     }
 }
 
 void alignFront() {    
     double alignCounter = 0;
     
-    while (alignCounter < 20) {
+    while (alignCounter < 30) {
         double error = sensors.getErrorFront();
-        double lowerBound = -0.5;
-        double upperBound = 0.5;
+        double lowerBound = -0.1;
+        double upperBound = 0.1;
         
         if (error >= lowerBound && error <= upperBound) return;
-        move((error < lowerBound) ? RIGHT : LEFT, 0.2);
+        move((error < lowerBound) ? RIGHT : LEFT, 0.5);
         alignCounter++;
-        delay(10);
+        delay(5);
     }
 }
 
 void printSensorValues() {
-    String s1 = String(sensors.getDistance(1));
-    String s2 = String(sensors.getDistance(2));
-    String s3 = String(sensors.getDistance(3));
-    String s4 = String(sensors.getDistance(4));
-    String s5 = String(sensors.getDistance(5));
-    String s6 = String(sensors.getDistance(6));
-    Serial.println("P" + s1 + "#" + s2 + "#" + s3 + "#" + s4 + "#" + s5 + "#" + s6);
+    Serial.print("P");
+    Serial.print(round(sensors.getDistanceR(1) * 0.1));
+    Serial.print("#");
+    Serial.print(round(sensors.getDistanceR(2) * 0.1));
+    Serial.print("#");
+    Serial.print(round(sensors.getDistanceR(3) * 0.1));
+    Serial.print("#");
+    Serial.print(round(sensors.getDistanceR(4) * 0.1));
+    Serial.print("#");
+    Serial.print(round(sensors.getDistanceR(5) * 0.1));
+    Serial.print("#");
+    Serial.println(round(sensors.getDistanceR(6) * 0.1));
 }
 
 void interruptLeft() {

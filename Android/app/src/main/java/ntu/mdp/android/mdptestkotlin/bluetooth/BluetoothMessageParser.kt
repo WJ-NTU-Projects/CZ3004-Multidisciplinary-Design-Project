@@ -37,12 +37,12 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             return
         }
 
-        if ((App.autoUpdateArena || ArenaMap.isWaitingUpdate) && s[0] == "robot") {
+        if ((App.autoUpdateArena || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}r") {
             ArenaMap.isWaitingUpdate = false;
 
             val strings = s[1].split(",")
 
-            if (strings.size != 4) {
+            if (strings.size != 5) {
                 callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
@@ -64,20 +64,34 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
                 callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
+
+            return
         }
 
         if ((App.autoUpdateArena || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}${GRID_IDENTIFIER}") {
             ArenaMap.isWaitingUpdate = false
+            val strings = s[1].split(",")
 
-            if (usingAmd) {
-                var s2: String = "f".padEnd(75, 'f')
-                s2 = "${s2}${DESCRIPTOR_DIVIDER}${s[1]}"
-                Log.e("TEST", s[1])
-                Log.e("TEST", s2)
-                callback(MessageStatus.ARENA, s2)
-            } else {
-                callback(MessageStatus.ARENA, s[1])
+            if (strings.size != 2) {
+                callback(MessageStatus.INFO, "Something went wrong.")
+                return
             }
+
+            val exploreDescriptor: String = strings[0]
+            val obstacleDescriptor: String = strings[1]
+            val s2 = "${exploreDescriptor}${DESCRIPTOR_DIVIDER}${obstacleDescriptor}"
+            callback(MessageStatus.ARENA, s2)
+
+
+            //            if (usingAmd) {
+//                var s2: String = "f".padEnd(75, 'f')
+//                s2 = "${s2}${DESCRIPTOR_DIVIDER}${s[1]}"
+//                Log.e("TEST", s[1])
+//                Log.e("TEST", s2)
+//                callback(MessageStatus.ARENA, s2)
+//            } else {
+//                callback(MessageStatus.ARENA, s[1])
+//            }
 
             return
         }
@@ -86,7 +100,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             if (s[1] == previousMessage) return
             previousMessage = s[1]
 
-            val s1 = s[1].split(", ")
+            val s1 = s[1].split(",")
 
             if (s1.size != 3) {
                 callback(MessageStatus.INFO, "Something went wrong.")

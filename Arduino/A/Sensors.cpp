@@ -37,30 +37,14 @@ double Sensors::getErrorFront() {
     return (distance1 - distance2);
 }
 
-boolean Sensors::hasObstacleFront(int distance) {
-    int distance1 = getDistanceR(1);
-    int distance2 = getDistanceR(3);    
-    if (distance1 > 0 && distance1 <= distance) return true;
-    if (distance2 > 0 && distance2 <= distance) return true;
-    return false;
-}
-
-boolean Sensors::hasObstacleLeft(int distance) {
-    int distance1 = getDistanceR(4);
-    int distance2 = getDistanceR(5);    
-    if (distance1 > 0 && distance1 <= distance) return true;
-    if (distance2 > 0 && distance2 <= distance) return true;
-    return false;
-}
-
 boolean Sensors::mayAlignLeft() {
     int distance1 = getDistanceR(4);
     int distance2 = getDistanceR(5);    
-    return (distance1 > 0 && distance1 <= 40 && distance2 > 0 && distance2 <= 40);    
+    return (distance1 > 0 && distance1 <= 10 && distance2 > 0 && distance2 <= 10);    
 }
 
 boolean Sensors::mayAlignFront() {
     int distance1 = getDistanceR(1);
     int distance2 = getDistanceR(3);    
-    return (distance1 > 0 && distance1 <= 40 && distance2 > 0 && distance2 <= 40);   
+    return (distance1 > 0 && distance1 <= 10 && distance2 > 0 && distance2 <= 10);   
 }
