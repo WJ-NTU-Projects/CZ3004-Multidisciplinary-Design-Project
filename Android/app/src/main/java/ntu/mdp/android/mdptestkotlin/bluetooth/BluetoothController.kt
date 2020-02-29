@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ntu.mdp.android.mdptestkotlin.App
+import ntu.mdp.android.mdptestkotlin.App.Companion.ARDUINO_PREFIX
 
 class BluetoothController {
     enum class Status {
@@ -60,8 +61,9 @@ class BluetoothController {
             return App.socket!!.isConnected
         }
 
-        fun write(output: String) {
-            App.bluetoothConnectionManagerThread?.write(output.toByteArray())
+        fun write(output: String, destination: String = ARDUINO_PREFIX) {
+            val outputCombined = "$destination$output"
+            App.bluetoothConnectionManagerThread?.write(outputCombined.toByteArray())
         }
 
         fun broadcastStatus(status: Status, extra: String = "") {

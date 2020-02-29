@@ -362,11 +362,13 @@ open class ArenaMap (private val context: Context, private val callback: (status
         robotPosition[0] = x
         robotPosition[1] = y
 
-        if ((currentX == x && abs(currentY - y) == 1) || (currentY == y && abs(currentX - x) == 1)) {
-            travelComplete = false
-            setRobotPosition2(currentX, currentY, x, y)
-        } else {
-            setRobotPosition(x, y)
+        if (facing == robotPosition[2]) {
+            if ((currentX == x && abs(currentY - y) == 1) || (currentY == y && abs(currentX - x) == 1)) {
+                travelComplete = false
+                setRobotPosition2(currentX, currentY, x, y)
+            } else {
+                setRobotPosition(x, y)
+            }
         }
 
         travelComplete = false

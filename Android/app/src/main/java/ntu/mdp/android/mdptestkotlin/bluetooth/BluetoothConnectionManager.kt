@@ -41,7 +41,7 @@ class BluetoothConnectionManager: Thread() {
             buffer = ByteArray(1024)
 
             CoroutineScope(Dispatchers.Main).launch {
-                BluetoothController.callback(BluetoothController.Status.READ, ret)
+                BluetoothController.callback(BluetoothController.Status.READ, ret.trim())
             }
         }
     }

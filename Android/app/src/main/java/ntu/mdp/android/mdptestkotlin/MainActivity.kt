@@ -299,8 +299,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendCommand(c: String) {
-        val command = "$ARDUINO_PREFIX$c"
+    private fun sendCommand(command: String) {
         displayInChat(MessageType.OUTGOING, command)
         if (!bluetoothAdapter.isEnabled || !BluetoothController.isSocketConnected()) return
         if (command.isNotEmpty()) BluetoothController.write(command)
@@ -497,10 +496,14 @@ class MainActivity : AppCompatActivity() {
             BluetoothMessageParser.MessageStatus.GARBAGE -> displayInChat(MessageType.INCOMING, message)
             BluetoothMessageParser.MessageStatus.ARENA -> arenaMapController.updateArena(message)
             BluetoothMessageParser.MessageStatus.IMAGE_POSITION -> updateImage(message)
-            BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> updateRobot(message)
+            BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> {
+                updateRobot(message)
+                BluetoothController.write("OK", "P")
+            }
             BluetoothMessageParser.MessageStatus.INFO -> activityUtil.sendSnack(message)
             BluetoothMessageParser.MessageStatus.ROBOT_STATUS -> statusCardLabel.text = message
         }
+
     }
 
     private fun handleRobotControllerCallback(status: ArenaMap.Callback, message: String) {

@@ -25,6 +25,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
     private var previousMessage: String = ""
 
     fun parse(message: String) {
+        Log.e("MESSAGE", message)
         if (!message.contains(COMMAND_DIVIDER) || !message.contains(COMMAND_PREFIX)) {
             callback(MessageStatus.GARBAGE, message)
             return
@@ -82,8 +83,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             val s2 = "${exploreDescriptor}${DESCRIPTOR_DIVIDER}${obstacleDescriptor}"
             callback(MessageStatus.ARENA, s2)
 
-
-            //            if (usingAmd) {
+//            if (usingAmd) {
 //                var s2: String = "f".padEnd(75, 'f')
 //                s2 = "${s2}${DESCRIPTOR_DIVIDER}${s[1]}"
 //                Log.e("TEST", s[1])
@@ -97,10 +97,11 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
         }
 
         if (s[0] == "${COMMAND_PREFIX}${ROBOT_POSITION_IDENTIFIER}") {
-            if (s[1] == previousMessage) return
+            Log.e("MESSAGE3", message)
+            //if (s[1] == previousMessage) return
             previousMessage = s[1]
 
-            val s1 = s[1].split(",")
+            val s1 = s[1].split(", ")
 
             if (s1.size != 3) {
                 callback(MessageStatus.INFO, "Something went wrong.")
@@ -112,11 +113,13 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
                 val y = if (usingAmd) s1[1].toInt() - 1 else s1[1].toInt()
                 val r = s1[2].toInt()
                 s[1] = "$x, $y, $r"
+                Log.e("MESSAGE4", message)
             }  catch (e: NumberFormatException) {
                 Log.e(this::class.simpleName ?: "-", "Something went wrong.", e)
                 callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
+            Log.e("MESSAGE5", message)
         }
 
         when (s[0]) {
@@ -125,5 +128,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             "${COMMAND_PREFIX}${SET_IMAGE_IDENTIFIER}" -> callback(MessageStatus.IMAGE_POSITION, s[1])
             else -> callback(MessageStatus.GARBAGE, s[1])
         }
+
+        Log.e("MESSAGE2", message)
     }
 }

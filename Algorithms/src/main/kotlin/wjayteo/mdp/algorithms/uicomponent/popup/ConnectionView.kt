@@ -1,0 +1,115 @@
+package wjayteo.mdp.algorithms.uicomponent.popup
+
+import wjayteo.mdp.algorithms.uicomponent.MenuBar
+import javafx.geometry.Insets
+import javafx.scene.Parent
+import javafx.scene.control.ProgressIndicator
+import javafx.scene.control.TextField
+import wjayteo.mdp.algorithms.tools.File
+import tornadofx.*
+import wjayteo.mdp.algorithms.uicomponent.MasterView
+import wjayteo.mdp.algorithms.wifi.WifiSocketController
+import java.io.IOException
+
+class ConnectionView : View("Connect to RPi") {
+    companion object {
+        var processing = false
+    }
+
+    private var ipAddressTextField: TextField by singleAssign()
+    private var portTextField: TextField by singleAssign()
+    private var progressIndicator: ProgressIndicator by singleAssign()
+
+    override val root: Parent = stackpane {
+        padding = Insets(8.0, 8.0, 8.0, 8.0)
+
+        form {
+            fieldset() {
+                vboxConstraints { marginTop = 5.0 }
+
+                field("IP Address") {
+                    ipAddressTextField = textfield {
+                        promptText = "IP Address"
+                        maxWidth = 120.0
+                        prefWidth = 120.0
+                    }
+                }
+
+                field("Port") {
+                    portTextField = textfield {
+                        promptText = "Port"
+                        maxWidth = 120.0
+                        prefWidth = 120.0
+                    }
+                }
+
+                button("Connect to RPi") {
+                    useMaxWidth = true
+                    vboxConstraints { marginTop = 10.0 }
+
+                    action {
+                        processing = true
+                        progressIndicator.show()
+                        this@form.isDisable = true
+                        var success = false
+
+                        try {
+                            val ipAddress: String = ipAddressTextField.text
+                            val port: Int = portTextField.text.toInt()
+                            File.replaceContent(File.CONNECTION, "IP:$ipAddress\nPort:$port")
+
+                            runAsync {
+                                success = WifiSocketController.connect(ipAddress, port)
+                            }.setOnSucceeded {
+                                if (success) {
+                                    MenuBar.connectionChanged(true)
+                                    MasterView.exploration.init()
+                                    progressIndicator.hide()
+                                    this@form.isDisable = false
+                                    processing = false
+                                    information("Connected to RPi successfully.")
+                                    close()
+                                } else {
+                                    progressIndicator.hide()
+                                    this@form.isDisable = false
+                                    processing = false
+                                    error("Connection failed.")
+                                }
+                            }
+                        } catch (e: NumberFormatException) {
+                            processing = false
+                        } catch (e: IOException) {
+                            processing = false
+                        }
+
+                        if (!processing) {
+                            progressIndicator.hide()
+                            this@form.isDisable = false
+                        }
+                    }
+                }
+            }
+        }
+
+        progressIndicator = progressindicator {
+            maxWidth = 50.0
+            prefWidth = 50.0
+        }
+    }
+
+    init {
+        progressIndicator.hide()
+
+        runLater {
+            val connectionData: List<String> = File.read(File.CONNECTION)
+            if (connectionData.size < 2) return@runLater
+
+            for (i in 0..1) {
+                if (!connectionData[i].contains(":")) continue
+                val dataParts: List<String> = connectionData[i].split(":")
+                if (dataParts[0].trim() == "IP") ipAddressTextField.text = dataParts[1].trim()
+                else if (dataParts[0].trim() == "Port") portTextField.text = dataParts[1].trim()
+            }
+        }
+    }
+}
