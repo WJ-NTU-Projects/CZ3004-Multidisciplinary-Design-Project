@@ -36,7 +36,8 @@ Many functionalities were copied over from Android and may have been stripped do
 #### Recommended Setup (Updated 02 Mar 2020)
 | Stuff          | Minimum Requirement |	
 | -------------- | ------------------- |     
-| IntelliJ IDEA  | 2019.3.3            |
+| IntelliJ IDEA  | 2019.3.3            |  
+| JDK            | 8 ONLY              |
 
 If not using IDEA, Gradle plugin and external libraries may need to be configured separately. Maven may be used as all libraries are available on Maven Central.
 
