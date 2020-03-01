@@ -23,7 +23,6 @@ namespace ScriptNs
             {
                 //stringToSend = @"{""robotPosition"" : [" + robotPosition[0] + ", " + robotPosition[1] + ", " + robotPosition[2] + "]}";
                 stringToSend = @"#robotPosition:" + robotPosition[0] + "," + (19 - robotPosition[1]) + "," + robotPosition[2] + "";
-			
             }
             else
             {
