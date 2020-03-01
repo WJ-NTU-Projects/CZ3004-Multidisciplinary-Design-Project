@@ -8,7 +8,7 @@
 #define ENCODER_LEFT 11
 #define ENCODER_RIGHT 3
 
-#define EXPLORE_SPEED_LEFT 150
+#define EXPLORE_SPEED_LEFT 200
 #define FAST_SPEED_LEFT 300
 
 #define TICKS_PER_MM 2.98
@@ -19,6 +19,7 @@ volatile boolean movingRight = false;
 volatile double ticksLeft = 0;
 volatile double ticksRight = 0;
 
+boolean automate = false;
 boolean moving = false;
 boolean fast = false;
 double ticksTarget = 0;

@@ -8,14 +8,14 @@ class Arena {
     companion object {
         private const val GRID_UNKNOWN      : Int = 0
         private const val GRID_EXPLORED     : Int = 1
-        // private const val GRID_SUSPECT      : Int = 2
+        //private const val GRID_SUSPECT      : Int = 2
         private const val GRID_OBSTACLE     : Int = 3
 
         val start = Coordinates(1, 1)
         val goal = Coordinates(13, 18)
         val waypoint = Coordinates(-1, -1)
-        val exploreArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
-        val obstacleArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
+        private val exploreArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
+        private val obstacleArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private val gridStateArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private var attachedView: ArenaMapView? = null
 

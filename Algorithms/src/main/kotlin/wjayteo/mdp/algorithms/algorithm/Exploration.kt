@@ -1,12 +1,10 @@
 package wjayteo.mdp.algorithms.algorithm
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import wjayteo.mdp.algorithms.algorithm.AStarSearch.Companion.GridNode
 import wjayteo.mdp.algorithms.arena.*
 import wjayteo.mdp.algorithms.uicomponent.ControlsView
+import wjayteo.mdp.algorithms.uicomponent.MasterView
 import wjayteo.mdp.algorithms.wifi.WifiSocketController
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
@@ -17,23 +15,23 @@ class Exploration : Algorithm() {
     private var simulationStarted: Boolean = false
     private var wallHug: Boolean = true
     private var previousCommand: Int = FORWARD
-    private var lastStartedThread: Thread? = null
+    private var lastStartedJob: Job? = null
     private val stepReference: AtomicInteger = AtomicInteger(0)
 
     override fun messageReceived(message: String) {
         if (message.contains("#")) {
-            CoroutineScope(Dispatchers.Default).launch {
+            lastStartedJob = CoroutineScope(Dispatchers.Default).launch {
                 val sensorReadings: List<String> = message.split("#")
                 if (sensorReadings.size != 7) return@launch
 
                 try {
                     val step: Int = sensorReadings[0].toInt()
                     val currentStep = stepReference.incrementAndGet()
+                    println("STEP = $step, Current = $currentStep")
 
                     if (step > 0) {
                         if (step != currentStep) return@launch
                         Robot.moveTemp()
-                        WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
                     }
                 } catch (e: NumberFormatException) { return@launch }
 
@@ -56,34 +54,35 @@ class Exploration : Algorithm() {
             "S" -> Arena.sendArena()
 
             "M" -> {
-                lastStartedThread?.join()
-                Thread.sleep(10)
+                while (lastStartedJob != null && lastStartedJob?.isCompleted == false) { Thread.sleep(10) }
                 step()
                 Thread.sleep(10)
                 Arena.sendArena()
             }
 
             "L" -> {
-                lastStartedThread?.join()
-                Thread.sleep(10)
+                while (lastStartedJob != null && lastStartedJob?.isCompleted == false) { Thread.sleep(10) }
                 step()
                 Thread.sleep(10)
                 WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
             }
 
             "R" -> {
-                lastStartedThread?.join()
-                Thread.sleep(10)
+                while (lastStartedJob != null && lastStartedJob?.isCompleted == false) { Thread.sleep(10) }
                 step()
                 Thread.sleep(10)
                 WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
             }
 
             "C" -> {
-                lastStartedThread?.join()
-                Thread.sleep(10)
+                while (lastStartedJob != null && lastStartedJob?.isCompleted == false) { Thread.sleep(10) }
                 step()
             }
+        }
+
+        if (!started) {
+            MasterView.idleListener.listen()
+            return
         }
     }
 

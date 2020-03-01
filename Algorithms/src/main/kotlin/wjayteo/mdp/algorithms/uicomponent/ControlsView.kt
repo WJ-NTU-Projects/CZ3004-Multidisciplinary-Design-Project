@@ -79,7 +79,6 @@ class ControlsView : View() {
             action {
                 MasterView.exploration.stop()
                 MasterView.fastestPath.stop()
-                MasterView.idleListener.listen()
                 stop()
             }
         }

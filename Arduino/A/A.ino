@@ -11,7 +11,7 @@ void setup() {
     //align();
 }
 
-void loop() {
+void loop() {    
     if (Serial.available()) {
         char command = char(Serial.read());
 
@@ -19,37 +19,58 @@ void loop() {
             case '\0':
             case '\n':
                 break;
+                
+            case 'E':
+                automate = true;
+                fast = false;
+                break;
+                
+            case 'F':
+                automate = true;
+                fast = true;
+                break;
+                
             case 'I':
                 printSensorValues(0);
                 break;  
+                
             case 'M':
                 move(FORWARD, 100);
-                printSensorValues(0);
+                //printSensorValues(0);
                 align();
                 Serial.println("PM");
                 break;
+                
             case 'N':
                 move(FORWARD, 2000);
-                printSensorValues(0);
+                //printSensorValues(0);
                 align();
                 Serial.println("PM");
-                break;     
+                break;    
+                 
             case 'L':
                 move(LEFT, 90);
-                printSensorValues(0);
+                //printSensorValues(0);
                 align();
                 Serial.println("PL");
                 break;
+                
             case 'R':
                 move(RIGHT, 90);
-                printSensorValues(0);
+                //printSensorValues(0);
                 align();
                 Serial.println("PR");
                 break;
+                
             case 'C':
                 align();
                 Serial.println("PC");
                 break; 
+                
+            case 'B':
+                automate = false;
+                fast = false;
+                break;
         }
     }
 }
@@ -101,6 +122,8 @@ void move(int direction, double distance) {
             
             if (command == 'B') {
                 brake();
+                automate = false;
+                fast = false;
                 break; 
             }
         }
@@ -123,13 +146,14 @@ void move(int direction, double distance) {
             } 
         
             int difference = localX - localRef;
-            if (difference >= 95 && difference <= 110) {
+            
+            if (difference >= 95 && difference <= 105) {
                 localRef = round(localX * 0.01);
                 Serial.println(localRef);
                 printSensorValues(localRef);
                 localRef *= 100;
 
-                if (sensors.getDistanceR(4) > 12 && sensors.getDistanceR(5) > 12) {
+                if (automate && sensors.getDistanceR(4) > 12 && sensors.getDistanceR(5) > 12) {
                     brake();
                     break;
                 } 
@@ -187,6 +211,27 @@ void alignFront() {
         alignCounter++;
         delay(5);
     }
+}
+
+void printSensorValues2() {
+    int s1 = sensors.getDistanceR(1);
+    int s2 = sensors.getDistanceR(2);
+    int s3 = sensors.getDistanceR(3);
+    int s4 = sensors.getDistanceR(4);
+    int s5 = sensors.getDistanceR(5);
+    int s6 = sensors.getDistanceR(6);
+    Serial.print(s1);
+    Serial.print(", ");
+    Serial.print(s2);
+    Serial.print(", ");
+    Serial.print(s3);
+    Serial.print(", ");
+    Serial.print(s4);
+    Serial.print(", ");
+    Serial.print(s5);
+    Serial.print(", ");
+    Serial.println(s6);
+    Serial.flush();
 }
 
 void printSensorValues(int step) {
