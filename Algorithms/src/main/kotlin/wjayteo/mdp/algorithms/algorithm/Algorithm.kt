@@ -5,10 +5,10 @@ import java.util.concurrent.atomic.AtomicInteger
 
 abstract class Algorithm : WifiMessageListener {
     companion object {
-        const val COMMAND_FORWARD = 0
-        const val COMMAND_LEFT = 1
-        const val COMMAND_RIGHT = 2
-        const val COMMAND_REVERSE = 3
+        const val FORWARD = 0
+        const val LEFT = 1
+        const val RIGHT = 2
+        const val REVERSE = 3
         var ACTUAL_RUN: Boolean = false
     }
 

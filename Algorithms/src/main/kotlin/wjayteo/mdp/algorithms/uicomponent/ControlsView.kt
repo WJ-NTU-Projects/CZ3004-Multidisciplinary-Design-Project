@@ -8,12 +8,29 @@ import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import tornadofx.*
 import wjayteo.mdp.algorithms.algorithm.Algorithm
+import wjayteo.mdp.algorithms.arena.Arena
 
 class ControlsView : View() {
-    private var realRunCheckbox: CheckBox by singleAssign()
-    private var explorationButton: Button by singleAssign()
-    private var fastestPathButton: Button by singleAssign()
-    private var stopButton: Button by singleAssign()
+    companion object {
+        private var realRunCheckbox: CheckBox by singleAssign()
+        private var explorationButton: Button by singleAssign()
+        private var fastestPathButton: Button by singleAssign()
+        private var stopButton: Button by singleAssign()
+
+        fun start() {
+            realRunCheckbox.isDisable = true
+            explorationButton.isDisable = true
+            fastestPathButton.isDisable = true
+            stopButton.isDisable = false
+        }
+
+        fun stop() {
+            realRunCheckbox.isDisable = false
+            explorationButton.isDisable = false
+            fastestPathButton.isDisable = false
+            stopButton.isDisable = true
+        }
+    }
 
     override val root: Parent = hbox {
         alignment = Pos.CENTER_LEFT
@@ -43,7 +60,13 @@ class ControlsView : View() {
             isFocusTraversable = false
 
             action {
+                if (Arena.isInvalidCoordinates(Arena.waypoint)) {
+                    error("Please set a waypoint first.")
+                    return@action
+                }
+
                 start()
+                MasterView.fastestPath.start()
             }
         }
 
@@ -56,21 +79,9 @@ class ControlsView : View() {
 
             action {
                 MasterView.exploration.stop()
+                MasterView.fastestPath.stop()
                 stop()
             }
         }
-    }
-
-
-    fun start() {
-        explorationButton.isDisable = true
-        fastestPathButton.isDisable = true
-        stopButton.isDisable = false
-    }
-
-    fun stop() {
-        explorationButton.isDisable = false
-        fastestPathButton.isDisable = false
-        stopButton.isDisable = true
     }
 }

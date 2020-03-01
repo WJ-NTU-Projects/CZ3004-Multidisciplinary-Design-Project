@@ -6,10 +6,12 @@ import wjayteo.mdp.algorithms.arena.Robot
 import javafx.scene.Parent
 import javafx.scene.layout.HBox
 import tornadofx.*
+import wjayteo.mdp.algorithms.algorithm.FastestPath
 
 class MasterView : View("Algorithms Test Ver. 0.0.1") {
     companion object {
         lateinit var exploration: Exploration
+        lateinit var fastestPath: FastestPath
     }
 
     private val menuBar: MenuBar by inject()
@@ -47,6 +49,7 @@ class MasterView : View("Algorithms Test Ver. 0.0.1") {
             Arena.setAttachedView(arenaMapView)
             Robot.setAttachedView(arenaMapView)
             exploration = Exploration()
+            fastestPath = FastestPath()
             rootHBox.requestFocus()
         }
     }

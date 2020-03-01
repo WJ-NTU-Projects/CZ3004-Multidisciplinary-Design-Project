@@ -56,6 +56,17 @@ class MenuBar : View() {
                 action { find<CoordinatesView>().openModal(stageStyle = StageStyle.UTILITY) }
             }
 
+            item("Plot Fastest Path") {
+                action {
+                    if (Arena.isInvalidCoordinates(Arena.waypoint)) {
+                        error("Please set a waypoint first.")
+                        return@action
+                    }
+
+                    Arena.plotFastestPath()
+                }
+            }
+
             item("Reset") {
                 action {
                     Arena.reset()

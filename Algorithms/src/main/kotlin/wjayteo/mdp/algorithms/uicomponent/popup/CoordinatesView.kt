@@ -85,6 +85,7 @@ class CoordinatesView : View("Set Coordinates") {
                         }
 
                         this@form.isDisable = false
+                        close()
                     }
                 }
             }

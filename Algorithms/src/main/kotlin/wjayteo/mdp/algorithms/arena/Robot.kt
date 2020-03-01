@@ -1,6 +1,10 @@
 package wjayteo.mdp.algorithms.arena
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import wjayteo.mdp.algorithms.uicomponent.ArenaMapView
+import kotlin.math.abs
 
 class Robot {
     companion object {
@@ -18,7 +22,7 @@ class Robot {
         }
 
         fun move(x: Int, y: Int) {
-            if (Arena.isInvalidCoordinates(x, y, true)) return
+            if (!Arena.isMovable(x, y)) return
             position.x = x
             position.y = y
             for (yOffset in -1..1) for (xOffset in -1..1) Arena.setExplored(x + yOffset, y + xOffset)
@@ -34,6 +38,38 @@ class Robot {
                 90 -> x += 1
                 180 -> y -= 1
                 270 -> x -= 1
+            }
+
+            move(x, y)
+        }
+
+        suspend fun moveAdvanced(x: Int, y: Int) = withContext(Dispatchers.Default) {
+            if (!Arena.isMovable(x, y)) return@withContext
+            val positionDifferenceX: Int = (x - position.x)
+            val positionDifferenceY: Int = (y - position.y)
+
+            val direction: Int = when {
+                (positionDifferenceX == 0 && positionDifferenceY == 1)  -> 0
+                (positionDifferenceX == 1 && positionDifferenceY == 0)  -> 90
+                (positionDifferenceX == 0 && positionDifferenceY == -1) -> 180
+                (positionDifferenceX == -1 && positionDifferenceY == 0) -> 270
+                else -> facing
+            }
+
+            var newFacing: Int = direction
+            val facingDifference = abs(newFacing - facing)
+
+            if (facingDifference == 180) {
+                for (i in 0..1) {
+                    turn(90)
+                    delay(100)
+                }
+                newFacing = facing
+            }
+
+            if (newFacing != facing) {
+                updateFacing(newFacing)
+                delay(100)
             }
 
             move(x, y)
@@ -55,44 +91,32 @@ class Robot {
             attachedView?.setRobotFacing(facing)
         }
 
-        fun isMovable(x: Int, y: Int): Boolean {
-            if (Arena.isInvalidCoordinates(x, y, true)) return false
-
-            for (yOffset in -1 .. 1) {
-                for (xOffset in -1 .. 1) {
-                    if (Arena.isObstacle(x + xOffset, y + yOffset)) return false
-                }
-            }
-
-            return true
-        }
-
         fun isFrontObstructed(): Boolean {
             return when (facing) {
-                0    -> !isMovable(position.x, position.y + 1)
-                90   -> !isMovable(position.x + 1, position.y)
-                180  -> !isMovable(position.x, position.y - 1)
-                270  -> !isMovable(position.x - 1, position.y)
+                0    -> !Arena.isMovable(position.x, position.y + 1)
+                90   -> !Arena.isMovable(position.x + 1, position.y)
+                180  -> !Arena.isMovable(position.x, position.y - 1)
+                270  -> !Arena.isMovable(position.x - 1, position.y)
                 else -> true
             }
         }
 
         fun isLeftObstructed(): Boolean {
             return when (facing) {
-                0    -> !isMovable(position.x - 1, position.y)
-                90   -> !isMovable(position.x, position.y + 1)
-                180  -> !isMovable(position.x + 1, position.y)
-                270  -> !isMovable(position.x, position.y - 1)
+                0    -> !Arena.isMovable(position.x - 1, position.y)
+                90   -> !Arena.isMovable(position.x, position.y + 1)
+                180  -> !Arena.isMovable(position.x + 1, position.y)
+                270  -> !Arena.isMovable(position.x, position.y - 1)
                 else -> true
             }
         }
 
         fun isRightObstructed(): Boolean {
             return when (facing) {
-                0    -> !isMovable(position.x + 1, position.y)
-                90   -> !isMovable(position.x, position.y - 1)
-                180  -> !isMovable(position.x - 1, position.y)
-                270  -> !isMovable(position.x, position.y + 1)
+                0    -> !Arena.isMovable(position.x + 1, position.y)
+                90   -> !Arena.isMovable(position.x, position.y - 1)
+                180  -> !Arena.isMovable(position.x - 1, position.y)
+                270  -> !Arena.isMovable(position.x, position.y + 1)
                 else -> true
             }
         }

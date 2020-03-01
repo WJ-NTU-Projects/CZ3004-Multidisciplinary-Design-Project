@@ -39,7 +39,7 @@ class AStarSearch {
                         if (abs(facing - parentNode.facing) == 180) facing = parentNode.facing
                         val x: Int = if (select == 0) parentNode.x else parentNode.x + offset
                         val y: Int = if (select == 0) parentNode.y + offset else parentNode.y
-                        if (!Robot.isMovable(x, y)) continue
+                        if (!Arena.isMovable(x, y)) continue
 
                         for (node in closedList) {
                             if (node.x == x && node.y == y) {

@@ -1,6 +1,7 @@
 package wjayteo.mdp.algorithms.arena
 
 import wjayteo.mdp.algorithms.uicomponent.ArenaMapView
+import wjayteo.mdp.algorithms.uicomponent.MasterView
 
 class Arena {
     companion object {
@@ -66,6 +67,32 @@ class Arena {
             if (isInvalidCoordinates(x, y, false)) return true
             if (isInvalidCoordinates(waypoint)) return false
             return (intArrayOf(waypoint.x - 1, waypoint.x, waypoint.x + 1).contains(x) && intArrayOf(waypoint.y - 1, waypoint.y, waypoint.y + 1).contains(y))
+        }
+
+        fun isExplored(x: Int, y: Int): Boolean {
+            return (exploreArray[y][x] == 1)
+        }
+
+        fun isEveryGridExplored(): Boolean {
+            for (y in 19 downTo 0) {
+                for (x in 0..14) {
+                    if (exploreArray[y][x] == 0) return false
+                }
+            }
+
+            return true
+        }
+
+        fun isMovable(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y, true)) return false
+
+            for (yOffset in -1 .. 1) {
+                for (xOffset in -1 .. 1) {
+                    if (isObstacle(x + xOffset, y + yOffset)) return false
+                }
+            }
+
+            return true
         }
 
         fun setStartPoint(x: Int, y: Int): Boolean {
@@ -151,6 +178,29 @@ class Arena {
             exploreArray[y][x] = 1
             obstacleArray[y][x] = 1
             attachedView?.setObstacle(x, y)
+        }
+
+        fun setFastestPath(x: Int, y: Int) {
+            if (isInvalidCoordinates(x, y)) return
+            if (gridStateArray[y][x] >= GRID_OBSTACLE) return
+            attachedView?.setFastestPath(x, y)
+        }
+
+        fun plotFastestPath() {
+            for (y in 19 downTo 0) {
+                for (x in 0..14) {
+                    if (isObstacle(x, y)) continue
+                    if (isExplored(x, y)) setExplored(x, y) else setUnknown(x, y)
+                }
+            }
+
+            val pathList: List<IntArray> = MasterView.fastestPath.computeFastestPath()
+
+            for (p in pathList) {
+                val x = p[0]
+                val y = p[1]
+                setFastestPath(x, y)
+            }
         }
     }
 }

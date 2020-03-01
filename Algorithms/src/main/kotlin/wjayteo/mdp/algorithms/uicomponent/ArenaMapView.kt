@@ -100,6 +100,10 @@ class ArenaMapView : View() {
         gridArray[y][x].fill = Color.BLACK
     }
 
+    fun setFastestPath(x: Int, y: Int) {
+        gridArray[y][x].fill = Color.rgb(0, 255, 0)
+    }
+
     fun setRobotPosition(x: Int, y: Int) {
         StackPane.setMargin(robot, Insets(32.0 * (19 - (y + 1)) + 1, 0.0, 0.0, 32.0 * (x - 1) + 1))
     }
