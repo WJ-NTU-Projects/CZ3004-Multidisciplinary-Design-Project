@@ -15,36 +15,37 @@ import java.util.*
 
 class FastestPath : Algorithm() {
     private var started: Boolean = false
-    private var stop: Boolean = false
+    private var simulationStarted: Boolean = false
 
     override fun messageReceived(message: String) {
-        if (stop) started = false
-    }
-
-    fun init() {
-        WifiSocketController.setListener(this)
-        Robot.reset()
+        when (message) {
+            "pause" -> stop()
+        }
     }
 
     fun start() {
-        init()
-        stop = false
+        WifiSocketController.setListener(this)
+        Robot.reset()
 
-        if (ACTUAL_RUN) started = true
-        else simulate(computeFastestPath())
+        if (ACTUAL_RUN) {
+            started = true
+        } else {
+            simulationStarted = true
+            simulate(computeFastestPath())
+        }
     }
 
     fun stop() {
-        stop = true
+        started = false
+        simulationStarted = false
         if (ACTUAL_RUN) WifiSocketController.write("A", "B")
-        else started = false
     }
 
     private fun simulate(pathList: List<IntArray>) {
         CoroutineScope(Dispatchers.Default).launch {
             Robot.updateFacing(pathList[0][2])
 
-            while (true) {
+            while (simulationStarted) {
                 if (Robot.position.x == Arena.goal.x && Robot.position.y == Arena.goal.y) {
                     stop()
                     ControlsView.stop()
@@ -52,18 +53,17 @@ class FastestPath : Algorithm() {
                 }
 
                 for (path in pathList) {
-                    started = true
+                    if (!simulationStarted) return@launch
                     delay(100)
                     Robot.moveAdvanced(path[0], path[1])
                 }
             }
         }
-
     }
 
     fun computeFastestPath(): List<IntArray> {
-        var startX = Arena.start.x
-        var startY = Arena.start.y
+        val startX = Arena.start.x
+        val startY = Arena.start.y
         var startFacing1 = 0
         var startFacing2 = 90
 
@@ -181,7 +181,7 @@ class FastestPath : Algorithm() {
                 previousFacing = node.facing;
             }
 
-            var path: List<GridNode?>
+            var path: ArrayList<GridNode>
             var cost: Double
 
             if (cost2 <= cost1) {

@@ -111,14 +111,14 @@ class Robot {
             }
         }
 
-        fun isRightObstructed(): Boolean {
-            return when (facing) {
-                0    -> !Arena.isMovable(position.x + 1, position.y)
-                90   -> !Arena.isMovable(position.x, position.y - 1)
-                180  -> !Arena.isMovable(position.x - 1, position.y)
-                270  -> !Arena.isMovable(position.x, position.y + 1)
-                else -> true
-            }
-        }
+//        fun isRightObstructed(): Boolean {
+//            return when (facing) {
+//                0    -> !Arena.isMovable(position.x + 1, position.y)
+//                90   -> !Arena.isMovable(position.x, position.y - 1)
+//                180  -> !Arena.isMovable(position.x - 1, position.y)
+//                270  -> !Arena.isMovable(position.x, position.y + 1)
+//                else -> true
+//            }
+//        }
     }
 }

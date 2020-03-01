@@ -18,6 +18,7 @@ class MenuBar : View() {
         fun connectionChanged(connected: Boolean) {
             connectMenuItem.isDisable = connected
             disconnectMenuItem.isDisable = !connected
+            MasterView.idleListener.listen()
         }
     }
 

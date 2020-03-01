@@ -5,9 +5,8 @@ import javafx.geometry.Insets
 import javafx.scene.Parent
 import javafx.scene.control.ProgressIndicator
 import javafx.scene.control.TextField
-import wjayteo.mdp.algorithms.tools.File
+import wjayteo.mdp.algorithms.file.File
 import tornadofx.*
-import wjayteo.mdp.algorithms.uicomponent.MasterView
 import wjayteo.mdp.algorithms.wifi.WifiSocketController
 import java.io.IOException
 
@@ -21,25 +20,26 @@ class ConnectionView : View("Connect to RPi") {
     private var progressIndicator: ProgressIndicator by singleAssign()
 
     override val root: Parent = stackpane {
+        style = "-fx-font-family: 'Verdana';"
         padding = Insets(8.0, 8.0, 8.0, 8.0)
 
         form {
-            fieldset() {
+            fieldset {
                 vboxConstraints { marginTop = 5.0 }
 
                 field("IP Address") {
                     ipAddressTextField = textfield {
                         promptText = "IP Address"
-                        maxWidth = 120.0
-                        prefWidth = 120.0
+                        maxWidth = 150.0
+                        prefWidth = 150.0
                     }
                 }
 
                 field("Port") {
                     portTextField = textfield {
                         promptText = "Port"
-                        maxWidth = 120.0
-                        prefWidth = 120.0
+                        maxWidth = 150.0
+                        prefWidth = 150.0
                     }
                 }
 
@@ -61,25 +61,24 @@ class ConnectionView : View("Connect to RPi") {
                             runAsync {
                                 success = WifiSocketController.connect(ipAddress, port)
                             }.setOnSucceeded {
+                                progressIndicator.hide()
+                                this@form.isDisable = false
+                                processing = false
+
                                 if (success) {
                                     MenuBar.connectionChanged(true)
-                                    MasterView.exploration.init()
-                                    progressIndicator.hide()
-                                    this@form.isDisable = false
-                                    processing = false
                                     information("Connected to RPi successfully.")
                                     close()
                                 } else {
-                                    progressIndicator.hide()
-                                    this@form.isDisable = false
-                                    processing = false
                                     error("Connection failed.")
                                 }
                             }
                         } catch (e: NumberFormatException) {
                             processing = false
+                            error("Invalid input.")
                         } catch (e: IOException) {
                             processing = false
+                            error("Failed to save inputs to file.")
                         }
 
                         if (!processing) {

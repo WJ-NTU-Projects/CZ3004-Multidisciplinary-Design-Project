@@ -208,29 +208,37 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
                         return@launch
                     }
 
-                    val facing = when (currentDirection) {
-                        ArenaMap.Direction.FORWARD -> 0
-                        ArenaMap.Direction.REVERSE -> 180
-                        ArenaMap.Direction.LEFT -> 270
-                        ArenaMap.Direction.RIGHT -> 90
-                        ArenaMap.Direction.NONE -> -1
-                    }
-
-                    if (facing == -1) continue
                     PAD_MOVABLE = false
-                    val currentFacing: Int = arenaMapController.getRobotFacing()
-                    val facingOffset: Int = currentFacing - facing
                     end()
 
-                    if (facing == currentFacing || abs(facing - currentFacing) == 180) {
-                        arenaMapController.moveRobot(facing)
-                    } else if (facingOffset == 90 || facingOffset == -270) {
-                        arenaMapController.turnRobot(Math.floorMod(currentFacing - 90, 360))
-                    } else if (facingOffset == -90 || facingOffset == 270) {
-                        arenaMapController.turnRobot(Math.floorMod(currentFacing + 90, 360))
+                    when (currentDirection) {
+                        ArenaMap.Direction.FORWARD, ArenaMap.Direction.REVERSE -> arenaMapController.moveRobot(currentDirection)
+                        ArenaMap.Direction.LEFT, ArenaMap.Direction.RIGHT -> arenaMapController.turnRobot(currentDirection)
                     }
 
                     return@launch
+
+//                    val facing = when (currentDirection) {
+//                        ArenaMap.Direction.FORWARD -> 0
+//                        ArenaMap.Direction.REVERSE -> 180
+//                        ArenaMap.Direction.LEFT -> 270
+//                        ArenaMap.Direction.RIGHT -> 90
+//                        ArenaMap.Direction.NONE -> -1
+//                    }
+//
+//                    if (facing == -1) continue
+//                    PAD_MOVABLE = false
+//                    val currentFacing: Int = arenaMapController.getRobotFacing()
+//                    val facingOffset: Int = currentFacing - facing
+//                    end()
+//
+//                    if (facing == currentFacing || abs(facing - currentFacing) == 180) {
+//                        arenaMapController.moveRobot(facing)
+//                    } else if (facingOffset == 90 || facingOffset == -270) {
+//                        arenaMapController.turnRobot(Math.floorMod(currentFacing - 90, 360))
+//                    } else if (facingOffset == -90 || facingOffset == 270) {
+//                        arenaMapController.turnRobot(Math.floorMod(currentFacing + 90, 360))
+//                    }
                     //if (BluetoothController.isSocketConnected()) delay(App.simulationDelay)
                 }
             }

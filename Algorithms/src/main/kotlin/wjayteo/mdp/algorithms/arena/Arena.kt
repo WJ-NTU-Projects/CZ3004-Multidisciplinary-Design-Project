@@ -2,23 +2,22 @@ package wjayteo.mdp.algorithms.arena
 
 import wjayteo.mdp.algorithms.uicomponent.ArenaMapView
 import wjayteo.mdp.algorithms.uicomponent.MasterView
+import wjayteo.mdp.algorithms.wifi.WifiSocketController
 
 class Arena {
     companion object {
-        const val GRID_UNKNOWN      : Int = 0
-        const val GRID_EXPLORED     : Int = 1
-        const val GRID_SUSPECT      : Int = 2
-        const val GRID_OBSTACLE     : Int = 3
+        private const val GRID_UNKNOWN      : Int = 0
+        private const val GRID_EXPLORED     : Int = 1
+        // private const val GRID_SUSPECT      : Int = 2
+        private const val GRID_OBSTACLE     : Int = 3
 
         val start = Coordinates(1, 1)
         val goal = Coordinates(13, 18)
         val waypoint = Coordinates(-1, -1)
-
-        private var attachedView: ArenaMapView? = null
-        private val gridStateArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         val exploreArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         val obstacleArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
-
+        private val gridStateArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
+        private var attachedView: ArenaMapView? = null
 
         fun setAttachedView(view: ArenaMapView) {
             attachedView = view
@@ -37,36 +36,6 @@ class Arena {
             val x: Int = coordinates.x
             val y: Int = coordinates.y
             return isInvalidCoordinates(x, y, robotSize)
-        }
-
-        fun isOccupied(x: Int, y: Int): Boolean {
-            if (isInvalidCoordinates(x, y, false)) return true
-            if (gridStateArray[y][x] >= GRID_OBSTACLE) return true
-            if (isStartPoint(x, y) || isGoalPoint(x, y) || isWaypoint(x, y)) return true
-            return false
-        }
-
-        fun isObstacle(x: Int, y: Int): Boolean {
-            if (isInvalidCoordinates(x, y, false)) return true
-            return (obstacleArray[y][x] == 1)
-        }
-
-        fun isStartPoint(x: Int, y: Int): Boolean {
-            if (isInvalidCoordinates(x, y, false)) return true
-            if (isInvalidCoordinates(start)) return false
-            return (intArrayOf(start.x - 1, start.x, start.x + 1).contains(x) && intArrayOf(start.y - 1, start.y, start.y + 1).contains(y))
-        }
-
-        fun isGoalPoint(x: Int, y: Int): Boolean {
-            if (isInvalidCoordinates(x, y, false)) return true
-            if (isInvalidCoordinates(goal)) return false
-            return (intArrayOf(goal.x - 1, goal.x, goal.x + 1).contains(x) && intArrayOf(goal.y - 1, goal.y, goal.y + 1).contains(y))
-        }
-
-        fun isWaypoint(x: Int, y: Int): Boolean {
-            if (isInvalidCoordinates(x, y, false)) return true
-            if (isInvalidCoordinates(waypoint)) return false
-            return (intArrayOf(waypoint.x - 1, waypoint.x, waypoint.x + 1).contains(x) && intArrayOf(waypoint.y - 1, waypoint.y, waypoint.y + 1).contains(y))
         }
 
         fun isExplored(x: Int, y: Int): Boolean {
@@ -149,14 +118,6 @@ class Arena {
             return true
         }
 
-        fun setUnknown(x: Int, y: Int) {
-            if (isInvalidCoordinates(x, y)) return
-            gridStateArray[y][x] = GRID_UNKNOWN
-            exploreArray[y][x] = 0
-            obstacleArray[y][x] = 0
-            attachedView?.setUnknown(x, y)
-        }
-
         fun setExplored(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return
             if (gridStateArray[y][x] >= GRID_EXPLORED) return
@@ -180,12 +141,6 @@ class Arena {
             attachedView?.setObstacle(x, y)
         }
 
-        fun setFastestPath(x: Int, y: Int) {
-            if (isInvalidCoordinates(x, y)) return
-            if (gridStateArray[y][x] >= GRID_OBSTACLE) return
-            attachedView?.setFastestPath(x, y)
-        }
-
         fun plotFastestPath() {
             for (y in 19 downTo 0) {
                 for (x in 0..14) {
@@ -201,6 +156,55 @@ class Arena {
                 val y = p[1]
                 setFastestPath(x, y)
             }
+        }
+
+        fun sendArena() {
+            val descriptor: List<String> = MapDescriptor.fromArray(exploreArray, obstacleArray, 1)
+            WifiSocketController.write("D", "#r:${descriptor[0]},${descriptor[1]},${Robot.position.x},${Robot.position.y},${Robot.facing}")
+        }
+
+        private fun setFastestPath(x: Int, y: Int) {
+            if (isInvalidCoordinates(x, y)) return
+            if (gridStateArray[y][x] >= GRID_OBSTACLE) return
+            attachedView?.setFastestPath(x, y)
+        }
+
+        private fun setUnknown(x: Int, y: Int) {
+            if (isInvalidCoordinates(x, y)) return
+            gridStateArray[y][x] = GRID_UNKNOWN
+            exploreArray[y][x] = 0
+            obstacleArray[y][x] = 0
+            attachedView?.setUnknown(x, y)
+        }
+
+        private fun isOccupied(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y, false)) return true
+            if (gridStateArray[y][x] >= GRID_OBSTACLE) return true
+            if (isStartPoint(x, y) || isGoalPoint(x, y) || isWaypoint(x, y)) return true
+            return false
+        }
+
+        private fun isObstacle(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y, false)) return true
+            return (obstacleArray[y][x] == 1)
+        }
+
+        private fun isStartPoint(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y, false)) return true
+            if (isInvalidCoordinates(start)) return false
+            return (intArrayOf(start.x - 1, start.x, start.x + 1).contains(x) && intArrayOf(start.y - 1, start.y, start.y + 1).contains(y))
+        }
+
+        private fun isGoalPoint(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y, false)) return true
+            if (isInvalidCoordinates(goal)) return false
+            return (intArrayOf(goal.x - 1, goal.x, goal.x + 1).contains(x) && intArrayOf(goal.y - 1, goal.y, goal.y + 1).contains(y))
+        }
+
+        private fun isWaypoint(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y, false)) return true
+            if (isInvalidCoordinates(waypoint)) return false
+            return (intArrayOf(waypoint.x - 1, waypoint.x, waypoint.x + 1).contains(x) && intArrayOf(waypoint.y - 1, waypoint.y, waypoint.y + 1).contains(y))
         }
     }
 }

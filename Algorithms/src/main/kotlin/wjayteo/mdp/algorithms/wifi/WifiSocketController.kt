@@ -56,11 +56,5 @@ class WifiSocketController {
         fun write(destination: String, message: String) {
             WifiSocketWriteThread(destination, message).start()
         }
-
-        fun writeSynchronous(destination: String, message: String) {
-            val t = WifiSocketWriteThread(destination, message)
-            t.start()
-            t.join()
-        }
     }
 }

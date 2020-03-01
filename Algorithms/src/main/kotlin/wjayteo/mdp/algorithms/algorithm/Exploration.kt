@@ -14,8 +14,8 @@ import kotlin.math.abs
 
 class Exploration : Algorithm() {
     private var started: Boolean = false
+    private var simulationStarted: Boolean = false
     private var wallHug: Boolean = true
-    private var stop: Boolean = false
     private var previousCommand: Int = FORWARD
     private var lastStartedThread: Thread? = null
     private val stepReference: AtomicInteger = AtomicInteger(0)
@@ -33,6 +33,7 @@ class Exploration : Algorithm() {
                     if (step > 0) {
                         if (step != currentStep) return@launch
                         Robot.moveTemp()
+                        WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
                     }
                 } catch (e: NumberFormatException) { return@launch }
 
@@ -51,62 +52,61 @@ class Exploration : Algorithm() {
         }
 
         when (message) {
-            "C" -> lastStartedThread?.join()
-            "S" -> sendArena()
+            "pause" -> stop()
+            "S" -> Arena.sendArena()
 
             "M" -> {
                 lastStartedThread?.join()
+                Thread.sleep(10)
                 step()
                 Thread.sleep(10)
-                sendArena()
+                Arena.sendArena()
             }
 
             "L" -> {
-                if (!started) Robot.turn(-90)
                 lastStartedThread?.join()
+                Thread.sleep(10)
                 step()
                 Thread.sleep(10)
-                WifiSocketController.writeSynchronous("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
+                WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
             }
 
             "R" -> {
-                if (!started) Robot.turn(90)
                 lastStartedThread?.join()
+                Thread.sleep(10)
                 step()
                 Thread.sleep(10)
-                WifiSocketController.writeSynchronous("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
+                WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
             }
 
-            else -> return
+            "C" -> {
+                lastStartedThread?.join()
+                Thread.sleep(10)
+                step()
+            }
         }
-
-        if (stop) started = false
-    }
-
-    fun init() {
-        WifiSocketController.setListener(this)
-        Arena.reset()
-        Robot.reset()
     }
 
     fun start() {
-        init()
+        WifiSocketController.setListener(this)
+        //Arena.reset()
+        //Robot.reset()
         stepReference.set(0)
         wallHug = true
-        stop = false
 
         if (ACTUAL_RUN) {
             started = true
             step()
         } else {
+            simulationStarted = true
             simulate()
         }
     }
 
     fun stop() {
-        stop = true
+        started = false
+        simulationStarted = false
         if (ACTUAL_RUN) WifiSocketController.write("A", "B")
-        else started = false
     }
 
     fun testSensorReadings() {
@@ -114,7 +114,7 @@ class Exploration : Algorithm() {
     }
 
     private fun step() {
-        if (stop) return
+        if (!started) return
 
         if (wallHug) {
             stepReference.set(0)
@@ -140,7 +140,7 @@ class Exploration : Algorithm() {
 
     private fun simulate() {
         CoroutineScope(Dispatchers.Default).launch {
-            while (!stop) {
+            while (simulationStarted) {
                 delay(100)
                 if (started && Robot.position.x == Arena.start.x && Robot.position.y == Arena.start.y) wallHug = false
 
@@ -168,7 +168,7 @@ class Exploration : Algorithm() {
                     return@launch
                 }
 
-                if (!isGridExplored(FORWARD) && !Robot.isFrontObstructed()) {
+                if (!isGridExploredFront() && !Robot.isFrontObstructed()) {
                     previousCommand = FORWARD
                     Robot.moveTemp()
                     continue
@@ -189,6 +189,7 @@ class Exploration : Algorithm() {
                 }
 
                 for (path in pathList) {
+                    if (!simulationStarted) return@launch
                     delay(100)
                     Robot.moveAdvanced(path.x, path.y)
                 }
@@ -198,7 +199,7 @@ class Exploration : Algorithm() {
 
     private fun returnToStart() {
         CoroutineScope(Dispatchers.Default).launch {
-            while (true) {
+            while (simulationStarted) {
                 if (Robot.position.x == Arena.start.x && Robot.position.y == Arena.start.y) {
                     stop()
                     ControlsView.stop()
@@ -214,6 +215,7 @@ class Exploration : Algorithm() {
                 }
 
                 for (path in pathList) {
+                    if (!simulationStarted) return@launch
                     delay(100)
                     Robot.moveAdvanced(path.x, path.y)
                 }
@@ -234,16 +236,16 @@ class Exploration : Algorithm() {
                 if (distance >= shortestDistanceMovable) continue
 
                 if (Arena.isMovable(x, y)) {
-                    shortestDistanceMovable = distance;
-                    coordinatesMovable.x = x;
-                    coordinatesMovable.y = y;
-                    continue;
+                    shortestDistanceMovable = distance
+                    coordinatesMovable.x = x
+                    coordinatesMovable.y = y
+                    continue
                 }
 
-                if (distance >= shortestDistanceUnmovable) continue;
-                shortestDistanceUnmovable = distance;
-                coordinatesUnmovable.x = x;
-                coordinatesUnmovable.y = y;
+                if (distance >= shortestDistanceUnmovable) continue
+                shortestDistanceUnmovable = distance
+                coordinatesUnmovable.x = x
+                coordinatesUnmovable.y = y
             }
         }
 
@@ -252,7 +254,7 @@ class Exploration : Algorithm() {
         val x: Int = coordinatesUnmovable.x
         val y: Int = coordinatesUnmovable.y
         val coordinates = Coordinates(-1, -1)
-        var shortestDistance: Int = Int.MAX_VALUE
+        var shortestDistance: Int
         var found = false
         var repeat = false
 
@@ -279,64 +281,28 @@ class Exploration : Algorithm() {
             }
 
             if (!repeat) {
-                if (found) return coordinates;
-                repeat = true;
+                if (found) return coordinates
+                repeat = true
             }
         }
 
-        if (found) return coordinates;
-        coordinates.y = 15 * y + x;
-        return coordinates;
+        if (found) return coordinates
+        coordinates.y = 15 * y + x
+        return coordinates
     }
 
-    private fun isGridExplored(direction: Int): Boolean {
+    private fun isGridExploredFront(): Boolean {
         var x: Int = Robot.position.x
         var y: Int = Robot.position.y
 
         when (Robot.facing) {
-            0 -> {
-                when (direction) {
-                    FORWARD -> y += 2
-                    LEFT -> x -= 2
-                    RIGHT -> x += 2
-                    REVERSE -> y -= 2
-                }
-            }
-
-            90 -> {
-                when (direction) {
-                    FORWARD -> x += 2
-                    LEFT -> y += 2
-                    RIGHT -> y -= 2
-                    REVERSE -> x -= 2
-                }
-            }
-
-            180 -> {
-                when (direction) {
-                    FORWARD -> y -= 2
-                    LEFT -> x += 2
-                    RIGHT -> x -= 2
-                    REVERSE -> y += 2
-                }
-            }
-
-            270 -> {
-                when (direction) {
-                    FORWARD -> x -= 2
-                    LEFT -> y -= 2
-                    RIGHT -> y += 2
-                    REVERSE -> x += 2
-                }
-            }
+            0   -> y += 2
+            90  -> x += 2
+            180 -> y -= 2
+            270 -> x -= 2
         }
 
         if (Arena.isInvalidCoordinates(x, y)) return true
         return Arena.isExplored(x, y)
-    }
-
-    private fun sendArena() {
-        val descriptor: List<String> = MapDescriptor.fromArray(Arena.exploreArray, Arena.obstacleArray, 1)
-        WifiSocketController.writeSynchronous("D", "#r:${descriptor[0]},${descriptor[1]},${Robot.position.x},${Robot.position.y},${Robot.facing}")
     }
 }

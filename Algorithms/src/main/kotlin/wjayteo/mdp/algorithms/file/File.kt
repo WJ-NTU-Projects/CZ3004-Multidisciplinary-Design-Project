@@ -1,4 +1,4 @@
-package wjayteo.mdp.algorithms.tools
+package wjayteo.mdp.algorithms.file
 
 import java.io.IOException
 import java.nio.channels.FileChannel

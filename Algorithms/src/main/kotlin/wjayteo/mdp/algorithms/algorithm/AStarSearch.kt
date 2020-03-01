@@ -11,6 +11,7 @@ class AStarSearch {
         fun run(startX: Int, startY: Int, startFacing: Int, goalX: Int, goalY: Int): ArrayList<GridNode> {
             if (Arena.isInvalidCoordinates(startX, startY, false)) return arrayListOf()
             if (Arena.isInvalidCoordinates(goalX, goalY, false)) return arrayListOf()
+
             var found = false
             val openedList: ArrayList<GridNode> = arrayListOf()
             val closedList: ArrayList<GridNode> = arrayListOf()
@@ -88,16 +89,15 @@ class AStarSearch {
             }
 
             val pathNodeList: ArrayList<GridNode> = arrayListOf()
+            if (!found) return pathNodeList
 
-            if (found) {
-                while (parentNode.parentX != -1 && parentNode.parentY != -1) {
-                    pathNodeList.add(parentNode)
+            while (parentNode.parentX != -1 && parentNode.parentY != -1) {
+                pathNodeList.add(parentNode)
 
-                    for (node in closedList) {
-                        if (node.x == parentNode.parentX && node.y == parentNode.parentY) {
-                            parentNode = node
-                            break
-                        }
+                for (node in closedList) {
+                    if (node.x == parentNode.parentX && node.y == parentNode.parentY) {
+                        parentNode = node
+                        break
                     }
                 }
             }

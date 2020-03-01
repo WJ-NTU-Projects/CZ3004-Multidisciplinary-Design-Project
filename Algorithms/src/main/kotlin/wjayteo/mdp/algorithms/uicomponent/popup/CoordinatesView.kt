@@ -14,51 +14,53 @@ class CoordinatesView : View("Set Coordinates") {
     private var goalPointYTextField: TextField by singleAssign()
     private var waypointXTextField: TextField by singleAssign()
     private var waypointYTextField: TextField by singleAssign()
+    private val fieldWidth: Double = 40.0
 
     override val root: Parent = vbox {
+        style = "-fx-font-family: 'Verdana';"
         padding = Insets(8.0, 8.0, 8.0, 8.0)
 
         form {
-            fieldset() {
+            fieldset {
                 field("Start Point") {
                     startPointXTextField = textfield {
                         text = "1"
-                        maxWidth = 40.0
-                        prefWidth = 40.0
+                        maxWidth = fieldWidth
+                        prefWidth = fieldWidth
                     }
 
                     startPointYTextField = textfield {
                         text = "1"
-                        maxWidth = 40.0
-                        prefWidth = 40.0
+                        maxWidth = fieldWidth
+                        prefWidth = fieldWidth
                     }
                 }
 
                 field("Goal Point") {
                     goalPointXTextField = textfield {
                         text = "13"
-                        maxWidth = 40.0
-                        prefWidth = 40.0
+                        maxWidth = fieldWidth
+                        prefWidth = fieldWidth
                     }
 
                     goalPointYTextField = textfield {
                         text = "18"
-                        maxWidth = 40.0
-                        prefWidth = 40.0
+                        maxWidth = fieldWidth
+                        prefWidth = fieldWidth
                     }
                 }
 
                 field("Waypoint") {
                     waypointXTextField = textfield {
                         promptText = "x"
-                        maxWidth = 40.0
-                        prefWidth = 40.0
+                        maxWidth = fieldWidth
+                        prefWidth = fieldWidth
                     }
 
                     waypointYTextField = textfield {
                         promptText = "y"
-                        maxWidth = 40.0
-                        prefWidth = 40.0
+                        maxWidth = fieldWidth
+                        prefWidth = fieldWidth
                     }
                 }
 
@@ -71,18 +73,15 @@ class CoordinatesView : View("Set Coordinates") {
 
                         try {
                             Arena.setStartPoint(startPointXTextField.text.toInt(), startPointYTextField.text.toInt())
-                        } catch (e: NumberFormatException) {
-                        }
+                        } catch (e: NumberFormatException) {}
 
                         try {
                             Arena.setGoalPoint(goalPointXTextField.text.toInt(), goalPointYTextField.text.toInt())
-                        } catch (e: NumberFormatException) {
-                        }
+                        } catch (e: NumberFormatException) {}
 
                         try {
                             Arena.setWaypoint(waypointXTextField.text.toInt(), waypointYTextField.text.toInt())
-                        } catch (e: NumberFormatException) {
-                        }
+                        } catch (e: NumberFormatException) {}
 
                         this@form.isDisable = false
                         close()

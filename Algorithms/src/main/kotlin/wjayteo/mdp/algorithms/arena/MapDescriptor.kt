@@ -2,6 +2,7 @@ package wjayteo.mdp.algorithms.arena
 
 class MapDescriptor {
     companion object {
+        /*
         fun fromString(descriptor: String, exploredBit: Int): ArrayList<Array<Array<Int>>> {
             var counter = 0
             var s: ArrayList<String> = arrayListOf(descriptor)
@@ -9,10 +10,7 @@ class MapDescriptor {
             val obstacleArray    : Array<Array<Int>> = Array(20) { Array(15) { 0 }}
             val exploredList    : ArrayList<IntArray> = arrayListOf()
 
-            if (descriptor.contains("//")) {
-                s = ArrayList(descriptor.split("//"))
-            }
-
+            if (descriptor.contains("//")) s = ArrayList(descriptor.split("//"))
             var skip = 2
 
             for (i in s[0].indices) {
@@ -60,6 +58,7 @@ class MapDescriptor {
 
             return arrayListOf(exploreArray, obstacleArray)
         }
+        */
 
         fun fromArray(exploreArray: Array<Array<Int>>, obstacleArray: Array<Array<Int>>, exploredBit: Int): ArrayList<String> {
             var exploreString = "11"

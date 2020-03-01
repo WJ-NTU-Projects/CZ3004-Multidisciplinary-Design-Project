@@ -1,6 +1,5 @@
 package wjayteo.mdp.algorithms.uicomponent
 
-import wjayteo.mdp.algorithms.algorithm.Exploration
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Parent
@@ -80,6 +79,7 @@ class ControlsView : View() {
             action {
                 MasterView.exploration.stop()
                 MasterView.fastestPath.stop()
+                MasterView.idleListener.listen()
                 stop()
             }
         }
