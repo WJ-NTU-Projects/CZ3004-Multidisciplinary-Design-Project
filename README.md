@@ -31,7 +31,7 @@ External libraries required:
 ### Algorithms
 For stripped down testing of ongoing issues only. NOT TO BE USED FOR CHECKLIST / ACTUAL RUN. 
 
-Many functionalities were copied over from Android and may be stripped down as well.
+Many functionalities were copied over from Android and may have been stripped down as well.
 
 #### Recommended Setup (Updated 02 Mar 2020)
 | Stuff          | Minimum Requirement |	
