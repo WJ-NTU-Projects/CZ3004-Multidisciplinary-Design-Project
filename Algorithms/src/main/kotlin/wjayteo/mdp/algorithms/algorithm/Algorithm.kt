@@ -10,6 +10,9 @@ abstract class Algorithm : WifiMessageListener {
         const val RIGHT = 2
         const val REVERSE = 3
         var ACTUAL_RUN: Boolean = false
+        var ACTIONS_PER_SECOND = 2
+        var COVERAGE_LIMIT = 100
+        var TIME_LIMIT = 0
     }
 
     abstract override fun messageReceived(message: String)

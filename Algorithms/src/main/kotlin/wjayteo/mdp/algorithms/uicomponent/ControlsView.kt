@@ -7,7 +7,9 @@ import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import tornadofx.*
 import wjayteo.mdp.algorithms.algorithm.Algorithm
+import wjayteo.mdp.algorithms.algorithm.Algorithm.Companion.ACTUAL_RUN
 import wjayteo.mdp.algorithms.arena.Arena
+import wjayteo.mdp.algorithms.wifi.WifiSocketController
 
 class ControlsView : View() {
     companion object {
@@ -47,6 +49,11 @@ class ControlsView : View() {
             isFocusTraversable = false
 
             action {
+                if (ACTUAL_RUN && !WifiSocketController.isConnected()) {
+                    error("Not connected to RPi.")
+                    return@action
+                }
+
                 start()
                 MasterView.exploration.start()
             }
@@ -59,6 +66,11 @@ class ControlsView : View() {
             isFocusTraversable = false
 
             action {
+                if (ACTUAL_RUN && !WifiSocketController.isConnected()) {
+                    error("Not connected to RPi.")
+                    return@action
+                }
+
                 if (Arena.isInvalidCoordinates(Arena.waypoint)) {
                     error("Please set a waypoint first.")
                     return@action

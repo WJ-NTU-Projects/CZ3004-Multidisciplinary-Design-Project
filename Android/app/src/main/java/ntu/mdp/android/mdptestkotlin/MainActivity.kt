@@ -498,7 +498,7 @@ class MainActivity : AppCompatActivity() {
             BluetoothMessageParser.MessageStatus.IMAGE_POSITION -> updateImage(message)
             BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> {
                 updateRobot(message)
-                BluetoothController.write("OK", "P")
+                //BluetoothController.write("OK", "P")
             }
             BluetoothMessageParser.MessageStatus.INFO -> activityUtil.sendSnack(message)
             BluetoothMessageParser.MessageStatus.ROBOT_STATUS -> statusCardLabel.text = message

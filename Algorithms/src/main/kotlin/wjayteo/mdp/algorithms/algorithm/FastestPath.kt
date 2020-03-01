@@ -16,6 +16,7 @@ import java.util.*
 class FastestPath : Algorithm() {
     private var started: Boolean = false
     private var simulationStarted: Boolean = false
+    private var delay: Long = 100L
 
     override fun messageReceived(message: String) {
         when (message) {
@@ -30,12 +31,14 @@ class FastestPath : Algorithm() {
         if (ACTUAL_RUN) {
             started = true
         } else {
+            delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
             simulationStarted = true
             simulate(computeFastestPath())
         }
     }
 
     fun stop() {
+        if (!started && !simulationStarted) return
         started = false
         simulationStarted = false
         if (ACTUAL_RUN) WifiSocketController.write("A", "B")
@@ -54,7 +57,7 @@ class FastestPath : Algorithm() {
 
                 for (path in pathList) {
                     if (!simulationStarted) return@launch
-                    delay(100)
+                    delay(delay)
                     Robot.moveAdvanced(path[0], path[1])
                 }
             }

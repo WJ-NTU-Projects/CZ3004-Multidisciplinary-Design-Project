@@ -43,47 +43,48 @@ class ConnectionView : View("Connect to RPi") {
                     }
                 }
 
-                button("Connect to RPi") {
-                    useMaxWidth = true
-                    vboxConstraints { marginTop = 10.0 }
+                field {
+                    button("Connect to RPi") {
+                        useMaxWidth = true
 
-                    action {
-                        processing = true
-                        progressIndicator.show()
-                        this@form.isDisable = true
-                        var success = false
+                        action {
+                            processing = true
+                            progressIndicator.show()
+                            this@form.isDisable = true
+                            var success = false
 
-                        try {
-                            val ipAddress: String = ipAddressTextField.text
-                            val port: Int = portTextField.text.toInt()
-                            File.replaceContent(File.CONNECTION, "IP:$ipAddress\nPort:$port")
+                            try {
+                                val ipAddress: String = ipAddressTextField.text
+                                val port: Int = portTextField.text.toInt()
+                                File.replaceDataFileContent(File.CONNECTION, "IP:$ipAddress\nPort:$port")
 
-                            runAsync {
-                                success = WifiSocketController.connect(ipAddress, port)
-                            }.setOnSucceeded {
+                                runAsync {
+                                    success = WifiSocketController.connect(ipAddress, port)
+                                }.setOnSucceeded {
+                                    progressIndicator.hide()
+                                    this@form.isDisable = false
+                                    processing = false
+
+                                    if (success) {
+                                        MenuBar.connectionChanged(true)
+                                        information("Connected to RPi successfully.")
+                                        close()
+                                    } else {
+                                        error("Connection failed.")
+                                    }
+                                }
+                            } catch (e: NumberFormatException) {
+                                processing = false
+                                error("Invalid input.")
+                            } catch (e: IOException) {
+                                processing = false
+                                error("Failed to save inputs to file.")
+                            }
+
+                            if (!processing) {
                                 progressIndicator.hide()
                                 this@form.isDisable = false
-                                processing = false
-
-                                if (success) {
-                                    MenuBar.connectionChanged(true)
-                                    information("Connected to RPi successfully.")
-                                    close()
-                                } else {
-                                    error("Connection failed.")
-                                }
                             }
-                        } catch (e: NumberFormatException) {
-                            processing = false
-                            error("Invalid input.")
-                        } catch (e: IOException) {
-                            processing = false
-                            error("Failed to save inputs to file.")
-                        }
-
-                        if (!processing) {
-                            progressIndicator.hide()
-                            this@form.isDisable = false
                         }
                     }
                 }
@@ -96,19 +97,20 @@ class ConnectionView : View("Connect to RPi") {
         }
     }
 
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+        val connectionData: List<String> = File.readDataFile(File.CONNECTION)
+        if (connectionData.size < 2) return
+
+        for (i in 0..1) {
+            if (!connectionData[i].contains(":")) continue
+            val dataParts: List<String> = connectionData[i].split(":")
+            if (dataParts[0].trim() == "IP") ipAddressTextField.text = dataParts[1].trim()
+            else if (dataParts[0].trim() == "Port") portTextField.text = dataParts[1].trim()
+        }
+    }
+
     init {
         progressIndicator.hide()
-
-        runLater {
-            val connectionData: List<String> = File.read(File.CONNECTION)
-            if (connectionData.size < 2) return@runLater
-
-            for (i in 0..1) {
-                if (!connectionData[i].contains(":")) continue
-                val dataParts: List<String> = connectionData[i].split(":")
-                if (dataParts[0].trim() == "IP") ipAddressTextField.text = dataParts[1].trim()
-                else if (dataParts[0].trim() == "Port") portTextField.text = dataParts[1].trim()
-            }
-        }
     }
 }

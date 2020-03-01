@@ -6,6 +6,7 @@ import wjayteo.mdp.algorithms.arena.*
 import wjayteo.mdp.algorithms.uicomponent.ControlsView
 import wjayteo.mdp.algorithms.uicomponent.MasterView
 import wjayteo.mdp.algorithms.wifi.WifiSocketController
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
 
@@ -16,80 +17,68 @@ class Exploration : Algorithm() {
     private var wallHug: Boolean = true
     private var previousCommand: Int = FORWARD
     private var lastStartedJob: Job? = null
+    private var braking: AtomicBoolean = AtomicBoolean(false)
     private val stepReference: AtomicInteger = AtomicInteger(0)
+    private var delay: Long = 100L
+    private var startTime: Long = 0L
 
     override fun messageReceived(message: String) {
-        if (message.contains("#")) {
+        if (message.length == 2) {
             lastStartedJob = CoroutineScope(Dispatchers.Default).launch {
-                val sensorReadings: List<String> = message.split("#")
-                if (sensorReadings.size != 7) return@launch
-
                 try {
-                    val step: Int = sensorReadings[0].toInt()
-                    val currentStep = stepReference.incrementAndGet()
-                    println("STEP = $step, Current = $currentStep")
+//                    val step: Int = message[0].toString().toInt()
+//                    if (step > 0) Robot.moveTemp()
 
-                    if (step > 0) {
-                        if (step != currentStep) return@launch
-                        Robot.moveTemp()
-                    }
-                } catch (e: NumberFormatException) { return@launch }
+                    val set1: Int = message[0].toString().toInt()
+                    val set2: Int = message[1].toString().toInt()
 
-                val facing: Int = Robot.facing
-                val x: Int = Robot.position.x
-                val y: Int = Robot.position.y
-                try { Sensor.updateArenaSensor1(x, y, facing, sensorReadings[1].toInt()) } catch (e: NumberFormatException) {}
-                try { Sensor.updateArenaSensor2(x, y, facing, sensorReadings[2].toInt()) } catch (e: NumberFormatException) {}
-                try { Sensor.updateArenaSensor3(x, y, facing, sensorReadings[3].toInt()) } catch (e: NumberFormatException) {}
-                try { Sensor.updateArenaSensor4(x, y, facing, sensorReadings[4].toInt()) } catch (e: NumberFormatException) {}
-                try { Sensor.updateArenaSensor5(x, y, facing, sensorReadings[5].toInt()) } catch (e: NumberFormatException) {}
-                try { Sensor.updateArenaSensor6(x, y, facing, sensorReadings[6].toInt()) } catch (e: NumberFormatException) {}
+//                    if (!braking.get() && set2 <= 1 && !Robot.isLeftObstructed() && previousCommand != LEFT) {
+//                        braking.set(true)
+//                        WifiSocketController.write("A", "B")
+//                    }
+
+                    val str1: String = Integer.toBinaryString(set1).padStart(3, '0')
+                    val str2: String = Integer.toBinaryString(set2).padStart(3, '0')
+                    val x: Int = Robot.position.x
+                    val y: Int = Robot.position.y
+                    val facing: Int = Robot.facing
+                    Sensor.updateArenaSensor1(x, y, facing, if (str1[0] == '1') 1 else 3)
+                    Sensor.updateArenaSensor2(x, y, facing, if (str1[1] == '1') 1 else 3)
+                    Sensor.updateArenaSensor3(x, y, facing, if (str1[2] == '1') 1 else 3)
+                    Sensor.updateArenaSensor4(x, y, facing, if (str2[0] == '1') 1 else 3)
+                    Sensor.updateArenaSensor5(x, y, facing, if (str2[1] == '1') 1 else 3)
+                    Sensor.updateArenaSensor6(x, y, facing, if (str2[2] == '1') 1 else 3)
+                } catch (e: NumberFormatException) {}
             }
 
             return
         }
 
-        when (message) {
-            "pause" -> stop()
-            "S" -> Arena.sendArena()
-
-            "M" -> {
-                while (lastStartedJob != null && lastStartedJob?.isCompleted == false) { Thread.sleep(10) }
-                step()
-                Thread.sleep(10)
-                Arena.sendArena()
+        if (message.length == 1) {
+            while (lastStartedJob != null && lastStartedJob?.isCompleted == false) {
+                Thread.sleep(1)
             }
 
-            "L" -> {
-                while (lastStartedJob != null && lastStartedJob?.isCompleted == false) { Thread.sleep(10) }
-                step()
-                Thread.sleep(10)
-                WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
+            if (started) step()
+
+            when (message[0]) {
+                'M' -> {
+                    Arena.sendArena()
+                    if (Robot.position.x == Arena.start.x && Robot.position.y == Arena.start.y) wallHug = false
+                }
+
+                'L', 'R' -> WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
+                else -> return
             }
 
-            "R" -> {
-                while (lastStartedJob != null && lastStartedJob?.isCompleted == false) { Thread.sleep(10) }
-                step()
-                Thread.sleep(10)
-                WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
-            }
-
-            "C" -> {
-                while (lastStartedJob != null && lastStartedJob?.isCompleted == false) { Thread.sleep(10) }
-                step()
-            }
-        }
-
-        if (!started) {
-            MasterView.idleListener.listen()
+            if (!started) MasterView.idleListener.listen()
             return
         }
     }
 
     fun start() {
         WifiSocketController.setListener(this)
-        //Arena.reset()
-        //Robot.reset()
+        Arena.setAllUnknown()
         stepReference.set(0)
         wallHug = true
 
@@ -97,15 +86,22 @@ class Exploration : Algorithm() {
             started = true
             step()
         } else {
+            delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
             simulationStarted = true
+            startTime = System.currentTimeMillis()
             simulate()
         }
     }
 
     fun stop() {
+        if (!started && !simulationStarted) return
         started = false
         simulationStarted = false
-        if (ACTUAL_RUN) WifiSocketController.write("A", "B")
+
+        if (ACTUAL_RUN && !braking.get()) {
+            braking.set(true)
+            WifiSocketController.write("A", "B")
+        }
     }
 
     fun testSensorReadings() {
@@ -114,6 +110,7 @@ class Exploration : Algorithm() {
 
     private fun step() {
         if (!started) return
+        braking.set(false)
 
         if (wallHug) {
             stepReference.set(0)
@@ -127,38 +124,45 @@ class Exploration : Algorithm() {
 
             if (!Robot.isFrontObstructed()) {
                 previousCommand = FORWARD
-                WifiSocketController.write("A", "N")
+                WifiSocketController.write("A", "M")
+                Robot.moveTemp()
                 return
             }
 
             previousCommand = RIGHT
             WifiSocketController.write("A", "R")
             Robot.turn(90)
+            return
         }
+
+        stop()
+        return
     }
 
     private fun simulate() {
         CoroutineScope(Dispatchers.Default).launch {
             while (simulationStarted) {
-                delay(100)
+                if (Arena.coverageReached() || (TIME_LIMIT > 0 && System.currentTimeMillis() - startTime >= TIME_LIMIT)) {
+                    returnToStart()
+                    return@launch
+                }
+
                 if (started && Robot.position.x == Arena.start.x && Robot.position.y == Arena.start.y) wallHug = false
 
                 if (wallHug) {
                     if (!Robot.isLeftObstructed() && previousCommand != LEFT) {
                         previousCommand = LEFT
                         Robot.turn(-90)
-                        continue
-                    }
-
-                    if (!Robot.isFrontObstructed()) {
+                    } else if (!Robot.isFrontObstructed()) {
                         started = true
                         previousCommand = FORWARD
                         Robot.moveTemp()
-                        continue
+                    } else {
+                        previousCommand = RIGHT
+                        Robot.turn(90)
                     }
 
-                    previousCommand = RIGHT
-                    Robot.turn(90)
+                    delay(delay)
                     continue
                 }
 
@@ -170,6 +174,7 @@ class Exploration : Algorithm() {
                 if (!isGridExploredFront() && !Robot.isFrontObstructed()) {
                     previousCommand = FORWARD
                     Robot.moveTemp()
+                    delay(delay)
                     continue
                 }
 
@@ -189,8 +194,14 @@ class Exploration : Algorithm() {
 
                 for (path in pathList) {
                     if (!simulationStarted) return@launch
-                    delay(100)
+
+                    if (Arena.coverageReached() || (TIME_LIMIT > 0 && System.currentTimeMillis() - startTime >= TIME_LIMIT)) {
+                        returnToStart()
+                        return@launch
+                    }
+
                     Robot.moveAdvanced(path.x, path.y)
+                    delay(delay)
                 }
             }
         }
@@ -215,8 +226,8 @@ class Exploration : Algorithm() {
 
                 for (path in pathList) {
                     if (!simulationStarted) return@launch
-                    delay(100)
                     Robot.moveAdvanced(path.x, path.y)
+                    delay(delay)
                 }
             }
         }

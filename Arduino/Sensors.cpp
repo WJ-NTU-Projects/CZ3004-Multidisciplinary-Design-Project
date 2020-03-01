@@ -21,7 +21,8 @@ double Sensors::getDistance(char sensor, double m, double c, double r) {
     int raw = analogRead(sensor);
     int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
     double volts = voltsFromRaw * 0.001;
-    double distance = (1 / ((volts * m) + c)) - r;
+    double distance = pow((volts * m) + c, -1) - r;
+    //double distance = (1 / ((volts * m) + c)) - r;
     return distance;
 }
 

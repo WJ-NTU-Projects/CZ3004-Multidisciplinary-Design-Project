@@ -3,6 +3,7 @@ package wjayteo.mdp.algorithms.arena
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import wjayteo.mdp.algorithms.algorithm.Algorithm.Companion.ACTIONS_PER_SECOND
 import wjayteo.mdp.algorithms.uicomponent.ArenaMapView
 import kotlin.math.abs
 
@@ -58,18 +59,19 @@ class Robot {
 
             var newFacing: Int = direction
             val facingDifference = abs(newFacing - facing)
+            val delay: Long = (1000.0 / ACTIONS_PER_SECOND).toLong()
 
             if (facingDifference == 180) {
                 for (i in 0..1) {
                     turn(90)
-                    delay(100)
+                    delay(delay)
                 }
                 newFacing = facing
             }
 
             if (newFacing != facing) {
                 updateFacing(newFacing)
-                delay(100)
+                delay(delay)
             }
 
             move(x, y)

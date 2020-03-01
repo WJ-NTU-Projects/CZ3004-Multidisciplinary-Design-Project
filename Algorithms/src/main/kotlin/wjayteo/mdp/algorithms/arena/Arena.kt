@@ -1,8 +1,10 @@
 package wjayteo.mdp.algorithms.arena
 
+import wjayteo.mdp.algorithms.algorithm.Algorithm.Companion.COVERAGE_LIMIT
 import wjayteo.mdp.algorithms.uicomponent.ArenaMapView
 import wjayteo.mdp.algorithms.uicomponent.MasterView
 import wjayteo.mdp.algorithms.wifi.WifiSocketController
+import kotlin.math.exp
 
 class Arena {
     companion object {
@@ -14,8 +16,8 @@ class Arena {
         val start = Coordinates(1, 1)
         val goal = Coordinates(13, 18)
         val waypoint = Coordinates(-1, -1)
-        private val exploreArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
-        private val obstacleArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
+        val exploreArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
+        val obstacleArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private val gridStateArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private var attachedView: ArenaMapView? = null
 
@@ -25,6 +27,24 @@ class Arena {
 
         fun reset() {
             for (y in 19 downTo 0) for (x in 0..14) setUnknown(x, y)
+            waypoint.x = -1
+            waypoint.y = -1
+            attachedView?.removeWaypoint()
+        }
+
+        fun loadMap(explore: Array<Array<Int>>, obstacle: Array<Array<Int>>) {
+            reset()
+
+            for (y in 19 downTo 0) {
+                for (x in 0..14) {
+                    val exploreBit: Int = explore[y][x]
+                    val obstacleBit: Int = obstacle[y][x]
+                    exploreArray[y][x] = exploreBit
+                    obstacleArray[y][x] = obstacleBit
+                    if (exploreBit == 1) setExplored(x, y)
+                    if (obstacleBit == 1) setObstacle(x, y)
+                }
+            }
         }
 
         fun isInvalidCoordinates(x: Int, y: Int, robotSize: Boolean = false): Boolean {
@@ -40,6 +60,24 @@ class Arena {
 
         fun isExplored(x: Int, y: Int): Boolean {
             return (exploreArray[y][x] == 1)
+        }
+
+        fun setAllExplored() {
+            for (y in 19 downTo 0) {
+                for (x in 0..14) {
+                    setExplored(x, y)
+                }
+            }
+        }
+
+        fun setAllUnknown() {
+            for (y in 19 downTo 0) {
+                for (x in 0..14) {
+                    if (obstacleArray[y][x] == 0) setUnknown(x, y)
+                }
+            }
+
+            Robot.move(Robot.position.x, Robot.position.y)
         }
 
         fun isEveryGridExplored(): Boolean {
@@ -161,6 +199,26 @@ class Arena {
         fun sendArena() {
             val descriptor: List<String> = MapDescriptor.fromArray(exploreArray, obstacleArray, 1)
             WifiSocketController.write("D", "#r:${descriptor[0]},${descriptor[1]},${Robot.position.x},${Robot.position.y},${Robot.facing}")
+        }
+
+        fun plotObstacle(x: Int, y: Int) {
+            if (isInvalidCoordinates(x, y)) return
+
+            if (isObstacle(x, y)) {
+                val exploreBit: Int = exploreArray[y][x]
+                setUnknown(x, y)
+                setExplored(x, y)
+                return
+            }
+
+            if (isOccupied(x, y)) return
+            setObstacle(x, y)
+        }
+
+        fun coverageReached(): Boolean {
+            var coveredCount = 0
+            exploreArray.forEach { it.forEach { grid -> if (grid == 1) coveredCount++ } }
+            return ((1.0 * coveredCount / 300) * 100 >= COVERAGE_LIMIT)
         }
 
         private fun setFastestPath(x: Int, y: Int) {

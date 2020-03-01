@@ -2,7 +2,6 @@ package wjayteo.mdp.algorithms.arena
 
 class MapDescriptor {
     companion object {
-        /*
         fun fromString(descriptor: String, exploredBit: Int): ArrayList<Array<Array<Int>>> {
             var counter = 0
             var s: ArrayList<String> = arrayListOf(descriptor)
@@ -58,7 +57,6 @@ class MapDescriptor {
 
             return arrayListOf(exploreArray, obstacleArray)
         }
-        */
 
         fun fromArray(exploreArray: Array<Array<Int>>, obstacleArray: Array<Array<Int>>, exploredBit: Int): ArrayList<String> {
             var exploreString = "11"

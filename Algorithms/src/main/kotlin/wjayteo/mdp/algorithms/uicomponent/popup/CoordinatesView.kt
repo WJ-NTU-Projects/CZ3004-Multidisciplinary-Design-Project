@@ -64,30 +64,46 @@ class CoordinatesView : View("Set Coordinates") {
                     }
                 }
 
-                button("Save") {
-                    useMaxWidth = true
-                    vboxConstraints { marginTop = 10.0 }
+                field {
+                    button("Save") {
+                        useMaxWidth = true
 
-                    action {
-                        this@form.isDisable = true
+                        action {
+                            this@form.isDisable = true
 
-                        try {
-                            Arena.setStartPoint(startPointXTextField.text.toInt(), startPointYTextField.text.toInt())
-                        } catch (e: NumberFormatException) {}
+                            try {
+                                Arena.setStartPoint(startPointXTextField.text.toInt(), startPointYTextField.text.toInt())
+                            } catch (e: NumberFormatException) {
+                            }
 
-                        try {
-                            Arena.setGoalPoint(goalPointXTextField.text.toInt(), goalPointYTextField.text.toInt())
-                        } catch (e: NumberFormatException) {}
+                            try {
+                                Arena.setGoalPoint(goalPointXTextField.text.toInt(), goalPointYTextField.text.toInt())
+                            } catch (e: NumberFormatException) {
+                            }
 
-                        try {
-                            Arena.setWaypoint(waypointXTextField.text.toInt(), waypointYTextField.text.toInt())
-                        } catch (e: NumberFormatException) {}
+                            try {
+                                Arena.setWaypoint(waypointXTextField.text.toInt(), waypointYTextField.text.toInt())
+                            } catch (e: NumberFormatException) {
+                            }
 
-                        this@form.isDisable = false
-                        close()
+                            this@form.isDisable = false
+                            close()
+                        }
                     }
                 }
             }
         }
+    }
+
+    override fun onBeforeShow() {
+        super.onBeforeShow()
+        startPointXTextField.text = Arena.start.x.toString()
+        startPointYTextField.text = Arena.start.y.toString()
+        goalPointXTextField.text = Arena.goal.x.toString()
+        goalPointYTextField.text = Arena.goal.y.toString()
+
+        if (Arena.isInvalidCoordinates(Arena.waypoint)) return
+        waypointXTextField.text = Arena.waypoint.x.toString()
+        waypointYTextField.text = Arena.waypoint.y.toString()
     }
 }

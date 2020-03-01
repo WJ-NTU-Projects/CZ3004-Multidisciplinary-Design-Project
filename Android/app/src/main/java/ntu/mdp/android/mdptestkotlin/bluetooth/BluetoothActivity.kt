@@ -183,7 +183,13 @@ class BluetoothActivity : AppCompatActivity() {
 
     private val callback: (status: BluetoothController.Status, message: String) -> Unit = { status, message ->
         when (status) {
-            BluetoothController.Status.CONNECTED, BluetoothController.Status.DISCONNECTED -> {
+            BluetoothController.Status.CONNECTED -> {
+                activityUtil.sendSnack(message)
+                refresh()
+                onBackPressed()
+            }
+
+            BluetoothController.Status.DISCONNECTED -> {
                 activityUtil.sendSnack(message)
                 refresh()
             }

@@ -9,6 +9,8 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import tornadofx.*
+import wjayteo.mdp.algorithms.arena.Arena
+import java.lang.NumberFormatException
 
 class ArenaMapView : View() {
     companion object {
@@ -16,6 +18,7 @@ class ArenaMapView : View() {
         private const val MARGIN_SIZE = 1.0
         private const val ROBOT_GRID_SIZE = GRID_SIZE + (MARGIN_SIZE * 2)
         private const val ROBOT_SIZE = (GRID_SIZE * 3) + (MARGIN_SIZE * 4)
+        var plotting: Boolean = false
     }
     private val gridArray: Array<Array<Rectangle>> = Array(20) { Array(15) { Rectangle() } }
     private lateinit var robot: ImageView
@@ -31,6 +34,17 @@ class ArenaMapView : View() {
                         gridArray[y][x] = rectangle(width = GRID_SIZE, height = GRID_SIZE) {
                             fill = Color.rgb(251, 152, 164)
                             gridpaneConstraints { margin = Insets(MARGIN_SIZE, MARGIN_SIZE, MARGIN_SIZE, MARGIN_SIZE) }
+                            id = "$x-$y"
+
+                            onLeftClick {
+                                if (plotting) {
+                                    val coordinates: List<String> = id.split("-")
+
+                                    try {
+                                        Arena.plotObstacle(coordinates[0].toInt(), coordinates[1].toInt())
+                                    } catch (e: NumberFormatException) {}
+                                }
+                            }
                         }
                     }
                 }
@@ -91,7 +105,7 @@ class ArenaMapView : View() {
     }
 
     fun setRobotPosition(x: Int, y: Int) {
-        StackPane.setMargin(robot, Insets(32.0 * (19 - (y + 1)) + 1, 0.0, 0.0, 32.0 * (x - 1) + 1))
+        StackPane.setMargin(robot, Insets(ROBOT_GRID_SIZE * (19 - (y + 1)) + MARGIN_SIZE, 0.0, 0.0, ROBOT_GRID_SIZE * (x - 1) + MARGIN_SIZE))
     }
 
     fun setRobotFacing(facing: Int) {
@@ -114,6 +128,10 @@ class ArenaMapView : View() {
     fun setWaypoint(x: Int, y: Int) {
         waypoint.isVisible = true
         StackPane.setMargin(waypoint, Insets(ROBOT_GRID_SIZE * (19 - (y + 1)) + MARGIN_SIZE, 0.0, 0.0, ROBOT_GRID_SIZE * (x - 1) + MARGIN_SIZE))
+    }
+
+    fun removeWaypoint() {
+        waypoint.isVisible = false
     }
 
     init {
