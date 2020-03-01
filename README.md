@@ -7,8 +7,6 @@
 ---
 
 ### Arduino
-[Documentations](https://github.com/101011101001010/MDP/wiki/Arduino-Documentations)
-
 External libraries required:
 * [EnableInterrupt](https://github.com/GreyGnome/EnableInterrupt)
 
