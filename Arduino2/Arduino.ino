@@ -38,34 +38,34 @@ void loop() {
                 move(FORWARD, 100);
                 printSensorValues(0);
                 align();
-                Serial.write(80);
-                Serial.write(77);
-                Serial.write(10);
+//                Serial.write(80);
+//                Serial.write(77);
+//                Serial.write(10);
                 break; 
                  
             case 'L':
                 move(LEFT, 90);
                 printSensorValues(0);
                 align();
-                Serial.write(80);
-                Serial.write(76);
-                Serial.write(10);
+//                Serial.write(80);
+//                Serial.write(76);
+//                Serial.write(10);
                 break;
                 
             case 'R':
                 move(RIGHT, 90);
                 printSensorValues(0);
                 align();
-                Serial.write(80);
-                Serial.write(82);
-                Serial.write(10);
+//                Serial.write(80);
+//                Serial.write(82);
+//                Serial.write(10);
                 break;
                 
             case 'C':
                 align();
-                Serial.write(80);
-                Serial.write(67);
-                Serial.write(10);
+//                Serial.write(80);
+//                Serial.write(67);
+//                Serial.write(10);
                 break; 
         }
     }
@@ -128,20 +128,20 @@ void move(int direction, double distance) {
         speedOffset = pid.computeOffset();       
 
         if (direction == FORWARD) {
-            int distance2 = sensors.getDistanceR(2);
-            int distance1 = sensors.getDistanceR(1);
-            int distance3 = sensors.getDistanceR(3);
-            
-            if (distance2 > 0 && distance2 <= 5) {
-                brake();
-                break;
-            } else if (distance1 > 0 && distance1 <= 5) {
-                brake();
-                break;
-            } else if (distance3 > 0 && distance3 <= 5) {
-                brake();
-                break;
-            } 
+//            int distance2 = sensors.getDistanceR(2);
+//            int distance1 = sensors.getDistanceR(1);
+//            int distance3 = sensors.getDistanceR(3);
+//            
+//            if (distance2 > 0 && distance2 <= 5) {
+//                brake();
+//                break;
+//            } else if (distance1 > 0 && distance1 <= 5) {
+//                brake();
+//                break;
+//            } else if (distance3 > 0 && distance3 <= 5) {
+//                brake();
+//                break;
+//            } 
         
 //            int difference = localX - localRef;
 //            
@@ -232,6 +232,28 @@ void printSensorValues2() {
 }
 
 void printSensorValues(int step) {
+    int s1 = ceil(sensors.getDistanceR(1) * 0.1);
+    int s2 = ceil(sensors.getDistanceR(2) * 0.1);
+    int s3 = ceil(sensors.getDistanceR(3) * 0.1);
+    int s4 = ceil(sensors.getDistanceR(4) * 0.1);
+    int s5 = ceil(sensors.getDistanceR(5) * 0.1);
+    int s6 = ceil(sensors.getDistanceR(6) * 0.1);
+    Serial.print('P');
+    Serial.print(s1);
+    Serial.print('#');
+    Serial.print(s2);
+    Serial.print('#');
+    Serial.print(s3);
+    Serial.print('#');
+    Serial.print(s4);
+    Serial.print('#');
+    Serial.print(s5);
+    Serial.print('#');
+    Serial.println(s6);
+    Serial.flush();
+}
+
+void printSensorValues3(int step) {
     char set0 = 48;
     if (step >= 0 && step <= 9) set0 += step;
     else if (step >= 10) set0 = 65 + step - 10;
