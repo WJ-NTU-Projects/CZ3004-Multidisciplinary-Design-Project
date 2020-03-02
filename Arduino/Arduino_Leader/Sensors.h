@@ -40,4 +40,5 @@ class Sensors {
         boolean hasObstacleLeft(int);
         boolean mayAlignLeft();
         boolean mayAlignFront();
+        boolean isObstructedFront();
 };

@@ -7,6 +7,8 @@ class LPS {
     public:
         LPS(double *tl, double *tr, double tpmm);
         void computePosition();
+        void computeLeftTurn();
+        void computeRightTurn();
         void reset();
         double getX();
         double getY();

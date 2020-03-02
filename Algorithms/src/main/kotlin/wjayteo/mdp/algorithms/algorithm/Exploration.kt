@@ -63,11 +63,11 @@ class Exploration : Algorithm() {
 
             when (message[0]) {
                 'M' -> {
-                    Arena.sendArena()
+                    //Arena.sendArena()
                     if (Robot.position.x == Arena.start.x && Robot.position.y == Arena.start.y) wallHug = false
                 }
 
-                'L', 'R' -> WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
+                //'L', 'R' -> WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
                 else -> return
             }
 

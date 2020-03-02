@@ -21,9 +21,7 @@ double Sensors::getDistance(char sensor, double m, double c, double r) {
     int raw = analogRead(sensor);
     int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
     double volts = voltsFromRaw * 0.001;
-    double distance = pow((volts * m) + c, -1) - r;
-    //double distance = (1 / ((volts * m) + c)) - r;
-    return distance;
+    return pow((volts * m) + c, -1) - r;
 }
 
 double Sensors::getErrorLeft() {
@@ -48,4 +46,13 @@ boolean Sensors::mayAlignFront() {
     int distance1 = getDistanceR(1);
     int distance2 = getDistanceR(3);    
     return (distance1 > 0 && distance1 <= 10 && distance2 > 0 && distance2 <= 10);   
+}
+
+boolean Sensors::isObstructedFront() {
+    int distance1 = getDistanceR(1);
+    int distance2 = getDistanceR(2);
+    int distance3 = getDistanceR(3);
+    if (distance2 > 0 && distance2 <= 5) return true;
+    if (distance1 > 0 && distance1 <= 5) return true;
+    if (distance3 > 0 && distance3 <= 5) return true;
 }

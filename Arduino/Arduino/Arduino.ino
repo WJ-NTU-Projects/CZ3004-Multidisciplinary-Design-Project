@@ -36,8 +36,9 @@ void loop() {
                 
             case 'M':
                 move(FORWARD, 100);
-                printSensorValues(0);
                 align();
+                delay(50);
+                printSensorValues(0);
                 Serial.write(80);
                 Serial.write(77);
                 Serial.write(10);
@@ -45,8 +46,9 @@ void loop() {
                  
             case 'L':
                 move(LEFT, 90);
-                printSensorValues(0);
                 align();
+                delay(50);
+                printSensorValues(0);
                 Serial.write(80);
                 Serial.write(76);
                 Serial.write(10);
@@ -54,8 +56,9 @@ void loop() {
                 
             case 'R':
                 move(RIGHT, 90);
-                printSensorValues(0);
                 align();
+                delay(50);
+                printSensorValues(0);
                 Serial.write(80);
                 Serial.write(82);
                 Serial.write(10);
@@ -75,7 +78,8 @@ void move(int direction, double distance) {
     double speedLeft = (fast) ? FAST_SPEED_LEFT : EXPLORE_SPEED_LEFT;
     double speedRight = speedLeft - 30;
     if (direction == FORWARD || direction == REVERSE) ticksTarget = distance * TICKS_PER_MM;
-    else ticksTarget = distance * TICKS_PER_ANGLE;
+    else if (direction == LEFT) ticksTarget = distance * TICKS_PER_ANGLE_L;
+    else if (direction == RIGHT) ticksTarget = distance * TICKS_PER_ANGLE_R;
 
     localX = 0;
     localY = 0;
@@ -183,13 +187,13 @@ void align() {
 void alignLeft() {
     double alignCounter = 0;
 
-    while (alignCounter < 30) {
+    while (alignCounter < 50) {
         double error = sensors.getErrorLeft();
         double lowerBound = 0.05;
         double upperBound = 0.25;
         
         if (error >= lowerBound && error <= upperBound) return;
-        move((error < lowerBound) ? RIGHT : LEFT, 0.5);
+        move((error < lowerBound) ? RIGHT : LEFT, 0.2);
         alignCounter++;
         delay(5);
     }
@@ -198,37 +202,16 @@ void alignLeft() {
 void alignFront() {    
     double alignCounter = 0;
     
-    while (alignCounter < 30) {
+    while (alignCounter < 50) {
         double error = sensors.getErrorFront();
         double lowerBound = -0.1;
         double upperBound = 0.1;
         
         if (error >= lowerBound && error <= upperBound) return;
-        move((error < lowerBound) ? RIGHT : LEFT, 0.5);
+        move((error < lowerBound) ? RIGHT : LEFT, 0.2);
         alignCounter++;
         delay(5);
     }
-}
-
-void printSensorValues2() {
-    int s1 = sensors.getDistanceR(1);
-    int s2 = sensors.getDistanceR(2);
-    int s3 = sensors.getDistanceR(3);
-    int s4 = sensors.getDistanceR(4);
-    int s5 = sensors.getDistanceR(5);
-    int s6 = sensors.getDistanceR(6);
-    Serial.print(s1);
-    Serial.print(", ");
-    Serial.print(s2);
-    Serial.print(", ");
-    Serial.print(s3);
-    Serial.print(", ");
-    Serial.print(s4);
-    Serial.print(", ");
-    Serial.print(s5);
-    Serial.print(", ");
-    Serial.println(s6);
-    Serial.flush();
 }
 
 void printSensorValues(int step) {
