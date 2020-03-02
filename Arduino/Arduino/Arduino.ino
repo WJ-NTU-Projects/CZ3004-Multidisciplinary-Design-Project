@@ -8,7 +8,7 @@ void setup() {
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
-    //align();
+    align();
 }
 
 void loop() {    
@@ -146,19 +146,6 @@ void move(int direction, double distance) {
                 brake();
                 break;
             } 
-        
-//            int difference = localX - localRef;
-//            
-//            if (difference >= 90 && difference <= 110) {
-//                localRef = round(localX * 0.01);
-//                printSensorValues(localRef);
-//                localRef *= 100;
-//
-////                if (automate && sensors.getDistanceR(4) > 12 && sensors.getDistanceR(5) > 12) {
-////                    brake();
-////                    break;
-////                } 
-//            }
         }
 
         double newSpeedLeft = speedLeft - speedOffset;

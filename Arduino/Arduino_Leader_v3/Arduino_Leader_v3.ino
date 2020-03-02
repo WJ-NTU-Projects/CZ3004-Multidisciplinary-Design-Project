@@ -1,4 +1,4 @@
-#include "Arduino_Leader.h"
+#include "Arduino_Leader_v3.h"
 
 void setup() {
     pinMode(ENCODER_LEFT, INPUT);
@@ -112,7 +112,6 @@ void move(int direction, double distance) {
                 break;
         }
 
-        double error = 0;
         double speedOffset = 0;
         
         if (sensors.mayAlignLeft()) {
