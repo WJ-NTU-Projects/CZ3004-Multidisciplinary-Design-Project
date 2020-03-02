@@ -3,7 +3,7 @@
 LPS::LPS(double *tl, double *tr, double tpmm) {
     ticksLeft = tl;
     ticksRight = tr;
-    ticksPerMillimeter = tpmm * 1.0;
+    ticksPerMillimeter = tpmm;
     reset();
 }
 
@@ -21,16 +21,11 @@ void LPS::reset() {
 void LPS::computePosition() {
     double currentTicksLeft = *ticksLeft;
     double currentTicksRight = *ticksRight;
-    double ticksDiffLeft = currentTicksLeft - previousTicksLeft;
-    double ticksDiffRight = currentTicksRight - previousTicksRight;
-    deltaLeft = ticksDiffLeft / ticksPerMillimeter;
-    deltaRight = ticksDiffRight / ticksPerMillimeter;
+    deltaLeft = (currentTicksLeft - previousTicksLeft) * ticksPerMillimeter;
+    deltaRight = (currentTicksRight - previousTicksRight) * ticksPerMillimeter;
     double deltaMean = (deltaLeft + deltaRight) * 0.5;
-    double diff = (deltaRight - deltaLeft) / WHEEL_AXIS;
+    double diff = (deltaRight - deltaLeft) * WHEEL_AXIS_MULTIPLIER;
     headingRadian += diff;
-    double circle = 2 * PI;
-    if (headingRadian >= circle) headingRadian -= circle;      
-    if (headingRadian <= -circle) headingRadian += circle;     
     x += deltaMean * cos(headingRadian);
     y += deltaMean * sin(headingRadian); 
     previousTicksLeft = currentTicksLeft;
@@ -40,17 +35,12 @@ void LPS::computePosition() {
 void LPS::computeLeftTurn() {
     double currentTicksLeft = *ticksLeft;
     double currentTicksRight = *ticksRight;
-    double ticksDiffLeft = currentTicksLeft - previousTicksLeft;
-    double ticksDiffRight = currentTicksRight - previousTicksRight;
-    deltaLeft = ticksDiffLeft / ticksPerMillimeter;
-    deltaRight = ticksDiffRight / ticksPerMillimeter;
-    double diff = (deltaRight - 0) / (WHEEL_AXIS * 0.5);
+    deltaLeft = (currentTicksLeft - previousTicksLeft) * ticksPerMillimeter;
+    deltaRight = (currentTicksRight - previousTicksRight) * ticksPerMillimeter;
+    double diff = (deltaRight - 0) * WHEEL_AXIS_HALF_MULTIPLIER;
     y = deltaRight - deltaLeft;
-    headingRadian += diff;
-    double circle = 2 * PI;
-    if (headingRadian >= circle) headingRadian -= circle;      
-    if (headingRadian <= -circle) headingRadian += circle;     
-    headingDegree = round((headingRadian * 4068) / 71.0);
+    headingRadian += diff; 
+    headingDegree = round((headingRadian * 4068) * 0.0140845);
     previousTicksLeft = currentTicksLeft;
     previousTicksRight = currentTicksRight;
 }
@@ -58,17 +48,12 @@ void LPS::computeLeftTurn() {
 void LPS::computeRightTurn() {
     double currentTicksLeft = *ticksLeft;
     double currentTicksRight = *ticksRight;
-    double ticksDiffLeft = currentTicksLeft - previousTicksLeft;
-    double ticksDiffRight = currentTicksRight - previousTicksRight;
-    deltaLeft = ticksDiffLeft / ticksPerMillimeter;
-    deltaRight = ticksDiffRight / ticksPerMillimeter;
-    double diff = (deltaLeft - 0) / (WHEEL_AXIS * 0.5);
+    deltaLeft = (currentTicksLeft - previousTicksLeft) * ticksPerMillimeter;
+    deltaRight = (currentTicksRight - previousTicksRight) * ticksPerMillimeter;
+    double diff = (deltaLeft - 0) * WHEEL_AXIS_HALF_MULTIPLIER;
     y = deltaRight - deltaLeft;
-    headingRadian += diff;
-    double circle = 2 * PI;
-    if (headingRadian >= circle) headingRadian -= circle;      
-    if (headingRadian <= -circle) headingRadian += circle;     
-    headingDegree = round((headingRadian * 4068) / 71.0);
+    headingRadian += diff;  
+    headingDegree = round((headingRadian * 4068) * 0.0140845);
     previousTicksLeft = currentTicksLeft;
     previousTicksRight = currentTicksRight;
 }

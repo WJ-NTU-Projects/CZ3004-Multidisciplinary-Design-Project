@@ -17,13 +17,13 @@
 class Motor {
     public:
         Motor();
-        void forward(int speedLeft, int speedRight);
-        void reverse(int speedLeft, int speedRight);
-        void turnLeft(int speedLeft, int speedRight);
-        void turnRight(int speedLeft, int speedRight);
-        void brakeLeft();
-        void brakeRight();
-        void setSpeed(int speedLeft, int speedRight);
+        void forward(int, int);
+        void reverse(int, int);
+        void turnLeft(int, int);
+        void turnRight(int, int);
+        void brakeLeft(int);
+        void brakeRight(int);
+        void setSpeed(int, int);
         void test();
         
     private:

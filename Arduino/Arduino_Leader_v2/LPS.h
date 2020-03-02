@@ -2,6 +2,8 @@
 #include <Arduino.h>
 
 #define WHEEL_AXIS 179
+#define WHEEL_AXIS_MULTIPLIER 0.0055866
+#define WHEEL_AXIS_HALF_MULTIPLIER 0.0111732
 
 class LPS {
     public:

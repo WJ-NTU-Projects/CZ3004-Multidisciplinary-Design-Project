@@ -15,11 +15,11 @@
 #define TICKS_PER_MM 2.92
 #define TICKS_PER_ANGLE 4.525
 
-volatile boolean movingLeft = false;
-volatile boolean movingRight = false;
 volatile double ticksLeft = 0;
 volatile double ticksRight = 0;
 double ticksTarget = 0;
+double speedLeftRef = EXPLORE_SPEED_LEFT;
+double speedRightRef = EXPLORE_SPEED_LEFT - 30;
 double speedLeft = EXPLORE_SPEED_LEFT;
 double speedRight = EXPLORE_SPEED_LEFT - 30;
 double error = 0;

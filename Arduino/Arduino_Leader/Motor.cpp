@@ -13,16 +13,16 @@ void Motor::test() {
     forward(200, 0);
 }
 
-void Motor::brakeLeft() {
+void Motor::brakeLeft(int speedLeft) {
     digitalWriteFast(A_LEFT, LOW);
     digitalWriteFast(B_LEFT, LOW);
-    analogWrite(PWM_LEFT, 255);
+    analogWrite(PWM_LEFT, map(speedLeft, 0, 400, 0, 255));
 }
 
-void Motor::brakeRight() {
+void Motor::brakeRight(int speedRight) {
     digitalWriteFast(A_RIGHT, LOW);
     digitalWriteFast(B_RIGHT, LOW);
-    analogWrite(PWM_RIGHT, 255);
+    analogWrite(PWM_RIGHT, map(speedRight, 0, 400, 0, 255));
 }
 
 void Motor::setSpeed(int speedLeft, int speedRight) {
@@ -30,10 +30,10 @@ void Motor::setSpeed(int speedLeft, int speedRight) {
     if (speedRight > 400) speedRight = 400;
     
     if (speedLeft > 0) analogWrite(PWM_LEFT, map(speedLeft, 0, 400, 0, 255));
-    else brakeLeft();
+    else brakeLeft(400);
     
     if (speedRight > 0) analogWrite(PWM_RIGHT, map(speedRight, 0, 400, 0, 255));
-    else brakeRight();
+    else brakeRight(400);
 }
 
 void Motor::forward(int speedLeft, int speedRight) {

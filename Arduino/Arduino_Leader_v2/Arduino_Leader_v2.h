@@ -12,21 +12,22 @@
 #define EXPLORE_SPEED_LEFT 180
 #define FAST_SPEED_LEFT 300
 
-#define TICKS_PER_MM 2.92
-#define TICKS_PER_ANGLE 4.525
+#define TICKS_PER_MM 2.98289
+#define TICKS_MULTIPLIER 0.33524535
+//#define TICKS_PER_MM 2.92
+//#define TICKS_PER_ANGLE 4.525
 
-volatile boolean movingLeft = false;
-volatile boolean movingRight = false;
 volatile double ticksLeft = 0;
 volatile double ticksRight = 0;
-double ticksTarget = 0;
-double speedLeft = EXPLORE_SPEED_LEFT;
-double speedRight = EXPLORE_SPEED_LEFT - 30;
+double speedLeftRef = EXPLORE_SPEED_LEFT;
+double speedRightRef = EXPLORE_SPEED_LEFT - 30;
+double speedLeft = 0;
+double speedRight = 0;
 double error = 0;
 double setpoint = 0;
 
 Motor motor;
 Sensors sensors;
-LPS lps(&ticksLeft, &ticksRight, TICKS_PER_MM);
+LPS lps(&ticksLeft, &ticksRight, TICKS_MULTIPLIER);
 PID leftAlignPID(&error, &setpoint, 50, 10, 200);
 PID pid(&error, &setpoint, 50, 10, 200);

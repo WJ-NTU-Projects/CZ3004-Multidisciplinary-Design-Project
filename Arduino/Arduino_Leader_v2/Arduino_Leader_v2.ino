@@ -1,4 +1,4 @@
-#include "Arduino_Leader.h"
+#include "Arduino_Leader_v2.h"
 
 void setup() {
     pinMode(ENCODER_LEFT, INPUT);
@@ -20,12 +20,12 @@ void loop() {
             case '\n':
                 break;
             case 'E':
-                speedLeft = EXPLORE_SPEED_LEFT;
-                speedRight = EXPLORE_SPEED_LEFT - 30;
+                speedLeftRef = EXPLORE_SPEED_LEFT;
+                speedRightRef = EXPLORE_SPEED_LEFT - 30;
                 break;
             case 'F':
-                speedLeft = FAST_SPEED_LEFT;
-                speedRight = FAST_SPEED_LEFT - 30;
+                speedLeftRef = FAST_SPEED_LEFT;
+                speedRightRef = FAST_SPEED_LEFT - 30;
                 break;
             case 'I':
                 printSensorValues(0);
@@ -61,8 +61,6 @@ void postMove() {
 }
 
 void move(int direction, double distance) {    
-    movingLeft = true;
-    movingRight = true;
     ticksLeft = 0;
     ticksRight = 0;
     pid.reset();
@@ -70,20 +68,16 @@ void move(int direction, double distance) {
 
     switch (direction) {
         case FORWARD:
-            ticksTarget = distance * TICKS_PER_MM;
-            motor.forward(speedLeft, speedRight);
+            motor.forward(speedLeftRef, speedRightRef);
             break;
         case REVERSE:
-            ticksTarget = distance * TICKS_PER_MM;
-            motor.reverse(speedLeft, speedRight);
+            motor.reverse(speedLeftRef, speedRightRef);
             break;
         case LEFT:
-            ticksTarget = distance * TICKS_PER_ANGLE;
-            motor.turnLeft(speedLeft, speedRight);
+            motor.turnLeft(speedLeftRef, speedRightRef);
             break;
         case RIGHT:
-            ticksTarget = distance * TICKS_PER_ANGLE;
-            motor.turnRight(speedLeft, speedRight);
+            motor.turnRight(speedLeftRef, speedRightRef);
             break;
         default: return;
     }
@@ -92,29 +86,51 @@ void move(int direction, double distance) {
 
     while (true) {   
         if (millis() - lastLoopTime < 10) continue;
-        lastLoopTime = millis();        
-        lps.computePosition();
-        error = lps.getY();
-        double speedOffset = pid.computeOffset();      
-        
-        if (direction == FORWARD && sensors.isObstructedFront()) {
-            brake();
-            break;         
-        }
-          
-        double newSpeedLeft = speedLeft - speedOffset;
-        newSpeedLeft = constrain(newSpeedLeft, speedLeft - 50, speedLeft + 50);
-        double newSpeedRight = speedRight + speedOffset;
-        newSpeedRight = constrain(newSpeedRight, speedRight - 50, speedRight + 50);
-        motor.setSpeed(newSpeedLeft, newSpeedRight);
-    }
-}
+        lastLoopTime = millis();  
+        double travelled = 0;
 
-void brake() {
-    motor.brakeLeft();
+        switch (direction) {
+            case FORWARD:
+                lps.computePosition();
+                travelled = lps.getX();
+                if (sensors.isObstructedFront() || travelled - 10 >= distance) break;
+                break;
+            case REVERSE:
+                lps.computePosition();
+                travelled = lps.getX();
+                if (travelled - 10 >= distance) break;
+                break;
+            case LEFT:
+                lps.computeLeftTurn();
+                travelled = lps.getHeading();
+                if (travelled == distance) break;
+                break;
+            case RIGHT:
+                lps.computeRightTurn();
+                travelled = lps.getHeading();
+                if (travelled == distance) break;
+                break;
+        }
+
+        double speedOffset = 0;
+        
+        if (sensors.mayAlignLeft()) {
+            error = -(sensors.getErrorLeft());       
+            speedOffset = leftAlignPID.computeOffset();   
+        } else {
+            error = lps.getY();            
+            speedOffset = pid.computeOffset();     
+        }
+        
+        speedLeft = speedLeftRef - speedOffset;
+        speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
+        speedRight = speedRightRef + speedOffset;
+        speedRight = constrain(speedRight, speedRightRef - 50, speedRightRef + 50);
+        motor.setSpeed(speedLeft, speedRight);
+    }
+
     motor.brakeRight();
-    movingLeft = false;
-    movingRight = false;
+    motor.brakeLeft();
 }
 
 void align() {    
@@ -175,21 +191,9 @@ void printSensorValues(int step) {
 }
 
 void interruptLeft() {
-    if (!movingLeft) return;
     ticksLeft += 0.5;
-
-    if (abs(ticksLeft - ticksTarget) <= 0.25) {
-        motor.brakeLeft();
-        movingLeft = false;
-    }
 }
 
 void interruptRight() {
-    if (!movingRight) return;
     ticksRight += 0.5;
-
-    if (abs(ticksRight - ticksTarget) <= 0.25) {
-        motor.brakeRight();
-        movingRight = false;
-    }
 }
