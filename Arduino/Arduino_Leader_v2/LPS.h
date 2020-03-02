@@ -28,5 +28,4 @@ class LPS {
         int headingDegree;
         double deltaLeft;
         double deltaRight;
-        int boundAngle(int angle);
 };

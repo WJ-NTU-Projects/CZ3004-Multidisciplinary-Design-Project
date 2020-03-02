@@ -16,9 +16,6 @@ void loop() {
         char command = char(Serial.read());
 
         switch (command) {
-            case '\0':
-            case '\n':
-                break;
             case 'E':
                 speedLeftRef = EXPLORE_SPEED_LEFT;
                 speedRightRef = EXPLORE_SPEED_LEFT - 30;
@@ -46,9 +43,6 @@ void loop() {
                 move(REVERSE, 100);
                 postMove();
                 break; 
-            case 'C':
-                align();
-                break; 
         }
     }
 }
@@ -65,23 +59,7 @@ void move(int direction, double distance) {
     ticksRight = 0;
     pid.reset();
     lps.reset();
-
-    switch (direction) {
-        case FORWARD:
-            motor.forward(speedLeftRef, speedRightRef);
-            break;
-        case REVERSE:
-            motor.reverse(speedLeftRef, speedRightRef);
-            break;
-        case LEFT:
-            motor.turnLeft(speedLeftRef, speedRightRef);
-            break;
-        case RIGHT:
-            motor.turnRight(speedLeftRef, speedRightRef);
-            break;
-        default: return;
-    }
-
+    motor.move(direction, speedLeftRef, speedRightRef);
     double lastLoopTime = millis();
 
     while (true) {   
@@ -122,15 +100,14 @@ void move(int direction, double distance) {
             speedOffset = pid.computeOffset();     
         }
         
-        speedLeft = speedLeftRef - speedOffset;
+        speedLeft = round(speedLeftRef - speedOffset);
         speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
-        speedRight = speedRightRef + speedOffset;
+        speedRight = round(speedRightRef + speedOffset);
         speedRight = constrain(speedRight, speedRightRef - 50, speedRightRef + 50);
         motor.setSpeed(speedLeft, speedRight);
     }
 
-    motor.brakeRight();
-    motor.brakeLeft();
+    motor.brake();
 }
 
 void align() {    
@@ -169,24 +146,25 @@ void alignFront() {
 }
 
 void printSensorValues(int step) {
-    int s1 = ceil(sensors.getDistanceR(1) * 0.1);
-    int s2 = ceil(sensors.getDistanceR(2) * 0.1);
-    int s3 = ceil(sensors.getDistanceR(3) * 0.1);
-    int s4 = ceil(sensors.getDistanceR(4) * 0.1);
-    int s5 = ceil(sensors.getDistanceR(5) * 0.1);
-    int s6 = ceil(sensors.getDistanceR(6) * 0.1);
-    Serial.print('P');
+    int s1 = sensors.getPrintDistance(1);
+    int s2 = sensors.getPrintDistance(2);
+    int s3 = sensors.getPrintDistance(3);
+    int s4 = sensors.getPrintDistance(4);
+    int s5 = sensors.getPrintDistance(5);
+    int s6 = sensors.getPrintDistance(6);
+    Serial.write(80);
     Serial.print(s1);
-    Serial.print('#');
+    Serial.write(35);
     Serial.print(s2);
-    Serial.print('#');
+    Serial.write(35);
     Serial.print(s3);
-    Serial.print('#');
+    Serial.write(35);
     Serial.print(s4);
-    Serial.print('#');
+    Serial.write(35);
     Serial.print(s5);
-    Serial.print('#');
-    Serial.println(s6);
+    Serial.write(35);
+    Serial.print(s6);
+    Serial.write(10);
     Serial.flush();
 }
 

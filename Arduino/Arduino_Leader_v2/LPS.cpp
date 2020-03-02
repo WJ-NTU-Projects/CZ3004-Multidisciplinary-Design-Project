@@ -69,9 +69,3 @@ double LPS::getY() {
 int LPS::getHeading() {
     return headingDegree;
 }
-
-int LPS::boundAngle(int angle) {
-    if (angle >= 360) angle -= 360;
-    if (angle <= -360) angle += 360;
-    return angle; 
-}

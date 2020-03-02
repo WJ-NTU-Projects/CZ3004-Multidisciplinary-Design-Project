@@ -13,6 +13,13 @@ double Sensors::getDistance(int sensor) {
     if (sensor == 6) return getDistance(sensor6, A5m, A5c, A5r);
 }
 
+int Sensors::getPrintDistance(int sensor) {
+    int distance = getDistanceR(sensor);
+    if (distance < 0) distance = 90;
+    else min(distance, 90);
+    return ceil(distance * 0.1);
+}
+
 int Sensors::getDistanceR(int sensor) {
     return round(getDistance(sensor));
 }
