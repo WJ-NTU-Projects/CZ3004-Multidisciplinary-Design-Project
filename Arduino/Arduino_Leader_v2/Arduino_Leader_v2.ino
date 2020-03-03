@@ -8,13 +8,14 @@ void setup() {
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
-    leftErrorReference = 0;
-    
-    for (int i = 0; i < 50; i++) {
-        leftErrorReference += sensors.getErrorLeft();
-    }
-
-    leftErrorReference *= 0.02;
+//    leftErrorReference = 0;
+//    
+//    for (int i = 0; i < 50; i++) {
+//        leftErrorReference += sensors.getErrorLeft();
+//    }
+//
+//    leftErrorReference *= 0.02;
+    align();
 }
 
 void loop() {    
@@ -34,18 +35,22 @@ void loop() {
                 printSensorValues(0);
                 break;  
             case 'M':
+                started = true;
                 move(FORWARD, 100);
                 postMove();
                 break; 
             case 'L':
+                started = true;
                 move(LEFT, 90);
                 postMove();
                 break;
             case 'R':
+                started = true;
                 move(RIGHT, 90);
                 postMove();
                 break;
             case 'V':
+                started = true;
                 move(REVERSE, 100);
                 postMove();
                 break; 
@@ -68,70 +73,31 @@ void move(int direction, double distance) {
     ticksRight = 0;
     pid.reset();
     lps.reset();
+    moving = true;
 
     if (direction == FORWARD || direction == REVERSE) {
         ticksTarget = distance * TICKS_PER_MM;
     } else {
         ticksTarget = distance * TICKS_PER_ANGLE;
     }
+
     
     motor.move(direction, speedLeftRef, speedRightRef);
     double lastLoopTime = millis();
 
-    while (true) {   
+    while (moving) {   
         if (millis() - lastLoopTime < 10) continue;
         lastLoopTime = millis();  
-        double travelled = 0;
-
-        switch (direction) {
-            case FORWARD:
-                lps.computePosition();
-                travelled = lps.getX();
-                
-                if (sensors.isObstructedFront() || travelled - 10 >= distance) {
-                    motor.brake();
-                    return;
-                }
-                
-                break;
-            case REVERSE:
-                lps.computePosition();
-                travelled = lps.getX();
-                
-                if (travelled - 10 >= distance) {
-                    motor.brake();
-                    return;
-                }
-                
-                break;
-            case LEFT:
-                lps.computeLeftTurn();
-                travelled = lps.getHeading();
-                
-                if (travelled - 12.666 >= distance) {
-                    motor.brake();
-                    return;
-                }
-                
-                break;
-            case RIGHT:
-                lps.computeRightTurn();
-                travelled = lps.getHeading();
-                
-                if (travelled - 14.666 >= distance) {
-                    motor.brake();
-                    return;
-                }
-                
-                break;
+        
+        if (direction == FORWARD && sensors.isObstructedFront()) {
+            motor.brake();
+            moving = false;
+            break;         
         }
 
-        
-
-        double speedOffset = 0;        
-        error = lps.getY();            
-        setpoint = 0;
-        speedOffset = pid.computeOffset();   
+        lps.computePosition();     
+        error = lps.getY();         
+        double speedOffset = pid.computeOffset();   
         
         speedLeft = round(speedLeftRef - speedOffset);
         speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
@@ -141,6 +107,8 @@ void move(int direction, double distance) {
     }
 
     motor.brake();
+    moving = false;
+    started = false;
 }
 
 void moveAlign(int direction) {    
@@ -151,12 +119,13 @@ void moveAlign(int direction) {
     motor.move(direction, 120, 90);
     double lastLoopTime = millis();
     int distance = 0.1;
+    ticksTarget = 99999999;
+    moving = true;
 
     while (true) {   
         if (millis() - lastLoopTime < 10) continue;
         lastLoopTime = millis();  
         double travelled = 0;
-
         switch (direction) {
             case LEFT:
                 lps.computeLeftTurn();
@@ -205,12 +174,22 @@ void alignLeft() {
 
     while (alignCounter < 50) {
         double error = sensors.getErrorLeft();
-        if (error < leftErrorReference) moveAlign(RIGHT);
-        else if (error > leftErrorReference) moveAlign(LEFT);
-        else return;
+        double lowerBound = 0.05;
+        double upperBound = 0.25;
+        
+        if (error >= lowerBound && error <= upperBound) return;
+        moveAlign((error < lowerBound) ? RIGHT : LEFT);
         alignCounter++;
         delay(5);
     }
+//    while (alignCounter < 50) {
+//        double error = sensors.getErrorLeft();
+//        if (error < leftErrorReference) moveAlign(RIGHT);
+//        else if (error > leftErrorReference) moveAlign(LEFT);
+//        else return;
+//        alignCounter++;
+//        delay(5);
+//    }
 }
 
 void alignFront() {    
@@ -253,9 +232,21 @@ void printSensorValues(int step) {
 }
 
 void interruptLeft() {
+    if (!moving) return;
     ticksLeft += 0.5;
+    
+    if (abs(ticksLeft - ticksTarget) <= 0.25) {
+        motor.brake();
+        moving = false;
+    }
 }
 
 void interruptRight() {
+    if (!moving) return;
     ticksRight += 0.5;
+
+    if (abs(ticksRight - ticksTarget) <= 0.25) {
+        motor.brake();
+        moving = false;
+    }
 }

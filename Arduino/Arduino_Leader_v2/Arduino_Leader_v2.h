@@ -9,14 +9,18 @@
 #define ENCODER_RIGHT 3
 
 #define TURN_SPEED_LEFT 180
-#define EXPLORE_SPEED_LEFT 250
+#define EXPLORE_SPEED_LEFT 200
 #define FAST_SPEED_LEFT 300
 
-#define TICKS_PER_MM 2.92
+#define TICKS_PER_MM 2.89
 #define TICKS_MULTIPLIER 0.41
 //#define TICKS_PER_MM 2.92
 #define TICKS_PER_ANGLE 4.525
 
+volatile boolean moving = false;
+boolean started = false;
+double frontDistanceReference = 0;
+double ticksReference = 0;
 double leftErrorReference = 0;
 double ticksTarget = 0;
 volatile double ticksLeft = 0;
