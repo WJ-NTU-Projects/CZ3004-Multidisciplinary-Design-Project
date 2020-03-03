@@ -8,13 +8,6 @@ void setup() {
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
-//    leftErrorReference = 0;
-//    
-//    for (int i = 0; i < 50; i++) {
-//        leftErrorReference += sensors.getErrorLeft();
-//    }
-//
-//    leftErrorReference *= 0.02;
     align();
 }
 
