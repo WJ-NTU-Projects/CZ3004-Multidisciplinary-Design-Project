@@ -71,6 +71,8 @@ void move(int direction, double distance) {
 
     if (direction == FORWARD || direction == REVERSE) {
         ticksTarget = distance * TICKS_PER_MM;
+    } else {
+        ticksTarget = distance * TICKS_PER_ANGLE;
     }
     
     motor.move(direction, speedLeftRef, speedRightRef);
