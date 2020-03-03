@@ -26,7 +26,7 @@ void Motor::move(int direction, int speedLeft, int speedRight) {
     }
 }
 
-void brake() {
+void Motor::brake() {
     brakeRight(400);
     brakeLeft(400);
 }
@@ -47,9 +47,9 @@ void Motor::setSpeed(int speedLeft, int speedRight) {
     if (speedLeft > 400) speedLeft = 400;
     if (speedRight > 400) speedRight = 400;
     if (speedLeft > 0) analogWrite(PWM_LEFT, map(speedLeft, 0, 400, 0, 255));
-    else brakeLeft();
+    else brakeLeft(400);
     if (speedRight > 0) analogWrite(PWM_RIGHT, map(speedRight, 0, 400, 0, 255));
-    else brakeRight();
+    else brakeRight(400);
 }
 
 void Motor::forward(int speedLeft, int speedRight) {

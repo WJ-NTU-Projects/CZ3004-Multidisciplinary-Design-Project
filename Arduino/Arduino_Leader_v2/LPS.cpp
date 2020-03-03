@@ -40,7 +40,7 @@ void LPS::computeLeftTurn() {
     double diff = (deltaRight - 0) * WHEEL_AXIS_HALF_MULTIPLIER;
     y = deltaRight - deltaLeft;
     headingRadian += diff; 
-    headingDegree = round((headingRadian * 4068) * 0.0140845);
+    headingDegree = (headingRadian * 4068.0) * 0.0140845;
     previousTicksLeft = currentTicksLeft;
     previousTicksRight = currentTicksRight;
 }
@@ -53,7 +53,7 @@ void LPS::computeRightTurn() {
     double diff = (deltaLeft - 0) * WHEEL_AXIS_HALF_MULTIPLIER;
     y = deltaRight - deltaLeft;
     headingRadian += diff;  
-    headingDegree = round((headingRadian * 4068) * 0.0140845);
+    headingDegree = (headingRadian * 4068.0) * 0.0140845;
     previousTicksLeft = currentTicksLeft;
     previousTicksRight = currentTicksRight;
 }
@@ -66,6 +66,6 @@ double LPS::getY() {
     return y;
 }
 
-int LPS::getHeading() {
+double LPS::getHeading() {
     return headingDegree;
 }

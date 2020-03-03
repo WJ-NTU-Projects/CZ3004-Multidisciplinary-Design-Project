@@ -15,9 +15,10 @@ double Sensors::getDistance(int sensor) {
 
 int Sensors::getPrintDistance(int sensor) {
     int distance = getDistanceR(sensor);
-    if (distance < 0) distance = 90;
-    else min(distance, 90);
-    return ceil(distance * 0.1);
+    distance = ceil(distance * 0.1);
+    if (distance < 0) distance = 9;
+    else distance = min(distance, 9);
+    return distance;
 }
 
 int Sensors::getDistanceR(int sensor) {
@@ -62,4 +63,5 @@ boolean Sensors::isObstructedFront() {
     if (distance2 > 0 && distance2 <= 5) return true;
     if (distance1 > 0 && distance1 <= 5) return true;
     if (distance3 > 0 && distance3 <= 5) return true;
+    return false;
 }

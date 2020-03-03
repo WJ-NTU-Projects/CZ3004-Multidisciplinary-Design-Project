@@ -14,7 +14,7 @@ class LPS {
         void reset();
         double getX();
         double getY();
-        int getHeading();
+        double getHeading();
 
     private:
         double *ticksLeft;
@@ -25,7 +25,7 @@ class LPS {
         double x;
         double y;
         double headingRadian;
-        int headingDegree;
+        double headingDegree;
         double deltaLeft;
         double deltaRight;
 };
