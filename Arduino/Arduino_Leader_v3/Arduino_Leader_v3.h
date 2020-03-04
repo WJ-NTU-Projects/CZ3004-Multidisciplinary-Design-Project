@@ -14,7 +14,8 @@
 #define TICKS_PER_MM 2.89
 #define TICKS_MULTIPLIER 0.41
 //#define TICKS_PER_MM 2.92
-#define TICKS_PER_ANGLE 4.525
+#define TICKS_PER_ANGLE_R 4.61
+#define TICKS_PER_ANGLE_L 4.591
 
 volatile boolean movingLeft = false;
 volatile boolean movingRight = false;

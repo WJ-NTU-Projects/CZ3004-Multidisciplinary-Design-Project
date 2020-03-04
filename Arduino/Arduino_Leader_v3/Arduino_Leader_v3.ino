@@ -75,7 +75,7 @@ void move(int direction, double distance) {
     lps.reset();
     movingLeft = true;
     movingRight = true;
-    ticksTarget = (direction == FORWARD || direction == REVERSE) ? ticksTarget = distance * TICKS_PER_MM : distance * TICKS_PER_ANGLE;
+    ticksTarget = (direction == FORWARD || direction == REVERSE) ? ticksTarget = distance * TICKS_PER_MM : (direction == RIGHT) ? distance * TICKS_PER_ANGLE_R : distance * TICKS_PER_ANGLE_L;
     
     int speedLeftRef = 100;
     int speedRightRef = 70;
