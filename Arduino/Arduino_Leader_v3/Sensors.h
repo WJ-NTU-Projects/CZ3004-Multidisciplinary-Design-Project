@@ -33,12 +33,16 @@ class Sensors {
         Sensors();
         double getDistance(char, double, double, double);
         double getDistance(int);
+        int getPrintDistance(int);
         int getDistanceR(int);
         double getErrorLeft();
         double getErrorFront();
+        double getErrorFrontFar();
         boolean hasObstacleFront(int);
         boolean hasObstacleLeft(int);
         boolean mayAlignLeft();
         boolean mayAlignFront();
         boolean isObstructedFront();
+        boolean isNearFront();
+        double getDistanceAverageFront();
 };

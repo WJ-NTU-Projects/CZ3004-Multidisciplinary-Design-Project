@@ -17,6 +17,8 @@
 class Motor {
     public:
         Motor();
+        void move(int, int, int);
+        void brake();
         void forward(int, int);
         void reverse(int, int);
         void turnLeft(int, int);
@@ -24,7 +26,6 @@ class Motor {
         void brakeLeft(int);
         void brakeRight(int);
         void setSpeed(int, int);
-        void test();
         
     private:
 };

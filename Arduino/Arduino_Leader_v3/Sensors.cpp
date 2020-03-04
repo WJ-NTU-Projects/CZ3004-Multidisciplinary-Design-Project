@@ -13,6 +13,14 @@ double Sensors::getDistance(int sensor) {
     if (sensor == 6) return getDistance(sensor6, A5m, A5c, A5r);
 }
 
+int Sensors::getPrintDistance(int sensor) {
+    int distance = getDistanceR(sensor);
+    distance = ceil(distance * 0.1);
+    if (distance < 0) distance = 9;
+    else distance = min(distance, 9);
+    return distance;
+}
+
 int Sensors::getDistanceR(int sensor) {
     return round(getDistance(sensor));
 }
@@ -22,6 +30,13 @@ double Sensors::getDistance(char sensor, double m, double c, double r) {
     int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
     double volts = voltsFromRaw * 0.001;
     return pow((volts * m) + c, -1) - r;
+}
+
+double Sensors::getDistanceAverageFront() {
+    double distance1 = getDistance(1);
+    double distance2 = getDistance(2);  
+    double distance3 = getDistance(3);  
+    return (distance1 + distance2 + distance3) * 0.333333;
 }
 
 double Sensors::getErrorLeft() {
@@ -52,7 +67,18 @@ boolean Sensors::isObstructedFront() {
     int distance1 = getDistanceR(1);
     int distance2 = getDistanceR(2);
     int distance3 = getDistanceR(3);
-    if (distance2 > 0 && distance2 <= 5) return true;
-    if (distance1 > 0 && distance1 <= 5) return true;
-    if (distance3 > 0 && distance3 <= 5) return true;
+    if (distance2 > 0 && distance2 <= 6) return true;
+    if (distance1 > 0 && distance1 <= 6) return true;
+    if (distance3 > 0 && distance3 <= 6) return true;
+    return false;
+}
+
+boolean Sensors::isNearFront() {
+    int distance1 = getDistanceR(1);
+    int distance2 = getDistanceR(2);
+    int distance3 = getDistanceR(3);
+    if (distance2 > 0 && distance2 <= 14) return true;
+    if (distance1 > 0 && distance1 <= 14) return true;
+    if (distance3 > 0 && distance3 <= 14) return true;
+    return false;
 }

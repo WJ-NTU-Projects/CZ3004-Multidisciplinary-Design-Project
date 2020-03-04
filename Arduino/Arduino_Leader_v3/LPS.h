@@ -2,6 +2,8 @@
 #include <Arduino.h>
 
 #define WHEEL_AXIS 179
+#define WHEEL_AXIS_MULTIPLIER 0.0055866
+#define WHEEL_AXIS_HALF_MULTIPLIER 0.0111732
 
 class LPS {
     public:
@@ -12,7 +14,7 @@ class LPS {
         void reset();
         double getX();
         double getY();
-        int getHeading();
+        double getHeading();
 
     private:
         double *ticksLeft;
@@ -23,8 +25,7 @@ class LPS {
         double x;
         double y;
         double headingRadian;
-        int headingDegree;
+        double headingDegree;
         double deltaLeft;
         double deltaRight;
-        int boundAngle(int angle);
 };

@@ -26,16 +26,16 @@ class Exploration : Algorithm() {
         if (message.length == 2) {
             lastStartedJob = CoroutineScope(Dispatchers.Default).launch {
                 try {
-//                    val step: Int = message[0].toString().toInt()
-//                    if (step > 0) Robot.moveTemp()
+                    val step: Int = message[0].toString().toInt()
+                    if (step > 0) Robot.moveTemp()
 
                     val set1: Int = message[0].toString().toInt()
                     val set2: Int = message[1].toString().toInt()
 
-//                    if (!braking.get() && set2 <= 1 && !Robot.isLeftObstructed() && previousCommand != LEFT) {
-//                        braking.set(true)
-//                        WifiSocketController.write("A", "B")
-//                    }
+                    if (!braking.get() && set2 <= 1 && !Robot.isLeftObstructed() && previousCommand != LEFT) {
+                        braking.set(true)
+                        WifiSocketController.write("A", "B")
+                    }
 
                     val str1: String = Integer.toBinaryString(set1).padStart(3, '0')
                     val str2: String = Integer.toBinaryString(set2).padStart(3, '0')

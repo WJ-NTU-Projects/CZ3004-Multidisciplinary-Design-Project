@@ -9,8 +9,26 @@ Motor::Motor() {
     pinMode(PWM_RIGHT, OUTPUT);
 }
 
-void Motor::test() {
-    forward(200, 0);
+void Motor::move(int direction, int speedLeft, int speedRight) {
+    switch (direction) {
+        case FORWARD:
+            forward(speedLeft, speedRight);
+            break;
+        case REVERSE:
+            reverse(speedLeft, speedRight);
+            break;
+        case LEFT:
+            turnLeft(speedLeft, speedRight);
+            break;
+        case RIGHT:
+            turnRight(speedLeft, speedRight);
+            break;
+    }
+}
+
+void Motor::brake() {
+    brakeRight(400);
+    brakeLeft(400);
 }
 
 void Motor::brakeLeft(int speedLeft) {
@@ -28,10 +46,8 @@ void Motor::brakeRight(int speedRight) {
 void Motor::setSpeed(int speedLeft, int speedRight) {
     if (speedLeft > 400) speedLeft = 400;
     if (speedRight > 400) speedRight = 400;
-    
     if (speedLeft > 0) analogWrite(PWM_LEFT, map(speedLeft, 0, 400, 0, 255));
     else brakeLeft(400);
-    
     if (speedRight > 0) analogWrite(PWM_RIGHT, map(speedRight, 0, 400, 0, 255));
     else brakeRight(400);
 }
