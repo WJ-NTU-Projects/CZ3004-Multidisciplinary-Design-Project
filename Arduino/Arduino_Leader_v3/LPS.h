@@ -8,13 +8,8 @@
 class LPS {
     public:
         LPS(double *tl, double *tr, double tpmm);
-        void computePosition();
-        void computeLeftTurn();
-        void computeRightTurn();
+        double computeError();
         void reset();
-        double getX();
-        double getY();
-        double getHeading();
 
     private:
         double *ticksLeft;
@@ -22,10 +17,8 @@ class LPS {
         double previousTicksLeft;
         double previousTicksRight;
         double ticksPerMillimeter;
-        double x;
-        double y;
+        double error;
         double headingRadian;
-        double headingDegree;
         double deltaLeft;
         double deltaRight;
 };

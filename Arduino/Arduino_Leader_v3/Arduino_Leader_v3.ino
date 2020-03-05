@@ -12,60 +12,59 @@ void setup() {
 }
 
 void loop() {    
+    String inputString = "";
+
     if (Serial.available()) {
-        char command = char(Serial.read());
-
-        switch (command) {
-            case 'E':
-                speedMax = EXPLORE_SPEED;
-                Serial.println("Speed set to EXPLORE");
-                break;
-            case 'F':
-                speedMax = FAST_SPEED;
-                Serial.println("Speed set to FAST");
-                break;
-            case 'I':
-                printSensorValues(0);
-                break;  
-            case 'Z':
-                Serial.println(sensors.getErrorLeft());
-                Serial.println(sensors.getErrorFront());
-                Serial.println(sensors.getDistanceAverageFront());
-                break;  
-            case 'M':
-                move(FORWARD, 100);
-                postMove();
-                break; 
-            case 'N':
-                move(FORWARD, 2000);
-                postMove();
-                break; 
-            case 'L':
-                move(LEFT, 90);
-                postMove();
-                break;
-            case 'R':
-                move(RIGHT, 90);
-                postMove();
-                break;
-            case 'T':
-                move(RIGHT, 180);
-                postMove();
-                break;
-            case 'V':
-                move(REVERSE, 100);
-                postMove();
-                break; 
-            case 'C':
-                align();
-                break;
+        while (true) {
+            char input = (char) Serial.read();
+            if (input == '\r') continue;
+            if (input == '\n') break;
+            inputString += input;
         }
-    }
-}
+        
+        int size = inputString.length();
 
-void postMove() {
-    align();
-    printSensorValues(0);
+        if (size == 1) {
+            char command = inputString.charAt(0);
+
+            switch (command) {
+                case 'I': printSensorValues(0); break;  
+                case 'M': move(FORWARD, 100); break; 
+                case 'L': move(LEFT, 90); break;
+                case 'R': move(RIGHT, 90); break;
+                case 'T': move(RIGHT, 180); break;
+                case 'V': move(REVERSE, 100); break; 
+                case 'C': align(); break;
+            }
+        } else if (size > 1) {
+            char command = 'A';
+            int counter = 0;
+                
+            for (int i = 0; i < size; i++) {
+                char x = inputString.charAt(i);    
+
+                if (x == command) {
+                    counter++;
+
+                    if (i == size - 1) {
+                        if (command == 'M') move(FORWARD, 100 * counter);
+                        else if (command == 'L') move(LEFT, 90);
+                        else if (command == 'R') move(RIGHT, 90);
+                        return;
+                    }
+                } else {
+                    if (command == 'M') move(FORWARD, 100 * counter);
+                    else if (command == 'L') move(LEFT, 90);
+                    else if (command == 'R') move(RIGHT, 90);
+                    counter = 1;                    
+                    command = x;
+                    delay(10);
+                }
+            }
+        }
+
+        inputString = "";
+    }
 }
 
 void move(int direction, double distance) {    
@@ -75,7 +74,18 @@ void move(int direction, double distance) {
     lps.reset();
     movingLeft = true;
     movingRight = true;
-    ticksTarget = (direction == FORWARD || direction == REVERSE) ? ticksTarget = distance * TICKS_PER_MM : (direction == RIGHT) ? distance * TICKS_PER_ANGLE_R : distance * TICKS_PER_ANGLE_L;
+
+    switch (direction) {
+        case FORWARD:
+        case REVERSE:
+            ticksTarget = distance * TICKS_PER_MM;
+            break;
+        case LEFT:
+        case RIGHT:
+            ticksTarget = distance * TICKS_PER_ANGLE;
+            break;
+        default: return;
+    };
     
     int speedLeftRef = 100;
     int speedRightRef = 70;
@@ -95,8 +105,7 @@ void move(int direction, double distance) {
         }
 
         if (ticksTarget - ticksLeft <= 289 || ticksTarget - ticksRight <= 289) decelerating = true;
-        lps.computePosition();     
-        error = lps.getY();       
+        error = lps.computeError();   
         double speedOffset = pid.computeOffset();   
         speedLeft = round(speedLeftRef - speedOffset);
         speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
@@ -127,6 +136,10 @@ void move(int direction, double distance) {
     motor.brake();
     movingLeft = false;
     movingRight = false;
+    delay(10);
+    align();
+    delay(10);
+    printSensorValues(0);
 }
 
 void moveAlign(int direction, boolean front, double lowerBound, double upperBound) {    
@@ -141,22 +154,24 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
     int speedLeftRef = 100;
     int speedRightRef = 70;
     motor.move(direction, speedLeftRef, speedRightRef);
-    
     double lastLoopTime = millis();
 
-    while (movingLeft && movingRight) {   
+    while (movingLeft || movingRight) {   
         if (millis() - lastLoopTime < 1) continue;
         lastLoopTime = millis();  
 
         double error = (front) ? sensors.getErrorFront() : sensors.getErrorLeft();
+
+        switch (direction) {
+            
+        }
         
         if (direction == RIGHT && error >= lowerBound) break;
         else if (direction == LEFT && error <= upperBound) break;
         else if (direction == FORWARD && sensors.getDistanceAverageFront() <= upperBound) break;
         else if (direction == REVERSE && sensors.getDistanceAverageFront() >= lowerBound) break;
         
-        lps.computePosition();    
-        error = lps.getY();      
+        error = lps.computeError();    
         double speedOffset = pid.computeOffset();   
         speedLeft = round(speedLeftRef - speedOffset);
         speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
@@ -171,9 +186,7 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
 }
 
 void align() {      
-    if (sensors.mayAlignFront()) {
-        alignFront();
-    }
+    if (sensors.mayAlignFront()) alignFront();
     else if (sensors.mayAlignLeft()) alignLeft();  
 }
 

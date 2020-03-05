@@ -25,11 +25,30 @@ int Sensors::getDistanceR(int sensor) {
     return round(getDistance(sensor));
 }
 
+void swap(int* a, int* b) 
+{ 
+    int t = *a; 
+    *a = *b; 
+    *b = t; 
+}  
+
 double Sensors::getDistance(char sensor, double m, double c, double r) {
-    int raw = analogRead(sensor);
-    int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
-    double volts = voltsFromRaw * 0.001;
-    return pow((volts * m) + c, -1) - r;
+      int raw = analogRead(sensor);
+      int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
+      double volts = voltsFromRaw * 0.001;
+      return pow((volts * m) + c, -1) - r;
+//    double totalDistance = 0;
+//    MedianFilter<double> s(5);
+//
+//    for (int i = 0; i < 5; i++) {
+//        int raw = analogRead(sensor);
+//        int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
+//        double volts = voltsFromRaw * 0.001;
+//        double distance = pow((volts * m) + c, -1) - r;
+//        totalDistance = s.AddValue(distance);
+//    }
+//
+//    return (totalDistance);
 }
 
 double Sensors::getDistanceAverageFront() {
@@ -54,13 +73,15 @@ double Sensors::getErrorFront() {
 boolean Sensors::mayAlignLeft() {
     int distance1 = getDistanceR(4);
     int distance2 = getDistanceR(5);    
-    return (distance1 > 0 && distance1 <= 10 && distance2 > 0 && distance2 <= 10);    
+    if (distance1 >= 2 && distance1 <= 10 && distance2 >= 2 && distance2 <= 10) return true;
+    return false;
 }
 
 boolean Sensors::mayAlignFront() {
     int distance1 = getDistanceR(1);
     int distance2 = getDistanceR(3);    
-    return (distance1 > 0 && distance1 <= 10 && distance2 > 0 && distance2 <= 10);   
+    if (distance1 > 0 && distance1 <= 10 && distance2 > 0 && distance2 <= 10) return true;
+    return false;
 }
 
 boolean Sensors::isObstructedFront() {
