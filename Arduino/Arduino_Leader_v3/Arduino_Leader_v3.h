@@ -9,7 +9,7 @@
 #define ENCODER_RIGHT 3
 
 #define EXPLORE_SPEED 260
-#define FAST_SPEED 340
+#define FAST_SPEED 350
 
 // 2.89
 // 4.591
@@ -18,6 +18,7 @@
 //#define TICKS_PER_MM 2.92
 #define TICKS_PER_ANGLE 4.58
 
+volatile boolean continuousMovement = false;
 volatile boolean movingLeft = false;
 volatile boolean movingRight = false;
 double frontDistanceReference = 0;
@@ -31,6 +32,8 @@ double speedLeft = 0;
 double speedRight = 0;
 double error = 0;
 double setpoint = 0;
+double currentSpeedLeft = 0;
+double currentSpeedRight = 0;
 
 Motor motor;
 Sensors sensors;

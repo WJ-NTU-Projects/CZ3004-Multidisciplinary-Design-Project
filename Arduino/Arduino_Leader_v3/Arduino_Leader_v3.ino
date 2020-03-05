@@ -39,6 +39,8 @@ void loop() {
         } else if (size > 1) {
             char command = 'A';
             int counter = 0;
+            currentSpeedLeft = 100;
+            currentSpeedRight = 70;
                 
             for (int i = 0; i < size; i++) {
                 char x = inputString.charAt(i);    
@@ -47,18 +49,18 @@ void loop() {
                     counter++;
 
                     if (i == size - 1) {
-                        if (command == 'M') move(FORWARD, 100 * counter);
-                        else if (command == 'L') move(LEFT, 90);
-                        else if (command == 'R') move(RIGHT, 90);
+                        if (command == 'M') moveContinuous(FORWARD, 100 * counter);
+                        else if (command == 'L') moveContinuous(LEFT, 90);
+                        else if (command == 'R') moveContinuous(RIGHT, 90);
                         return;
                     }
                 } else {
-                    if (command == 'M') move(FORWARD, 100 * counter);
-                    else if (command == 'L') move(LEFT, 90);
-                    else if (command == 'R') move(RIGHT, 90);
+                    if (command == 'M') moveContinuous(FORWARD, 100 * counter);
+                    else if (command == 'L') moveContinuous(LEFT, 90);
+                    else if (command == 'R') moveContinuous(RIGHT, 90);
                     counter = 1;                    
                     command = x;
-                    delay(10);
+                    delay(5);
                 }
             }
         }
@@ -68,10 +70,12 @@ void loop() {
 }
 
 void move(int direction, double distance) {    
+    speedMax = EXPLORE_SPEED;
     ticksLeft = 0;
     ticksRight = 0;
     pid.reset();
     lps.reset();
+    continuousMovement = false;
     movingLeft = true;
     movingRight = true;
 
@@ -136,7 +140,9 @@ void move(int direction, double distance) {
     motor.brake();
     movingLeft = false;
     movingRight = false;
-    delay(10);
+    delay(5);
+    align();
+    delay(5);
     align();
     delay(10);
     printSensorValues(0);
@@ -147,6 +153,7 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
     ticksRight = 0;
     pid.reset();
     lps.reset();
+    continuousMovement = false;
     movingLeft = true;
     movingRight = true;
     ticksTarget = 99999999;
@@ -155,16 +162,13 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
     int speedRightRef = 70;
     motor.move(direction, speedLeftRef, speedRightRef);
     double lastLoopTime = millis();
+    int counter = 0;
 
     while (movingLeft || movingRight) {   
         if (millis() - lastLoopTime < 1) continue;
         lastLoopTime = millis();  
 
         double error = (front) ? sensors.getErrorFront() : sensors.getErrorLeft();
-
-        switch (direction) {
-            
-        }
         
         if (direction == RIGHT && error >= lowerBound) break;
         else if (direction == LEFT && error <= upperBound) break;
@@ -178,11 +182,99 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
         speedRight = round(speedRightRef + speedOffset);
         speedRight = constrain(speedRight, speedRightRef - 50, speedRightRef + 50);
         motor.setSpeed(speedLeft, speedRight);
+        counter++;
+        if (counter >= 500) break;
     }
 
     motor.brake();
     movingLeft = false;
     movingRight = false;
+}
+
+void moveContinuous(int direction, double distance) {   
+    speedMax = FAST_SPEED; 
+    ticksLeft = 0;
+    ticksRight = 0;
+    pid.reset();
+    lps.reset();
+    continuousMovement = true;
+    movingLeft = true;
+    movingRight = true;
+    int speedLeftRef = currentSpeedLeft;
+    int speedRightRef = currentSpeedRight;
+
+    switch (direction) {
+        case FORWARD:
+        case REVERSE:
+            ticksTarget = (distance - 100) * TICKS_PER_MM;
+            break;
+        case LEFT:
+            ticksTarget = distance * TICKS_PER_ANGLE;
+            speedLeftRef = 0;
+            break;
+        case RIGHT:
+            ticksTarget = distance * TICKS_PER_ANGLE;
+            speedRightRef = 0;
+            break;
+        default: return;
+    };
+    
+    motor.move(direction, speedLeftRef, speedRightRef);
+    double lastLoopTime = millis();
+    int counter = 0;
+    boolean accelerating = true;
+    boolean decelerating = false;
+
+    while (movingLeft && movingRight) {   
+        if (millis() - lastLoopTime < 2) continue;
+        lastLoopTime = millis();  
+        
+        if (direction == FORWARD) {
+            if (sensors.isObstructedFront()) {
+                motor.brake();
+                movingLeft = false;
+                movingRight = false;
+                return;         
+            } else if (sensors.isNearFront()) {
+                decelerating = true;
+            }
+        }
+
+        if (ticksTarget - ticksLeft <= 289 || ticksTarget - ticksRight <= 289) decelerating = true;
+        error = lps.computeError();   
+        double speedOffset = pid.computeOffset();   
+        speedLeft = round(speedLeftRef - speedOffset);
+        speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
+        speedRight = round(speedRightRef + speedOffset);
+        speedRight = constrain(speedRight, speedRightRef - 50, speedRightRef + 50);
+        if (direction == LEFT) speedLeft = 0;
+        else if (direction == RIGHT) speedRight = 0;
+        motor.setSpeed(speedLeft, speedRight);
+
+        if (accelerating) {
+            if (speedLeftRef < speedMax) counter++;
+            else accelerating = false;
+            
+            if (counter >= 10) {
+                counter = 0;
+                speedLeftRef += 20;
+                speedRightRef += 20;
+            }
+        } else if (decelerating) {
+            if (speedLeftRef > 140) counter++;
+
+            if (counter >= 10) {
+                counter = 0;
+                speedLeftRef -= 20;
+                speedRightRef -= 20;
+            }
+        }
+    }
+
+    movingLeft = false;
+    movingRight = false;
+    currentSpeedLeft = speedLeftRef;
+    currentSpeedRight = speedRightRef;
 }
 
 void align() {      
@@ -246,7 +338,7 @@ void interruptLeft() {
     ticksLeft += 0.5;
     
     if (abs(ticksLeft - ticksTarget) <= 0.25) {
-        motor.brakeLeft(400);
+        if (!continuousMovement) motor.brakeLeft(400);
         movingLeft = false;
     }
 }
@@ -256,7 +348,7 @@ void interruptRight() {
     ticksRight += 0.5;
 
     if (abs(ticksRight - ticksTarget) <= 0.25) {
-        motor.brakeRight(400);
+        if (!continuousMovement) motor.brakeRight(400);
         movingRight = false;
     }
 }
