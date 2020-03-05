@@ -129,7 +129,7 @@ void move(int direction, double distance) {
     movingRight = false;
 }
 
-void moveAlign(int direction, double lowerBound, double upperBound) {    
+void moveAlign(int direction, boolean front, double lowerBound, double upperBound) {    
     ticksLeft = 0;
     ticksRight = 0;
     pid.reset();
@@ -138,8 +138,8 @@ void moveAlign(int direction, double lowerBound, double upperBound) {
     movingRight = true;
     ticksTarget = 99999999;
     
-    int speedLeftRef = 90;
-    int speedRightRef = 60;
+    int speedLeftRef = 100;
+    int speedRightRef = 70;
     motor.move(direction, speedLeftRef, speedRightRef);
     
     double lastLoopTime = millis();
@@ -147,9 +147,11 @@ void moveAlign(int direction, double lowerBound, double upperBound) {
     while (movingLeft && movingRight) {   
         if (millis() - lastLoopTime < 1) continue;
         lastLoopTime = millis();  
+
+        double error = (front) ? sensors.getErrorFront() : sensors.getErrorLeft();
         
-        if (direction == RIGHT && sensors.getErrorLeft() >= lowerBound) break;
-        else if (direction == LEFT && sensors.getErrorLeft() <= upperBound) break;
+        if (direction == RIGHT && error >= lowerBound) break;
+        else if (direction == LEFT && error <= upperBound) break;
         else if (direction == FORWARD && sensors.getDistanceAverageFront() <= upperBound) break;
         else if (direction == REVERSE && sensors.getDistanceAverageFront() >= lowerBound) break;
         
@@ -171,7 +173,6 @@ void moveAlign(int direction, double lowerBound, double upperBound) {
 void align() {      
     if (sensors.mayAlignFront()) {
         alignFront();
-        if (sensors.mayAlignLeft()) alignLeft();
     }
     else if (sensors.mayAlignLeft()) alignLeft();  
 }
@@ -182,26 +183,25 @@ void alignLeft() {
     double upper = 0.1;
     
     if (abs(error) <= 15) {
-        if (error < lower) moveAlign(RIGHT, lower, upper);
-        else if (error > upper) moveAlign(LEFT, lower, upper);
+        if (error < lower) moveAlign(RIGHT, false, lower, upper);
+        else if (error > upper) moveAlign(LEFT, false, lower, upper);
     } 
 }
 
 void alignFront() {    
     double error = sensors.getErrorFront();
     
-
     if (abs(error) <= 3) {
         double distance = sensors.getDistanceAverageFront();
-        if (distance < 5) moveAlign(REVERSE, 5, 6);
-        else if (distance > 6) moveAlign(FORWARD, 5, 6);
+        if (distance < 5) moveAlign(REVERSE, true, 5, 6);
+        else if (distance > 6) moveAlign(FORWARD, true, 5, 6);
     }    
-
-    error = sensors.getErrorFront();
     
+    error = sensors.getErrorFront();
+
     if (abs(error) <= 15) {
-        if (error < -0.1) moveAlign(RIGHT, -0.1, 0.1);
-        else if (error > 0.1) moveAlign(LEFT, -0.1, 0.1);
+        if (error < -0.1) moveAlign(RIGHT, true, -0.1, 0.1);
+        else if (error > 0.1) moveAlign(LEFT, true, -0.1, 0.1);
     }
 }
 
