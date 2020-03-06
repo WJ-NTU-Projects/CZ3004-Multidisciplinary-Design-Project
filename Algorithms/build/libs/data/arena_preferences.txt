@@ -1,3 +1,0 @@
-APS:10
-Coverage:100
-Time:0
