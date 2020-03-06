@@ -23,57 +23,25 @@ class Exploration : Algorithm() {
     private var startTime: Long = 0L
 
     override fun messageReceived(message: String) {
-        if (message.length == 2) {
-            lastStartedJob = CoroutineScope(Dispatchers.Default).launch {
-                try {
-                    val step: Int = message[0].toString().toInt()
-                    if (step > 0) Robot.moveTemp()
-
-                    val set1: Int = message[0].toString().toInt()
-                    val set2: Int = message[1].toString().toInt()
-
-                    if (!braking.get() && set2 <= 1 && !Robot.isLeftObstructed() && previousCommand != LEFT) {
-                        braking.set(true)
-                        WifiSocketController.write("A", "B")
-                    }
-
-                    val str1: String = Integer.toBinaryString(set1).padStart(3, '0')
-                    val str2: String = Integer.toBinaryString(set2).padStart(3, '0')
-                    val x: Int = Robot.position.x
-                    val y: Int = Robot.position.y
-                    val facing: Int = Robot.facing
-                    Sensor.updateArenaSensor1(x, y, facing, if (str1[0] == '1') 1 else 3)
-                    Sensor.updateArenaSensor2(x, y, facing, if (str1[1] == '1') 1 else 3)
-                    Sensor.updateArenaSensor3(x, y, facing, if (str1[2] == '1') 1 else 3)
-                    Sensor.updateArenaSensor4(x, y, facing, if (str2[0] == '1') 1 else 3)
-                    Sensor.updateArenaSensor5(x, y, facing, if (str2[1] == '1') 1 else 3)
-                    Sensor.updateArenaSensor6(x, y, facing, if (str2[2] == '1') 1 else 3)
-                } catch (e: NumberFormatException) {}
-            }
-
-            return
-        }
-
-        if (message.length == 1) {
-            while (lastStartedJob != null && lastStartedJob?.isCompleted == false) {
-                Thread.sleep(1)
-            }
-
-            if (started) step()
-
-            when (message[0]) {
-                'M' -> {
-                    //Arena.sendArena()
-                    if (Robot.position.x == Arena.start.x && Robot.position.y == Arena.start.y) wallHug = false
-                }
-
-                //'L', 'R' -> WifiSocketController.write("D", "#robotPosition:${Robot.position.x}, ${Robot.position.y}, ${Robot.facing}")
-                else -> return
-            }
-
-            if (!started) MasterView.idleListener.listen()
-            return
-        }
+        val messages: List<String> = message.split("#")
+        val moved: Int = messages[6].toInt()
+        val sensor1: Int = messages[0].toInt()
+        val sensor2: Int = messages[1].toInt()
+        val sensor3: Int = messages[2].toInt()
+        val sensor4: Int = messages[3].toInt()
+        val sensor5: Int = messages[4].toInt()
+        val sensor6: Int = messages[5].toInt()
+        if (moved == 1) Robot.moveTemp()
+        val x = Robot.position.x
+        val y = Robot.position.y
+        val facing = Robot.facing
+        Sensor.updateArenaSensor1(x, y, facing, sensor1)
+        Sensor.updateArenaSensor2(x, y, facing, sensor2)
+        Sensor.updateArenaSensor3(x, y, facing, sensor3)
+        Sensor.updateArenaSensor4(x, y, facing, sensor4)
+        Sensor.updateArenaSensor5(x, y, facing, sensor5)
+        Sensor.updateArenaSensor6(x, y, facing, sensor6)
+        step()
     }
 
     fun start() {
@@ -125,7 +93,6 @@ class Exploration : Algorithm() {
             if (!Robot.isFrontObstructed()) {
                 previousCommand = FORWARD
                 WifiSocketController.write("A", "M")
-                Robot.moveTemp()
                 return
             }
 

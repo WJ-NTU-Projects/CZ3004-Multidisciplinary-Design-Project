@@ -31,27 +31,27 @@ void loop() {
 
             switch (command) {
                 case 'I': 
-                    printSensorValues(0); 
+                    printSensorValues(moved); 
                     break;  
                 case 'M': 
                     speedMax = EXPLORE_SPEED;
-                    move(FORWARD, 100); 
+                    move(FORWARD, 100, false); 
                     break; 
                 case 'L': 
                     speedMax = EXPLORE_SPEED;
-                    move(LEFT, 90); 
+                    move(LEFT, 90, false); 
                     break;
                 case 'R': 
                     speedMax = EXPLORE_SPEED;
-                    move(RIGHT, 90); 
+                    move(RIGHT, 90, false); 
                     break;
                 case 'T': 
                     speedMax = EXPLORE_SPEED;
-                    move(RIGHT, 180); 
+                    move(RIGHT, 180, false); 
                     break;
                 case 'V': 
                     speedMax = EXPLORE_SPEED;
-                    move(REVERSE, 100); 
+                    move(REVERSE, 100, false); 
                     break; 
                 case 'C': 
                     align(); 
@@ -70,23 +70,26 @@ void loop() {
                     counter++;
 
                     if (last) {
-                        if (command == 'M') move(FORWARD, 100 * counter);
-                        else if (command == 'L') move(LEFT, 90);
-                        else if (command == 'R') move(RIGHT, 90);
+                        if (command == 'M') move(FORWARD, 100 * counter, true);
+                        else if (command == 'L') move(LEFT, 90, true);
+                        else if (command == 'R') move(RIGHT, 90, true);
+                        else if (command == 'T') move(RIGHT, 180, true);
                         return;
                     }
                 } else {
-                    if (command == 'M') move(FORWARD, 100 * counter);
-                    else if (command == 'L') move(LEFT, 90);
-                    else if (command == 'R') move(RIGHT, 90);
+                    if (command == 'M') move(FORWARD, 100 * counter, true);
+                    else if (command == 'L') move(LEFT, 90, true);
+                    else if (command == 'R') move(RIGHT, 90, true);
+                    else if (command == 'T') move(RIGHT, 180, true);
                     counter = 1;                    
                     command = x;
                     delay(20);
 
                     if (last) {
-                        if (command == 'M') move(FORWARD, 100 * counter);
-                        else if (command == 'L') move(LEFT, 90);
-                        else if (command == 'R') move(RIGHT, 90);
+                        if (command == 'M') move(FORWARD, 100 * counter, true);
+                        else if (command == 'L') move(LEFT, 90, true);
+                        else if (command == 'R') move(RIGHT, 90, true);
+                        else if (command == 'T') move(RIGHT, 180, true);
                     }
                 }
             }
@@ -96,18 +99,19 @@ void loop() {
     }
 }
 
-void move(int direction, double distance) {    
+void move(int direction, double distance, boolean fast) {    
     ticksLeft = 0;
     ticksRight = 0;
     pid.reset();
     lps.reset();
+    moved = 0;
     movingLeft = true;
     movingRight = true;
 
     switch (direction) {
         case FORWARD:
         case REVERSE:
-            ticksTarget = distance * TICKS_PER_MM;
+            ticksTarget = distance * ((fast) ? TICKS_PER_MM_FAST : TICKS_PER_MM);
             break;
         case LEFT:
         case RIGHT:
@@ -129,8 +133,16 @@ void move(int direction, double distance) {
         lastLoopTime = millis();  
         
         if (direction == FORWARD) {
-            if (sensors.isObstructedFront()) break;         
-            else if (sensors.isNearFront()) decelerating = true;
+            if (sensors.isObstructedFront()) {
+                motor.brake();
+                movingLeft = false;
+                movingRight = false;
+                if (ticksLeft >= 87 || ticksRight >= 87) moved = 1;
+                align();
+                align();
+                printSensorValues(moved);
+                return;
+            } else if (sensors.isNearFront()) decelerating = true;
         }
 
         if (ticksTarget - ticksLeft <= 289 || ticksTarget - ticksRight <= 289) decelerating = true;
@@ -165,12 +177,10 @@ void move(int direction, double distance) {
     motor.brake();
     movingLeft = false;
     movingRight = false;
-    delay(5);
+    if (direction == FORWARD || direction == REVERSE) moved = 1;
     align();
-    delay(5);
     align();
-    delay(10);
-    printSensorValues(0);
+    printSensorValues(moved);
 }
 
 void moveAlign(int direction, boolean front, double lowerBound, double upperBound) {    
@@ -256,17 +266,19 @@ void printSensorValues(int step) {
     int s5 = sensors.getPrintDistance(5);
     int s6 = sensors.getPrintDistance(6);
     Serial.write(80);
-    Serial.print(s1);
+    Serial.write(48 + s1);
     Serial.write(35);
-    Serial.print(s2);
+    Serial.write(48 + s2);
     Serial.write(35);
-    Serial.print(s3);
+    Serial.write(48 + s3);
     Serial.write(35);
-    Serial.print(s4);
+    Serial.write(48 + s4);
     Serial.write(35);
-    Serial.print(s5);
+    Serial.write(48 + s5);
     Serial.write(35);
-    Serial.print(s6);
+    Serial.write(48 + s6);
+    Serial.write(35);
+    Serial.write(48 + step);
     Serial.write(10);
     Serial.flush();
 }
