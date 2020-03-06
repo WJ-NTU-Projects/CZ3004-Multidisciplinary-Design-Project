@@ -19,8 +19,8 @@ void LPS::reset() {
 double LPS::computeError() {
     double currentTicksLeft = *ticksLeft;
     double currentTicksRight = *ticksRight;
-    deltaLeft = (currentTicksLeft - previousTicksLeft) * ticksPerMillimeter;
-    deltaRight = (currentTicksRight - previousTicksRight) * ticksPerMillimeter;
+    deltaLeft = (currentTicksLeft - previousTicksLeft) / ticksPerMillimeter;
+    deltaRight = (currentTicksRight - previousTicksRight) / ticksPerMillimeter;
     double deltaMean = (deltaLeft + deltaRight) * 0.5;
     double diff = (deltaRight - deltaLeft) * WHEEL_AXIS_MULTIPLIER;
     headingRadian += diff;

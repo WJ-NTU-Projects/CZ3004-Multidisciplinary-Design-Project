@@ -1,12 +1,18 @@
 #include "Motor.h"
 
-Motor::Motor() {
+Motor::Motor() {}
+
+void Motor::init() {
     pinModeFast(A_LEFT, OUTPUT);
     pinModeFast(B_LEFT, OUTPUT);
     pinModeFast(A_RIGHT, OUTPUT);
     pinModeFast(B_RIGHT, OUTPUT);
     pinMode(PWM_LEFT, OUTPUT);
     pinMode(PWM_RIGHT, OUTPUT);
+    pinMode(ENCODER_LEFT, INPUT);
+    pinMode(ENCODER_RIGHT, INPUT);
+    digitalWrite(ENCODER_LEFT, HIGH);       
+    digitalWrite(ENCODER_RIGHT, HIGH);    
 }
 
 void Motor::move(int direction, int speedLeft, int speedRight) {

@@ -44,5 +44,6 @@ class Sensors {
         boolean mayAlignFront();
         boolean isObstructedFront();
         boolean isNearFront();
+        boolean isMovableLeft();
         double getDistanceAverageFront();
 };
