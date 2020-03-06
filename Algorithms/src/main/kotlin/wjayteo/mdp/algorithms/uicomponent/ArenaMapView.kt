@@ -96,6 +96,10 @@ class ArenaMapView : View() {
         gridArray[y][x].fill = Color.rgb(152, 251, 238)
     }
 
+    fun setSuspect(x: Int, y: Int) {
+        gridArray[y][x].fill = Color.DARKGRAY
+    }
+
     fun setObstacle(x: Int, y: Int) {
         gridArray[y][x].fill = Color.BLACK
     }

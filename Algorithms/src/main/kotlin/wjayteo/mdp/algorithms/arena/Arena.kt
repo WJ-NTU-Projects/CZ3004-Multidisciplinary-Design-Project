@@ -10,7 +10,7 @@ class Arena {
     companion object {
         private const val GRID_UNKNOWN      : Int = 0
         private const val GRID_EXPLORED     : Int = 1
-        //private const val GRID_SUSPECT      : Int = 2
+        private const val GRID_SUSPECT      : Int = 2
         private const val GRID_OBSTACLE     : Int = 3
 
         val start = Coordinates(1, 1)
@@ -158,10 +158,25 @@ class Arena {
 
         fun setExplored(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return
-            if (gridStateArray[y][x] >= GRID_EXPLORED) return
+            if (gridStateArray[y][x] >= GRID_OBSTACLE) return
             gridStateArray[y][x] = GRID_EXPLORED
             exploreArray[y][x] = 1
             attachedView?.setExplored(x, y)
+        }
+
+
+        fun setSuspect(x: Int, y: Int) {
+            if (isInvalidCoordinates(x, y)) return
+            if (gridStateArray[y][x] >= GRID_SUSPECT) return
+
+            if (isOccupied(x, y)) {
+                setExplored(x, y)
+                return
+            }
+
+            gridStateArray[y][x] = GRID_SUSPECT
+            exploreArray[y][x] = 1
+            attachedView?.setSuspect(x, y)
         }
 
         fun setObstacle(x: Int, y: Int) {

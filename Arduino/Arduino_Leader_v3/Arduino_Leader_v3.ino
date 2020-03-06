@@ -71,6 +71,7 @@ void loop() {
 
                     if (last) {
                         if (command == 'M') move(FORWARD, 100 * counter, true);
+                        else if (command == 'V') move(REVERSE, 100 * counter, true);
                         else if (command == 'L') move(LEFT, 90, true);
                         else if (command == 'R') move(RIGHT, 90, true);
                         else if (command == 'T') move(RIGHT, 180, true);
@@ -78,6 +79,7 @@ void loop() {
                     }
                 } else {
                     if (command == 'M') move(FORWARD, 100 * counter, true);
+                    else if (command == 'V') move(REVERSE, 100 * counter, true);
                     else if (command == 'L') move(LEFT, 90, true);
                     else if (command == 'R') move(RIGHT, 90, true);
                     else if (command == 'T') move(RIGHT, 180, true);
@@ -87,6 +89,7 @@ void loop() {
 
                     if (last) {
                         if (command == 'M') move(FORWARD, 100 * counter, true);
+                        else if (command == 'V') move(REVERSE, 100 * counter, true);
                         else if (command == 'L') move(LEFT, 90, true);
                         else if (command == 'R') move(RIGHT, 90, true);
                         else if (command == 'T') move(RIGHT, 180, true);
@@ -128,7 +131,7 @@ void move(int direction, double distance, boolean fast) {
     boolean accelerating = true;
     boolean decelerating = false;
 
-    while (movingLeft || movingRight) {   
+    while (movingLeft && movingRight) {   
         if (millis() - lastLoopTime < 10) continue;
         lastLoopTime = millis();  
         
@@ -140,6 +143,7 @@ void move(int direction, double distance, boolean fast) {
                 if (ticksLeft >= 87 || ticksRight >= 87) moved = 1;
                 align();
                 align();
+                delay(20);
                 printSensorValues(moved);
                 return;
             } else if (sensors.isNearFront()) decelerating = true;
@@ -178,9 +182,14 @@ void move(int direction, double distance, boolean fast) {
     movingLeft = false;
     movingRight = false;
     if (direction == FORWARD || direction == REVERSE) moved = 1;
+    if (!fast) {
+    delay(10);
     align();
+    delay(10);
     align();
+    delay(20);
     printSensorValues(moved);
+    }
 }
 
 void moveAlign(int direction, boolean front, double lowerBound, double upperBound) {    
@@ -198,7 +207,7 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
     double lastLoopTime = millis();
     int counter = 0;
 
-    while (movingLeft || movingRight) {   
+    while (movingLeft && movingRight) {   
         if (millis() - lastLoopTime < 1) continue;
         lastLoopTime = millis();  
 
@@ -232,8 +241,8 @@ void align() {
 
 void alignLeft() {
     double error = sensors.getErrorLeft();
-    double lower = -0.1;
-    double upper = 0.1;
+    double lower = -0.2;
+    double upper = 0.2;
     
     if (abs(error) <= 15) {
         if (error < lower) moveAlign(RIGHT, false, lower, upper);

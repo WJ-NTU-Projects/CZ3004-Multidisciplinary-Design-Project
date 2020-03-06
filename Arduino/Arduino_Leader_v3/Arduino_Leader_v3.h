@@ -9,14 +9,14 @@
 #define ENCODER_RIGHT 3
 
 #define EXPLORE_SPEED 260
-#define FAST_SPEED 340
+#define FAST_SPEED 360
 
 // 2.89
 // 4.591
 #define TICKS_PER_MM_FAST 2.96
 #define TICKS_MULTIPLIER 0.41
-#define TICKS_PER_MM 2.90
-#define TICKS_PER_ANGLE 4.58
+#define TICKS_PER_MM 2.88
+#define TICKS_PER_ANGLE 4.53
 
 volatile boolean movingLeft = false;
 volatile boolean movingRight = false;
