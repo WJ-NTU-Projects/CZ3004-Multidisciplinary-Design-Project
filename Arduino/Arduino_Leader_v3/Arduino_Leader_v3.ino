@@ -16,10 +16,12 @@ void loop() {
 
     if (Serial.available()) {
         while (true) {
-            char input = (char) Serial.read();
-            if (input == '\r') continue;
-            if (input == '\n') break;
-            inputString += input;
+            if (Serial.available()) {
+                char input = (char) Serial.read();
+                if (input == '\r') continue;
+                if (input == '\n') break;
+                inputString += input;
+            }
         }
         
         int size = inputString.length();
@@ -28,39 +30,64 @@ void loop() {
             char command = inputString.charAt(0);
 
             switch (command) {
-                case 'I': printSensorValues(0); break;  
-                case 'M': move(FORWARD, 100); break; 
-                case 'L': move(LEFT, 90); break;
-                case 'R': move(RIGHT, 90); break;
-                case 'T': move(RIGHT, 180); break;
-                case 'V': move(REVERSE, 100); break; 
-                case 'C': align(); break;
+                case 'I': 
+                    printSensorValues(0); 
+                    break;  
+                case 'M': 
+                    speedMax = EXPLORE_SPEED;
+                    move(FORWARD, 100); 
+                    break; 
+                case 'L': 
+                    speedMax = EXPLORE_SPEED;
+                    move(LEFT, 90); 
+                    break;
+                case 'R': 
+                    speedMax = EXPLORE_SPEED;
+                    move(RIGHT, 90); 
+                    break;
+                case 'T': 
+                    speedMax = EXPLORE_SPEED;
+                    move(RIGHT, 180); 
+                    break;
+                case 'V': 
+                    speedMax = EXPLORE_SPEED;
+                    move(REVERSE, 100); 
+                    break; 
+                case 'C': 
+                    align(); 
+                    break;
             }
         } else if (size > 1) {
             char command = 'A';
             int counter = 0;
-            currentSpeedLeft = 100;
-            currentSpeedRight = 70;
+            speedMax = FAST_SPEED;
                 
             for (int i = 0; i < size; i++) {
                 char x = inputString.charAt(i);    
+                boolean last = (i == size - 1);
 
                 if (x == command) {
                     counter++;
 
-                    if (i == size - 1) {
-                        if (command == 'M') moveContinuous(FORWARD, 100 * counter);
-                        else if (command == 'L') moveContinuous(LEFT, 90);
-                        else if (command == 'R') moveContinuous(RIGHT, 90);
+                    if (last) {
+                        if (command == 'M') move(FORWARD, 100 * counter);
+                        else if (command == 'L') move(LEFT, 90);
+                        else if (command == 'R') move(RIGHT, 90);
                         return;
                     }
                 } else {
-                    if (command == 'M') moveContinuous(FORWARD, 100 * counter);
-                    else if (command == 'L') moveContinuous(LEFT, 90);
-                    else if (command == 'R') moveContinuous(RIGHT, 90);
+                    if (command == 'M') move(FORWARD, 100 * counter);
+                    else if (command == 'L') move(LEFT, 90);
+                    else if (command == 'R') move(RIGHT, 90);
                     counter = 1;                    
                     command = x;
-                    delay(5);
+                    delay(20);
+
+                    if (last) {
+                        if (command == 'M') move(FORWARD, 100 * counter);
+                        else if (command == 'L') move(LEFT, 90);
+                        else if (command == 'R') move(RIGHT, 90);
+                    }
                 }
             }
         }
@@ -70,12 +97,10 @@ void loop() {
 }
 
 void move(int direction, double distance) {    
-    speedMax = EXPLORE_SPEED;
     ticksLeft = 0;
     ticksRight = 0;
     pid.reset();
     lps.reset();
-    continuousMovement = false;
     movingLeft = true;
     movingRight = true;
 
@@ -99,7 +124,7 @@ void move(int direction, double distance) {
     boolean accelerating = true;
     boolean decelerating = false;
 
-    while (movingLeft && movingRight) {   
+    while (movingLeft || movingRight) {   
         if (millis() - lastLoopTime < 10) continue;
         lastLoopTime = millis();  
         
@@ -153,7 +178,6 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
     ticksRight = 0;
     pid.reset();
     lps.reset();
-    continuousMovement = false;
     movingLeft = true;
     movingRight = true;
     ticksTarget = 99999999;
@@ -189,92 +213,6 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
     motor.brake();
     movingLeft = false;
     movingRight = false;
-}
-
-void moveContinuous(int direction, double distance) {   
-    speedMax = FAST_SPEED; 
-    ticksLeft = 0;
-    ticksRight = 0;
-    pid.reset();
-    lps.reset();
-    continuousMovement = true;
-    movingLeft = true;
-    movingRight = true;
-    int speedLeftRef = currentSpeedLeft;
-    int speedRightRef = currentSpeedRight;
-
-    switch (direction) {
-        case FORWARD:
-        case REVERSE:
-            ticksTarget = (distance - 100) * TICKS_PER_MM;
-            break;
-        case LEFT:
-            ticksTarget = distance * TICKS_PER_ANGLE;
-            speedLeftRef = 0;
-            break;
-        case RIGHT:
-            ticksTarget = distance * TICKS_PER_ANGLE;
-            speedRightRef = 0;
-            break;
-        default: return;
-    };
-    
-    motor.move(direction, speedLeftRef, speedRightRef);
-    double lastLoopTime = millis();
-    int counter = 0;
-    boolean accelerating = true;
-    boolean decelerating = false;
-
-    while (movingLeft && movingRight) {   
-        if (millis() - lastLoopTime < 2) continue;
-        lastLoopTime = millis();  
-        
-        if (direction == FORWARD) {
-            if (sensors.isObstructedFront()) {
-                motor.brake();
-                movingLeft = false;
-                movingRight = false;
-                return;         
-            } else if (sensors.isNearFront()) {
-                decelerating = true;
-            }
-        }
-
-        if (ticksTarget - ticksLeft <= 289 || ticksTarget - ticksRight <= 289) decelerating = true;
-        error = lps.computeError();   
-        double speedOffset = pid.computeOffset();   
-        speedLeft = round(speedLeftRef - speedOffset);
-        speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
-        speedRight = round(speedRightRef + speedOffset);
-        speedRight = constrain(speedRight, speedRightRef - 50, speedRightRef + 50);
-        if (direction == LEFT) speedLeft = 0;
-        else if (direction == RIGHT) speedRight = 0;
-        motor.setSpeed(speedLeft, speedRight);
-
-        if (accelerating) {
-            if (speedLeftRef < speedMax) counter++;
-            else accelerating = false;
-            
-            if (counter >= 10) {
-                counter = 0;
-                speedLeftRef += 20;
-                speedRightRef += 20;
-            }
-        } else if (decelerating) {
-            if (speedLeftRef > 140) counter++;
-
-            if (counter >= 10) {
-                counter = 0;
-                speedLeftRef -= 20;
-                speedRightRef -= 20;
-            }
-        }
-    }
-
-    movingLeft = false;
-    movingRight = false;
-    currentSpeedLeft = speedLeftRef;
-    currentSpeedRight = speedRightRef;
 }
 
 void align() {      
@@ -338,7 +276,7 @@ void interruptLeft() {
     ticksLeft += 0.5;
     
     if (abs(ticksLeft - ticksTarget) <= 0.25) {
-        if (!continuousMovement) motor.brakeLeft(400);
+        motor.brakeLeft(400);
         movingLeft = false;
     }
 }
@@ -348,7 +286,7 @@ void interruptRight() {
     ticksRight += 0.5;
 
     if (abs(ticksRight - ticksTarget) <= 0.25) {
-        if (!continuousMovement) motor.brakeRight(400);
+        motor.brakeRight(400);
         movingRight = false;
     }
 }
