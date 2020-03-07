@@ -1,4 +1,4 @@
-# MDP Group 16 Android / Arduino Repository
+# MDP Android / Arduino Unmodular Repository
 Project files for the Android and Arduino subsystems, MDP AY1920 Sem 2. 
 
 Files for any other subsystems are mainly used for testing purposes.
