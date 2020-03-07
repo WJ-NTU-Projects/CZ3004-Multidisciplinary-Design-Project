@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="@dimen/screen_padding"
     android:background="?android:attr/selectableItemBackground"
-    tools:context=".arena.MapLoadActivity">
+    tools:context="wjayteo.mdp.android.arena.MapLoadActivity">
 
     <com.google.android.material.textview.MaterialTextView
         style="@style/AppTextView"

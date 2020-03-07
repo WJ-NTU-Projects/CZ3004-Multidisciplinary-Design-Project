@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name='MDP Test Kotlin'
+rootProject.name='MDP Android'

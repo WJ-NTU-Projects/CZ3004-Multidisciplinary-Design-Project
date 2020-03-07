@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="?android:attr/selectableItemBackground"
-    tools:context=".arena.MapLoadActivity">
+    tools:context="wjayteo.mdp.android.arena.MapLoadActivity">
 
     <com.google.android.material.textview.MaterialTextView
         style="@style/AppTextView"

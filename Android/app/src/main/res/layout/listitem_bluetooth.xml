@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     android:padding="@dimen/screen_padding"
     android:background="?android:attr/selectableItemBackground"
-    tools:context=".bluetooth.BluetoothActivity">
+    tools:context="wjayteo.mdp.android.bluetooth.BluetoothActivity">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/bt_listitem_name"

@@ -8,7 +8,7 @@
     android:layout_height="wrap_content"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".settings.SettingsActivity">
+    tools:context="wjayteo.mdp.android.settings.SettingsActivity">
 
     <com.google.android.material.textview.MaterialTextView
         style="@style/AppTextView.Gray.Settings.Title"

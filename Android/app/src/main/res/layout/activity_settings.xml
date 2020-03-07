@@ -9,11 +9,11 @@
     android:clipToPadding="false"
     android:clipChildren="false"
     android:orientation="vertical"
-    tools:context=".settings.SettingsActivity">
+    tools:context="wjayteo.mdp.android.settings.SettingsActivity">
 
     <include layout="@layout/addon_toolbar" />
 
-    <ntu.mdp.android.mdptestkotlin.utils.ViewPagerNoTouch
+    <wjayteo.mdp.android.utils.ViewPagerNoTouch
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"

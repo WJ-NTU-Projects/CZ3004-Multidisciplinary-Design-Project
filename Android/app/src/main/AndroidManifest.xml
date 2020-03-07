@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="ntu.mdp.android.mdptestkotlin">
+    package="wjayteo.mdp.android">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -10,7 +10,7 @@
     <supports-gl-texture android:name="GL_OES_compressed_ETC1_RGB8_texture" />
 
     <application
-        android:name=".App"
+        android:name="wjayteo.mdp.android.App"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -21,7 +21,7 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
         <activity
-            android:name=".MainActivity"
+            android:name="wjayteo.mdp.android.MainActivity"
             android:theme="@style/AppTheme.Launcher"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
@@ -34,19 +34,19 @@
         </activity>
 
         <activity
-            android:name=".bluetooth.BluetoothActivity"
+            android:name="wjayteo.mdp.android.bluetooth.BluetoothActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name=".settings.SettingsActivity"
+            android:name="wjayteo.mdp.android.settings.SettingsActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
             tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name=".arena.MapSaveActivity"
+            android:name="wjayteo.mdp.android.arena.MapSaveActivity"
             android:excludeFromRecents="true"
             android:theme="@style/DialogTheme"
             android:screenOrientation="portrait"
@@ -54,7 +54,7 @@
             tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name=".arena.MapLoadActivity"
+            android:name="wjayteo.mdp.android.arena.MapLoadActivity"
             android:excludeFromRecents="true"
             android:theme="@style/DialogTheme"
             android:screenOrientation="portrait"
@@ -62,7 +62,7 @@
             tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name=".utils.OkDialog"
+            android:name="wjayteo.mdp.android.utils.OkDialog"
             android:excludeFromRecents="true"
             android:theme="@style/DialogTheme"
             android:screenOrientation="portrait"
@@ -70,7 +70,7 @@
             tools:ignore="LockedOrientationActivity" />
 
         <activity
-            android:name=".utils.YesNoDialog"
+            android:name="wjayteo.mdp.android.utils.YesNoDialog"
             android:excludeFromRecents="true"
             android:theme="@style/DialogTheme"
             android:screenOrientation="portrait"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MDP</string>
+    <string name="app_name">MDP 16组</string>
     <string name="ok">好</string>
     <string name="yes">是</string>
     <string name="no">否</string>
@@ -118,4 +118,5 @@
     <string name="goal_point">目的地点</string>
     <string name="waypoint">航点</string>
     <string name="arduino_prefix">Arduino 前缀：</string>
+    <string name="pc_prefix">PC 前缀：</string>
 </resources>

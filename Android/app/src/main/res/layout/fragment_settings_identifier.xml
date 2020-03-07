@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".settings.SettingsActivity">
+    tools:context="wjayteo.mdp.android.settings.SettingsActivity">
 
     <ScrollView style="@style/LayoutMatchWrap">
         <LinearLayout style="@style/LayoutMatchWrap">
@@ -106,6 +106,37 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <LinearLayout style="@style/LayoutMatchWrap"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false"
+                    android:layout_marginTop="@dimen/screen_padding">
+                    <LinearLayout style="@style/LayoutMatchWrap"
+                        android:layout_width="0dp"
+                        android:layout_weight="1.0"
+                        android:layout_marginEnd="@dimen/element_padding">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/AppTextView.Settings.Title"
+                            android:layout_width="match_parent"
+                            android:text="@string/pc_prefix"/>
+
+                        <EditText
+                            style="?attr/appEditText"
+                            android:layout_width="match_parent"
+                            android:layout_marginTop="@dimen/element_padding"
+                            android:id="@+id/pcPrefixEditText"
+                            android:hint="@string/pc_prefix_default"
+                            android:inputType="text"
+                            android:importantForAutofill="no" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/LayoutMatchWrap"
+                        android:layout_width="0dp"
+                        android:layout_weight="1.0"
+                        android:layout_marginStart="@dimen/element_padding">
+                    </LinearLayout>
+                </LinearLayout>
+
                 <com.google.android.material.button.MaterialButton
                     style="@style/UIButton.Settings"
                     android:id="@+id/restoreStringCommon"
@@ -179,6 +210,7 @@
                             android:importantForAutofill="no" />
                     </LinearLayout>
 
+                    <!--
                     <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/AppTextView.Settings"
@@ -193,6 +225,7 @@
                             android:inputType="text"
                             android:importantForAutofill="no" />
                     </LinearLayout>
+                    -->
 
                     <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
                         <com.google.android.material.textview.MaterialTextView
@@ -254,6 +287,7 @@
                             android:importantForAutofill="no" />
                     </LinearLayout>
 
+                    <!--
                     <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/AppTextView.Settings"
@@ -283,6 +317,7 @@
                             android:inputType="text"
                             android:importantForAutofill="no" />
                     </LinearLayout>
+                    -->
 
                     <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
                         <com.google.android.material.textview.MaterialTextView
@@ -371,6 +406,7 @@
                             android:importantForAutofill="no" />
                     </LinearLayout>
 
+                    <!--
                     <LinearLayout style="@style/LayoutMatchWrap.MarginTop" android:orientation="horizontal">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/AppTextView.Settings"
@@ -385,6 +421,7 @@
                             android:inputType="text"
                             android:importantForAutofill="no" />
                     </LinearLayout>
+                    -->
 
                     <com.google.android.material.button.MaterialButton
                         style="@style/UIButton.Settings"

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MDP</string>
+    <string name="app_name">MDP Group 16</string>
     <string name="app_pref_key" translatable="false">MDP_PREF_KEY</string>
     <string name="app_pref_auto_update" translatable="false">AUTO_UPDATE</string>
     <string name="app_pref_send_arena" translatable="false">COMMAND_SEND_ARENA</string>
@@ -21,6 +21,7 @@
     <string name="app_pref_command_prefix" translatable="false">COMMAND_PREFIX</string>
     <string name="app_pref_command_divider" translatable="false">COMMAND_DIVIDER</string>
     <string name="app_pref_arduino_prefix" translatable="false">ARDUINO_PREFIX</string>
+    <string name="app_pref_pc_prefix" translatable="false">PC_PREFIX</string>
     <string name="app_pref_label_f1" translatable="false">LABEL_F1</string>
     <string name="app_pref_command_f1" translatable="false">COMMAND_F1</string>
     <string name="app_pref_label_f2" translatable="false">LABEL_F2</string>
@@ -126,6 +127,8 @@
     <string name="command_prefix_default" translatable="false">#</string>
     <string name="arduino_prefix">Arduino Prefix:</string>
     <string name="arduino_prefix_default" translatable="false">A</string>
+    <string name="pc_prefix">PC Prefix:</string>
+    <string name="pc_prefix_default" translatable="false">P</string>
 
     <string name="send_command_identifiers">Send Command Identifiers</string>
     <string name="command">Command</string>
@@ -133,18 +136,18 @@
     <string name="information">Information To Receive</string>
     <string name="string_identifier">String Identifier</string>
     <string name="send_arena">Send Arena Info</string>
-    <string name="send_arena_default" translatable="false">sendArena</string>
-    <string name="exploration_default" translatable="false">beginExploration</string>
+    <string name="send_arena_default" translatable="false">S</string>
+    <string name="exploration_default" translatable="false">exs</string>
     <string name="fastest_path_default" translatable="false">beginFastest</string>
     <string name="pause_default" translatable="false">pause</string>
     <string name="forward">Forward</string>
-    <string name="forward_default" translatable="false">f</string>
+    <string name="forward_default" translatable="false">M</string>
     <string name="reverse">Reverse</string>
-    <string name="reverse_default" translatable="false">r</string>
+    <string name="reverse_default" translatable="false">V</string>
     <string name="turn_left">Turn Left</string>
-    <string name="turn_left_default" translatable="false">tl</string>
+    <string name="turn_left_default" translatable="false">L</string>
     <string name="turn_right">Turn Right</string>
-    <string name="turn_right_default" translatable="false">tr</string>
+    <string name="turn_right_default" translatable="false">R</string>
     <string name="start_point">Start Point</string>
     <string name="start_point_default" translatable="false">startPoint</string>
     <string name="goal_point">Goal Point</string>

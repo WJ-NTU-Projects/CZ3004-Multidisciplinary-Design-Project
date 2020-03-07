@@ -6,7 +6,7 @@
     android:id="@+id/window_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".arena.MapSaveActivity">
+    tools:context="wjayteo.mdp.android.arena.MapSaveActivity">
 
     <com.google.android.material.textview.MaterialTextView
         style="@style/AppTextView.Title"
