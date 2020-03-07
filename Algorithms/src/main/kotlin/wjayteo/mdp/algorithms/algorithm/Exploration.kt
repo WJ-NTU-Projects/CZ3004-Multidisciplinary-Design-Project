@@ -41,12 +41,9 @@ class Exploration : Algorithm() {
         Sensor.updateArenaSensor4(x, y, facing, sensor4)
         Sensor.updateArenaSensor5(x, y, facing, sensor5)
         Sensor.updateArenaSensor6(x, y, facing, sensor6)
-        if (x == Arena.start.x && y == Arena.start.y) wallHug = false
-
-        if (moved != 1) {
-            step()
-            Arena.sendArena()
-        }
+        //if (x == Arena.start.x && y == Arena.start.y) wallHug = false
+        step()
+        //Arena.sendArena()
     }
 
     fun start() {

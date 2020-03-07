@@ -33,11 +33,22 @@ void setup() {
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
-    Serial.setTimeout(100);
     align();
 }
 
 void loop() {    
+    if (Serial.available() > 0) {
+        char input = (char) Serial.read();
+        if (input == '\r') return;
+        
+        if (input == '\n') {
+            inputComplete = true;
+        } else {
+            inputString += input;
+            return;
+        }
+    }
+    
     if (inputComplete) {
         int size = inputString.length();
 
@@ -109,20 +120,6 @@ void executeCommand(char command, int moveDistance) {
     }
 }
 
-void serialEvent() {
-    while (Serial.available()) {
-        char input = (char) Serial.read();
-        if (input == '\r') continue;
-        
-        if (input == '\n') {
-            inputComplete = true;
-            break;
-        }
-        
-        inputString += input;
-    }
-}
-
 void move(int direction, int distance) {    
     ticksLeft = 0;
     ticksRight = 0;
@@ -151,26 +148,14 @@ void move(int direction, int distance) {
     int ticksRef = 0;
     int gridCounter = 0;
     boolean decelerating = false;
-    boolean printed = false;
 
     while (moving) {   
         if (millis() - lastLoopTime < 10) continue;
         lastLoopTime = millis();  
 
-        if (Serial.available()) {
-            char input = (char) Serial.read();
-            if (input == 'B') break;
-        }
-
         if (direction == FORWARD) {
             if (sensors.isObstructedFront()) break;
             else if (sensors.isNearFront() && !fast) decelerating = true;
-
-//            if (!fast && !decelerating && (ticksLeft - ticksRef >= 290 || ticksRight - ticksRef >= 290)) {
-//                gridCounter++;
-//                ticksRef = 295 * gridCounter;
-//                printSensorValues(1);
-//            }
         }
 
         if (!decelerating && (ticksTarget - ticksLeft <= 144 || ticksTarget - ticksRight <= 144)) decelerating = true;       
@@ -197,11 +182,12 @@ void move(int direction, int distance) {
     moving = false;
     
     if (!fast) {        
-        if (direction <= REVERSE && (ticksLeft >= 88 || ticksRight >= 88)) moved = 1;
-        printSensorValues(moved);
+        delay(10);
+        align(); 
         delay(10);
         align();
-        align();
+        if (direction <= REVERSE && (ticksLeft >= 88 || ticksRight >= 88)) moved = 1;
+        printSensorValues(moved);
     }
 }
 
