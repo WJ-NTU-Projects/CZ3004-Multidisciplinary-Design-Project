@@ -25,6 +25,7 @@ Gradle version may be modified under File --> Project Structure... --> Project.
 
 ## Arduino
 ### External Libraries
+* [digitalWriteFast (external download only)](https://code.google.com/archive/p/digitalwritefast/downloads)
 * [EnableInterrupt](https://github.com/GreyGnome/EnableInterrupt)
 
 
