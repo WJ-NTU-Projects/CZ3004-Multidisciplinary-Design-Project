@@ -8,7 +8,7 @@ For detailed documentations (if any), [please visit the repository wiki](https:/
 ## Android
 [![Download](https://img.shields.io/badge/APK%20Download-1.0.0-blue)](https://github.com/GreyGnome/EnableInterrupt)
 
-### Project Setup (Updated 02 Mar 2020)
+### IDE Setup (Updated 02 Mar 2020)
 The Android project uses features from recent builds of Android Studio, particularly: [View Binding](https://developer.android.com/topic/libraries/view-binding).
 
 The table below lists the minimum requirements needed to build and run the project files on your PC.
@@ -23,18 +23,18 @@ Gradle version may be modified under File --> Project Structure... --> Project.
 
 ---
 
-### Arduino
-External libraries required:
+## Arduino
+### External Libraries
 * [EnableInterrupt](https://github.com/GreyGnome/EnableInterrupt)
 
 ---
 
-### Algorithms
+## Algorithms
 For stripped down testing of ongoing issues only. 
 
 Many functionalities were copied over from Android and may have been stripped down as well.
 
-#### Recommended Setup (Updated 02 Mar 2020)
+### IDE Setup (Updated 02 Mar 2020)
 | Stuff          | Minimum Requirement |	
 | -------------- | ------------------- |     
 | IntelliJ IDEA  | 2019.3.3            |  
@@ -42,7 +42,7 @@ Many functionalities were copied over from Android and may have been stripped do
 
 If not using IDEA, Gradle plugin and external libraries may need to be configured separately. Maven may be used as all libraries are available on Maven Central.
 
-External libraries (if not using IDEA):
+### External Libraries (If not using IDEA)
 * [TornadoFX - Lightweight JavaFX Framework for Kotlin](https://github.com/edvin/tornadofx)
 * [Gradle Shadow - For building a fat JAR (optional)](https://github.com/johnrengelman/shadow)
 * [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines)
