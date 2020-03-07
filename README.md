@@ -29,7 +29,7 @@ External libraries required:
 ---
 
 ### Algorithms
-For stripped down testing of ongoing issues only. NOT TO BE USED FOR CHECKLIST / ACTUAL RUN. 
+For stripped down testing of ongoing issues only. 
 
 Many functionalities were copied over from Android and may have been stripped down as well.
 
