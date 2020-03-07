@@ -5,6 +5,7 @@ Files for any other subsystems are mainly used for testing purposes.
 
 For detailed documentations (if any), [please visit the repository wiki](https://github.com/101011101001010/MDP/wiki).
 
+
 ## Android
 [![Download](https://img.shields.io/badge/APK%20Download-1.0.0-blue)](https://github.com/GreyGnome/EnableInterrupt)
 
@@ -21,13 +22,11 @@ The table below lists the minimum requirements needed to build and run the proje
 
 Gradle version may be modified under File --> Project Structure... --> Project.
 
----
 
 ## Arduino
 ### External Libraries
 * [EnableInterrupt](https://github.com/GreyGnome/EnableInterrupt)
 
----
 
 ## Algorithms
 For stripped down testing of ongoing issues only. 
