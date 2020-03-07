@@ -14,7 +14,7 @@ double PID::computeOffset() {
     double in = *input;
     double error = *setpoint - in;
     integral += error;
-    integral = constrain(integral, -255, 255);
+    //integral = constrain(integral, -255, 255);
     double derivative = error - previousError;
     double output = kp * error + ki * integral + kd * derivative;
     previousError = error;

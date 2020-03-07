@@ -25,13 +25,6 @@ int Sensors::getDistanceR(int sensor) {
     return round(getDistance(sensor));
 }
 
-void swap(int* a, int* b) 
-{ 
-    int t = *a; 
-    *a = *b; 
-    *b = t; 
-}  
-
 double Sensors::getDistance(char sensor, double m, double c, double r) {
       int raw = analogRead(sensor);
       int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
@@ -71,35 +64,43 @@ double Sensors::getErrorFront() {
 }
 
 boolean Sensors::mayAlignLeft() {
-    int distance1 = getDistanceR(4);
-    int distance2 = getDistanceR(5);    
+    double distance1 = getDistance(4);
+    double distance2 = getDistance(5);    
     if (distance1 >= 2 && distance1 <= 10 && distance2 >= 2 && distance2 <= 10) return true;
     return false;
 }
 
 boolean Sensors::mayAlignFront() {
-    int distance1 = getDistanceR(1);
-    int distance2 = getDistanceR(3);    
+    double distance1 = getDistance(1);
+    double distance2 = getDistance(3);    
     if (distance1 > 0 && distance1 <= 10 && distance2 > 0 && distance2 <= 10) return true;
     return false;
 }
 
 boolean Sensors::isObstructedFront() {
-    int distance1 = getDistanceR(1);
-    int distance2 = getDistanceR(2);
-    int distance3 = getDistanceR(3);
-    if (distance2 > 0 && distance2 <= 6) return true;
-    if (distance1 > 0 && distance1 <= 6) return true;
-    if (distance3 > 0 && distance3 <= 6) return true;
+    double distance1 = getDistance(1);
+    double distance2 = getDistance(2);
+    double distance3 = getDistance(3);
+    if (distance2 > 0 && distance2 <= 5.5) return true;
+    if (distance1 > 0 && distance1 <= 5.5) return true;
+    if (distance3 > 0 && distance3 <= 5.5) return true;
     return false;
 }
 
+boolean Sensors::isMovableLeft() {
+    int distance1 = getDistanceR(4);
+    int distance2 = getDistanceR(5);
+    if (distance1 > 0 && distance1 <= 10) return false;
+    if (distance2 > 0 && distance2 <= 10) return false;
+    return true;
+}
+
 boolean Sensors::isNearFront() {
-    int distance1 = getDistanceR(1);
-    int distance2 = getDistanceR(2);
-    int distance3 = getDistanceR(3);
-    if (distance2 > 0 && distance2 <= 14) return true;
-    if (distance1 > 0 && distance1 <= 14) return true;
-    if (distance3 > 0 && distance3 <= 14) return true;
+    double distance1 = getDistance(1);
+    double distance2 = getDistance(2);
+    double distance3 = getDistance(3);
+    if (distance2 > 0 && distance2 <= 12) return true;
+    if (distance1 > 0 && distance1 <= 12) return true;
+    if (distance3 > 0 && distance3 <= 12) return true;
     return false;
 }

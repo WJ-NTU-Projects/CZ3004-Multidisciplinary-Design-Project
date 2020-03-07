@@ -1,5 +1,5 @@
 {
     "board": "arduino:avr:uno",
-    "sketch": "Arduino_Leader_v3.ino",
+    "sketch": "Arduino_Algo_V1.ino",
     "port": "COM6"
 }
