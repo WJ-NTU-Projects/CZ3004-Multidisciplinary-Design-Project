@@ -39,7 +39,7 @@ Many functionalities were copied over from Android and may have been stripped do
 | IntelliJ IDEA  | 2019.3.3            |  
 | JDK            | 8 ONLY              |
 
-If not using IDEA, Gradle plugin and external libraries may need to be configured separately. Maven may be used as all libraries are available on Maven Central.
+If not using IDEA, Gradle plugin and external libraries may need to be configured separately. All libraries are available on Maven Central.
 
 ### External Libraries (If not using IDEA)
 * [TornadoFX - Lightweight JavaFX Framework for Kotlin](https://github.com/edvin/tornadofx)
