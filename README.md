@@ -5,7 +5,9 @@ Files for any other subsystems are mainly used for testing purposes.
 
 
 ## Android
-[![Download](https://img.shields.io/badge/APK%20Download-1.0.0-blue)](https://github.com/GreyGnome/EnableInterrupt)
+[![Download](https://img.shields.io/badge/APK%20Download-1.0.0-blue)](https://github.com/101011101001010/MDP/releases/tag/1.0.0)
+
+[Full Changelog](https://github.com/101011101001010/MDP/wiki/Android-Changelog)
 
 ### IDE Setup (Updated 02 Mar 2020)
 The Android project uses features from recent builds of Android Studio, particularly: [View Binding](https://developer.android.com/topic/libraries/view-binding).
@@ -22,7 +24,7 @@ Gradle version may be modified under File --> Project Structure... --> Project.
 
 
 ## Arduino
-[Full documentation of Arduino modules](https://github.com/101011101001010/MDP/wiki/Arduino-Modules)
+[Sketch Rundowns and Module Documentations](https://github.com/101011101001010/MDP/wiki)
 
 ### External Libraries
 * [digitalWriteFast (external download only)](https://code.google.com/archive/p/digitalwritefast/downloads)
