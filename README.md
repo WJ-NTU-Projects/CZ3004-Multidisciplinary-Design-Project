@@ -4,6 +4,14 @@ Project files for the Android and Arduino subsystems, MDP AY1920 Sem 2.
 Files for any other subsystems are mainly used for testing purposes.
 
 
+## Arduino
+[Sketch Rundowns and Module Documentations](https://github.com/101011101001010/MDP/wiki)
+
+### External Libraries
+* [digitalWriteFast (external download only)](https://code.google.com/archive/p/digitalwritefast/downloads)
+* [EnableInterrupt](https://github.com/GreyGnome/EnableInterrupt)
+
+
 ## Android
 [![Download](https://img.shields.io/badge/APK%20Download-1.0.0-blue)](https://github.com/101011101001010/MDP/releases/tag/1.0.0)
 
@@ -21,14 +29,6 @@ The table below lists the minimum requirements needed to build and run the proje
 | Gradle Version | 6.1.1               | 
 
 Gradle version may be modified under File --> Project Structure... --> Project.
-
-
-## Arduino
-[Sketch Rundowns and Module Documentations](https://github.com/101011101001010/MDP/wiki)
-
-### External Libraries
-* [digitalWriteFast (external download only)](https://code.google.com/archive/p/digitalwritefast/downloads)
-* [EnableInterrupt](https://github.com/GreyGnome/EnableInterrupt)
 
 
 ## Algorithms
