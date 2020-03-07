@@ -143,11 +143,9 @@ void move(int direction, int distance) {
     int speedLeftRef = speedMax;
     int speedRightRef = speedMax - 40;
     motor.move(direction, speedLeftRef, speedRightRef);
-    double lastLoopTime = millis();
     int counter = 0;
-    int ticksRef = 0;
-    int gridCounter = 0;
     boolean decelerating = false;
+    double lastLoopTime = millis();
 
     while (moving) {   
         if (millis() - lastLoopTime < 10) continue;
