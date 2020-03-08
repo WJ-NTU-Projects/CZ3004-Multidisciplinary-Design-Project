@@ -1,8 +1,6 @@
 #include "Sensors.h"
 
-Sensors::Sensors() {
-    
-}
+Sensors::Sensors() {}
 
 double Sensors::getDistance(int sensor) {
     if (sensor == 1) return getDistance(sensor1, A0m, A0c, A0r);
@@ -26,22 +24,10 @@ int Sensors::getDistanceR(int sensor) {
 }
 
 double Sensors::getDistance(char sensor, double m, double c, double r) {
-      int raw = analogRead(sensor);
-      int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
-      double volts = voltsFromRaw * 0.001;
-      return pow((volts * m) + c, -1) - r;
-//    double totalDistance = 0;
-//    MedianFilter<double> s(5);
-//
-//    for (int i = 0; i < 5; i++) {
-//        int raw = analogRead(sensor);
-//        int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
-//        double volts = voltsFromRaw * 0.001;
-//        double distance = pow((volts * m) + c, -1) - r;
-//        totalDistance = s.AddValue(distance);
-//    }
-//
-//    return (totalDistance);
+    int raw = analogRead(sensor);
+    int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
+    double volts = voltsFromRaw * 0.001;
+    return (1 / ((volts * m) + c)) - r;
 }
 
 double Sensors::getDistanceAverageFront() {

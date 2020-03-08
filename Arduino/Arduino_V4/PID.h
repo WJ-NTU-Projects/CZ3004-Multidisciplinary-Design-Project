@@ -1,9 +1,6 @@
 #pragma once
 #include <Arduino.h>
 
-#define OUTPUT_MAX 10
-#define OUTPUT_MIN 0
-
 class PID {
     public:
         PID(double*, double*, double, double, double);

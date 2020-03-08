@@ -34,6 +34,7 @@ void setup() {
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
     align();
+    Serial.println("Ready");
 }
 
 void loop() {    
@@ -142,7 +143,7 @@ void move(int direction, int distance) {
     
     int speedLeftRef = speedMax;
     int speedRightRef = speedMax - 40;
-    motor.move(direction, speedLeftRef, speedRightRef);
+    motor.setSpeeds(direction, speedLeftRef, speedRightRef);
     int counter = 0;
     boolean decelerating = false;
     double lastLoopTime = millis();
@@ -163,7 +164,7 @@ void move(int direction, int distance) {
         speedLeft = constrain(speedLeft, speedLeftRef - 40, speedLeftRef + 40);
         int speedRight = round(speedRightRef + speedOffset);
         speedRight = constrain(speedRight, speedRightRef - 40, speedRightRef + 40);
-        motor.setSpeed(speedLeft, speedRight);
+        motor.setSpeeds(direction, speedLeft, speedRight);
 
         if (decelerating) {
             if (speedLeftRef > 120) counter++;
@@ -183,7 +184,6 @@ void move(int direction, int distance) {
         delay(10);
         align(); 
         delay(10);
-        align();
         if (direction <= REVERSE && (ticksLeft >= 88 || ticksRight >= 88)) moved = 1;
         printSensorValues(moved);
     }
@@ -199,7 +199,7 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
     
     int speedLeftRef = 100;
     int speedRightRef = 60;
-    motor.move(direction, speedLeftRef, speedRightRef);
+    motor.setSpeeds(direction, speedLeftRef, speedRightRef);
     double lastLoopTime = millis();
     int counter = 0;
 
@@ -220,7 +220,7 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
         speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
         int speedRight = round(speedRightRef + speedOffset);
         speedRight = constrain(speedRight, speedRightRef - 50, speedRightRef + 50);
-        motor.setSpeed(speedLeft, speedRight);
+        motor.setSpeeds(direction, speedLeft, speedRight);
         counter++;
         if (counter >= 500) break;
     }
@@ -230,8 +230,15 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
 }
 
 void align() {      
-    if (sensors.mayAlignFront()) alignFront();
-    else if (sensors.mayAlignLeft()) alignLeft();  
+    if (sensors.mayAlignFront()) {
+        alignFront();
+        delay(10);
+        alignFront();
+    } else if (sensors.mayAlignLeft()) {
+        alignLeft();  
+        delay(10);
+        alignLeft();  
+    }
 }
 
 void alignLeft() {
