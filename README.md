@@ -46,5 +46,5 @@ Many functionalities were copied over from Android and may have been stripped do
 
 ### External Libraries (If not using IDEA)
 * [TornadoFX - Lightweight JavaFX Framework for Kotlin](https://github.com/edvin/tornadofx)
-* [Gradle Shadow - For building a fat JAR (optional)](https://github.com/johnrengelman/shadow)
 * [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines)
+* [Gradle Shadow - For building a fat JAR (optional)](https://github.com/johnrengelman/shadow)
