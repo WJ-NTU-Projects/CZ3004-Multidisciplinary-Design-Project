@@ -1,4 +1,6 @@
 # MDP Android / Arduino Unmodular Repository
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/101011101001010/MDP/blob/master/LICENSE)
+
 Project files for the Android and Arduino subsystems, MDP AY1920 Sem 2. 
 
 Files for any other subsystems are mainly used for testing purposes.
