@@ -7,12 +7,13 @@
 
 // 2.89
 // 4.591
-const double TICKS_PER_MM = 2.95;
-const double TICKS_PER_ANGLE = 4.53;
-const int EXPLORE_SPEED = 320;
-const int FAST_SPEED = 360;
+const double TICKS_PER_MM = 3.06;
+const double TICKS_PER_ANGLE = 4.58;
+const int EXPLORE_SPEED = 340;
+const int FAST_SPEED = 340;
 
-volatile boolean moving = false;
+volatile boolean movingLeft = false;
+volatile boolean movingRight = false;
 volatile double ticksLeft = 0;
 volatile double ticksRight = 0;
 volatile double ticksTarget = 0;
@@ -28,7 +29,7 @@ boolean runningAlgo = false;
 Motor motor;
 Sensors sensors;
 LPS lps(&ticksLeft, &ticksRight, TICKS_PER_MM);
-PID pid(&error, &setpoint, 40.0, 6.0, 200.0);
+PID pid(&error, &setpoint, 60.0, 10.0, 400.0);
 WallHug wallHug;
 
 void setup() {   
@@ -92,23 +93,18 @@ void executeCommand(char command, int moveDistance) {
             printSensorValues(moved); 
             break;  
         case 'M': 
-            speedMax = EXPLORE_SPEED;
             move(FORWARD, moveDistance); 
             break; 
         case 'L': 
-            speedMax = EXPLORE_SPEED;
             move(LEFT, 90); 
             break;
         case 'R': 
-            speedMax = EXPLORE_SPEED;
             move(RIGHT, 90); 
             break;
         case 'T': 
-            speedMax = EXPLORE_SPEED;
             move(RIGHT, 180); 
             break;
         case 'V': 
-            speedMax = EXPLORE_SPEED;
             move(REVERSE, moveDistance); 
             break; 
         case 'C': 
@@ -117,10 +113,12 @@ void executeCommand(char command, int moveDistance) {
         case 'E':
             speedMax = EXPLORE_SPEED;
             fast = false;
+            Serial.println("Slow");
             break;
         case 'F':
             speedMax = FAST_SPEED;
             fast = true;
+            Serial.println("Fast");
             break;
         case 'W':
             startWallHug();
@@ -134,7 +132,8 @@ void move(int direction, int distance) {
     pid.reset();
     lps.reset();
     moved = 0;
-    moving = true;
+    movingLeft = true;
+    movingRight = true;
 
     switch (direction) {
         case FORWARD:
@@ -149,14 +148,15 @@ void move(int direction, int distance) {
     };
     
     int speedLeftRef = speedMax;
-    int speedRightRef = speedMax - 40;
-    motor.setSpeeds(direction, speedLeftRef, speedRightRef);
+    int speedRightRef = speedMax - 30;
+    motor.move(direction, speedLeftRef, speedRightRef);
     int counter = 0;
+    boolean accelerating = true;
     boolean decelerating = false;
     double lastLoopTime = millis();
 
-    while (moving) {   
-        if (millis() - lastLoopTime < 10) continue;
+    while (movingLeft && movingRight) {   
+        if (millis() - lastLoopTime < 2) continue;
         lastLoopTime = millis();  
 
         if (direction == FORWARD) {
@@ -164,34 +164,47 @@ void move(int direction, int distance) {
             else if (sensors.isNearFront() && !fast) decelerating = true;
         }
 
-        if (!decelerating && (ticksTarget - ticksLeft <= 144 || ticksTarget - ticksRight <= 144)) decelerating = true;       
+        if ((ticksTarget - ticksLeft <= 144 || ticksTarget - ticksRight <= 144)) decelerating = true;       
         error = lps.computeError();   
+//        Serial.println(error);
         double speedOffset = pid.computeOffset();   
         int speedLeft = round(speedLeftRef - speedOffset);
-        speedLeft = constrain(speedLeft, speedLeftRef - 40, speedLeftRef + 40);
+        speedLeft = constrain(speedLeft, speedLeftRef - 100, speedLeftRef + 100);
         int speedRight = round(speedRightRef + speedOffset);
-        speedRight = constrain(speedRight, speedRightRef - 40, speedRightRef + 40);
-        motor.setSpeeds(direction, speedLeft, speedRight);
+        speedRight = constrain(speedRight, speedRightRef - 100, speedRightRef + 100);
+        motor.setSpeed(speedLeft, speedRight);
 
+        // if (accelerating) {
+        //     if (speedLeftRef < speedMax) counter++;
+        //     else accelerating = false;
+
+        //     if (counter >= 1) {
+        //         counter = 0;
+        //         speedLeftRef += 20;
+        //         speedRightRef += 20;
+        //     }
+        // } else 
+        
         if (decelerating) {
-            if (speedLeftRef > 120) counter++;
+             if (speedLeftRef > 120) counter++;
 
-            if (counter >= 1) {
-                counter = 0;
-                speedLeftRef -= 20;
-                speedRightRef -= 20;
-            }
+             if (counter >= 1) {
+                 counter = 0;
+                 speedLeftRef -= 20;
+                 speedRightRef -= 20;
+             }
         }
     }
     
     motor.brake();
-    moving = false;
+    movingLeft = false;
+    movingRight = false;
     
     if (!fast) {        
+        if (direction <= REVERSE && (ticksLeft >= 88 || ticksRight >= 88)) moved = 1;
         delay(10);
         align(); 
-        delay(10);
-        if (direction <= REVERSE && (ticksLeft >= 88 || ticksRight >= 88)) moved = 1;
+        delay(100);
         printSensorValues(moved);
     }
 }
@@ -201,16 +214,17 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
     ticksRight = 0;
     pid.reset();
     lps.reset();
-    moving = true;
+    movingLeft = true;
+    movingRight = true;
     ticksTarget = 99999999;
     
     int speedLeftRef = 100;
-    int speedRightRef = 60;
-    motor.setSpeeds(direction, speedLeftRef, speedRightRef);
+    int speedRightRef = 70;
+    motor.move(direction, speedLeftRef, speedRightRef);
     double lastLoopTime = millis();
     int counter = 0;
 
-    while (moving) {   
+    while (movingLeft || movingRight) {   
         if (millis() - lastLoopTime < 1) continue;
         lastLoopTime = millis();  
 
@@ -221,29 +235,26 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
         else if (direction == FORWARD && sensors.getDistanceAverageFront() <= upperBound) break;
         else if (direction == REVERSE && sensors.getDistanceAverageFront() >= lowerBound) break;
         
-        error = lps.computeError();    
-        double speedOffset = pid.computeOffset();   
-        int speedLeft = round(speedLeftRef - speedOffset);
-        speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
-        int speedRight = round(speedRightRef + speedOffset);
-        speedRight = constrain(speedRight, speedRightRef - 50, speedRightRef + 50);
-        motor.setSpeeds(direction, speedLeft, speedRight);
+//        error = lps.computeError();    
+//        double speedOffset = pid.computeOffset();   
+//        int speedLeft = round(speedLeftRef - speedOffset);
+//        speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
+//        int speedRight = round(speedRightRef + speedOffset);
+//        speedRight = constrain(speedRight, speedRightRef - 50, speedRightRef + 50);
+//        motor.setSpeed(speedLeft, speedRight);
         counter++;
         if (counter >= 500) break;
     }
 
     motor.brake();
-    moving = false;
+    movingLeft = false;
+    movingRight = false;
 }
 
 void align() {      
     if (sensors.mayAlignFront()) {
         alignFront();
-        delay(10);
-        alignFront();
     } else if (sensors.mayAlignLeft()) {
-        alignLeft();  
-        delay(10);
         alignLeft();  
     }
 }
@@ -310,20 +321,22 @@ void printSensorValues(int step) {
 }
 
 void interruptLeft() {
+    if (!movingLeft) return;
     ticksLeft += 0.5;
     
     if (abs(ticksLeft - ticksTarget) <= 0.25) {
-        motor.brake();
-        moving = false;
+        motor.brakeLeft();
+        movingLeft = false;
     }
 }
 
 void interruptRight() {
+    if (!movingRight) return;
     ticksRight += 0.5;
 
     if (abs(ticksRight - ticksTarget) <= 0.25) {
-        motor.brake();
-        moving = false;
+        motor.brakeRight();
+        movingRight = false;
     }
 }
 
@@ -333,6 +346,7 @@ void startWallHug() {
     runningAlgo = true;
     int moveCounter = 0;
     String pastActions = "";
+    boolean hasMoved = false;
 
     while (true) {
         if (Serial.available()) {
@@ -340,7 +354,7 @@ void startWallHug() {
             if (input == 'B') break;
         }
 
-        if (wallHug.isBackAtStart()) break;
+        if (hasMoved && wallHug.isBackAtStart()) break;
 
         if (pastActions == "LMMLMMLMMLMM") {
             moveCounter = 0;
@@ -356,6 +370,7 @@ void startWallHug() {
             pastActions += 'L';
             wallHug.turn(-90);
             move(LEFT, 90);
+            hasMoved = true;
             delay(10);
             continue;
         }
@@ -365,6 +380,7 @@ void startWallHug() {
             if (moveCounter > 2) pastActions = "";
             else pastActions += 'M';
             move(FORWARD, 100);
+            hasMoved = true;
             delay(10);
             continue;
         }
@@ -373,6 +389,7 @@ void startWallHug() {
         pastActions = "";
         wallHug.turn(90);
         move(RIGHT, 90);
+        hasMoved = true;
         delay(10);
         continue;
     }

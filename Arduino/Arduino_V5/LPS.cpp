@@ -8,17 +8,19 @@ LPS::LPS(double *tl, double *tr, double tpmm) {
 }
 
 void LPS::reset() {
+    error = 0;
     previousTicksLeft = 0;
     previousTicksRight = 0;
     headingRadian = 0;
-    error = 0;
+    deltaLeft = 0;
+    deltaRight = 0;
 }
 
 double LPS::computeError() {
     double currentTicksLeft = *ticksLeft;
     double currentTicksRight = *ticksRight;
-    double deltaLeft = (currentTicksLeft - previousTicksLeft) / ticksPerMillimeter;
-    double deltaRight = (currentTicksRight - previousTicksRight) / ticksPerMillimeter;
+    deltaLeft = (currentTicksLeft - previousTicksLeft) / ticksPerMillimeter;
+    deltaRight = (currentTicksRight - previousTicksRight) / ticksPerMillimeter;
     double deltaMean = (deltaLeft + deltaRight) * 0.5;
     double diff = (deltaRight - deltaLeft) / WHEEL_AXIS;
     headingRadian += diff;

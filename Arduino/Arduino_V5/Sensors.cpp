@@ -27,7 +27,7 @@ double Sensors::getDistance(char sensor, double m, double c, double r) {
     int raw = analogRead(sensor);
     int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
     double volts = voltsFromRaw * 0.001;
-    return (1 / ((volts * m) + c)) - r;
+    return pow((volts * m) + c, -1) - r;
 }
 
 double Sensors::getDistanceAverageFront() {
@@ -85,8 +85,8 @@ boolean Sensors::isNearFront() {
     double distance1 = getDistance(1);
     double distance2 = getDistance(2);
     double distance3 = getDistance(3);
-    if (distance2 > 0 && distance2 <= 12) return true;
-    if (distance1 > 0 && distance1 <= 12) return true;
-    if (distance3 > 0 && distance3 <= 12) return true;
+    if (distance2 > 0 && distance2 <= 11) return true;
+    if (distance1 > 0 && distance1 <= 11) return true;
+    if (distance3 > 0 && distance3 <= 11) return true;
     return false;
 }

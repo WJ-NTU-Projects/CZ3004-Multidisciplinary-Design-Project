@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-const int WHEEL_AXIS = 179;
+#define WHEEL_AXIS 179
 
 class LPS {
     public:
@@ -17,4 +17,6 @@ class LPS {
         double ticksPerMillimeter;
         double error;
         double headingRadian;
+        double deltaLeft;
+        double deltaRight;
 };
