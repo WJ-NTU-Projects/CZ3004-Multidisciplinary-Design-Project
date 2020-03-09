@@ -3,18 +3,16 @@
 #include "LPS.h"
 #include "PID.h"
 #include "Sensors.h"
-#include "WallHug.h"
 
 // 2.89
 // 4.591
-const double TICKS_PER_MM = 3.06;
-const double TICKS_PER_ANGLE_L = 4.54;
+const double TICKS_PER_MM = 3.05;
+const double TICKS_PER_ANGLE_L = 4.59;
 const double TICKS_PER_ANGLE_R = 4.60;
-const int EXPLORE_SPEED = 280;
+const int EXPLORE_SPEED = 300;
 const int FAST_SPEED = 300;
 
-volatile boolean movingLeft = false;
-volatile boolean movingRight = false;
+volatile boolean moving = false;
 volatile double ticksLeft = 0;
 volatile double ticksRight = 0;
 volatile double ticksTarget = 0;
@@ -25,33 +23,32 @@ int moved = 0;
 String inputString = "";
 boolean inputComplete = false;
 boolean fast = false;
-boolean runningAlgo = false;
 
 Motor motor;
 Sensors sensors;
 LPS lps(&ticksLeft, &ticksRight, TICKS_PER_MM);
 PID pid(&error, &setpoint, 60.0, 10.0, 400.0);
-WallHug wallHug;
 
 void setup() {   
     motor.init();
-    wallHug.init();
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
-    delay(3000);
-    move(LEFT, 90);
-    align();
-    delay(500);
-    move(LEFT, 90);
-    align();
-    delay(500);
-    move(RIGHT, 90);
-    align();
-    delay(500);
-    move(RIGHT, 90);
-    align();
-    delay(500);
+    
+//    delay(3000);
+//    move(LEFT, 90);
+//    align();
+//    delay(100);
+//    move(LEFT, 90);
+//    align();
+//    delay(100);
+//    move(RIGHT, 90);
+//    align();
+//    delay(100);
+//    move(RIGHT, 90);
+//    align();
+//    delay(100);
+//    
     Serial.println("Ready");
 }
 
@@ -72,9 +69,11 @@ void loop() {
         int size = inputString.length();
 
         if (size == 1) {
+            fast = false;
             char command = inputString.charAt(0);
             executeCommand(command, 100);            
         } else if (size > 1) {
+            fast = true;
             char command = 'A';
             int counter = 0;
                 
@@ -89,7 +88,7 @@ void loop() {
                     executeCommand(command, 100 * counter);
                     counter = 1;                    
                     command = x;
-                    delay(50);
+                    delay(10);
                     if (last) executeCommand(command, 100 * counter);
                 }
             }
@@ -105,6 +104,15 @@ void executeCommand(char command, int moveDistance) {
         case 'I': 
             printSensorValues(moved); 
             break;  
+        case 'J': 
+            Serial.println(sensors.getDistance(1)); 
+            Serial.println(sensors.getDistance(2)); 
+            Serial.println(sensors.getDistance(3)); 
+            Serial.println(sensors.getDistance(4)); 
+            Serial.println(sensors.getDistance(5)); 
+            Serial.println(sensors.getDistance(6)); 
+            Serial.println();
+            break; 
         case 'M': 
             move(FORWARD, moveDistance); 
             break; 
@@ -123,30 +131,23 @@ void executeCommand(char command, int moveDistance) {
         case 'C': 
             align(); 
             break;
-        case 'E':
-            speedMax = EXPLORE_SPEED;
-            fast = false;
-            Serial.println("Slow");
-            break;
-        case 'F':
-            speedMax = FAST_SPEED;
-            fast = true;
-            Serial.println("Fast");
-            break;
-        case 'W':
-            startWallHug();
-            break;
     }
 }
 
 void move(int direction, int distance) {    
+    if (direction == FORWARD && (sensors.isObstructedFront())) {
+        align(); 
+        delay(10);
+        printSensorValues(0);
+        return;
+    }
+    
     ticksLeft = 0;
     ticksRight = 0;
     pid.reset();
     lps.reset();
     moved = 0;
-    movingLeft = true;
-    movingRight = true;
+    moving = true;
 
     switch (direction) {
         case FORWARD:
@@ -161,44 +162,38 @@ void move(int direction, int distance) {
             break;
         default: return;
     };
-    
+
+    double distanceLeft = sensors.getDistanceAverageLeft();
+    if (distanceLeft < 4.75) setpoint = -10;
+    else if (distanceLeft > 5.25 && distanceLeft <= 12) setpoint = 10;
+    else setpoint = 0;
+
+    //speedMax = 100;
     int speedLeftRef = speedMax;
     int speedRightRef = speedMax - 30;
     motor.move(direction, speedLeftRef, speedRightRef);
+    
     int counter = 0;
-    boolean accelerating = true;
     boolean decelerating = false;
-    double lastLoopTime = millis();
+    unsigned long lastLoopTime = millis();
 
-    while (movingLeft && movingRight) {   
-        if (millis() - lastLoopTime < 2) continue;
+    while (moving) {   
+        if (millis() - lastLoopTime < 5) continue;
         lastLoopTime = millis();  
 
         if (direction == FORWARD) {
             if (sensors.isObstructedFront()) break;
-            else if (sensors.isNearFront() && !fast) decelerating = true;
+            else if (sensors.isNearFront()) decelerating = true;            
         }
 
-        if ((ticksTarget - ticksLeft <= 144 || ticksTarget - ticksRight <= 144)) decelerating = true;       
+        if ((ticksTarget - ticksLeft <= 153 || ticksTarget - ticksRight <= 153)) decelerating = true;       
         error = lps.computeError();   
-//        Serial.println(error);
         double speedOffset = pid.computeOffset();   
         int speedLeft = round(speedLeftRef - speedOffset);
         speedLeft = constrain(speedLeft, speedLeftRef - 100, speedLeftRef + 100);
         int speedRight = round(speedRightRef + speedOffset);
         speedRight = constrain(speedRight, speedRightRef - 100, speedRightRef + 100);
         motor.setSpeed(speedLeft, speedRight);
-
-        // if (accelerating) {
-        //     if (speedLeftRef < speedMax) counter++;
-        //     else accelerating = false;
-
-        //     if (counter >= 1) {
-        //         counter = 0;
-        //         speedLeftRef += 20;
-        //         speedRightRef += 20;
-        //     }
-        // } else 
         
         if (decelerating) {
              if (speedLeftRef > 120) counter++;
@@ -212,26 +207,73 @@ void move(int direction, int distance) {
     }
     
     motor.brake();
-    //delay(100);
-    movingLeft = false;
-    movingRight = false;
+    moving = false;
+
+    if (direction <= REVERSE && (ticksLeft >= 90 || ticksRight >= 90)) moved = 1;
+    delay(50);
+    align(); 
     
-    if (!fast) {        
-        if (direction <= REVERSE && (ticksLeft >= 88 || ticksRight >= 88)) moved = 1;
-        delay(50);
-        align(); 
-        delay(50);
+    if (!fast) {
+        delay(10);
         printSensorValues(moved);
     }
 }
 
-void moveAlign(int direction, boolean front, double lowerBound, double upperBound) {    
+void moveAlign(int direction, boolean front, int frontWhich, double lowerBound, double upperBound) {    
     ticksLeft = 0;
     ticksRight = 0;
     pid.reset();
     lps.reset();
-    movingLeft = true;
-    movingRight = true;
+    moving = true;
+    ticksTarget = 99999999;
+    
+    int speedLeftRef = 70;
+    int speedRightRef = 70;
+    motor.move(direction, speedLeftRef, speedRightRef);
+    double lastLoopTime = millis();
+    int counter = 0;
+
+    while (moving) {   
+        if (millis() - lastLoopTime < 1) continue;
+        lastLoopTime = millis();  
+
+        double error = 0;
+
+        if (front) {
+            switch (frontWhich) {
+                case 0:
+                    error = sensors.getErrorFront();
+                    break;
+                case 1:
+                    error = sensors.getErrorFront1();
+                    break;
+                case 3:
+                    error = sensors.getErrorFront3();
+                    break;
+            }
+        } else {
+            error = sensors.getErrorLeft();
+        }
+        
+        if (direction == RIGHT && error >= lowerBound) break;
+        else if (direction == LEFT && error <= upperBound) break;
+        else if (direction == FORWARD && sensors.getDistanceAverageFront() <= upperBound) break;
+        else if (direction == REVERSE && sensors.getDistanceAverageFront() >= lowerBound) break;
+        counter++;
+        if (counter >= 500) break;
+    }
+
+    motor.brake();
+    moving = false;
+}
+
+void moveAlignS(int direction, int sensor, double lowerBound, double upperBound) {    
+    if (direction > REVERSE) return;
+    ticksLeft = 0;
+    ticksRight = 0;
+    pid.reset();
+    lps.reset();
+    moving = true;
     ticksTarget = 99999999;
     
     int speedLeftRef = 100;
@@ -240,42 +282,81 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
     double lastLoopTime = millis();
     int counter = 0;
 
-    while (movingLeft || movingRight) {   
-        if (millis() - lastLoopTime < 1) continue;
-        lastLoopTime = millis();  
-
-        double error = (front) ? sensors.getErrorFront() : sensors.getErrorLeft();
+    while (moving) {         
+        if (direction == FORWARD) {
+            if (sensors.isObstructedFront()) break;      
+        }
         
-        if (direction == RIGHT && error >= lowerBound) break;
-        else if (direction == LEFT && error <= upperBound) break;
-        else if (direction == FORWARD && sensors.getDistanceAverageFront() <= upperBound) break;
-        else if (direction == REVERSE && sensors.getDistanceAverageFront() >= lowerBound) break;
-        
-//        error = lps.computeError();    
-//        double speedOffset = pid.computeOffset();   
-//        int speedLeft = round(speedLeftRef - speedOffset);
-//        speedLeft = constrain(speedLeft, speedLeftRef - 50, speedLeftRef + 50);
-//        int speedRight = round(speedRightRef + speedOffset);
-//        speedRight = constrain(speedRight, speedRightRef - 50, speedRightRef + 50);
-//        motor.setSpeed(speedLeft, speedRight);
+        if (direction == FORWARD && sensors.getDistance(sensor) <= upperBound) break;
+        else if (direction == REVERSE && sensors.getDistance(sensor) >= lowerBound) break;
+        error = lps.computeError();   
+        double speedOffset = pid.computeOffset();   
+        int speedLeft = round(speedLeftRef - speedOffset);
+        speedLeft = constrain(speedLeft, speedLeftRef - 100, speedLeftRef + 100);
+        int speedRight = round(speedRightRef + speedOffset);
+        speedRight = constrain(speedRight, speedRightRef - 100, speedRightRef + 100);
+        motor.setSpeed(speedLeft, speedRight);
         counter++;
         if (counter >= 500) break;
     }
 
     motor.brake();
-    movingLeft = false;
-    movingRight = false;
+    moving = false;
 }
 
 void align() {      
-    if (sensors.mayAlignFront()) {
-        alignFront();
-        delay(50);
-        alignFront();
-    } else if (sensors.mayAlignLeft()) {
+    
+    if (sensors.isNearFront() && !fast) {    
+        double distance1 = sensors.getDistance(1);
+        double distance2 = sensors.getDistance(2);
+        double distance3 = sensors.getDistance(3);   
+        int smallestSensor = 2;
+        double smallestDistance = distance2;
+
+        if (distance1 < distance2) {
+            smallestSensor = 1;
+            smallestDistance = distance1;
+        }
+        
+        if (distance3 < distance1) {
+            smallestSensor = 3;
+            smallestDistance = distance3;
+        }
+        
+        double distanceFront = sensors.getDistanceAverageFront();
+
+        if (distanceFront <= 36 && abs(sensors.getErrorFront()) <= 5) {
+            alignFront();
+            alignFront();
+        } 
+            
+        if (smallestDistance < 4.75) {
+            moveAlignS(REVERSE, 2, 4.75, 5.25);
+        } else if (smallestDistance > 5.25) {
+            moveAlignS(FORWARD, 2, 4.75, 5.25);
+        }
+    }
+    
+    double distance1 = sensors.getDistance(1);
+    double distance3 = sensors.getDistance(3);
+    double distance4 = sensors.getDistance(4);
+    double distance5 = sensors.getDistance(5);
+
+    if (distance4 <= 12 && distance5 <= 12 && abs(distance4 - distance5) <= 3) {
         alignLeft();  
-        delay(50);
         alignLeft();  
+
+        if (abs(sensors.getErrorFront()) > 3) {
+            alignFront();
+            alignFront();
+        }
+        return;
+    }
+
+    if (distance1 <= 36 && distance3 <= 36 && abs(distance1 - distance3) <= 5) {
+        alignFront();
+        alignFront();
+        return;
     }
 }
 
@@ -283,28 +364,16 @@ void alignLeft() {
     double error = sensors.getErrorLeft();
     double lower = -0.2;
     double upper = 0.2;
-    
-    if (abs(error) <= 15) {
-        if (error < lower) moveAlign(RIGHT, false, lower, upper);
-        else if (error > upper) moveAlign(LEFT, false, lower, upper);
-    } 
+    if (error < lower) moveAlign(RIGHT, false, 0, lower, upper);
+    else if (error > upper) moveAlign(LEFT, false, 0, lower, upper);
 }
 
-void alignFront() {    
+void alignFront() {   
     double error = sensors.getErrorFront();
-    
-    if (abs(error) <= 3) {
-        double distance = sensors.getDistanceAverageFront();
-        if (distance < 3) moveAlign(REVERSE, true, 3, 4);
-        else if (distance > 4) moveAlign(FORWARD, true, 3, 4);
-    }    
-    
-    error = sensors.getErrorFront();
-
-    if (abs(error) <= 15) {
-        if (error < -0.1) moveAlign(RIGHT, true, -0.1, 0.1);
-        else if (error > 0.1) moveAlign(LEFT, true, -0.1, 0.1);
-    }
+    double lower = -0.2;
+    double upper = 0.2;
+    if (error < lower) moveAlign(RIGHT, true, 0, lower, upper);
+    else if (error > upper) moveAlign(LEFT, true, 0, lower, upper);
 }
 
 void printSensorValues(int step) {
@@ -329,93 +398,24 @@ void printSensorValues(int step) {
     Serial.write(35);
     Serial.write(48 + step);
     Serial.write(10);
-
-    if (runningAlgo) {
-        if (step == 1) wallHug.moveForward();
-        wallHug.updateSensor1(s1);
-        wallHug.updateSensor2(s2);
-        wallHug.updateSensor3(s3);
-        wallHug.updateSensor4(s4);
-        wallHug.updateSensor5(s5);
-    }
 }
 
 void interruptLeft() {
-    if (!movingLeft) return;
+    if (!moving) return;
     ticksLeft += 0.5;
     
     if (abs(ticksLeft - ticksTarget) <= 0.25) {
-        motor.brakeLeft();
-        movingLeft = false;
+        motor.brake();
+        moving = false;
     }
 }
 
 void interruptRight() {
-    if (!movingRight) return;
+    if (!moving) return;
     ticksRight += 0.5;
 
     if (abs(ticksRight - ticksTarget) <= 0.25) {
-        motor.brakeRight();
-        movingRight = false;
+        motor.brake();
+        moving = false;
     }
-}
-
-
-/* ALGORITHMS */
-void startWallHug() {
-    runningAlgo = true;
-    int moveCounter = 0;
-    String pastActions = "";
-    boolean hasMoved = false;
-
-    while (true) {
-        if (Serial.available()) {
-            char input = (char) Serial.read();
-            if (input == 'B') break;
-        }
-
-        if (hasMoved && wallHug.isBackAtStart()) break;
-
-        if (pastActions == "LMMLMMLMMLMM") {
-            moveCounter = 0;
-            pastActions = "";
-            wallHug.turn(90);
-            move(RIGHT, 90);
-            delay(10);
-            continue;
-        }
-
-        if (wallHug.isLeftMovable() && moveCounter >= 2) {
-            moveCounter = 0;
-            pastActions += 'L';
-            wallHug.turn(-90);
-            move(LEFT, 90);
-            hasMoved = true;
-            delay(10);
-            continue;
-        }
-
-        if (wallHug.isFrontMovable()) {
-            moveCounter++;
-            if (moveCounter > 2) pastActions = "";
-            else pastActions += 'M';
-            move(FORWARD, 100);
-            hasMoved = true;
-            delay(10);
-            continue;
-        }
-
-        moveCounter = 0;
-        pastActions = "";
-        wallHug.turn(90);
-        move(RIGHT, 90);
-        hasMoved = true;
-        delay(10);
-        continue;
-    }
-
-    Serial.write(80);
-    Serial.write(70);
-    Serial.write(10);
-    runningAlgo = false;
 }

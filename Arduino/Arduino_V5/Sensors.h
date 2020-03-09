@@ -1,5 +1,6 @@
 #pragma once
 #include <Arduino.h>
+#include <MedianFilterLib.h>
 
 #define sensor1 A0 // PS1 S
 #define sensor2 A1 // PS2 L
@@ -31,19 +32,17 @@
 class Sensors {
     public:
         Sensors();
+        double getDistanceFast(char, double, double, double);
+        double getDistanceFast(int);
         double getDistance(char, double, double, double);
         double getDistance(int);
         int getPrintDistance(int);
-        int getDistanceR(int);
         double getErrorLeft();
         double getErrorFront();
-        double getErrorFrontFar();
-        boolean hasObstacleFront(int);
-        boolean hasObstacleLeft(int);
-        boolean mayAlignLeft();
-        boolean mayAlignFront();
+        double getErrorFront1();
+        double getErrorFront3();
         boolean isObstructedFront();
         boolean isNearFront();
-        boolean isMovableLeft();
         double getDistanceAverageFront();
+        double getDistanceAverageLeft();
 };
