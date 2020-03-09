@@ -8,9 +8,10 @@
 // 2.89
 // 4.591
 const double TICKS_PER_MM = 3.06;
-const double TICKS_PER_ANGLE = 4.58;
-const int EXPLORE_SPEED = 340;
-const int FAST_SPEED = 340;
+const double TICKS_PER_ANGLE_L = 4.54;
+const double TICKS_PER_ANGLE_R = 4.60;
+const int EXPLORE_SPEED = 280;
+const int FAST_SPEED = 300;
 
 volatile boolean movingLeft = false;
 volatile boolean movingRight = false;
@@ -38,7 +39,19 @@ void setup() {
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
+    delay(3000);
+    move(LEFT, 90);
     align();
+    delay(500);
+    move(LEFT, 90);
+    align();
+    delay(500);
+    move(RIGHT, 90);
+    align();
+    delay(500);
+    move(RIGHT, 90);
+    align();
+    delay(500);
     Serial.println("Ready");
 }
 
@@ -73,7 +86,7 @@ void loop() {
                     counter++;
                     if (last) executeCommand(command, 100 * counter);
                 } else {
-                    if (last) executeCommand(command, 100 * counter);
+                    executeCommand(command, 100 * counter);
                     counter = 1;                    
                     command = x;
                     delay(50);
@@ -141,8 +154,10 @@ void move(int direction, int distance) {
             ticksTarget = distance * TICKS_PER_MM;
             break;
         case LEFT:
+            ticksTarget = distance * TICKS_PER_ANGLE_L;
+            break;
         case RIGHT:
-            ticksTarget = distance * TICKS_PER_ANGLE;
+            ticksTarget = distance * TICKS_PER_ANGLE_R;
             break;
         default: return;
     };
@@ -197,14 +212,15 @@ void move(int direction, int distance) {
     }
     
     motor.brake();
+    //delay(100);
     movingLeft = false;
     movingRight = false;
     
     if (!fast) {        
         if (direction <= REVERSE && (ticksLeft >= 88 || ticksRight >= 88)) moved = 1;
-        delay(10);
+        delay(50);
         align(); 
-        delay(100);
+        delay(50);
         printSensorValues(moved);
     }
 }
@@ -254,7 +270,11 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
 void align() {      
     if (sensors.mayAlignFront()) {
         alignFront();
+        delay(50);
+        alignFront();
     } else if (sensors.mayAlignLeft()) {
+        alignLeft();  
+        delay(50);
         alignLeft();  
     }
 }
@@ -275,8 +295,8 @@ void alignFront() {
     
     if (abs(error) <= 3) {
         double distance = sensors.getDistanceAverageFront();
-        if (distance < 5) moveAlign(REVERSE, true, 4.5, 5.5);
-        else if (distance > 6) moveAlign(FORWARD, true, 4.5, 5.5);
+        if (distance < 3) moveAlign(REVERSE, true, 3, 4);
+        else if (distance > 4) moveAlign(FORWARD, true, 3, 4);
     }    
     
     error = sensors.getErrorFront();

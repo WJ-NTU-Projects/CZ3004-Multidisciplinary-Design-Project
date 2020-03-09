@@ -12,18 +12,24 @@ class Main:
         self.arduino = ArduinoV3()
         self.pc = PCV3()
         self.android = AndroidV3()
-        self.arduino.connect()
-
-        try:
-            _thread.start_new_thread(self.arduino.readThread, (self.pc, self.android))
-            print("Arduino thread started.")
-        except Exception as e:
-            print("Arduino threading error: %s" %str(e))
 
     def test(self):
         while True:
+            if self.arduino.connected == False:
+                result = self.arduino.connect()
+
+                if (result == 0): 
+                    continue
+
+                try:
+                    _thread.start_new_thread(self.arduino.readThread, (self.pc, self.android))
+                    print("Arduino thread started.")
+                except Exception as e:
+                    print("Arduino threading error: %s" %str(e))
+
             if self.pc.connected == False:
                 self.pc.connect()
+
                 if self.pc.connected == True:
                     try:
                         _thread.start_new_thread(self.pc.readThread, (self.arduino, self.android))
@@ -33,6 +39,7 @@ class Main:
 
             if self.android.connected == False:
                 self.android.connect()
+
                 if self.android.connected == True:
                     try:
                         _thread.start_new_thread(self.android.readThread, (self.arduino, self.pc))

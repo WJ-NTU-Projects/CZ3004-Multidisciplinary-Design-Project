@@ -38,25 +38,28 @@ class PCV3:
     def readThread(self, arduino, android):
         while True:
             try:
-                message = self.client_socket.recv(1024)
+                messages = self.client_socket.recv(1024)
 
-                if not message:
+                if not messages:
                     print("PC disconnected remotely.")
                     self.disconnect()
                     return
 
-                print("Read from PC: %s" %str(message))
+                test = messages.split(b'\r\n')
+                
+                for message in test:
+                    print("Read from PC: %s" %str(message))
 
-                if len(message) <= 1:
-                    continue
+                    if len(message) <= 1:
+                        continue
 
-                if (message[0] == 65):
-                    arduino.write(message[1:] + '\n'.encode("utf-8"))
-                    continue
+                    if (message[0] == 65):
+                        arduino.write(message[1:] + '\n'.encode("utf-8"))
+                        continue
 
-                if (message[0] == 68):
-                    android.write(message[1:] + '\n'.encode("utf-8"))
-                    continue
+                    if (message[0] == 68):
+                        android.write(message[1:] + '\n'.encode("utf-8"))
+                        continue
             except socket.error as e:
                 print("Failed to read from PC: %s" %str(e))
                 self.disconnect()

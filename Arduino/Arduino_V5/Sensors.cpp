@@ -59,7 +59,7 @@ boolean Sensors::mayAlignLeft() {
 boolean Sensors::mayAlignFront() {
     double distance1 = getDistance(1);
     double distance2 = getDistance(3);    
-    if (distance1 > 0 && distance1 <= 10 && distance2 > 0 && distance2 <= 10) return true;
+    if (distance1 > 0 && distance1 <= 11 && distance2 > 0 && distance2 <= 11) return true;
     return false;
 }
 
