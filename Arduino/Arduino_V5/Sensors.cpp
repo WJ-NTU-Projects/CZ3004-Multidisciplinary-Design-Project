@@ -127,9 +127,9 @@ boolean Sensors::isObstructedFront() {
     double distance1 = getDistanceFast(1);
     double distance2 = getDistanceFast(2);
     double distance3 = getDistanceFast(3);
-    if (distance2 > 0 && distance2 <= 6) return true;
-    if (distance1 > 0 && distance1 <= 6) return true;
-    if (distance3 > 0 && distance3 <= 6) return true;
+    if (distance2 > 0 && distance2 <= 5) return true;
+    if (distance1 > 0 && distance1 <= 5) return true;
+    if (distance3 > 0 && distance3 <= 5) return true;
     return false;
 }
 

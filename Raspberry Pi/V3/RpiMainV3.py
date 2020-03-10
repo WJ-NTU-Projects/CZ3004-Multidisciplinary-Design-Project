@@ -14,6 +14,8 @@ class Main:
         self.android = AndroidV3()
 
     def test(self):
+        self.pc.connectImg()
+        
         while True:
             if self.arduino.connected == False:
                 result = self.arduino.connect()

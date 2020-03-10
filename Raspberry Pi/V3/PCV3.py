@@ -1,6 +1,8 @@
 import socket
 import select
 import sys
+import threading
+from sendImg import *
 
 class PCV3:
     def __init__(self):
@@ -25,6 +27,9 @@ class PCV3:
         self.client_socket, self.address = self.socket.accept()
         print("PC connected successfully.")
         self.connected = True
+
+    def connectImg(self):
+        self.sendImg = sendImg()
 
     def disconnect(self):
         try:
@@ -55,6 +60,11 @@ class PCV3:
 
                     if (message[0] == 65):
                         arduino.write(message[1:] + '\n'.encode("utf-8"))
+                        command = message[1]
+
+                        if (command == 77 or command == 76 or command == 82 or command == 84):
+                            threading.Thread(target= self.sendImg.takeTwice).start()
+                        
                         continue
 
                     if (message[0] == 68):
