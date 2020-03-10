@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -13,6 +14,7 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
 import android.os.LocaleList
 import android.util.Log
 import android.view.KeyEvent
@@ -28,6 +30,8 @@ import wjayteo.mdp.android.App.Companion.CLICK_DELAY
 import wjayteo.mdp.android.App.Companion.DESCRIPTOR_DIVIDER
 import wjayteo.mdp.android.App.Companion.EXPLORATION_COMMAND
 import wjayteo.mdp.android.App.Companion.FASTEST_PATH_COMMAND
+import wjayteo.mdp.android.App.Companion.IS_TABLET
+import wjayteo.mdp.android.App.Companion.LAST_CONNECTED_DEVICE
 import wjayteo.mdp.android.App.Companion.PAD_MOVABLE
 import wjayteo.mdp.android.App.Companion.PC_PREFIX
 import wjayteo.mdp.android.App.Companion.TILT_MOVABLE
@@ -50,6 +54,7 @@ import wjayteo.mdp.android.simulation.Exploration
 import wjayteo.mdp.android.simulation.FastestPath
 import wjayteo.mdp.android.utils.ActivityUtil
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 
@@ -97,8 +102,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding                : ActivityMainBinding
     private lateinit var activityUtil           : ActivityUtil
     private lateinit var bluetoothAdapter       : BluetoothAdapter
-    private lateinit var arenaMapController        : ArenaMapController
-    private lateinit var robotController       : RobotController
+    private lateinit var arenaMapController     : ArenaMapController
+    private lateinit var robotController        : RobotController
     private lateinit var bluetoothMessageParser : BluetoothMessageParser
     private lateinit var database               : AppDatabase
     private lateinit var buttonList             : ArrayList<View>
@@ -107,9 +112,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fastestPath            : FastestPath
     private lateinit var sensorManager          : SensorManager
 
-    private var gyroscopeSensor                 : Sensor? = null
-    private var lastClickTime                   : Long = 0L
-    private var isTablet                        : Boolean = false
+    private var gyroscopeSensor : Sensor? = null
+    private var lastClickTime   : Long = 0L
+    private var isTablet        : Boolean = false
+    private var currentMode     : Mode = Mode.NONE
+    private var reconnectCounter: Int = 0
 
     override fun attachBaseContext(newBase: Context?) {
         val res: Resources? = newBase?.resources
@@ -148,12 +155,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        IS_TABLET = resources.getBoolean(R.bool.isTablet)
         buttonList = arrayListOf(infoButton, imageButton, bluetoothButton, settingsButton, tiltButton, exploreButton, fastestPathButton, plotButton, plotPathButton, saveMapButton, loadMapButton, visibilityButton, clearArenaButton, f1Button, f2Button, messagesOutputEditText, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
         arenaMapController = ArenaMapController(this, robotControllerCallback)
         robotController = RobotController(this, binding, arenaMapController, robotControllerCallback)
         bluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
         database = AppDatabase.getDatabase(applicationContext)
-        isTablet = resources.getBoolean(R.bool.isTablet)
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         controllerPad.setOnTouchListener(robotController.touchListener)
@@ -176,7 +183,9 @@ class MainActivity : AppCompatActivity() {
 
         statusCardLabel.text = getString(R.string.idle)
         if (accelerometer && gyroscopeSensor != null) sensorManager.registerListener(robotController.gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
-        if (bluetoothAdapter.isEnabled) startBluetoothListener()
+        //if (bluetoothAdapter.isEnabled) startBluetoothListener()
+        BluetoothController.callback = bluetoothCallback
+        reconnectCounter = 0
 
         CoroutineScope(Dispatchers.Main).launch {
             arenaMapController.updateRobotImage()
@@ -194,11 +203,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun startBluetoothListener() {
         if (!BluetoothController.isSocketConnected()) {
-            BluetoothController.startServer(bluetoothCallback)
+            val device: BluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(LAST_CONNECTED_DEVICE)
+            BluetoothController.startClient(device, bluetoothCallback)
             return
-        }
 
-        BluetoothController.callback = bluetoothCallback
+            // FOR AMDTOOL ONLY
+//            BluetoothController.startServer(bluetoothCallback)
+//            return
+        }
     }
 
     @Suppress("unused")
@@ -333,6 +345,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onStartClicked(mode: Mode) {
+        currentMode = mode
+
         if (simulationMode) {
             when (mode) {
                 Mode.EXPLORATION -> {
@@ -449,11 +463,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun connectionChanged(status: BluetoothController.Status) {
-        if (status == BluetoothController.Status.CONNECTED) {
-            //ArenaMap.isWaitingUpdate = true
-            //sendCommand(SEND_ARENA_COMMAND)
-        } else {
-            startBluetoothListener()
+        when (status) {
+            BluetoothController.Status.DISCONNECTED, BluetoothController.Status.CONNECT_FAILED -> startBluetoothListener()
+            BluetoothController.Status.CONNECTED -> {
+                //ArenaMap.isWaitingUpdate = true
+                //sendCommand(SEND_ARENA_COMMAND)
+            }
+
+            else -> {}
         }
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -496,12 +513,10 @@ class MainActivity : AppCompatActivity() {
             BluetoothMessageParser.MessageStatus.GARBAGE -> displayInChat(MessageType.INCOMING, message)
             BluetoothMessageParser.MessageStatus.ARENA -> arenaMapController.updateArena(message)
             BluetoothMessageParser.MessageStatus.IMAGE_POSITION -> updateImage(message)
-            BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> {
-                updateRobot(message)
-                //BluetoothController.write("OK", "P")
-            }
+            BluetoothMessageParser.MessageStatus.ROBOT_POSITION -> updateRobot(message)
             BluetoothMessageParser.MessageStatus.INFO -> activityUtil.sendSnack(message)
             BluetoothMessageParser.MessageStatus.ROBOT_STATUS -> statusCardLabel.text = message
+            BluetoothMessageParser.MessageStatus.RUN_ENDED -> onStartClicked(Mode.NONE)
         }
 
     }
@@ -518,9 +533,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleBluetoothCallback(status: BluetoothController.Status, message: String) {
         when (status) {
-            BluetoothController.Status.CONNECTED, BluetoothController.Status.DISCONNECTED -> {
-                connectionChanged(status)
+            BluetoothController.Status.CONNECTED -> {
                 activityUtil.sendSnack(message)
+                displayInChat(MessageType.SYSTEM, getString(R.string.bluetooth_connection_successful))
+                connectionChanged(status)
+                reconnectCounter = 0
+            }
+
+            BluetoothController.Status.CONNECT_FAILED, BluetoothController.Status.DISCONNECTED -> {
+                activityUtil.sendSnack(message)
+
+                if (reconnectCounter >= 12) {
+                    displayInChat(MessageType.SYSTEM, getString(R.string.failed_reconnection))
+                    return
+                }
+
+                Handler().postDelayed({
+                    reconnectCounter++
+                    displayInChat(MessageType.SYSTEM, getString(R.string.attempt_reconnection))
+                    connectionChanged(status)
+                }, 5000)
             }
 
             BluetoothController.Status.READ -> bluetoothMessageParser.parse(message)

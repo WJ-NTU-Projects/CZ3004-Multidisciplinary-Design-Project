@@ -33,6 +33,8 @@ class App: Application() {
         @Volatile var usingAmd = true
         @Volatile var simulationMode = false
         @Volatile var BLUETOOTH_CONNECTED_DEVICE = "-"
+        @Volatile var LAST_CONNECTED_DEVICE = "FF:FF:FF:FF:FF:FF" //"20:16:B9:85:72:07"
+        @Volatile var IS_TABLET = false
 
         // COMMANDS
         @Volatile var EXPLORATION_COMMAND = "exs"

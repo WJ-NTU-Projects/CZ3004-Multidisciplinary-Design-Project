@@ -18,6 +18,7 @@ class BluetoothClient(private val device: BluetoothDevice, private val connected
             return
         }
 
+        App.LAST_CONNECTED_DEVICE = device.address
         App.socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString(App.BLUETOOTH_UUID))
         App.socket?.let { socket ->
             try {

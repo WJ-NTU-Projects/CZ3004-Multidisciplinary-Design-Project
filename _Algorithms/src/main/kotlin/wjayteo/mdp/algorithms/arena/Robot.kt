@@ -22,6 +22,7 @@ class Robot {
             updateFacing(0)
         }
 
+
         fun move(x: Int, y: Int) {
             if (!Arena.isMovable(x, y)) return
             position.x = x

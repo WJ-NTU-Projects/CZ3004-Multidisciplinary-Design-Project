@@ -19,6 +19,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
         IMAGE_POSITION,
         ARENA,
         GARBAGE,
+        RUN_ENDED,
         INFO
     }
 
@@ -56,9 +57,9 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
 
 
             try {
-                val x = strings[2].toInt()
-                val y = strings[3].toInt()
-                val r = strings[4].toInt()
+                val x = strings[2].trim().toInt()
+                val y = strings[3].trim().toInt()
+                val r = strings[4].trim().toInt()
                 s[1] = "$x, $y, $r"
                 callback(MessageStatus.ROBOT_POSITION, s[1])
             }  catch (e: NumberFormatException) {
@@ -102,7 +103,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             //if (s[1] == previousMessage) return
             previousMessage = s[1]
 
-            val s1 = s[1].split(", ")
+            val s1 = s[1].split(",")
 
             if (s1.size != 3) {
                 callback(MessageStatus.INFO, "Something went wrong.")
@@ -127,6 +128,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             "${COMMAND_PREFIX}${ROBOT_POSITION_IDENTIFIER}" -> callback(MessageStatus.ROBOT_POSITION, s[1])
             "${COMMAND_PREFIX}${ROBOT_STATUS_IDENTIFIER}" -> callback(MessageStatus.ROBOT_STATUS, s[1])
             "${COMMAND_PREFIX}${SET_IMAGE_IDENTIFIER}" -> callback(MessageStatus.IMAGE_POSITION, s[1])
+            "${COMMAND_PREFIX}exe", "${COMMAND_PREFIX}fe" -> callback(MessageStatus.RUN_ENDED, s[1])
             else -> callback(MessageStatus.GARBAGE, s[1])
         }
 

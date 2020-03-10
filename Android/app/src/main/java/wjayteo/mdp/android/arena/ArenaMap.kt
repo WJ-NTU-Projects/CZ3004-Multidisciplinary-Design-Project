@@ -12,6 +12,7 @@ import wjayteo.mdp.android.App.Companion.ARDUINO_PREFIX
 import wjayteo.mdp.android.App.Companion.COMMAND_DIVIDER
 import wjayteo.mdp.android.App.Companion.DESCRIPTOR_DIVIDER
 import wjayteo.mdp.android.App.Companion.FORWARD_COMMAND
+import wjayteo.mdp.android.App.Companion.IS_TABLET
 import wjayteo.mdp.android.App.Companion.PC_PREFIX
 import wjayteo.mdp.android.App.Companion.REVERSE_COMMAND
 import wjayteo.mdp.android.App.Companion.SEND_ARENA_COMMAND
@@ -395,6 +396,8 @@ open class ArenaMap (private val context: Context, private val callback: (status
                 callback(Callback.SEND_COMMAND, "$ARDUINO_PREFIX$TURN_RIGHT_COMMAND")
             }
 
+            delay(250)
+            broadcast(Broadcast.TURN_COMPLETE, booleanArrayOf(false, false, false))
             return@withContext
         }
 
@@ -504,6 +507,8 @@ open class ArenaMap (private val context: Context, private val callback: (status
         if (BluetoothController.isSocketConnected()) {
             if (facingDifference == 180 && !noReverse) callback(Callback.SEND_COMMAND, "$ARDUINO_PREFIX$REVERSE_COMMAND")
             else callback(Callback.SEND_COMMAND, "$ARDUINO_PREFIX$FORWARD_COMMAND")
+            delay(250)
+            broadcast(Broadcast.MOVE_COMPLETE, booleanArrayOf(false, false, false))
             return@withContext
         }
 
@@ -593,13 +598,24 @@ open class ArenaMap (private val context: Context, private val callback: (status
     }
 
     private suspend fun updateRobotImage2(facing: Int = robotPosition[2]) = withContext(Dispatchers.Main) {
-        val drawable: Int = when (facing) {
-            0 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_up else R.drawable.img_robot_up
-            90 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_right else R.drawable.img_robot_right
-            180 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_down else R.drawable.img_robot_down
-            270 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_left else R.drawable.img_robot_left
-            else -> return@withContext
-        }
+        val drawable: Int =
+            if (IS_TABLET) {
+                when (facing) {
+                    0 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_up else R.drawable.img_robot_up
+                    90 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_right else R.drawable.img_robot_right
+                    180 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_down else R.drawable.img_robot_down
+                    270 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_left else R.drawable.img_robot_left
+                    else -> return@withContext
+                }
+            } else {
+                when (facing) {
+                    0 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_0 else R.drawable.img_robot_up
+                    90 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_90 else R.drawable.img_robot_right
+                    180 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_180 else R.drawable.img_robot_down
+                    270 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_270 else R.drawable.img_robot_left
+                    else -> return@withContext
+                }
+            }
 
         robotDisplay.setImageResource(drawable)
         robotDisplay.rotation = 0.0f
@@ -622,13 +638,24 @@ open class ArenaMap (private val context: Context, private val callback: (status
             }
         }
 
-        val drawable: Int = when (facing) {
-            0 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_up else R.drawable.img_robot_up
-            90 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_right else R.drawable.img_robot_right
-            180 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_down else R.drawable.img_robot_down
-            270 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_left else R.drawable.img_robot_left
-            else -> return@withContext
-        }
+        val drawable: Int =
+            if (IS_TABLET) {
+                when (facing) {
+                    0 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_up else R.drawable.img_robot_up
+                    90 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_right else R.drawable.img_robot_right
+                    180 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_down else R.drawable.img_robot_down
+                    270 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_left else R.drawable.img_robot_left
+                    else -> return@withContext
+                }
+            } else {
+                when (facing) {
+                    0 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_0 else R.drawable.img_robot_up
+                    90 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_90 else R.drawable.img_robot_right
+                    180 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_180 else R.drawable.img_robot_down
+                    270 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_270 else R.drawable.img_robot_left
+                    else -> return@withContext
+                }
+            }
 
         robotDisplay.setImageResource(drawable)
         robotDisplay.rotation = 0.0f

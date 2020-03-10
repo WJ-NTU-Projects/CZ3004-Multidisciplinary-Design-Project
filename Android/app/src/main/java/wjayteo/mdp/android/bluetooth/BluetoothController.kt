@@ -35,19 +35,13 @@ class BluetoothController {
         fun startClient(device: BluetoothDevice, callback: (status: Status, message: String) -> Unit) {
             this.callback = callback
             App.bluetoothClientThread = BluetoothClient(device) { connected -> if (connected) manageConnection() }
-
-            CoroutineScope(Dispatchers.Default).launch {
-                App.bluetoothClientThread?.start()
-            }
+            App.bluetoothClientThread?.start()
         }
 
         @Synchronized
         private fun manageConnection() {
             App.bluetoothConnectionManagerThread = BluetoothConnectionManager()
-
-            CoroutineScope(Dispatchers.Default).launch {
-                App.bluetoothConnectionManagerThread?.start()
-            }
+            App.bluetoothConnectionManagerThread?.start()
         }
 
         @Synchronized

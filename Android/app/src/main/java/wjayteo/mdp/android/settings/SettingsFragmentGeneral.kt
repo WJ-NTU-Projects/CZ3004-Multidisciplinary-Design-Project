@@ -17,6 +17,7 @@ import wjayteo.mdp.android.App.Companion.darkMode
 import wjayteo.mdp.android.App.Companion.dialogTheme
 import wjayteo.mdp.android.App.Companion.sharedPreferences
 import wjayteo.mdp.android.App.Companion.usingAmd
+import wjayteo.mdp.android.BuildConfig
 import wjayteo.mdp.android.MainActivity
 import wjayteo.mdp.android.R
 import wjayteo.mdp.android.databinding.FragmentSettingsGeneralBinding
@@ -36,7 +37,8 @@ class SettingsFragmentGeneral : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         activityUtil = (activity as SettingsActivity).activityUtil
-        languageList = arrayListOf(getString(R.string.language), getString(R.string.language))
+        settingsAppVersion.text = getString(R.string.version_something, BuildConfig.VERSION_NAME)
+        languageList = arrayListOf(getString(R.string.english), getString(R.string.chinese))
 
         autoSwitch.isChecked = autoUpdateArena
         autoSwitch.setOnCheckedChangeListener { _, isChecked ->

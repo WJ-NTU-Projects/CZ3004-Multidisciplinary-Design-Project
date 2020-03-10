@@ -41,6 +41,7 @@
     <string name="app_result_map_name" translatable="false">MAP_NAME</string>
     <string name="app_result_map_id" translatable="false">MAP_ID</string>
 
+    <string name="version_something">Version %s</string>
     <string name="ok">OK</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
@@ -94,6 +95,9 @@
     <string name="set_arena_as">Set the entire arena as?</string>
     <string name="explored">Explored</string>
     <string name="unexplored">Unknown</string>
+    <string name="bluetooth_connection_successful">Bluetooth connection successful.</string>
+    <string name="attempt_reconnection">Attempting to reconnect Bluetooth…</string>
+    <string name="failed_reconnection">Bluetooth reconnection failed, tried 12 times.</string>
 
     <!-- BLUETOOTH ACTIVITY -->
     <string name="bluetooth">Bluetooth</string>
@@ -116,7 +120,9 @@
     <string name="dark_mode_warning">WARNING! App restarts immediately when toggled!</string>
     <string name="automatic_update">Automatically Update Arena</string>
     <string name="using_amd">Using AMDTool</string>
-    <string name="language">Hi</string>
+    <string name="language">Language</string>
+    <string name="english" translatable="false">English</string>
+    <string name="chinese" translatable="false">中文</string>
     <string name="selected">Selected</string>
 
     <!-- SETTINGS IDENTIFIERS -->

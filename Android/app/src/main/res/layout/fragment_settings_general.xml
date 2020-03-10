@@ -82,6 +82,11 @@
                 style="@style/AppTextView.Gray.Settings"
                 android:text="@string/dark_mode_warning"/>
 
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/AppTextView.Gray.Settings.Title"
+                android:id="@+id/settingsAppVersion"
+                android:text="@string/app_name"/>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

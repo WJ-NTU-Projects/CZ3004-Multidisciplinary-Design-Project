@@ -245,7 +245,6 @@ class Arena {
             if (isInvalidCoordinates(x, y)) return
 
             if (isObstacle(x, y)) {
-                val exploreBit: Int = exploreArray[y][x]
                 setUnknown(x, y)
                 setExplored(x, y)
                 return

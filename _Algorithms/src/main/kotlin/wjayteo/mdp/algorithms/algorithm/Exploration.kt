@@ -16,13 +16,18 @@ class Exploration : Algorithm() {
     private var simulationStarted: Boolean = false
     private var wallHug: Boolean = true
     private var previousCommand: Int = FORWARD
-    private var lastStartedJob: Job? = null
     private var braking: AtomicBoolean = AtomicBoolean(false)
-    private val stepReference: AtomicInteger = AtomicInteger(0)
     private var delay: Long = 100L
     private var startTime: Long = 0L
 
     override fun messageReceived(message: String) {
+        if (!started && message == "exs") {
+            started = true
+            step()
+            return
+        }
+
+        if (!message.contains("#")) return
         val messages: List<String> = message.split("#")
         val moved: Int = messages[6].toInt()
         if (moved >= 1) Robot.moveTemp()
@@ -43,23 +48,20 @@ class Exploration : Algorithm() {
         Sensor.updateArenaSensor6(x, y, facing, sensor6)
         if (x == Arena.start.x && y == Arena.start.y) wallHug = false
         step()
-        //Arena.sendArena()
+        Arena.sendArena()
     }
 
     fun start() {
         WifiSocketController.setListener(this)
         Arena.setAllUnknown()
         Arena.reset()
-        stepReference.set(0)
         wallHug = true
         startTime = System.currentTimeMillis()
 
-        if (ACTUAL_RUN) {
-            started = true
-            step()
-        } else {
+        if (!ACTUAL_RUN) {
             delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
             simulationStarted = true
+            startTime = System.currentTimeMillis()
             simulate()
         }
     }
@@ -68,6 +70,8 @@ class Exploration : Algorithm() {
         if (!started && !simulationStarted) return
         started = false
         simulationStarted = false
+        val endTime: Long = System.currentTimeMillis()
+        WifiSocketController.write("D", "#exe")
 
         if (ACTUAL_RUN && !braking.get()) {
             braking.set(true)
@@ -93,11 +97,30 @@ class Exploration : Algorithm() {
         }
 
         println("-------------")
-        println("TIME TAKEN: ${System.currentTimeMillis() - startTime}")
-    }
+        val seconds: Double = (endTime - startTime) / 1000.0
+        println("TIME TAKEN: $seconds seconds")
+        println("-------------")
 
-    fun testSensorReadings() {
-        WifiSocketController.write("A", "I")
+        val pathList: List<IntArray> = MasterView.fastestPath.computeFastestPath()
+        val f = pathList[0][2]
+
+        when (f - Robot.facing) {
+            90 -> {
+                WifiSocketController.write("A", "R")
+                Robot.turn(90)
+            }
+
+
+            180, -180 -> {
+                WifiSocketController.write("A", "T")
+                Robot.turn(180)
+            }
+
+            -90 -> {
+                WifiSocketController.write("A", "L")
+                Robot.turn(-90)
+            }
+        }
     }
 
     private fun step() {
@@ -105,8 +128,6 @@ class Exploration : Algorithm() {
         braking.set(false)
 
         if (wallHug) {
-            stepReference.set(0)
-
             if (!Robot.isLeftObstructed() && previousCommand != LEFT) {
                 previousCommand = LEFT
                 WifiSocketController.write("A", "L")

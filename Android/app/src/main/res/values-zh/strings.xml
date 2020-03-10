@@ -119,4 +119,8 @@
     <string name="waypoint">航点</string>
     <string name="arduino_prefix">Arduino 前缀：</string>
     <string name="pc_prefix">PC 前缀：</string>
+    <string name="version_something">版本 %s</string>
+    <string name="attempt_reconnection">尝试着再连接蓝牙…</string>
+    <string name="failed_reconnection">蓝牙再连接失败，已尝试十二次。</string>
+    <string name="bluetooth_connection_successful">蓝牙连接成功。</string>
 </resources>

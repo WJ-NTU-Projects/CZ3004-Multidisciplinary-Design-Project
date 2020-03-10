@@ -55,7 +55,7 @@ class BluetoothActivity : AppCompatActivity() {
     }
 
     override fun applyOverrideConfiguration(overrideConfiguration: Configuration) {
-        super.applyOverrideConfiguration(baseContext.resources.configuration);
+        super.applyOverrideConfiguration(baseContext.resources.configuration)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -228,9 +228,9 @@ class BluetoothActivity : AppCompatActivity() {
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
                     val bondState: Int = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1)
                     val device: BluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) ?: return
-                    if (bondState == BluetoothDevice.BOND_BONDED) {
-                        BluetoothController.startClient(device, callback)
-                    }
+//                    if (bondState == BluetoothDevice.BOND_BONDED) {
+//                        BluetoothController.startClient(device, callback)
+//                    }
                 }
             }
         }

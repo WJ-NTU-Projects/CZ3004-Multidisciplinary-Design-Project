@@ -20,18 +20,24 @@ class FastestPath : Algorithm() {
 
     override fun messageReceived(message: String) {
         when (message) {
-            "pause" -> stop()
+            "beginFastest" -> {
+                if (!started) {
+                    started = true
+                    step()
+                }
+            }
+
+            "fe" -> {
+                stop()
+            }
         }
     }
 
     fun start() {
         WifiSocketController.setListener(this)
         Robot.reset()
-        step()
 
-        if (ACTUAL_RUN) {
-            started = true
-        } else {
+        if (!ACTUAL_RUN) {
             delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
             simulationStarted = true
             simulate(computeFastestPath())
@@ -43,6 +49,7 @@ class FastestPath : Algorithm() {
         started = false
         simulationStarted = false
         if (ACTUAL_RUN) WifiSocketController.write("A", "B")
+        WifiSocketController.write("D", "#fe")
     }
 
     private fun simulate(pathList: List<IntArray>) {
@@ -71,8 +78,8 @@ class FastestPath : Algorithm() {
         var s = ""
 
         for ((i, step) in pathList.withIndex()) {
-            val facing = step[2]
-            val diff = facing - robotFacing
+            val direction = step[2]
+            val diff = direction - robotFacing
 
             when (diff) {
                 90 -> {
@@ -89,7 +96,7 @@ class FastestPath : Algorithm() {
                     s += "M"
                 }
 
-                180 -> {
+                180, -180 -> {
                     s += "T"
                     s += "M"
                 }
@@ -243,8 +250,8 @@ class FastestPath : Algorithm() {
 
         val path = ArrayList<IntArray>()
 
-        for ((x, y, facing) in finalPath) {
-            path.add(intArrayOf(x, y, facing))
+        for ((x, y, facing, direction) in finalPath) {
+            path.add(intArrayOf(x, y, facing, direction))
         }
 
         return path
