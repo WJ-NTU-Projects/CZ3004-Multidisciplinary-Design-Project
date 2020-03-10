@@ -41,7 +41,7 @@ class Exploration : Algorithm() {
         Sensor.updateArenaSensor4(x, y, facing, sensor4)
         Sensor.updateArenaSensor5(x, y, facing, sensor5)
         Sensor.updateArenaSensor6(x, y, facing, sensor6)
-        //if (x == Arena.start.x && y == Arena.start.y) wallHug = false
+        if (x == Arena.start.x && y == Arena.start.y) wallHug = false
         step()
         //Arena.sendArena()
     }
@@ -49,8 +49,10 @@ class Exploration : Algorithm() {
     fun start() {
         WifiSocketController.setListener(this)
         Arena.setAllUnknown()
+        Arena.reset()
         stepReference.set(0)
         wallHug = true
+        startTime = System.currentTimeMillis()
 
         if (ACTUAL_RUN) {
             started = true
@@ -58,7 +60,6 @@ class Exploration : Algorithm() {
         } else {
             delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
             simulationStarted = true
-            startTime = System.currentTimeMillis()
             simulate()
         }
     }
@@ -71,7 +72,28 @@ class Exploration : Algorithm() {
         if (ACTUAL_RUN && !braking.get()) {
             braking.set(true)
             WifiSocketController.write("A", "B")
+            Arena.endHug()
         }
+
+        when (Robot.facing) {
+            90 -> {
+                WifiSocketController.write("A", "L")
+                Robot.turn(-90)
+            }
+
+            180 -> {
+                WifiSocketController.write("A", "T")
+                Robot.turn(180)
+            }
+
+            270 -> {
+                WifiSocketController.write("A", "R")
+                Robot.turn(90)
+            }
+        }
+
+        println("-------------")
+        println("TIME TAKEN: ${System.currentTimeMillis() - startTime}")
     }
 
     fun testSensorReadings() {

@@ -26,8 +26,15 @@ class Robot {
             if (!Arena.isMovable(x, y)) return
             position.x = x
             position.y = y
-            for (yOffset in -1..1) for (xOffset in -1..1) Arena.setExplored(x + yOffset, y + xOffset)
-            //attachedView?.setRobotPosition(x, y)
+
+            for (yOffset in -1..1) {
+                for (xOffset in -1..1) {
+                    Arena.setExploredForced(x + xOffset, y + yOffset)
+                    Arena.setVisited(x + xOffset, y + yOffset)
+                }
+            }
+
+            attachedView?.setRobotPosition(x, y)
         }
 
         fun moveTemp() {

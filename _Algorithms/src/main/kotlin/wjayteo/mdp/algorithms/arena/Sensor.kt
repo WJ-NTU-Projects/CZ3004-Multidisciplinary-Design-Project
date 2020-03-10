@@ -14,7 +14,7 @@ class Sensor {
                     y += 1
                     if (r == 1) Arena.setObstacle(x, y + r)
                     else {
-                        Arena.setSuspect(x, y + r)
+                        //if (r <= 3) Arena.setSuspect(x, y + r)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x, y + offset)
                     }
                 }
@@ -24,7 +24,7 @@ class Sensor {
                     y -= 1
                     if (r == 1) Arena.setObstacle(x + r, y)
                     else {
-                        Arena.setSuspect(x + r, y)
+                        //if (r <= 3) Arena.setSuspect(x + r, y)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x + offset, y)
                     }
                 }
@@ -34,7 +34,7 @@ class Sensor {
                     y -= 1
                     if (r == 1) Arena.setObstacle(x, y - r)
                     else {
-                        Arena.setSuspect(x, y - r)
+                        //if (r <= 3) Arena.setSuspect(x, y - r)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x, y - offset)
                     }
                 }
@@ -44,7 +44,7 @@ class Sensor {
                     y += 1
                     if (r == 1) Arena.setObstacle(x - r, y)
                     else {
-                        Arena.setSuspect(x - r, y)
+                        //if (r <= 3) Arena.setSuspect(x - r, y)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x - offset, y)
                     }
                 }
@@ -62,7 +62,7 @@ class Sensor {
                     y += 1
                     if (r == 1) Arena.setObstacle(x, y + r)
                     else {
-                        Arena.setSuspect(x, y + r)
+                        //if (r <= 3) Arena.setSuspect(x, y + r)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x, y + offset)
                     }
                 }
@@ -71,7 +71,7 @@ class Sensor {
                     x += 1
                     if (r == 1) Arena.setObstacle(x + r, y)
                     else {
-                        Arena.setSuspect(x + r, y)
+                        ///if (r <= 3) Arena.setSuspect(x + r, y)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x + offset, y)
                     }
                 }
@@ -80,7 +80,7 @@ class Sensor {
                     y -= 1
                     if (r == 1) Arena.setObstacle(x, y - r)
                     else {
-                        Arena.setSuspect(x, y - r)
+                        //if (r <= 3) Arena.setSuspect(x, y - r)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x, y - offset)
                     }
                 }
@@ -89,7 +89,7 @@ class Sensor {
                     x -= 1
                     if (r == 1) Arena.setObstacle(x - r, y)
                     else {
-                        Arena.setSuspect(x - r, y)
+                        //if (r <= 3) Arena.setSuspect(x - r, y)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x - offset, y)
                     }
                 }
@@ -108,7 +108,7 @@ class Sensor {
                     y += 1
                     if (r == 1) Arena.setObstacle(x, y + r)
                     else {
-                        Arena.setSuspect(x, y + r)
+                        //if (r <= 3) Arena.setSuspect(x, y + r)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x, y + offset)
                     }
                 }
@@ -118,7 +118,7 @@ class Sensor {
                     y += 1
                     if (r == 1) Arena.setObstacle(x + r, y)
                     else {
-                        Arena.setSuspect(x + r, y)
+                        //if (r <= 3) Arena.setSuspect(x + r, y)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x + offset, y)
                     }
                 }
@@ -128,7 +128,7 @@ class Sensor {
                     y -= 1
                     if (r == 1) Arena.setObstacle(x, y - r)
                     else {
-                        Arena.setSuspect(x, y - r)
+                        //if (r <= 3) Arena.setSuspect(x, y - r)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x, y - offset)
                     }
                 }
@@ -138,7 +138,7 @@ class Sensor {
                     y -= 1
                     if (r == 1) Arena.setObstacle(x - r, y)
                     else {
-                        Arena.setSuspect(x - r, y)
+                        //if (r <= 3) Arena.setSuspect(x - r, y)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x - offset, y)
                     }
                 }
@@ -157,7 +157,7 @@ class Sensor {
                     y += 1
                     if (r == 1) Arena.setObstacle(x - r, y)
                     else {
-                        Arena.setSuspect(x - r, y)
+                        //if (r <= 3) Arena.setSuspect(x - r, y)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x - offset, y)
                     }
                 }
@@ -167,7 +167,7 @@ class Sensor {
                     y += 1
                     if (r == 1) Arena.setObstacle(x, y + r)
                     else {
-                        Arena.setSuspect(x, y + r)
+                        //if (r <= 3) Arena.setSuspect(x, y + r)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x, y + offset)
                     }
                 }
@@ -177,7 +177,7 @@ class Sensor {
                     y -= 1
                     if (r == 1) Arena.setObstacle(x + r, y)
                     else {
-                        Arena.setSuspect(x + r, y)
+                        //if (r <= 3) Arena.setSuspect(x + r, y)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x + offset, y)
                     }
                 }
@@ -187,7 +187,7 @@ class Sensor {
                     y -= 1
                     if (r == 1) Arena.setObstacle(x, y - r)
                     else {
-                        Arena.setSuspect(x, y - r)
+                        //if (r <= 3) Arena.setSuspect(x, y - r)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x, y - offset)
                     }
                 }
@@ -206,7 +206,7 @@ class Sensor {
                     y -= 1
                     if (r == 1) Arena.setObstacle(x - r, y)
                     else {
-                        Arena.setSuspect(x - r, y)
+                        //if (r <= 3) Arena.setSuspect(x - r, y)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x - offset, y)
                     }
                 }
@@ -216,7 +216,7 @@ class Sensor {
                     y += 1
                     if (r == 1) Arena.setObstacle(x, y + r)
                     else {
-                        Arena.setSuspect(x, y + r)
+                        //if (r <= 3) Arena.setSuspect(x, y + r)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x, y + offset)
                     }
                 }
@@ -226,7 +226,7 @@ class Sensor {
                     y += 1
                     if (r == 1) Arena.setObstacle(x + r, y)
                     else {
-                        Arena.setSuspect(x + r, y)
+                        //if (r <= 3) Arena.setSuspect(x + r, y)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x + offset, y)
                     }
                 }
@@ -236,7 +236,7 @@ class Sensor {
                     y -= 1
                     if (r == 1) Arena.setObstacle(x, y - r)
                     else {
-                        Arena.setSuspect(x, y - r)
+                        //if (r <= 3) Arena.setSuspect(x, y - r)
                         for (offset in r - 1 downTo 1) Arena.setExplored(x, y - offset)
                     }
                 }
@@ -252,38 +252,40 @@ class Sensor {
             when (facing) {
                 0 -> {
                     x += 1
-                    if (r == 1) Arena.setObstacle(x + r, y)
-                    else {
-                        Arena.setSuspect(x + r, y)
-                        for (offset in r - 1 downTo 1) Arena.setExplored(x + offset, y)
-                    }
+                    if (r <= 6) Arena.setSuspect(x + r, y)
+                    for (offset in r - 1 downTo 1) Arena.setExplored(x + offset, y)
+//                    if (r in 3..4) {
+//                        if (!Arena.isObstacle(x + r, y)) {
+//                            if (Arena.isSuspect(x + r, y)) {
+//                                Arena.setObstacle(x + r, y)
+//
+//                                if (!Arena.isSuspect(x + (r + 1), y) && !Arena.isObstacle(x + (r + 1), y)) {
+//                                    Arena.setExploredForced(x + (r + 2), y)
+//                                }
+//                            } else Arena.setSuspect(x + 1, y)
+//                        }
+//                    } else {
+//                        if (r <= 6) Arena.setObstacle(x + r, y)
+//                        for (offset in r - 1 downTo 1) Arena.setExplored(x + offset, y)
+//                    }
                 }
 
                 90 -> {
                     y -= 1
-                    if (r == 1) Arena.setObstacle(x, y - r)
-                    else {
-                        Arena.setSuspect(x, y - r)
-                        for (offset in r - 1 downTo 1) Arena.setExplored(x, y - offset)
-                    }
+                    if (r <= 6) Arena.setSuspect(x, y - r)
+                    for (offset in 1 until r) Arena.setExplored(x, y - offset)
                 }
 
                 180 -> {
                     x -= 1
-                    if (r == 1) Arena.setObstacle(x - r, y)
-                    else {
-                        Arena.setSuspect(x - r, y)
-                        for (offset in r - 1 downTo 1) Arena.setExplored(x - offset, y)
-                    }
+                    if (r <= 6) Arena.setSuspect(x - r, y)
+                    for (offset in r - 1 downTo 1) Arena.setExplored(x - offset, y)
                 }
 
                 270 -> {
                     y += 1
-                    if (r == 1) Arena.setObstacle(x, y + r)
-                    else {
-                        Arena.setSuspect(x, y + r)
-                        for (offset in r - 1 downTo 1) Arena.setExplored(x, y + offset)
-                    }
+                    if (r <= 6) Arena.setSuspect(x, y + r)
+                    for (offset in r - 1 downTo 1) Arena.setExplored(x, y + offset)
                 }
             }
         }

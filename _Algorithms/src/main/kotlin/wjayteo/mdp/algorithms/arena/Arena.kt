@@ -19,6 +19,7 @@ class Arena {
         val exploreArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         val obstacleArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private val gridStateArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
+        private val visitedArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private var attachedView: ArenaMapView? = null
 
         fun setAttachedView(view: ArenaMapView) {
@@ -30,6 +31,14 @@ class Arena {
             waypoint.x = -1
             waypoint.y = -1
             attachedView?.removeWaypoint()
+        }
+
+        fun setVisited(x: Int, y: Int) {
+            visitedArray[y][x]++
+        }
+
+        fun isVisitedRepeated(x: Int, y: Int): Boolean {
+            return (visitedArray[y][x] >= 3)
         }
 
         fun loadMap(explore: Array<Array<Int>>, obstacle: Array<Array<Int>>) {
@@ -161,13 +170,29 @@ class Arena {
             if (gridStateArray[y][x] >= GRID_OBSTACLE) return
             gridStateArray[y][x] = GRID_EXPLORED
             exploreArray[y][x] = 1
-            //attachedView?.setExplored(x, y)
+            attachedView?.setExplored(x, y)
         }
 
+        fun setExploredForced(x: Int, y: Int) {
+            if (isInvalidCoordinates(x, y)) return
+            gridStateArray[y][x] = GRID_EXPLORED
+            exploreArray[y][x] = 1
+            attachedView?.setExplored(x, y)
+        }
+
+        fun endHug() {
+            for (y in 19 downTo 0) {
+                for (x in 0..14) {
+                    if (gridStateArray[y][x] == GRID_SUSPECT) setObstacle(x, y)
+                    if (gridStateArray[y][x] == GRID_UNKNOWN) setExplored(x, y)
+                    //if (visitedArray[y][x] > 0) setExploredForced(x, y)
+                }
+            }
+        }
 
         fun setSuspect(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return
-            if (gridStateArray[y][x] >= GRID_SUSPECT) return
+            if (gridStateArray[y][x] >= GRID_EXPLORED) return
 
             if (isOccupied(x, y)) {
                 setExplored(x, y)
@@ -176,7 +201,7 @@ class Arena {
 
             gridStateArray[y][x] = GRID_SUSPECT
             exploreArray[y][x] = 1
-            //attachedView?.setSuspect(x, y)
+            attachedView?.setSuspect(x, y)
         }
 
         fun setObstacle(x: Int, y: Int) {
@@ -191,7 +216,7 @@ class Arena {
             gridStateArray[y][x] = GRID_OBSTACLE
             exploreArray[y][x] = 1
             obstacleArray[y][x] = 1
-            //attachedView?.setObstacle(x, y)
+            attachedView?.setObstacle(x, y)
         }
 
         fun plotFastestPath() {
@@ -236,6 +261,11 @@ class Arena {
             return ((1.0 * coveredCount / 300) * 100 >= COVERAGE_LIMIT)
         }
 
+        fun isSuspect(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y, false)) return true
+            return (gridStateArray[y][x] == GRID_SUSPECT)
+        }
+
         private fun setFastestPath(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return
             if (gridStateArray[y][x] >= GRID_OBSTACLE) return
@@ -247,7 +277,7 @@ class Arena {
             gridStateArray[y][x] = GRID_UNKNOWN
             exploreArray[y][x] = 0
             obstacleArray[y][x] = 0
-            //attachedView?.setUnknown(x, y)
+            attachedView?.setUnknown(x, y)
         }
 
         private fun isOccupied(x: Int, y: Int): Boolean {
@@ -257,7 +287,7 @@ class Arena {
             return false
         }
 
-        private fun isObstacle(x: Int, y: Int): Boolean {
+        fun isObstacle(x: Int, y: Int): Boolean {
             if (isInvalidCoordinates(x, y, false)) return true
             return (obstacleArray[y][x] == 1)
         }

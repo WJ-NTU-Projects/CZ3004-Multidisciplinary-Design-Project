@@ -27,6 +27,7 @@ class FastestPath : Algorithm() {
     fun start() {
         WifiSocketController.setListener(this)
         Robot.reset()
+        step()
 
         if (ACTUAL_RUN) {
             started = true
@@ -62,6 +63,45 @@ class FastestPath : Algorithm() {
                 }
             }
         }
+    }
+
+    private fun step() {
+        val pathList = computeFastestPath()
+        var robotFacing = 0
+        var s = ""
+
+        for ((i, step) in pathList.withIndex()) {
+            val facing = step[2]
+            val diff = facing - robotFacing
+
+            when (diff) {
+                90 -> {
+                    s += "R"
+                    s += "M"
+                }
+
+                -90 -> {
+                    s += "L"
+                    s += "M"
+                }
+
+                0 -> {
+                    s += "M"
+                }
+
+                180 -> {
+                    s += "T"
+                    s += "M"
+                }
+            }
+
+            robotFacing += diff
+
+            if (robotFacing < 0) robotFacing += 360
+            else if (robotFacing >= 360) robotFacing -= 360
+        }
+
+        WifiSocketController.write("A", s)
     }
 
     fun computeFastestPath(): List<IntArray> {

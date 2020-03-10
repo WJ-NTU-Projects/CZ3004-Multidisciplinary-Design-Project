@@ -6,10 +6,10 @@
 
 // 2.89
 // 4.591
-const double TICKS_PER_MM = 3.05;
-const double TICKS_PER_ANGLE_L = 4.59;
+const double TICKS_PER_MM = 3.00;
+const double TICKS_PER_ANGLE_L = 4.53;
 const double TICKS_PER_ANGLE_R = 4.60;
-const int EXPLORE_SPEED = 300;
+const int EXPLORE_SPEED = 280;
 const int FAST_SPEED = 300;
 
 volatile boolean moving = false;
@@ -27,28 +27,30 @@ boolean fast = false;
 Motor motor;
 Sensors sensors;
 LPS lps(&ticksLeft, &ticksRight, TICKS_PER_MM);
-PID pid(&error, &setpoint, 60.0, 10.0, 400.0);
+PID pid(&error, &setpoint, 65.0, 10.0, 500.0);
 
 void setup() {   
     motor.init();
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
+    //return;
+    delay(2000);
+    //move(FORWARD, 1000);
+    //return;
+    move(LEFT, 90);
+    align();
+    delay(100);
+    move(LEFT, 90);
+    align();
+    delay(100);
+    move(RIGHT, 90);
+    align();
+    delay(100);
+    move(RIGHT, 90);
+    align();
+    delay(100);
     
-//    delay(3000);
-//    move(LEFT, 90);
-//    align();
-//    delay(100);
-//    move(LEFT, 90);
-//    align();
-//    delay(100);
-//    move(RIGHT, 90);
-//    align();
-//    delay(100);
-//    move(RIGHT, 90);
-//    align();
-//    delay(100);
-//    
     Serial.println("Ready");
 }
 
@@ -105,11 +107,11 @@ void executeCommand(char command, int moveDistance) {
             printSensorValues(moved); 
             break;  
         case 'J': 
-            Serial.println(sensors.getDistance(1)); 
-            Serial.println(sensors.getDistance(2)); 
-            Serial.println(sensors.getDistance(3)); 
-            Serial.println(sensors.getDistance(4)); 
-            Serial.println(sensors.getDistance(5)); 
+//            Serial.println(sensors.getDistance(1)); 
+//            Serial.println(sensors.getDistance(2)); 
+//            Serial.println(sensors.getDistance(3)); 
+//            Serial.println(sensors.getDistance(4)); 
+//            Serial.println(sensors.getDistance(5)); 
             Serial.println(sensors.getDistance(6)); 
             Serial.println();
             break; 
@@ -163,17 +165,18 @@ void move(int direction, int distance) {
         default: return;
     };
 
-    double distanceLeft = sensors.getDistanceAverageLeft();
-    if (distanceLeft < 4.75) setpoint = -10;
-    else if (distanceLeft > 5.25 && distanceLeft <= 12) setpoint = 10;
-    else setpoint = 0;
+//    double distanceLeft = sensors.getDistanceAverageLeft();
+//    if (distanceLeft < 5.75) setpoint = -5;
+//    else if (distanceLeft > 6.25 && distanceLeft <= 11) setpoint = 5;
+//    else setpoint = 0;
 
     //speedMax = 100;
-    int speedLeftRef = speedMax;
-    int speedRightRef = speedMax - 30;
+    int speedLeftRef = 200;
+    int speedRightRef = speedLeftRef - 40;
     motor.move(direction, speedLeftRef, speedRightRef);
     
     int counter = 0;
+    boolean accelerating = true;
     boolean decelerating = false;
     unsigned long lastLoopTime = millis();
 
@@ -194,9 +197,18 @@ void move(int direction, int distance) {
         int speedRight = round(speedRightRef + speedOffset);
         speedRight = constrain(speedRight, speedRightRef - 100, speedRightRef + 100);
         motor.setSpeed(speedLeft, speedRight);
-        
-        if (decelerating) {
-             if (speedLeftRef > 120) counter++;
+
+        if (accelerating) {
+            if (speedLeftRef < speedMax) counter++;
+            else accelerating = false;
+
+            if (counter >= 1) {
+                counter = 0;
+                speedLeftRef += 20;
+                speedRightRef += 20;
+            }
+        } else if (decelerating) {
+             if (speedLeftRef > 200) counter++;
 
              if (counter >= 1) {
                  counter = 0;
@@ -214,7 +226,7 @@ void move(int direction, int distance) {
     align(); 
     
     if (!fast) {
-        delay(10);
+        delay(50);
         printSensorValues(moved);
     }
 }
@@ -260,7 +272,7 @@ void moveAlign(int direction, boolean front, int frontWhich, double lowerBound, 
         else if (direction == FORWARD && sensors.getDistanceAverageFront() <= upperBound) break;
         else if (direction == REVERSE && sensors.getDistanceAverageFront() >= lowerBound) break;
         counter++;
-        if (counter >= 500) break;
+        if (counter >= 200) break;
     }
 
     motor.brake();
@@ -297,7 +309,7 @@ void moveAlignS(int direction, int sensor, double lowerBound, double upperBound)
         speedRight = constrain(speedRight, speedRightRef - 100, speedRightRef + 100);
         motor.setSpeed(speedLeft, speedRight);
         counter++;
-        if (counter >= 500) break;
+        if (counter >= 200) break;
     }
 
     motor.brake();
@@ -330,10 +342,10 @@ void align() {
             alignFront();
         } 
             
-        if (smallestDistance < 4.75) {
-            moveAlignS(REVERSE, 2, 4.75, 5.25);
-        } else if (smallestDistance > 5.25) {
-            moveAlignS(FORWARD, 2, 4.75, 5.25);
+        if (smallestDistance < 4.25) {
+            moveAlignS(REVERSE, 2, 4.25, 4.75);
+        } else if (smallestDistance > 4.75) {
+            moveAlignS(FORWARD, 2, 4.25, 4.75);
         }
     }
     
@@ -346,10 +358,10 @@ void align() {
         alignLeft();  
         alignLeft();  
 
-        if (abs(sensors.getErrorFront()) > 3) {
-            alignFront();
-            alignFront();
-        }
+//        if (abs(sensors.getErrorFront()) > 3) {
+//            alignFront();
+//            alignFront();
+//        }
         return;
     }
 
