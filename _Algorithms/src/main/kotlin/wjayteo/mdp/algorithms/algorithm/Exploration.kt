@@ -48,6 +48,7 @@ class Exploration : Algorithm() {
         Sensor.updateArenaSensor6(x, y, facing, sensor6)
         if (x == Arena.start.x && y == Arena.start.y) wallHug = false
         step()
+        Thread.sleep(10)
         Arena.sendArena()
     }
 
@@ -75,9 +76,12 @@ class Exploration : Algorithm() {
 
         if (ACTUAL_RUN && !braking.get()) {
             braking.set(true)
-            WifiSocketController.write("A", "B")
             Arena.endHug()
+            Arena.sendArena()
         }
+
+
+        Thread.sleep(1000)
 
         when (Robot.facing) {
             90 -> {
@@ -101,7 +105,12 @@ class Exploration : Algorithm() {
         println("TIME TAKEN: $seconds seconds")
         println("-------------")
 
+        if (Arena.isInvalidCoordinates(Arena.waypoint)) {
+            return
+        }
+
         val pathList: List<IntArray> = MasterView.fastestPath.computeFastestPath()
+        if (pathList.isEmpty()) return
         val f = pathList[0][2]
 
         when (f - Robot.facing) {

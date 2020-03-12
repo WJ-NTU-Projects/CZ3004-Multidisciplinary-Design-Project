@@ -7,9 +7,9 @@
 // 2.89
 // 4.591
 const double TICKS_PER_MM_FAST = 3.06;
-const double TICKS_PER_MM = 3.00;
-const double TICKS_PER_ANGLE_L = 4.53;
-const double TICKS_PER_ANGLE_R = 4.60;
+const double TICKS_PER_MM = 2.96;
+const double TICKS_PER_ANGLE_L = 4.51;
+const double TICKS_PER_ANGLE_R = 4.56;
 const int EXPLORE_SPEED = 320;
 const int FAST_SPEED = 360;
 
@@ -236,7 +236,7 @@ void moveAlign(int direction, boolean front, double lowerBound, double upperBoun
         else if (direction == FORWARD && sensors.getDistanceAverageFront() <= upperBound) break;
         else if (direction == REVERSE && sensors.getDistanceAverageFront() >= lowerBound) break;
         counter++;
-        if (counter >= 200) break;
+        if (counter >= 100) break;
     }
 
     motor.brake();
@@ -273,7 +273,7 @@ void moveAlignS(int direction, int sensor, double lowerBound, double upperBound)
         speedRight = constrain(speedRight, speedRightRef - 100, speedRightRef + 100);
         motor.setSpeed(speedLeft, speedRight);
         counter++;
-        if (counter >= 200) break;
+        if (counter >= 100) break;
     }
 
     motor.brake();
@@ -301,7 +301,7 @@ void align() {
         
         double distanceFront = sensors.getDistanceAverageFront();
 
-        if (distanceFront <= 36 && abs(sensors.getErrorFront()) <= 5) {
+        if (distanceFront <= 26 && abs(sensors.getErrorFront()) <= 5) {
             alignFront();
             alignFront();
         } 
@@ -324,7 +324,7 @@ void align() {
         return;
     }
 
-    if (distance1 <= 36 && distance3 <= 36 && abs(distance1 - distance3) <= 5) {
+    if (distance1 <= 36 && distance3 <= 36 && abs(distance1 - distance3) <= 3) {
         alignFront();
         alignFront();
         return;

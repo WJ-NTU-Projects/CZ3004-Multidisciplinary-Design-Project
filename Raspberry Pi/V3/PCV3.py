@@ -62,8 +62,8 @@ class PCV3:
                         arduino.write(message[1:] + '\n'.encode("utf-8"))
                         command = message[1]
 
-                        if (command == 77 or command == 76 or command == 82 or command == 84):
-                            threading.Thread(target= self.sendImg.takeTwice).start()
+                        #if (command == 77 or command == 76 or command == 82 or command == 84):
+                        #    threading.Thread(target= self.sendImg.takeTwice).start()
                         
                         continue
 
