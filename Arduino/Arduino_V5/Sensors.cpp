@@ -20,7 +20,7 @@ void bubbleSort(double arr[], int n)  {
 
 int Sensors::getPrintDistance(int sensor) {
     int distance = getDistance(sensor);
-    distance = ceil(distance * 0.1 + 0.2);
+    distance = ceil(distance * 0.1 + 0.3);
     if (distance < 0) distance = 9;
     else distance = min(distance, 9);
     return distance;
