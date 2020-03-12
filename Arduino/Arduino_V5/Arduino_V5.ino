@@ -310,13 +310,6 @@ void align() {
         } else if (smallestDistance > 4.75) {
             moveAlignS(FORWARD, 2, 4.25, 4.75);
         }
-
-        if (distanceFront <= 26 && abs(sensors.getErrorFront()) <= 3) {
-            alignFront();
-            alignFront();
-        } 
-
-        return;
     }
     
     double distance1 = sensors.getDistance(1);

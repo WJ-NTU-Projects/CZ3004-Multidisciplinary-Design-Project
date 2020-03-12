@@ -86,8 +86,8 @@ class MapDescriptor {
             exploreString += "11"
             if (exploreString.length % 4 != 0) return arrayListOf()
 
-            var padLength: Int = 4 - (Math.floorMod(obstacleString.length, 4))
-            if (padLength == 4) padLength = 0
+            var padLength: Int = 8 - (Math.floorMod(obstacleString.length, 8))
+            if (padLength == 8) padLength = 0
             obstacleString += "".padEnd(padLength, '0')
 
             var explorationDescriptor = ""
@@ -121,6 +121,7 @@ class MapDescriptor {
                     counter = 0
                 }
             }
+
 
             //explorationDescriptor = "f8007000e0000000000000000000000000000000000000000000000000000000000000000003"
             Log.e(this::class.simpleName, "\n")
