@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.os.Build
 import android.util.Log
 import android.view.Gravity
-import android.view.View
 import android.widget.*
 import kotlinx.coroutines.*
 import wjayteo.mdp.android.App.Companion.ARDUINO_PREFIX
@@ -20,11 +19,11 @@ import wjayteo.mdp.android.App.Companion.SEND_ARENA_COMMAND
 import wjayteo.mdp.android.App.Companion.TURN_LEFT_COMMAND
 import wjayteo.mdp.android.App.Companion.TURN_RIGHT_COMMAND
 import wjayteo.mdp.android.App.Companion.WAYPOINT_COMMAND
-import wjayteo.mdp.android.App.Companion.autoUpdateArena
-import wjayteo.mdp.android.App.Companion.coverageLimit
+import wjayteo.mdp.android.App.Companion.AUTO_UPDATE_ARENA
+import wjayteo.mdp.android.App.Companion.COVERAGE_LIMIT
 import wjayteo.mdp.android.App.Companion.sharedPreferences
-import wjayteo.mdp.android.App.Companion.simulationDelay
-import wjayteo.mdp.android.App.Companion.simulationMode
+import wjayteo.mdp.android.App.Companion.SIM_DELAY
+import wjayteo.mdp.android.App.Companion.SIM_MODE
 import wjayteo.mdp.android.R
 import wjayteo.mdp.android.bluetooth.BluetoothController
 import wjayteo.mdp.android.simulation.AStarSearch
@@ -416,13 +415,13 @@ open class ArenaMap (private val context: Context, private val callback: (status
 
         val elapsed: Long = System.currentTimeMillis() - lastMoveTime
 
-        if (elapsed < simulationDelay) {
-            delay(simulationDelay - elapsed)
+        if (elapsed < SIM_DELAY) {
+            delay(SIM_DELAY - elapsed)
         }
 
         travelComplete = false
         updateRobotImage(facing)
-        val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], facing) else booleanArrayOf(false, false, false)
+        val sensorData: BooleanArray = if (SIM_MODE) scan(robotPosition[0], robotPosition[1], facing) else booleanArrayOf(false, false, false)
         lastMoveTime = System.currentTimeMillis()
         broadcast(Broadcast.TURN_COMPLETE, sensorData)
     }
@@ -430,7 +429,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
     suspend fun moveRobot(x: Int, y: Int, noReverse: Boolean = false) = withContext(Dispatchers.Main) {
         if (!isRobotMovable(x, y) && !BluetoothController.isSocketConnected()) {
             callback(Callback.UPDATE_STATUS, context.getString(R.string.obstructed))
-            val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], robotPosition[2]) else booleanArrayOf(false, false, false)
+            val sensorData: BooleanArray = if (SIM_MODE) scan(robotPosition[0], robotPosition[1], robotPosition[2]) else booleanArrayOf(false, false, false)
             broadcast(Broadcast.OBSTRUCTED, sensorData)
             return@withContext
         }
@@ -461,8 +460,8 @@ open class ArenaMap (private val context: Context, private val callback: (status
                 for (i in 0..1) {
                     val elapsed: Long = System.currentTimeMillis() - lastMoveTime
 
-                    if (elapsed < simulationDelay) {
-                        delay(simulationDelay - elapsed)
+                    if (elapsed < SIM_DELAY) {
+                        delay(SIM_DELAY - elapsed)
                     }
 
                     travelComplete = false
@@ -484,8 +483,8 @@ open class ArenaMap (private val context: Context, private val callback: (status
         if (facing != currentFacing) {
             val elapsed: Long = System.currentTimeMillis() - lastMoveTime
 
-            if (elapsed < simulationDelay) {
-                delay(simulationDelay - elapsed)
+            if (elapsed < SIM_DELAY) {
+                delay(SIM_DELAY - elapsed)
             }
 
             travelComplete = false
@@ -502,8 +501,8 @@ open class ArenaMap (private val context: Context, private val callback: (status
         callback(Callback.UPDATE_STATUS, context.getString(R.string.moving))
         val elapsed: Long = System.currentTimeMillis() - lastMoveTime
 
-        if (elapsed < simulationDelay) {
-            delay(simulationDelay - elapsed)
+        if (elapsed < SIM_DELAY) {
+            delay(SIM_DELAY - elapsed)
         }
 
         while (!travelComplete) {
@@ -512,7 +511,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
 
         if (cancel) {
             cancel = false
-            val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], robotPosition[2]) else booleanArrayOf(false, false, false)
+            val sensorData: BooleanArray = if (SIM_MODE) scan(robotPosition[0], robotPosition[1], robotPosition[2]) else booleanArrayOf(false, false, false)
             broadcast(Broadcast.MOVE_COMPLETE, sensorData)
             return@withContext
         }
@@ -533,7 +532,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
         setRobotPosition2(currentX, currentY, x, y)
         if (isWaypointExact(x, y)) setWaypointTouched()
         else if (isGoalPointExact(x, y)) setGoalPointTouched()
-        val sensorData: BooleanArray = if (simulationMode) scan(x, y, facing) else booleanArrayOf(false, false, false)
+        val sensorData: BooleanArray = if (SIM_MODE) scan(x, y, facing) else booleanArrayOf(false, false, false)
         broadcast(Broadcast.MOVE_COMPLETE, sensorData)
     }
 
@@ -579,9 +578,8 @@ open class ArenaMap (private val context: Context, private val callback: (status
 
         if (anchorX != currentAnchorX) {
             val distance: Double = 1.0 * abs(anchorX - currentAnchorX) / 3.0
-            Log.e("D", "$distance")
             val modifier = if ((anchorX - currentAnchorX) < 0) -3 else 3
-            val delay = ceil(1.0 * simulationDelay / distance).toLong()
+            val delay = ceil(1.0 * SIM_DELAY / distance).toLong()
 
             for (i in 0 until (floor(distance).toInt())) {
                 params.topMargin = anchorY
@@ -592,7 +590,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
         } else if (anchorY != currentAnchorY) {
             val distance: Double = 1.0 * abs(anchorY - currentAnchorY) / 3.0
             val modifier = if ((anchorY - currentAnchorY) < 0) -3 else 3
-            val delay = ceil(1.0 * simulationDelay / distance).toLong()
+            val delay = ceil(1.0 * SIM_DELAY / distance).toLong()
 
             for (i in 0 until (floor(distance).toInt())) {
                 params.topMargin += modifier
@@ -641,7 +639,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
         var currentFacing = robotPosition[2]
         val offset = facing - currentFacing
         val modifier = if (offset == 90 || offset == -270) 10 else -10
-        val delay = ceil(1.0 * simulationDelay / 9.0).toLong()
+        val delay = ceil(1.0 * SIM_DELAY / 9.0).toLong()
 
         if (facing != currentFacing) {
             while (currentFacing != facing) {
@@ -658,7 +656,10 @@ open class ArenaMap (private val context: Context, private val callback: (status
                     90 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_right else R.drawable.img_robot_right
                     180 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_down else R.drawable.img_robot_down
                     270 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_c_left else R.drawable.img_robot_left
-                    else -> return@withContext
+                    else -> {
+                        travelComplete = true
+                        return@withContext
+                    }
                 }
             } else {
                 when (facing) {
@@ -666,7 +667,10 @@ open class ArenaMap (private val context: Context, private val callback: (status
                     90 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_90 else R.drawable.img_robot_right
                     180 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_180 else R.drawable.img_robot_down
                     270 -> if (BluetoothController.isSocketConnected()) R.drawable.img_robot_tkl_270 else R.drawable.img_robot_left
-                    else -> return@withContext
+                    else -> {
+                        travelComplete = true
+                        return@withContext
+                    }
                 }
             }
 
@@ -1351,28 +1355,28 @@ open class ArenaMap (private val context: Context, private val callback: (status
         }
 
         if (gesture == GestureImageView.Gesture.FLING_DOWN) {
-            if (!autoUpdateArena && currentFunction == PlotFunction.NONE) {
+            if (!AUTO_UPDATE_ARENA && currentFunction == PlotFunction.NONE) {
                 isWaitingUpdate = true
                 callback(Callback.SEND_COMMAND, "$PC_PREFIX$SEND_ARENA_COMMAND")
                 return
             }
 
-            if (!simulationMode) return
+            if (!SIM_MODE) return
             var currentSpeed: Int = sharedPreferences.getInt(context.getString(R.string.app_pref_simulation_speed), 2)
             currentSpeed--
             if (currentSpeed < 0) return
-            simulationDelay = (1000 / (currentSpeed + 1)).toLong()
+            SIM_DELAY = (1000 / (currentSpeed + 1)).toLong()
             sharedPreferences.edit().putInt(context.getString(R.string.app_pref_simulation_speed), currentSpeed).apply()
             callback(Callback.MESSAGE, context.getString(R.string.simulation_speed_notification, currentSpeed + 1))
             return
         }
 
         if (gesture == GestureImageView.Gesture.FLING_UP) {
-            if (!simulationMode) return
+            if (!SIM_MODE) return
             var currentSpeed: Int = sharedPreferences.getInt(context.getString(R.string.app_pref_simulation_speed), 2)
             currentSpeed++
             if (currentSpeed > 9) return
-            simulationDelay = (1000 / (currentSpeed + 1)).toLong()
+            SIM_DELAY = (1000 / (currentSpeed + 1)).toLong()
             sharedPreferences.edit().putInt(context.getString(R.string.app_pref_simulation_speed), currentSpeed).apply()
             callback(Callback.MESSAGE, context.getString(R.string.simulation_speed_notification, currentSpeed + 1))
             return
@@ -1528,7 +1532,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
     fun coverageReached(): Boolean {
         var coveredCount = 0
         exploreArray.forEach { it.forEach { grid -> if (grid == 1) coveredCount++ } }
-        return ((1.0 * coveredCount / 300) * 100 >= coverageLimit)
+        return ((1.0 * coveredCount / 300) * 100 >= COVERAGE_LIMIT)
     }
 
     fun setPlotFunction(function: PlotFunction) {

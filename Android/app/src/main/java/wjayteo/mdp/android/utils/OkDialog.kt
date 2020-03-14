@@ -12,7 +12,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.dialog_ok.*
 import wjayteo.mdp.android.App
-import wjayteo.mdp.android.App.Companion.dialogTheme
+import wjayteo.mdp.android.App.Companion.DIALOG_THEME
 import wjayteo.mdp.android.R
 import wjayteo.mdp.android.databinding.DialogOkBinding
 import java.util.*
@@ -44,7 +44,7 @@ class OkDialog : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(dialogTheme)
+        setTheme(DIALOG_THEME)
         super.onCreate(savedInstanceState)
         binding = DialogOkBinding.inflate(layoutInflater)
         setContentView(binding.root)

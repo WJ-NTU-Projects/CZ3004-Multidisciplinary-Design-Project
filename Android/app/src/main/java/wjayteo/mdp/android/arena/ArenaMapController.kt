@@ -64,7 +64,8 @@ class ArenaMapController(context: Context, callback: (callback: Callback, messag
                     Direction.FORWARD -> y += 1
                     Direction.LEFT -> x -= 1
                     Direction.RIGHT -> x += 1
-                    else -> y -= 1
+                    Direction.REVERSE -> y -= 1
+                    Direction.NONE -> {}
                 }
             }
 
@@ -73,7 +74,8 @@ class ArenaMapController(context: Context, callback: (callback: Callback, messag
                     Direction.FORWARD -> x += 1
                     Direction.LEFT -> y += 1
                     Direction.RIGHT -> y -= 1
-                    else -> x -= 1
+                    Direction.REVERSE -> x -= 1
+                    Direction.NONE -> {}
                 }
             }
 
@@ -82,7 +84,8 @@ class ArenaMapController(context: Context, callback: (callback: Callback, messag
                     Direction.FORWARD -> y -= 1
                     Direction.LEFT -> x += 1
                     Direction.RIGHT -> x -= 1
-                    else -> y += 1
+                    Direction.REVERSE -> y += 1
+                    Direction.NONE -> {}
                 }
             }
 
@@ -91,11 +94,10 @@ class ArenaMapController(context: Context, callback: (callback: Callback, messag
                     Direction.FORWARD -> x -= 1
                     Direction.LEFT -> y -= 1
                     Direction.RIGHT -> y += 1
-                    else -> x += 1
+                    Direction.REVERSE -> x += 1
+                    Direction.NONE -> {}
                 }
             }
-
-            else -> return
         }
 
         CoroutineScope(Dispatchers.Main).launch {

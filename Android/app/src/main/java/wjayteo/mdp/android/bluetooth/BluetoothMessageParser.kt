@@ -9,7 +9,7 @@ import wjayteo.mdp.android.App.Companion.GRID_IDENTIFIER
 import wjayteo.mdp.android.App.Companion.ROBOT_POSITION_IDENTIFIER
 import wjayteo.mdp.android.App.Companion.ROBOT_STATUS_IDENTIFIER
 import wjayteo.mdp.android.App.Companion.SET_IMAGE_IDENTIFIER
-import wjayteo.mdp.android.App.Companion.usingAmd
+import wjayteo.mdp.android.App.Companion.USING_AMD
 import wjayteo.mdp.android.arena.ArenaMap
 
 class BluetoothMessageParser(private val callback: (status: MessageStatus, message: String) -> Unit) {
@@ -26,9 +26,11 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
     private var previousMessage: String = ""
 
     fun parse(message: String) {
-        Log.e("MESSAGE", message)
-        if (!message.contains(COMMAND_DIVIDER) || !message.contains(COMMAND_PREFIX)) {
-            callback(MessageStatus.GARBAGE, message)
+        callback(MessageStatus.GARBAGE, message)
+        if (!message.contains(COMMAND_DIVIDER) || !message.contains(COMMAND_PREFIX))  return
+
+        if (message == "exe" || message == "fe") {
+            callback(MessageStatus.RUN_ENDED, message)
             return
         }
 
@@ -40,7 +42,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
         }
 
         // Integration use
-        if ((App.autoUpdateArena || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}r") {
+        if ((App.AUTO_UPDATE_ARENA || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}r") {
             ArenaMap.isWaitingUpdate = false;
 
             val strings = s[1].split(",")
@@ -71,7 +73,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             return
         }
 
-        if ((App.autoUpdateArena || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}${GRID_IDENTIFIER}") {
+        if ((App.AUTO_UPDATE_ARENA || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}${GRID_IDENTIFIER}") {
             ArenaMap.isWaitingUpdate = false
             val strings = s[1].split(",")
 
@@ -111,27 +113,22 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             }
 
             try {
-                val x = if (usingAmd) s1[0].toInt() + 1 else s1[0].toInt()
-                val y = if (usingAmd) s1[1].toInt() - 1 else s1[1].toInt()
+                val x = if (USING_AMD) s1[0].toInt() + 1 else s1[0].toInt()
+                val y = if (USING_AMD) s1[1].toInt() - 1 else s1[1].toInt()
                 val r = s1[2].toInt()
                 s[1] = "$x, $y, $r"
-                Log.e("MESSAGE4", message)
             }  catch (e: NumberFormatException) {
                 Log.e(this::class.simpleName ?: "-", "Something went wrong.", e)
                 callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
-            Log.e("MESSAGE5", message)
         }
 
         when (s[0]) {
             "${COMMAND_PREFIX}${ROBOT_POSITION_IDENTIFIER}" -> callback(MessageStatus.ROBOT_POSITION, s[1])
             "${COMMAND_PREFIX}${ROBOT_STATUS_IDENTIFIER}" -> callback(MessageStatus.ROBOT_STATUS, s[1])
             "${COMMAND_PREFIX}${SET_IMAGE_IDENTIFIER}" -> callback(MessageStatus.IMAGE_POSITION, s[1])
-            "${COMMAND_PREFIX}exe", "${COMMAND_PREFIX}fe" -> callback(MessageStatus.RUN_ENDED, s[1])
-            else -> callback(MessageStatus.GARBAGE, s[1])
+            //else -> callback(MessageStatus.GARBAGE, s[1])
         }
-
-        Log.e("MESSAGE2", message)
     }
 }

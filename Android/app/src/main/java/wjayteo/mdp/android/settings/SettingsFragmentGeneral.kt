@@ -11,12 +11,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.android.synthetic.main.fragment_settings_general.*
 import wjayteo.mdp.android.App.Companion.APP_LANGUAGE
-import wjayteo.mdp.android.App.Companion.appTheme
-import wjayteo.mdp.android.App.Companion.autoUpdateArena
-import wjayteo.mdp.android.App.Companion.darkMode
-import wjayteo.mdp.android.App.Companion.dialogTheme
+import wjayteo.mdp.android.App.Companion.APP_THEME
+import wjayteo.mdp.android.App.Companion.AUTO_UPDATE_ARENA
+import wjayteo.mdp.android.App.Companion.DARK_MODE
+import wjayteo.mdp.android.App.Companion.DIALOG_THEME
 import wjayteo.mdp.android.App.Companion.sharedPreferences
-import wjayteo.mdp.android.App.Companion.usingAmd
+import wjayteo.mdp.android.App.Companion.USING_AMD
 import wjayteo.mdp.android.BuildConfig
 import wjayteo.mdp.android.MainActivity
 import wjayteo.mdp.android.R
@@ -40,29 +40,33 @@ class SettingsFragmentGeneral : Fragment() {
         settingsAppVersion.text = getString(R.string.version_something, BuildConfig.VERSION_NAME)
         languageList = arrayListOf(getString(R.string.english), getString(R.string.chinese))
 
-        autoSwitch.isChecked = autoUpdateArena
+        autoSwitch.isChecked = AUTO_UPDATE_ARENA
         autoSwitch.setOnCheckedChangeListener { _, isChecked ->
-            sharedPreferences.edit().putBoolean(getString(R.string.app_pref_auto_update), isChecked).apply()
-            autoUpdateArena = isChecked
+            autoSwitch.isChecked = AUTO_UPDATE_ARENA
+            activityUtil.sendSnack(getString(R.string.checklist_over))
+//            sharedPreferences.edit().putBoolean(getString(R.string.app_pref_auto_update), isChecked).apply()
+//            autoUpdateArena = isChecked
         }
 
-        amdSwitch.isChecked = usingAmd
+        amdSwitch.isChecked = USING_AMD
         amdSwitch.setOnCheckedChangeListener { _, isChecked ->
-            sharedPreferences.edit().putBoolean(getString(R.string.app_pref_using_amd), isChecked).apply()
-            usingAmd = isChecked
+            amdSwitch.isChecked = USING_AMD
+            activityUtil.sendSnack(getString(R.string.checklist_over))
+//            sharedPreferences.edit().putBoolean(getString(R.string.app_pref_using_amd), isChecked).apply()
+//            usingAmd = isChecked
         }
 
-        themeSwitch.isChecked = darkMode
+        themeSwitch.isChecked = DARK_MODE
         themeSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean(getString(R.string.app_pref_dark_mode), isChecked).apply()
-            darkMode = isChecked
+            DARK_MODE = isChecked
 
-            if (darkMode) {
-                appTheme = R.style.AppTheme_Dark
-                dialogTheme = R.style.DialogTheme_Dark
+            if (DARK_MODE) {
+                APP_THEME = R.style.AppTheme_Dark
+                DIALOG_THEME = R.style.DialogTheme_Dark
             } else {
-                appTheme = R.style.AppTheme
-                dialogTheme = R.style.DialogTheme
+                APP_THEME = R.style.AppTheme
+                DIALOG_THEME = R.style.DialogTheme
             }
 
             activityUtil.startActivity(MainActivity::class.java, fade = true, startNew = true)

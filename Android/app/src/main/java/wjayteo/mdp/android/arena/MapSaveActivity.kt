@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wjayteo.mdp.android.App
-import wjayteo.mdp.android.App.Companion.dialogTheme
+import wjayteo.mdp.android.App.Companion.DIALOG_THEME
 import wjayteo.mdp.android.R
 import wjayteo.mdp.android.databinding.ActivityMapSaveBinding
 import wjayteo.mdp.android.room.AppDatabase
@@ -51,7 +51,7 @@ class MapSaveActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(dialogTheme)
+        setTheme(DIALOG_THEME)
         super.onCreate(savedInstanceState)
         binding = ActivityMapSaveBinding.inflate(layoutInflater)
         setContentView(binding.root)

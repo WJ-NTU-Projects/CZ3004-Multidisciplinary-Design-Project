@@ -8,10 +8,10 @@ import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_settings_simulation.*
 import wjayteo.mdp.android.App.Companion.DEFAULT_DELAY
-import wjayteo.mdp.android.App.Companion.coverageLimit
+import wjayteo.mdp.android.App.Companion.COVERAGE_LIMIT
 import wjayteo.mdp.android.App.Companion.sharedPreferences
-import wjayteo.mdp.android.App.Companion.simulationDelay
-import wjayteo.mdp.android.App.Companion.simulationMode
+import wjayteo.mdp.android.App.Companion.SIM_DELAY
+import wjayteo.mdp.android.App.Companion.SIM_MODE
 import wjayteo.mdp.android.R
 import wjayteo.mdp.android.databinding.FragmentSettingsSimulationBinding
 import wjayteo.mdp.android.utils.ActivityUtil
@@ -30,21 +30,20 @@ class SettingsFragmentSimulation : Fragment() {
         super.onActivityCreated(savedInstanceState)
         activityUtil = (activity as SettingsActivity).activityUtil
 
-        simulationSwitch.isChecked = simulationMode
+        simulationSwitch.isChecked = SIM_MODE
         simulationSwitch.setOnCheckedChangeListener { _, isChecked ->
             sharedPreferences.edit().putBoolean(getString(R.string.app_pref_simulation_mode), isChecked).apply()
-            simulationMode = isChecked
+            SIM_MODE = isChecked
             simulationSpeedSeekBar.isEnabled = isChecked
             coverageLimitSeekBar.isEnabled = isChecked
-            simulationDelay = if (simulationMode) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 2) + 1) else DEFAULT_DELAY
-            coverageLimit = if (simulationMode) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
-
-            simulationSpeedSeekBar.progress = (1000.0 / simulationDelay).toInt() - 1
-            coverageLimitSeekBar.progress = coverageLimit
+            SIM_DELAY = if (SIM_MODE) 1000L / (sharedPreferences.getInt(getString(R.string.app_pref_simulation_speed), 3) + 1) else DEFAULT_DELAY
+            COVERAGE_LIMIT = if (SIM_MODE) sharedPreferences.getInt(getString(R.string.app_pref_simulation_coverage), 100) else 100
+            simulationSpeedSeekBar.progress = (1000.0 / SIM_DELAY).toInt() - 1
+            coverageLimitSeekBar.progress = COVERAGE_LIMIT
         }
 
-        val progressActual: Int = (1000.0 / simulationDelay).toInt()
-        simulationSpeedSeekBar.isEnabled = simulationMode
+        val progressActual: Int = (1000.0 / SIM_DELAY).toInt()
+        simulationSpeedSeekBar.isEnabled = SIM_MODE
         simulationSpeedLabel.text = getString(R.string.simulation_speed_placeholder_aps, progressActual)
         simulationSpeedSeekBar.progress = progressActual - 1
         simulationSpeedSeekBar.incrementProgressBy(1)
@@ -55,7 +54,7 @@ class SettingsFragmentSimulation : Fragment() {
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 this.progress = progress
-                simulationDelay = (1000 / (progress + 1)).toLong()
+                SIM_DELAY = (1000 / (progress + 1)).toLong()
                 simulationSpeedLabel.text = getString(R.string.simulation_speed_placeholder_aps, progress + 1)
             }
 
@@ -64,9 +63,9 @@ class SettingsFragmentSimulation : Fragment() {
             }
         })
 
-        coverageLimitSeekBar.isEnabled = simulationMode
-        coverageLimitLabel.text = getString(R.string.simulation_coverage_placeholder, coverageLimit)
-        coverageLimitSeekBar.progress = coverageLimit
+        coverageLimitSeekBar.isEnabled = SIM_MODE
+        coverageLimitLabel.text = getString(R.string.simulation_coverage_placeholder, COVERAGE_LIMIT)
+        coverageLimitSeekBar.progress = COVERAGE_LIMIT
         coverageLimitSeekBar.incrementProgressBy(5)
         coverageLimitSeekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -74,12 +73,12 @@ class SettingsFragmentSimulation : Fragment() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 var progressRounded = progress / 5
                 progressRounded *= 5
-                coverageLimit = progressRounded
-                coverageLimitLabel.text = getString(R.string.simulation_coverage_placeholder, coverageLimit)
+                COVERAGE_LIMIT = progressRounded
+                coverageLimitLabel.text = getString(R.string.simulation_coverage_placeholder, COVERAGE_LIMIT)
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                sharedPreferences.edit().putInt(getString(R.string.app_pref_simulation_coverage), coverageLimit).apply()
+                sharedPreferences.edit().putInt(getString(R.string.app_pref_simulation_coverage), COVERAGE_LIMIT).apply()
             }
         })
     }

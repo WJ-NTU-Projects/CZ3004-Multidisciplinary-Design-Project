@@ -2,8 +2,8 @@ package wjayteo.mdp.android.arena
 
 import android.util.Log
 import wjayteo.mdp.android.App.Companion.DESCRIPTOR_DIVIDER
-import wjayteo.mdp.android.App.Companion.simulationMode
-import wjayteo.mdp.android.App.Companion.usingAmd
+import wjayteo.mdp.android.App.Companion.SIM_MODE
+import wjayteo.mdp.android.App.Companion.USING_AMD
 
 class MapDescriptor {
     companion object {
@@ -25,12 +25,12 @@ class MapDescriptor {
                 binary = binary.padStart(4, '0')
 
                 for (j in binary.indices) {
-                    if (!usingAmd && skip > 0) {
+                    if (!USING_AMD && skip > 0) {
                         skip--
                         continue
                     }
 
-                    if (!usingAmd && i == s[0].length - 1 && j >= 2) continue
+                    if (!USING_AMD && i == s[0].length - 1 && j >= 2) continue
 
                     val bit: Int = binary[j].toString().toInt()
                     val y = Math.floorDiv(counter, 15)
@@ -54,11 +54,11 @@ class MapDescriptor {
                 binary = binary.padStart(4, '0')
 
                 for (j in binary.indices) {
-                    if (!simulationMode && counter >= exploredList.size) break
+                    if (!SIM_MODE && counter >= exploredList.size) break
                     val bit: Int = binary[j].toString().toInt()
 
-                    val x = if (simulationMode) Math.floorMod(counter, 15) else exploredList[counter][0]
-                    val y = if (simulationMode) Math.floorDiv(counter, 15) else exploredList[counter][1]
+                    val x = if (SIM_MODE) Math.floorMod(counter, 15) else exploredList[counter][0]
+                    val y = if (SIM_MODE) Math.floorDiv(counter, 15) else exploredList[counter][1]
                     Log.e("K", "$x, $y")
                     obstacleArray[y][x] = bit
                     counter++

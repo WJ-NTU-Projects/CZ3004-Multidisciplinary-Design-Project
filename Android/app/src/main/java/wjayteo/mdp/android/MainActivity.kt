@@ -35,12 +35,11 @@ import wjayteo.mdp.android.App.Companion.LAST_CONNECTED_DEVICE
 import wjayteo.mdp.android.App.Companion.PAD_MOVABLE
 import wjayteo.mdp.android.App.Companion.PC_PREFIX
 import wjayteo.mdp.android.App.Companion.TILT_MOVABLE
-import wjayteo.mdp.android.App.Companion.accelerometer
-import wjayteo.mdp.android.App.Companion.appTheme
+import wjayteo.mdp.android.App.Companion.ACCELEROMETER
+import wjayteo.mdp.android.App.Companion.APP_THEME
 import wjayteo.mdp.android.App.Companion.sharedPreferences
-import wjayteo.mdp.android.App.Companion.simulationDelay
-import wjayteo.mdp.android.App.Companion.simulationMode
-import wjayteo.mdp.android.R
+import wjayteo.mdp.android.App.Companion.SIM_DELAY
+import wjayteo.mdp.android.App.Companion.SIM_MODE
 import wjayteo.mdp.android.arena.*
 import wjayteo.mdp.android.bluetooth.BluetoothController
 import wjayteo.mdp.android.bluetooth.BluetoothMessageParser
@@ -54,7 +53,6 @@ import wjayteo.mdp.android.simulation.Exploration
 import wjayteo.mdp.android.simulation.FastestPath
 import wjayteo.mdp.android.utils.ActivityUtil
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 
@@ -114,8 +112,6 @@ class MainActivity : AppCompatActivity() {
 
     private var gyroscopeSensor : Sensor? = null
     private var lastClickTime   : Long = 0L
-    private var isTablet        : Boolean = false
-    private var currentMode     : Mode = Mode.NONE
     private var reconnectCounter: Int = 0
 
     override fun attachBaseContext(newBase: Context?) {
@@ -141,7 +137,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(appTheme)
+        setTheme(APP_THEME)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -156,7 +152,7 @@ class MainActivity : AppCompatActivity() {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         IS_TABLET = resources.getBoolean(R.bool.isTablet)
-        buttonList = arrayListOf(infoButton, imageButton, bluetoothButton, settingsButton, tiltButton, exploreButton, fastestPathButton, plotButton, plotPathButton, saveMapButton, loadMapButton, visibilityButton, clearArenaButton, f1Button, f2Button, messagesOutputEditText, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
+        buttonList = arrayListOf(infoButton, bluetoothButton, settingsButton, tiltButton, exploreButton, fastestPathButton, plotButton, plotPathButton, saveMapButton, loadMapButton, visibilityButton, clearArenaButton, f1Button, f2Button, messagesOutputEditText, messageCardClearButton, messagesSendButton, padForwardButton, padLeftButton, padRightButton, padReverseButton)
         arenaMapController = ArenaMapController(this, robotControllerCallback)
         robotController = RobotController(this, binding, arenaMapController, robotControllerCallback)
         bluetoothMessageParser = BluetoothMessageParser(messageParserCallback)
@@ -176,13 +172,13 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         if (BluetoothAdapter.getDefaultAdapter() == null) return
 
-        if (isTablet) {
+        if (IS_TABLET) {
             f1Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f1), getString(R.string.f1_default))
             f2Button.text = sharedPreferences.getString(getString(R.string.app_pref_label_f2), getString(R.string.f2_default))
         }
 
         statusCardLabel.text = getString(R.string.idle)
-        if (accelerometer && gyroscopeSensor != null) sensorManager.registerListener(robotController.gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
+        if (ACCELEROMETER && gyroscopeSensor != null) sensorManager.registerListener(robotController.gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
         //if (bluetoothAdapter.isEnabled) startBluetoothListener()
         BluetoothController.callback = bluetoothCallback
         reconnectCounter = 0
@@ -225,20 +221,20 @@ class MainActivity : AppCompatActivity() {
             R.id.saveMapButton -> onMapSaveClicked()
             R.id.loadMapButton -> onMapLoadClicked()
             R.id.clearArenaButton -> clearArena()
-            R.id.plotPathButton -> if (arenaMapController.isWaypointSet()) activityUtil.sendYesNoDialog(PLOT_FASTEST_PATH_CODE, "Plot fastest path?")
             R.id.visibilityButton -> activityUtil.sendYesNoDialog(TOGGLE_VISIBILITY_CODE, getString(R.string.set_arena_as), getString(R.string.explored), getString(R.string.unexplored))
 
-            R.id.imageButton -> {
-                activityUtil.sendSnack(getString(R.string.not_available))
+            R.id.plotPathButton -> {
+                if (arenaMapController.isWaypointSet()) activityUtil.sendYesNoDialog(PLOT_FASTEST_PATH_CODE, "Plot fastest path?")
+                else activityUtil.sendSnack(getString(R.string.set_waypoint))
             }
 
             R.id.tiltButton -> {
                 if (gyroscopeSensor == null) return
-                accelerometer = !accelerometer
-                PAD_MOVABLE = !accelerometer
-                TILT_MOVABLE = accelerometer
+                ACCELEROMETER = !ACCELEROMETER
+                PAD_MOVABLE = !ACCELEROMETER
+                TILT_MOVABLE = ACCELEROMETER
 
-                if (accelerometer) {
+                if (ACCELEROMETER) {
                     tiltButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.button_on_state_list)
                     sensorManager.registerListener(robotController.gyroscopeSensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
                     activityUtil.sendSnack(getString(R.string.accelerometer_on))
@@ -282,17 +278,6 @@ class MainActivity : AppCompatActivity() {
             R.id.f1Button, R.id.f2Button -> {
                 val text = if (view.id == R.id.f1Button) sharedPreferences.getString(getString(R.string.app_pref_command_f1), getString(R.string.f1_default))
                 else sharedPreferences.getString(getString(R.string.app_pref_command_f2), getString(R.string.f2_default))
-
-                when (text) {
-                    sharedPreferences.getString(getString(R.string.app_pref_forward), getString(R.string.forward_default)),
-                    sharedPreferences.getString(getString(R.string.app_pref_reverse), getString(R.string.reverse_default)),
-                    sharedPreferences.getString(getString(R.string.app_pref_turn_left), getString(R.string.turn_left_default)),
-                    sharedPreferences.getString(getString(R.string.app_pref_turn_right), getString(R.string.turn_right_default)) -> {
-                        activityUtil.sendSnack(getString(R.string.illegal_command))
-                        return
-                    }
-                }
-
                 sendCommand(text!!)
             }
 
@@ -348,13 +333,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onStartClicked(mode: Mode) {
-        currentMode = mode
-
-        if (simulationMode) {
+        if (SIM_MODE) {
             when (mode) {
                 Mode.EXPLORATION -> {
                     CoroutineScope(Dispatchers.Main).launch {
-                        delay(simulationDelay)
+                        delay(SIM_DELAY)
                         arenaMapController.moveRobotToStart()
                         arenaMapController.saveObstacles()
                         arenaMapController.resetGoalPoint()
@@ -366,7 +349,7 @@ class MainActivity : AppCompatActivity() {
 
                 Mode.FASTEST_PATH -> {
                     CoroutineScope(Dispatchers.Main).launch {
-                        delay(simulationDelay)
+                        delay(SIM_DELAY)
                         arenaMapController.moveRobotToStart()
                         arenaMapController.resetWaypoint()
                         arenaMapController.resetGoalPoint()
@@ -383,44 +366,49 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         } else {
-            if (mode == Mode.EXPLORATION) arenaMapController.resetArena()
+            if (mode == Mode.EXPLORATION) {
+                arenaMapController.resetArena()
+                sendCommand("$PC_PREFIX$EXPLORATION_COMMAND")
+            } else if (mode == Mode.FASTEST_PATH) {
+                sendCommand("$PC_PREFIX$FASTEST_PATH_COMMAND")
+            }
         }
 
         when (mode) {
             Mode.EXPLORATION -> {
-                if (accelerometer && gyroscopeSensor != null) {
+                if (ACCELEROMETER && gyroscopeSensor != null) {
                     sensorManager.unregisterListener(robotController.gyroscopeSensorListener)
-                    accelerometer = false
+                    ACCELEROMETER = false
                     tiltButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.button_state_list)
                     robotController.reset()
                 }
 
                 controllerPad.setOnTouchListener(null)
-                sendCommand("$PC_PREFIX$EXPLORATION_COMMAND")
                 buttonList.forEach { it.isEnabled = false }
                 exploreButton.isEnabled = true
                 exploreButton.icon = getDrawable(R.drawable.ic_pause)
+                exploreButton.text = getString(R.string.pause)
                 modeCardLabel.text = getString(R.string.exploration)
-                    displayInChat(MessageType.SYSTEM, getString(R.string.started_something, getString(R.string.exploration)))
-                if (!simulationMode) startTimer()
+                displayInChat(MessageType.SYSTEM, getString(R.string.started_something, getString(R.string.exploration)))
+                if (!SIM_MODE) startTimer()
             }
 
             Mode.FASTEST_PATH -> {
-                if (accelerometer && gyroscopeSensor != null) {
+                if (ACCELEROMETER && gyroscopeSensor != null) {
                     sensorManager.unregisterListener(robotController.gyroscopeSensorListener)
-                    accelerometer = false
+                    ACCELEROMETER = false
                     tiltButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.button_state_list)
                     robotController.reset()
                 }
 
                 controllerPad.setOnTouchListener(null)
-                sendCommand("$PC_PREFIX$FASTEST_PATH_COMMAND")
                 buttonList.forEach { it.isEnabled = false }
                 fastestPathButton.isEnabled = true
                 fastestPathButton.icon = getDrawable(R.drawable.ic_pause)
+                fastestPathButton.text = getString(R.string.pause)
                 modeCardLabel.text = getString(R.string.fastest)
                 displayInChat(MessageType.SYSTEM, getString(R.string.started_something, getString(R.string.fastest_path)))
-                if (!simulationMode) startTimer()
+                if (!SIM_MODE) startTimer()
             }
 
             Mode.NONE -> {
@@ -429,7 +417,9 @@ class MainActivity : AppCompatActivity() {
                 controllerPad.setOnTouchListener(robotController.touchListener)
                 buttonList.forEach { it.isEnabled = true }
                 exploreButton.icon = getDrawable(R.drawable.ic_explore)
+                exploreButton.text = getString(R.string.ex)
                 fastestPathButton.icon = getDrawable(R.drawable.ic_fastest)
+                fastestPathButton.text = getString(R.string.fp)
                 modeCardLabel.text = getString(R.string.none)
             }
         }

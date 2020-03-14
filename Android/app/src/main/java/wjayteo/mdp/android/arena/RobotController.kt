@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import wjayteo.mdp.android.App.Companion.PAD_MOVABLE
 import wjayteo.mdp.android.App.Companion.TILT_MOVABLE
-import wjayteo.mdp.android.App.Companion.accelerometer
+import wjayteo.mdp.android.App.Companion.ACCELEROMETER
 import wjayteo.mdp.android.R
 import wjayteo.mdp.android.databinding.ActivityMainBinding
 import kotlin.math.roundToInt
@@ -87,7 +87,7 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
 
     init {
         arenaMapController.registerForBroadcast { _, _ ->
-            if (accelerometer) {
+            if (ACCELEROMETER) {
                 TILT_MOVABLE = true
             } else {
                 PAD_MOVABLE = true
@@ -207,16 +207,15 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
                         return@launch
                     }
 
+                    if (currentDirection == ArenaMap.Direction.NONE) continue
                     PAD_MOVABLE = false
                     end()
 
                     when (currentDirection) {
                         ArenaMap.Direction.FORWARD, ArenaMap.Direction.REVERSE -> arenaMapController.moveRobot(currentDirection)
                         ArenaMap.Direction.LEFT, ArenaMap.Direction.RIGHT -> arenaMapController.turnRobot(currentDirection)
-                        else -> return@launch
+                        else -> arenaMapController.cancelLast()
                     }
-
-                    return@launch
 
 //                    val facing = when (currentDirection) {
 //                        ArenaMap.Direction.FORWARD -> 0

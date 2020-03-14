@@ -58,7 +58,7 @@
     <string name="dark_mode_warning">警告！切换后，应用立即重启！</string>
     <string name="automatic_update">自动更新竞技场</string>
     <string name="using_amd">使用着AMD Tool</string>
-    <string name="language">你好</string>
+    <string name="language">语言</string>
     <string name="general_config">一般配置</string>
     <string name="string_divider">识别号与数据分频器：</string>
     <string name="command_prefix">命令前缀：</string>
@@ -123,4 +123,6 @@
     <string name="attempt_reconnection">尝试着再连接蓝牙…</string>
     <string name="failed_reconnection">蓝牙再连接失败，已尝试十二次。</string>
     <string name="bluetooth_connection_successful">蓝牙连接成功。</string>
+    <string name="leaderboard">排行榜</string>
+    <string name="checklist_over">清单期已结束。</string>
 </resources>

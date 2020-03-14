@@ -12,7 +12,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.dialog_yes_no.*
 import wjayteo.mdp.android.App
-import wjayteo.mdp.android.App.Companion.dialogTheme
+import wjayteo.mdp.android.App.Companion.DIALOG_THEME
 import wjayteo.mdp.android.R
 import wjayteo.mdp.android.databinding.DialogYesNoBinding
 import java.util.*
@@ -44,7 +44,7 @@ class YesNoDialog : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(dialogTheme)
+        setTheme(DIALOG_THEME)
         super.onCreate(savedInstanceState)
         binding = DialogYesNoBinding.inflate(layoutInflater)
         setContentView(binding.root)

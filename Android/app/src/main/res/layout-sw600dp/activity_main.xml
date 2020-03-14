@@ -55,7 +55,6 @@
     <LinearLayout
         style="@style/MainSideBarLayout"
         android:id="@+id/arenaButtonLayout"
-        android:layout_marginTop="@dimen/small_padding"
         app:layout_constraintTop_toBottomOf="@id/settingsButtonLayout"
         app:layout_constraintBottom_toTopOf="@id/customButtonLayout"
         app:layout_constraintRight_toRightOf="parent"
@@ -64,18 +63,6 @@
         <com.google.android.material.textview.MaterialTextView
             style="@style/AppTextView.Gray.Small"
             android:text="@string/arena"/>
-
-        <LinearLayout style="@style/ButtonLayout">
-            <com.google.android.material.button.MaterialButton
-                style="@style/UIButton.IconOnly"
-                android:id="@+id/exploreButton"
-                app:icon="@drawable/ic_explore"/>
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/UIButton.IconOnly"
-                android:id="@+id/fastestPathButton"
-                app:icon="@drawable/ic_fastest"/>
-        </LinearLayout>
 
         <LinearLayout style="@style/ButtonLayout">
             <com.google.android.material.button.MaterialButton
@@ -112,27 +99,16 @@
                 android:id="@+id/clearArenaButton"
                 app:icon="@drawable/ic_clear"/>
         </LinearLayout>
-
-        <LinearLayout style="@style/ButtonLayout">
-            <com.google.android.material.button.MaterialButton
-                style="@style/UIButton.IconOnly"
-                android:id="@+id/infoButton"
-                app:icon="@drawable/ic_info"/>
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/UIButton.IconOnly"
-                android:id="@+id/imageButton"
-                app:icon="@drawable/ic_images"/>
-        </LinearLayout>
     </LinearLayout>
+
 
     <LinearLayout
         style="@style/MainSideBarLayout"
         android:id="@+id/customButtonLayout"
-        android:layout_marginBottom="@dimen/button_padding"
+        app:layout_constraintTop_toBottomOf="@id/arenaButtonLayout"
+        app:layout_constraintBottom_toTopOf="@id/leaderboardButtonLayout"
         app:layout_constraintLeft_toRightOf="@id/gridParent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/gridParent">
+        app:layout_constraintRight_toRightOf="parent">
 
         <com.google.android.material.textview.MaterialTextView
             style="@style/AppTextView.Gray.Small"
@@ -151,6 +127,40 @@
             android:layout_height="42dp"
             android:layout_marginTop="@dimen/element_padding"
             android:text="@string/f2_default"/>
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/MainSideBarLayout"
+        android:id="@+id/leaderboardButtonLayout"
+        android:layout_marginBottom="@dimen/button_padding"
+        app:layout_constraintBottom_toBottomOf="@id/gridParent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/gridParent">
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/AppTextView.Gray.Small"
+            android:text="@string/leaderboard"/>
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/UIButton.Main"
+            android:id="@+id/exploreButton"
+            android:layout_marginTop="@dimen/element_padding"
+            android:text="@string/ex"
+            app:icon="@drawable/ic_explore"/>
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/UIButton.Main"
+            android:id="@+id/fastestPathButton"
+            android:layout_marginTop="@dimen/element_padding"
+            android:text="@string/fp"
+            app:icon="@drawable/ic_fastest"/>
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/UIButton.Main"
+            android:id="@+id/infoButton"
+            android:layout_marginTop="@dimen/element_padding"
+            android:text="@string/mdf"
+            app:icon="@drawable/ic_info"/>
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

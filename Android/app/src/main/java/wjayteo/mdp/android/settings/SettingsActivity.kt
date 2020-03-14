@@ -73,7 +73,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(App.appTheme)
+        setTheme(App.APP_THEME)
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -112,14 +112,14 @@ class SettingsActivity : AppCompatActivity() {
         tabLayout.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if (tab != null)  {
-//                    if (tab.tag == getString(R.string.simulation) && !isTablet) {
-//                        activityUtil.sendDialog(-1, getString(R.string.not_available))
-//                        tabLayout.selectTab(mainTab)
-//                    } else {
-//                        viewPager.currentItem = tab.position
-//                    }
+                    if (tab.tag == getString(R.string.simulation)) {
+                        activityUtil.sendSnack(getString(R.string.checklist_over))
+                        tabLayout.selectTab(mainTab)
+                    } else {
+                        viewPager.currentItem = tab.position
+                    }
 
-                    viewPager.currentItem = tab.position
+//                    viewPager.currentItem = tab.position
                 }
             }
 

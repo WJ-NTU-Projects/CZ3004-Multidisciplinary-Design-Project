@@ -59,7 +59,7 @@ class BluetoothActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(App.appTheme)
+        setTheme(App.APP_THEME)
         super.onCreate(savedInstanceState)
         binding = ActivityBluetoothBinding.inflate(layoutInflater)
         setContentView(binding.root)

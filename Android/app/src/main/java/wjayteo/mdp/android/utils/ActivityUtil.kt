@@ -11,7 +11,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import wjayteo.mdp.android.App
-import wjayteo.mdp.android.App.Companion.darkMode
+import wjayteo.mdp.android.App.Companion.DARK_MODE
 import wjayteo.mdp.android.R
 import java.io.Serializable
 import java.util.*
@@ -90,7 +90,7 @@ class ActivityUtil(private val context: Context) {
             snackBar.dismiss()
         }
 
-        if (darkMode) snackBar.setActionTextColor(context.getColor(R.color.colorPrimaryDark))
+        if (DARK_MODE) snackBar.setActionTextColor(context.getColor(R.color.colorPrimaryDark))
         else snackBar.setActionTextColor(context.getColor(R.color.colorPrimary))
 
         val textView = snackBar.view.findViewById(com.google.android.material.R.id.snackbar_text) as TextView

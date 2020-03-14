@@ -25,8 +25,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import wjayteo.mdp.android.App
-import wjayteo.mdp.android.App.Companion.appTheme
-import wjayteo.mdp.android.App.Companion.dialogTheme
+import wjayteo.mdp.android.App.Companion.APP_THEME
+import wjayteo.mdp.android.App.Companion.DIALOG_THEME
 import wjayteo.mdp.android.R
 import wjayteo.mdp.android.databinding.ActivityMapLoadBinding
 import wjayteo.mdp.android.room.AppDatabase
@@ -67,7 +67,7 @@ class MapLoadActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(dialogTheme)
+        setTheme(DIALOG_THEME)
         super.onCreate(savedInstanceState)
         binding = ActivityMapLoadBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -82,7 +82,7 @@ class MapLoadActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@MapLoadActivity)
         }
 
-        mapLoadRecycler.addItemDecoration(DividerItemDecoration(ContextThemeWrapper(this, appTheme), LinearLayoutManager.VERTICAL))
+        mapLoadRecycler.addItemDecoration(DividerItemDecoration(ContextThemeWrapper(this, APP_THEME), LinearLayoutManager.VERTICAL))
 
 
         CoroutineScope(Dispatchers.IO).launch {
