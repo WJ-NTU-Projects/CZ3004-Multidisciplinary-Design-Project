@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Build
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.widget.*
 import kotlinx.coroutines.*
 import wjayteo.mdp.android.App.Companion.ARDUINO_PREFIX
@@ -106,6 +107,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
     private val startDisplay    : ImageView = ImageView(context)
     private val goalDisplay     : ImageView = ImageView(context)
     private val waypointDisplay : ImageView = ImageView(context)
+    private val tklDisplay      : ImageView = ImageView(context)
 
     private val gridTypeArray   : Array<Array<GridType>> = Array(20) { Array(15) { GridType.UNEXPLORED }}
     private val exploreArray    : Array<Array<Int>> = Array(20) { Array(15) { unexploredBit }}
@@ -218,6 +220,12 @@ open class ArenaMap (private val context: Context, private val callback: (status
         robotDisplay.alpha = 1.0f
         gridParent.addView(robotDisplay)
 
+        tklDisplay.layoutParams  = RelativeLayout.LayoutParams(displayPixels, displayPixels)
+        tklDisplay.scaleType = ImageView.ScaleType.CENTER
+        tklDisplay.alpha = 0.2f
+        tklDisplay.setImageResource(R.drawable.tkl)
+        gridParent.addView(tklDisplay)
+
         CoroutineScope(Dispatchers.Main).launch {
             updateRobotImage(0)
         }.invokeOnCompletion {
@@ -295,6 +303,11 @@ open class ArenaMap (private val context: Context, private val callback: (status
         }.invokeOnCompletion {
             callback(Callback.UPDATE_STATUS, context.getString(R.string.idle))
         }
+    }
+
+    fun showTKL(show: Boolean) {
+        if (show) tklDisplay.alpha = 0.2f
+        else tklDisplay.alpha = 0.0f
     }
 
     fun updateArena(explorationData: String) {
@@ -415,7 +428,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
     }
 
     suspend fun moveRobot(x: Int, y: Int, noReverse: Boolean = false) = withContext(Dispatchers.Main) {
-        if (!isRobotMovable(x, y)) {
+        if (!isRobotMovable(x, y) && !BluetoothController.isSocketConnected()) {
             callback(Callback.UPDATE_STATUS, context.getString(R.string.obstructed))
             val sensorData: BooleanArray = if (simulationMode) scan(robotPosition[0], robotPosition[1], robotPosition[2]) else booleanArrayOf(false, false, false)
             broadcast(Broadcast.OBSTRUCTED, sensorData)

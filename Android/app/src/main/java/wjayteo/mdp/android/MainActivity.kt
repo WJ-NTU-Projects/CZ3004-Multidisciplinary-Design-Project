@@ -219,7 +219,6 @@ class MainActivity : AppCompatActivity() {
         lastClickTime = System.currentTimeMillis()
 
         when (view.id) {
-            R.id.imageButton -> activityUtil.sendSnack(getString(R.string.not_available))
             R.id.bluetoothButton -> activityUtil.startActivity(BluetoothActivity::class.java)
             R.id.settingsButton -> activityUtil.startActivity(SettingsActivity::class.java)
             R.id.messageCardClearButton -> activityUtil.sendYesNoDialog(CLEAR_MESSAGE_CODE, getString(R.string.clear_message_log))
@@ -228,6 +227,10 @@ class MainActivity : AppCompatActivity() {
             R.id.clearArenaButton -> clearArena()
             R.id.plotPathButton -> if (arenaMapController.isWaypointSet()) activityUtil.sendYesNoDialog(PLOT_FASTEST_PATH_CODE, "Plot fastest path?")
             R.id.visibilityButton -> activityUtil.sendYesNoDialog(TOGGLE_VISIBILITY_CODE, getString(R.string.set_arena_as), getString(R.string.explored), getString(R.string.unexplored))
+
+            R.id.imageButton -> {
+                activityUtil.sendSnack(getString(R.string.not_available))
+            }
 
             R.id.tiltButton -> {
                 if (gyroscopeSensor == null) return
@@ -463,18 +466,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun connectionChanged(status: BluetoothController.Status) {
+        CoroutineScope(Dispatchers.Main).launch {
+            arenaMapController.updateRobotImage()
+        }
+
         when (status) {
-            BluetoothController.Status.DISCONNECTED, BluetoothController.Status.CONNECT_FAILED -> startBluetoothListener()
+            BluetoothController.Status.DISCONNECTED, BluetoothController.Status.CONNECT_FAILED -> {
+                arenaMapController.showTKL(true)
+                startBluetoothListener()
+            }
+
             BluetoothController.Status.CONNECTED -> {
+                arenaMapController.showTKL(false)
                 //ArenaMap.isWaitingUpdate = true
                 //sendCommand(SEND_ARENA_COMMAND)
             }
 
             else -> {}
-        }
-
-        CoroutineScope(Dispatchers.Main).launch {
-            arenaMapController.updateRobotImage()
         }
     }
 
