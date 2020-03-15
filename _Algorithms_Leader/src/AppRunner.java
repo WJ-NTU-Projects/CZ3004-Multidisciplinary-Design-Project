@@ -23,12 +23,12 @@ public class AppRunner {
             //setObstaclesMap(grid);
             //long range 15 to 60
             //short range 5 to 35
-            Sensor sensor1 = new Sensor(3, 2, 0, MIDDLE, 2);
-            Sensor sensor2 = new Sensor(3, 1, 0, MIDDLE, 2);
-            Sensor sensor3 = new Sensor(3, 0, 0, MIDDLE, 2); 
-            Sensor sensor4 = new Sensor(3,  0, 0, LEFT, 2);
-            Sensor sensor5 = new Sensor(3, 0, 2, LEFT, 2);
-            Sensor sensor6 = new Sensor(6, 2, 1, RIGHT, 1);
+            Sensor sensor1 = new Sensor(1, 2, 0, MIDDLE, 3);
+            Sensor sensor2 = new Sensor(1, 1, 0, MIDDLE, 3);
+            Sensor sensor3 = new Sensor(1, 0, 0, MIDDLE, 3); 
+            Sensor sensor4 = new Sensor(1, 0, 0, LEFT, 3);
+            Sensor sensor5 = new Sensor(1, 0, 2, LEFT, 3);
+            Sensor sensor6 = new Sensor(5, 2, 1, RIGHT, 1);
             List<Sensor> sensors = new ArrayList<>();
             sensors.add(sensor1);
             sensors.add(sensor2);

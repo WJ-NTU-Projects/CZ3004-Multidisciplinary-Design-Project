@@ -55,8 +55,8 @@ public class Simulator extends JFrame {
         mMapDescriptorButton = new JButton("generate MD");
 
         // set up as observer
-        mSimulationRobot.addObserver((Observer) mMapPanel);
-        mSimulationGrid.addObserver((Observer) mMapPanel);
+//        mSimulationRobot.addObserver((Observer) mMapPanel);
+//        mSimulationGrid.addObserver((Observer) mMapPanel);
 
         // layout components
         JPanel wrapper = new JPanel(new FlowLayout());

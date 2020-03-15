@@ -16,6 +16,7 @@ public class Robot extends Observable {
     private int mPosX = START_POS_X; // upper left of robot
     private int mPosY = START_POS_Y; // upper left of robot
     private int mHeading = NORTH;
+    private boolean needToCheckRight = false;
     private Grid mGrid;
     private List<Sensor> mSensors;
     private String sensorV;
@@ -59,6 +60,14 @@ public class Robot extends Observable {
 
     public int getHeading() {
         return mHeading;
+    }
+    
+    public boolean getNeedToCheckRight() {
+    	return needToCheckRight;
+    }
+    
+    public void setNeedToCheckRight(boolean need) {
+    	needToCheckRight = need;
     }
 
     public void setHeading(int heading) {
@@ -241,7 +250,7 @@ public class Robot extends Observable {
             }
         }
         setChanged();
-        notifyObservers();
+//        notifyObservers();
     }
 
     public void turn(int direction) {
@@ -267,7 +276,7 @@ public class Robot extends Observable {
             mHeading = (mHeading + 1) % 4;
         }
         setChanged();
-        notifyObservers();
+//        notifyObservers();
     }
 
     public void reset() {
@@ -275,7 +284,7 @@ public class Robot extends Observable {
         mPosY = START_POS_Y;
         mHeading = NORTH;
         setChanged();
-        notifyObservers();
+//        notifyObservers();
     }
 
     /**
@@ -361,10 +370,14 @@ public class Robot extends Observable {
                 int range = mSensors.get(i).getRange();
                 int x = mSensors.get(i).getActualPosX();
                 int y = mSensors.get(i).getActualPosY();
-                if(i==5) {
-                	if(returnedDistance<2)continue;
-                }
+//                if(i==5) {
+//                	if(returnedDistance<2)continue;
+//                	if(returnedDistance>=3&&returnedDistance<=4)
+//                		setNeedToCheckRight(true);
+//                }
                 if(command.compareTo("M")!=0) {
+//                	if(i==5&&returnedDistance>=3&&returnedDistance<=4)
+//                		continue;
                 	updateMap(returnedDistance, heading, range, x, y, true, mSensors.get(i).getReliability());
                 }
             }

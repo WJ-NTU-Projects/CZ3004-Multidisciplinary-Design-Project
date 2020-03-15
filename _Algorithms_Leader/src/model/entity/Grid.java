@@ -37,6 +37,14 @@ public class Grid extends Observable {
         return x < MAP_COLS && x >= MAP_COLS - ZONE_SIZE
                 && y < ZONE_SIZE && y >= 0;
     }
+    
+    public void markEverythingExplored() {
+    	for (int x = 0; x < MAP_COLS; x++) {
+            for (int y = 0; y < MAP_ROWS; y++) {
+                setExplored(x, y, true);
+            }
+        }
+    }
 
     public boolean getIsObstacle(int x, int y) {
         return isOutOfArena(x, y) || cells[x][y].getIsObstacle();
@@ -51,7 +59,7 @@ public class Grid extends Observable {
             return;
         cells[x][y].setIsObstacle(isObstacle);
         setChanged();
-        notifyObservers();
+//        notifyObservers();
     }
 
     public void setObstacleProbability(int x, int y, int value) {
@@ -66,7 +74,7 @@ public class Grid extends Observable {
             return;
         cells[x][y].setExplored(explored);
         setChanged();
-        notifyObservers();
+//        notifyObservers();
     }
 
     public boolean getIsExplored(int x, int y) {
