@@ -15,7 +15,7 @@ Files for any other subsystems are mainly used for testing purposes.
 
 
 ## Android
-[![Download](https://img.shields.io/badge/APK%20Download-1.1.0-blue)](https://github.com/101011101001010/MDP/releases/tag/1.1.0)
+[![Download](https://img.shields.io/badge/APK%20Download-1.1.1-blue)](https://github.com/101011101001010/MDP/releases/tag/1.1.1)
 
 [Full Changelog](https://github.com/101011101001010/MDP/wiki/Android-Changelog)
 
