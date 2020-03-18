@@ -41,6 +41,16 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             return
         }
 
+        if (s[0] == "${COMMAND_PREFIX}${SET_IMAGE_IDENTIFIER}") {
+            val strings = s[1].split(")")
+
+            for (str in strings) {
+                if (str.isEmpty()) continue
+                val str2 = str.substring(1)
+                callback(MessageStatus.IMAGE_POSITION, str2)
+            }
+        }
+
         // Integration use
         if ((App.AUTO_UPDATE_ARENA || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}r") {
             ArenaMap.isWaitingUpdate = false;
@@ -127,7 +137,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
         when (s[0]) {
             "${COMMAND_PREFIX}${ROBOT_POSITION_IDENTIFIER}" -> callback(MessageStatus.ROBOT_POSITION, s[1])
             "${COMMAND_PREFIX}${ROBOT_STATUS_IDENTIFIER}" -> callback(MessageStatus.ROBOT_STATUS, s[1])
-            "${COMMAND_PREFIX}${SET_IMAGE_IDENTIFIER}" -> callback(MessageStatus.IMAGE_POSITION, s[1])
+            //"${COMMAND_PREFIX}${SET_IMAGE_IDENTIFIER}" -> callback(MessageStatus.IMAGE_POSITION, s[1])
             //else -> callback(MessageStatus.GARBAGE, s[1])
         }
     }

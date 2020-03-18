@@ -83,6 +83,7 @@ class App: Application() {
         REVERSE_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_reverse), getString(R.string.reverse_default))!!
         TURN_LEFT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_turn_left), getString(R.string.turn_left_default))!!
         TURN_RIGHT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_turn_right), getString(R.string.turn_right_default))!!
+        SET_IMAGE_IDENTIFIER = sharedPreferences.getString(getString(R.string.app_pref_set_image_identifier), getString(R.string.set_image_default))!!
         //START_POINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_start_point), getString(R.string.start_point_default))!!
         //GOAL_POINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_goal_point), getString(R.string.goal_point_default))!!
         WAYPOINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_waypoint), getString(R.string.waypoint_default))!!

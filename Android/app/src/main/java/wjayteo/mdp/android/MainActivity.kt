@@ -186,6 +186,10 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             arenaMapController.updateRobotImage()
         }
+
+        if (BluetoothAdapter.getDefaultAdapter().isEnabled) {
+            arenaMapController.showTKL(!BluetoothController.isSocketConnected())
+        }
     }
 
     override fun onPause() {
@@ -480,9 +484,9 @@ class MainActivity : AppCompatActivity() {
         val s = data.split(",")
 
         try {
-            val x = s[0].trim().toInt()
-            val y = s[1].trim().toInt()
-            val id = s[2].trim().toInt()
+            val id = s[0].trim().toInt()
+            val x = s[1].trim().toInt()
+            val y = s[2].trim().toInt()
             arenaMapController.setImage(x, y, id)
         } catch (e: NumberFormatException) {
             activityUtil.sendSnack(getString(R.string.something_went_wrong))

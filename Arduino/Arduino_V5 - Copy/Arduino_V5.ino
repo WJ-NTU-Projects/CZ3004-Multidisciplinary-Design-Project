@@ -7,10 +7,10 @@
 // 2.89
 // 4.591
 const double TICKS_PER_MM_FAST = 3.04;
-const double TICKS_PER_MM = 3.03; //2.98
+const double TICKS_PER_MM = 2.98;
 const double TICKS_PER_ANGLE_L = 4.53;
 const double TICKS_PER_ANGLE_R = 4.56;
-const int EXPLORE_SPEED = 200;
+const int EXPLORE_SPEED = 320;
 const int FAST_SPEED = 360;
 
 volatile boolean moving = false;
@@ -28,17 +28,28 @@ boolean fast = false;
 Motor motor;
 Sensors sensors;
 LPS lps(&ticksLeft, &ticksRight, TICKS_PER_MM);
+LPS lpsFast(&ticksLeft, &ticksRight, TICKS_PER_MM_FAST);
 PID pid(&error, &setpoint, 70.0, 10.0, 600.0);
 
 void setup() {   
     motor.init();
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
-    Serial.begin(115200);
-    //return;
+    Serial.begin(115200);    
+    fast = true;
+    speedMax = FAST_SPEED; 
+    
     delay(2000);
-    //move(FORWARD, 1000);
-    //return;
+    executeCommand('M', 300);
+    delay(10);
+    executeCommand('R', 1);
+    delay(10);
+    executeCommand('M', 500);
+    delay(10);
+    motor.brake();
+    moving = false;  
+    return;
+    
     move(LEFT, 90);
     align();
     delay(100);
@@ -72,13 +83,9 @@ void loop() {
         int size = inputString.length();
 
         if (size == 1) {
-            fast = false;
-            speedMax = EXPLORE_SPEED;
             char command = inputString.charAt(0);
             executeCommand(command, 100);            
         } else if (size > 1) {
-            fast = true;
-            speedMax = FAST_SPEED;
             char command = 'A';
             int counter = 0;
                 
@@ -97,6 +104,9 @@ void loop() {
                     if (last) executeCommand(command, 100 * counter);
                 }
             }
+
+            motor.brake();
+            moving = false;  
         }
 
         inputComplete = false;
@@ -110,31 +120,49 @@ void executeCommand(char command, int moveDistance) {
             printSensorValues(moved);         
             break;  
         case 'M': 
-            move(FORWARD, moveDistance); 
+            if (fast) moveFast(FORWARD, moveDistance); 
+            else move(FORWARD, moveDistance); 
             break; 
         case 'L': 
-            move(LEFT, 90); 
+            if (fast) moveFast(LEFT, 90); 
+            else move(LEFT, 90); 
             break;
         case 'R': 
-            move(RIGHT, 90); 
+            if (fast) moveFast(RIGHT, 90); 
+            else move(RIGHT, 90); 
             break;
         case 'T': 
-            move(RIGHT, 180); 
+            if (fast) moveFast(RIGHT, 180); 
+            else move(RIGHT, 180); 
             break;
         case 'V': 
-            move(REVERSE, moveDistance); 
+            if (fast) moveFast(REVERSE, moveDistance); 
+            else move(REVERSE, moveDistance); 
             break; 
         case 'C': 
             align(); 
+            break;
+        case 'E':
+            fast = false;
+            speedMax = EXPLORE_SPEED;
+            break;
+        case 'F':
+            fast = true;
+            speedMax = FAST_SPEED; 
             break;
     }
 }
 
 void move(int direction, int distance) {    
     if (direction == FORWARD && (sensors.isObstructedFront())) {
-        align(); 
         delay(10);
-        printSensorValues(0);
+        align(); 
+        
+        if (!fast) {
+            delay(10);
+            printSensorValues(0);
+        }
+        
         return;
     }
     
@@ -215,6 +243,86 @@ void move(int direction, int distance) {
     if (!fast) {
         delay(10);
         printSensorValues(moved);
+    }
+}
+
+void moveFast(int direction, int distance) {        
+    Serial.println("A");
+    ticksLeft = 0;
+    ticksRight = 0;
+    pid.reset();
+    lps.reset();
+    moved = 0;
+    moving = true;
+
+    switch (direction) {
+        case FORWARD:
+        case REVERSE:
+            ticksTarget = (distance - 180) * TICKS_PER_MM_FAST;
+            break;
+        case LEFT:
+            ticksTarget = distance * TICKS_PER_ANGLE_L * 2;
+            break;
+        case RIGHT:
+            ticksTarget = distance * TICKS_PER_ANGLE_R * 2;
+            break;
+        default: return;
+    };
+
+    int speedLeftRef = 200;
+    int speedRightRef = speedLeftRef - 60;
+    motor.moveFast(direction, speedLeftRef, speedRightRef);
+    
+    int counter = 0;
+    boolean accelerating = true;
+    boolean decelerating = false;
+    unsigned long lastLoopTime = millis();
+
+    while (moving) {   
+        if (millis() - lastLoopTime < 5) continue;
+        lastLoopTime = millis();  
+
+        if (direction == FORWARD) {
+            if (sensors.isObstructedFront()) {    
+                motor.brake();
+                moving = false;         
+                fast = false;
+                return;
+            }
+        }
+        
+        //if ((ticksTarget - ticksLeft <= 150 || ticksTarget - ticksRight <= 150)) decelerating = true;    
+        if (direction > REVERSE) continue;
+        error = lpsFast.computeError();   
+        double speedOffset = pid.computeOffset();   
+        int speedLeft = round(speedLeftRef - speedOffset);
+        speedLeft = constrain(speedLeft, speedLeftRef - 100, speedLeftRef + 100);
+        int speedRight = round(speedRightRef + speedOffset);
+        speedRight = constrain(speedRight, speedRightRef - 100, speedRightRef + 100);
+        motor.setSpeed(speedLeft, speedRight);
+
+        if (accelerating) {
+            if (speedLeftRef < speedMax) counter++;
+            else accelerating = false;
+
+            if (counter >= 1) {
+                counter = 0;
+                speedLeftRef += 20;
+                speedRightRef += 20;
+            }
+        } else if (decelerating) {
+             if (speedLeftRef > 200) counter++;
+
+             if (counter >= 1) {
+                 counter = 0;
+                 speedLeftRef -= 20;
+                 speedRightRef -= 20;
+             }
+        }
+    }
+
+    if (direction > REVERSE) {
+        moveFast(FORWARD, 230);
     }
 }
 
@@ -377,7 +485,7 @@ void interruptLeft() {
     ticksLeft += 0.5;
     
     if (abs(ticksLeft - ticksTarget) <= 0.25) {
-        motor.brake();
+        if (!fast) motor.brake();
         moving = false;
     }
 }
@@ -387,7 +495,7 @@ void interruptRight() {
     ticksRight += 0.5;
 
     if (abs(ticksRight - ticksTarget) <= 0.25) {
-        motor.brake();
+        if (!fast) motor.brake();
         moving = false;
     }
 }

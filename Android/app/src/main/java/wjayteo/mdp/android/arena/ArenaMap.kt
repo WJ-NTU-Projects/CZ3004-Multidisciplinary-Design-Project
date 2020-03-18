@@ -305,7 +305,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
     }
 
     fun showTKL(show: Boolean) {
-        if (show) tklDisplay.alpha = 0.2f
+        if (show) tklDisplay.alpha = 0.26f
         else tklDisplay.alpha = 0.0f
     }
 
@@ -1513,7 +1513,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
         val ret: ArrayList<String> = arrayListOf()
 
         for (image in imageList) {
-            ret.add("X = ${image[0]}, Y = ${image[1]}, ID = ${image[2]}")
+            ret.add("(${image[2]}, ${image[0]}, ${image[1]})")
         }
 
         return ret
