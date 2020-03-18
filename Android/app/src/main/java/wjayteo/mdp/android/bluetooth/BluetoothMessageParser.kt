@@ -42,13 +42,8 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
         }
 
         if (s[0] == "${COMMAND_PREFIX}${SET_IMAGE_IDENTIFIER}") {
-            val strings = s[1].split(")")
-
-            for (str in strings) {
-                if (str.isEmpty()) continue
-                val str2 = str.substring(1)
-                callback(MessageStatus.IMAGE_POSITION, str2)
-            }
+            callback(MessageStatus.IMAGE_POSITION, s[1])
+            return
         }
 
         // Integration use

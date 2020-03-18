@@ -909,6 +909,10 @@ open class ArenaMap (private val context: Context, private val callback: (status
         }
     }
 
+    fun clearImages() {
+        imageList.clear()
+    }
+
     fun setImage(x1: Int, y1: Int, id: Int) {
         var x: Int = x1
         var y: Int = y1
