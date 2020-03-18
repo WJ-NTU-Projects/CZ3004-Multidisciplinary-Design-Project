@@ -7,7 +7,7 @@
 // 2.89
 // 4.591
 const double TICKS_PER_MM_FAST = 3.04;
-const double TICKS_PER_MM = 3.03; //2.98
+const double TICKS_PER_MM = 2.98; //2.98
 const double TICKS_PER_ANGLE_L = 4.53;
 const double TICKS_PER_ANGLE_R = 4.56;
 const int EXPLORE_SPEED = 200;

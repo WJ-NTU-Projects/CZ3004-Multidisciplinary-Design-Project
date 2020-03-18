@@ -909,13 +909,44 @@ open class ArenaMap (private val context: Context, private val callback: (status
         }
     }
 
-    fun setImage(x: Int, y: Int, id: Int) {
+    fun setImage(x1: Int, y1: Int, id: Int) {
+        var x: Int = x1
+        var y: Int = y1
         if (id < 1 || id > 15) return
-        if (!isValidCoordinates(x, y)) return
 
-        if (isOccupied(x, y, false) && !isObstacle(x, y)) {
-            callback(Callback.MESSAGE, context.getString(R.string.cannot_plot))
-            return
+        if (!isValidCoordinates(x, y)) {
+            val valid: IntArray = getValidCoordinates(x, y)
+            x = valid[0]
+            y = valid[1]
+        }
+
+//        if (isOccupied(x, y, false) && !isObstacle(x, y)) {
+//            callback(Callback.MESSAGE, context.getString(R.string.cannot_plot))
+//            return
+//        }
+
+        //#im:(5,0,11)(1,5,21)(4,8,9)
+
+        if (!isObstacle2(x, y)) {
+            var shortestDistance: Int = Integer.MAX_VALUE
+            var finalX: Int = x
+            var finalY: Int = y
+            val parentX: Int = x
+            val parentY: Int = y
+
+            for (y2 in 19 downTo 0) {
+                for (x2 in 14 downTo 0) {
+                    if (!isObstacle2(x2, y2)) continue
+                    val distance: Int = abs(x2 - parentX) + abs(y2 - parentY)
+                    if (distance >= shortestDistance) continue
+                    shortestDistance = distance
+                    finalX = x2
+                    finalY = y2
+                }
+            }
+
+            x = finalX
+            y = finalY
         }
 
         val grid: GestureImageView = gridArray[y][x]
@@ -1453,6 +1484,10 @@ open class ArenaMap (private val context: Context, private val callback: (status
     private fun isObstacle(x: Int, y: Int): Boolean {
         val gridType = gridTypeArray[y][x]
         return (gridType == GridType.OBSTACLE)
+    }
+
+    private fun isObstacle2(x: Int, y: Int): Boolean {
+        return (obstacleArray[y][x] == 1)
     }
 
     fun isValidCoordinates(array: IntArray, forRobot: Boolean = false): Boolean {
