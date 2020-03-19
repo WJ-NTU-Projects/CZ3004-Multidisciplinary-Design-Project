@@ -909,7 +909,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
         }
     }
 
-    fun clearImages() {
+    private fun clearImages() {
         imageList.clear()
 
         for (y in 19 downTo 0) {
@@ -921,7 +921,50 @@ open class ArenaMap (private val context: Context, private val callback: (status
         }
     }
 
-    fun setImage(x1: Int, y1: Int, id: Int) {
+    fun updateImages(data: String) {
+        val strings = data.split(")")
+        clearImages()
+// #im:(6,0,10)(1,3,10)(2,6,11)(15,0,11)(4,3,16)(14,6,19)(3,13,14)(7,14,11)(12,14,10)(5,13,6)
+        val wrongImages: ArrayList<IntArray> = arrayListOf()
+
+        for (str in strings) {
+            if (str.isEmpty()) continue
+            val str2 = str.substring(1)
+            val s = str2.split(",")
+
+            try {
+                val id = s[0].trim().toInt()
+                val x = s[1].trim().toInt()
+                val y = s[2].trim().toInt()
+                if (id < 1 || id > 15) return
+
+                if (!isValidCoordinates(x, y)) {
+                    val valid: IntArray = getValidCoordinates(x, y)
+                    wrongImages.add(intArrayOf(valid[0], valid[1], id))
+                    continue
+                }
+
+                if (!isObstacle2(x, y)) {
+                    wrongImages.add(intArrayOf(x, y, id))
+                    continue
+                }
+
+                Log.e("X", "$x, $y, $id")
+                setImage(x, y, id)
+            } catch (e: NumberFormatException) {
+                continue
+            }
+        }
+
+        for (im in wrongImages) {
+            val id = im[2]
+            var x = im[0]
+            var y = im[1]
+            setImage(x, y, id)
+        }
+    }
+
+    private fun setImage(x1: Int, y1: Int, id: Int) {
         var x: Int = x1
         var y: Int = y1
         if (id < 1 || id > 15) return
@@ -932,22 +975,17 @@ open class ArenaMap (private val context: Context, private val callback: (status
             y = valid[1]
         }
 
-//        if (isOccupied(x, y, false) && !isObstacle(x, y)) {
-//            callback(Callback.MESSAGE, context.getString(R.string.cannot_plot))
-//            return
-//        }
-
         //#im:(5,0,11)(1,5,21)(4,8,9)
 
-        if (!isObstacle2(x, y)) {
+        if (!isObstacle2(x, y) || isImage(x, y)) {
             var shortestDistance: Int = Integer.MAX_VALUE
             var finalX: Int = x
             var finalY: Int = y
             val parentX: Int = x
             val parentY: Int = y
 
-            for (y2 in 19 downTo 0) {
-                for (x2 in 14 downTo 0) {
+            for (y2 in 0..19) {
+                for (x2 in 0..14) {
                     if (!isObstacle2(x2, y2) || isImage(x2, y2)) continue
                     val distance: Int = abs(x2 - parentX) + abs(y2 - parentY)
                     if (distance >= shortestDistance) continue

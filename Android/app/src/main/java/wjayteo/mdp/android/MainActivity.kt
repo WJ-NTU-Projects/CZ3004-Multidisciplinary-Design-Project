@@ -484,24 +484,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateImage(data: String) {
-        val strings = data.split(")")
-        arenaMapController.clearImages()
-
-        for (str in strings) {
-            if (str.isEmpty()) continue
-            val str2 = str.substring(1)
-            val s = str2.split(",")
-
-            try {
-                val id = s[0].trim().toInt()
-                val x = s[1].trim().toInt()
-                val y = s[2].trim().toInt()
-                arenaMapController.setImage(x, y, id)
-            } catch (e: NumberFormatException) {
-                activityUtil.sendSnack(getString(R.string.something_went_wrong))
-                return
-            }
-        }
+        arenaMapController.updateImages(data)
     }
 
     private fun updateRobot(data: String) {
