@@ -9,7 +9,8 @@
 const double TICKS_PER_MM_FAST = 3.04;
 const double TICKS_PER_MM = 2.98; //2.98
 const double TICKS_PER_ANGLE_L = 4.53;
-const double TICKS_PER_ANGLE_R = 4.53; //4.56
+const double TICKS_PER_ANGLE_R_FAST = 4.56;
+const double TICKS_PER_ANGLE_R = 4.60; //4.56
 const int EXPLORE_SPEED = 320;
 const int FAST_SPEED = 360;
 
@@ -154,7 +155,7 @@ void move(int direction, int distance) {
             ticksTarget = distance * TICKS_PER_ANGLE_L;
             break;
         case RIGHT:
-            ticksTarget = distance * TICKS_PER_ANGLE_R;
+            ticksTarget = distance * (fast ? TICKS_PER_ANGLE_R_FAST : TICKS_PER_ANGLE_R);
             break;
         default: return;
     };

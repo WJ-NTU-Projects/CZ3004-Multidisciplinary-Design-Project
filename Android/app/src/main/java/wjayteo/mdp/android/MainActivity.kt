@@ -226,6 +226,7 @@ class MainActivity : AppCompatActivity() {
             R.id.loadMapButton -> onMapLoadClicked()
             R.id.clearArenaButton -> clearArena()
             R.id.visibilityButton -> activityUtil.sendYesNoDialog(TOGGLE_VISIBILITY_CODE, getString(R.string.set_arena_as), getString(R.string.explored), getString(R.string.unexplored))
+            R.id.infoButton -> showMdf();
 
             R.id.plotPathButton -> {
                 if (arenaMapController.isWaypointSet()) activityUtil.sendYesNoDialog(PLOT_FASTEST_PATH_CODE, "Plot fastest path?")
@@ -294,14 +295,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            R.id.infoButton -> {
-                val descriptors: ArrayList<String> = arenaMapController.getMapDescriptorList()
-                var message = "Map Descriptor:\n${descriptors[0]}\n\nObstacle Descriptor:\n${descriptors[1]}"
-                val images: ArrayList<String> = arenaMapController.getImageList()
-                if (images.isNotEmpty()) message += "\n\nImages Found:"
-                for (image in images) message += "\n$image"
-                activityUtil.sendSnackIndefinite(message)
-            }
         }
     }
 
@@ -425,6 +418,7 @@ class MainActivity : AppCompatActivity() {
                 fastestPathButton.icon = getDrawable(R.drawable.ic_fastest)
                 fastestPathButton.text = getString(R.string.fp)
                 modeCardLabel.text = getString(R.string.none)
+                if (currentMode == Mode.EXPLORATION) showMdf()
             }
         }
 
@@ -478,6 +472,15 @@ class MainActivity : AppCompatActivity() {
 
             else -> {}
         }
+    }
+
+    private fun showMdf() {
+        val descriptors: ArrayList<String> = arenaMapController.getMapDescriptorList()
+        var message = "Map Descriptor:\n${descriptors[0]}\n\nObstacle Descriptor:\n${descriptors[1]}"
+        val images: ArrayList<String> = arenaMapController.getImageList()
+        if (images.isNotEmpty()) message += "\n\nImages Found:"
+        for (image in images) message += "\n$image"
+        activityUtil.sendSnackIndefinite(message)
     }
 
     private fun updateImage(data: String) {

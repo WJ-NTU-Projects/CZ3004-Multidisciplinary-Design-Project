@@ -27,12 +27,13 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
 
     fun parse(message: String) {
         callback(MessageStatus.GARBAGE, message)
-        if (!message.contains(COMMAND_DIVIDER) || !message.contains(COMMAND_PREFIX))  return
 
         if (message == "exe" || message == "fe") {
             callback(MessageStatus.RUN_ENDED, message)
             return
         }
+
+        if (!message.contains(COMMAND_DIVIDER) || !message.contains(COMMAND_PREFIX)) return
 
         val s: ArrayList<String> = ArrayList(message.split(COMMAND_DIVIDER))
 
