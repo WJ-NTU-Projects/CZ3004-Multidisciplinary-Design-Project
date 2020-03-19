@@ -9,8 +9,8 @@
 const double TICKS_PER_MM_FAST = 3.04;
 const double TICKS_PER_MM = 2.98; //2.98
 const double TICKS_PER_ANGLE_L = 4.53;
-const double TICKS_PER_ANGLE_R = 4.56;
-const int EXPLORE_SPEED = 200;
+const double TICKS_PER_ANGLE_R = 4.53; //4.56
+const int EXPLORE_SPEED = 320;
 const int FAST_SPEED = 360;
 
 volatile boolean moving = false;

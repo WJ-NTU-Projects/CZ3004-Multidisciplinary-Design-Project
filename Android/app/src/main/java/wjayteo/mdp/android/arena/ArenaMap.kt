@@ -911,6 +911,14 @@ open class ArenaMap (private val context: Context, private val callback: (status
 
     fun clearImages() {
         imageList.clear()
+
+        for (y in 19 downTo 0) {
+            for (x in 14 downTo 0) {
+                if (isImage(x, y)) {
+                    removeImage(intArrayOf(x, y))
+                }
+            }
+        }
     }
 
     fun setImage(x1: Int, y1: Int, id: Int) {
@@ -940,7 +948,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
 
             for (y2 in 19 downTo 0) {
                 for (x2 in 14 downTo 0) {
-                    if (!isObstacle2(x2, y2)) continue
+                    if (!isObstacle2(x2, y2) || isImage(x2, y2)) continue
                     val distance: Int = abs(x2 - parentX) + abs(y2 - parentY)
                     if (distance >= shortestDistance) continue
                     shortestDistance = distance
