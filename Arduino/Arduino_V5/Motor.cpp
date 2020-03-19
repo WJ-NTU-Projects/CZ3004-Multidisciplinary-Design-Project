@@ -54,6 +54,7 @@ void Motor::setSpeed(int speedLeft, int speedRight) {
     if (speedRight > 400) speedRight = 400;
     if (speedLeft > 0) analogWrite(PWM_LEFT, map(speedLeft, 0, 400, 0, 255));
     else brakeLeft();
+    delay(2);
     if (speedRight > 0) analogWrite(PWM_RIGHT, map(speedRight, 0, 400, 0, 255));
     else brakeRight();
 }
