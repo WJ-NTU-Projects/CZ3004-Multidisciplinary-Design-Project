@@ -137,8 +137,8 @@ boolean Sensors::isNearFront() {
     double distance1 = getDistanceFast(1);
     double distance2 = getDistanceFast(2);
     double distance3 = getDistanceFast(3);
-    if (distance2 > 0 && distance2 <= 8) return true;
-    if (distance1 > 0 && distance1 <= 8) return true;
-    if (distance3 > 0 && distance3 <= 8) return true;
+    if (distance2 > 0 && distance2 <= 9) return true;
+    if (distance1 > 0 && distance1 <= 9) return true;
+    if (distance3 > 0 && distance3 <= 9) return true;
     return false;
 }

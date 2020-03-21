@@ -368,6 +368,8 @@ class MainActivity : AppCompatActivity() {
                 sendCommand("$PC_PREFIX$EXPLORATION_COMMAND")
             } else if (mode == Mode.FASTEST_PATH) {
                 sendCommand("$PC_PREFIX$FASTEST_PATH_COMMAND")
+            } else {
+                sendCommand("${PC_PREFIX}terminate")
             }
         }
 
