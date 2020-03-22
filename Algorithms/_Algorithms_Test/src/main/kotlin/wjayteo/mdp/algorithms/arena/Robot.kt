@@ -240,14 +240,14 @@ class Robot {
             if (facingDifference == 180) {
                 for (i in 0..1) {
                     turn(90)
-                    delay(delay)
+                    delay(delay / 2)
                 }
                 newFacing = facing
             }
 
             if (newFacing != facing) {
                 updateFacing(newFacing)
-                delay(delay)
+                delay(delay / 2)
             }
 
             move(x, y)
@@ -280,12 +280,70 @@ class Robot {
             }
         }
 
+        fun isWallFront2(): Boolean {
+            return when (facing) {
+                0    -> Arena.isInvalidCoordinates(position.x, position.y + 3)
+                90   -> Arena.isInvalidCoordinates(position.x + 3, position.y)
+                180  -> Arena.isInvalidCoordinates(position.x, position.y - 3)
+                270  -> Arena.isInvalidCoordinates(position.x - 3, position.y)
+                else -> false
+            }
+        }
+
+        fun isLeftCompletelyBlocked(): Boolean {
+            when (facing) {
+                0    -> {
+                    if (Arena.isObstacle(position.x - 2, position.y - 1) && Arena.isObstacle(position.x - 2, position.y) && Arena.isObstacle(position.x - 2, position.y + 1)) return true
+                }
+                90   -> {
+                    if (Arena.isObstacle(position.x - 1, position.y + 2) && Arena.isObstacle(position.x, position.y + 2) && Arena.isObstacle(position.x + 1, position.y + 2)) return true
+                }
+                180  -> {
+                    if (Arena.isObstacle(position.x + 2, position.y - 1) && Arena.isObstacle(position.x + 2, position.y) && Arena.isObstacle(position.x + 2, position.y + 1)) return true
+                }
+                270  -> {
+                    if (Arena.isObstacle(position.x - 1, position.y - 2) && Arena.isObstacle(position.x, position.y - 2) && Arena.isObstacle(position.x + 1, position.y - 2)) return true
+                }
+            }
+
+            return false
+        }
+
+        fun isLeftCompletelyBlocked2(): Boolean {
+            when (facing) {
+                0    -> {
+                    if (Arena.isObstacle(position.x - 3, position.y - 1) && Arena.isObstacle(position.x - 3, position.y) && Arena.isObstacle(position.x - 3, position.y + 1)) return true
+                }
+                90   -> {
+                    if (Arena.isObstacle(position.x - 1, position.y + 3) && Arena.isObstacle(position.x, position.y + 3) && Arena.isObstacle(position.x + 1, position.y + 3)) return true
+                }
+                180  -> {
+                    if (Arena.isObstacle(position.x + 3, position.y - 1) && Arena.isObstacle(position.x + 3, position.y) && Arena.isObstacle(position.x + 3, position.y + 1)) return true
+                }
+                270  -> {
+                    if (Arena.isObstacle(position.x - 1, position.y - 3) && Arena.isObstacle(position.x, position.y - 3) && Arena.isObstacle(position.x + 1, position.y - 3)) return true
+                }
+            }
+
+            return false
+        }
+
         fun isLeftObstructed(): Boolean {
             return when (facing) {
                 0    -> !Arena.isMovable(position.x - 1, position.y)
                 90   -> !Arena.isMovable(position.x, position.y + 1)
                 180  -> !Arena.isMovable(position.x + 1, position.y)
                 270  -> !Arena.isMovable(position.x, position.y - 1)
+                else -> true
+            }
+        }
+
+        fun isLeftObstructed2(): Boolean {
+            return when (facing) {
+                0    -> !Arena.isMovable(position.x - 2, position.y)
+                90   -> !Arena.isMovable(position.x, position.y + 2)
+                180  -> !Arena.isMovable(position.x + 2, position.y)
+                270  -> !Arena.isMovable(position.x, position.y - 2)
                 else -> true
             }
         }
@@ -381,14 +439,74 @@ class Robot {
             return false
         }
 
-//        fun isRightObstructed(): Boolean {
-//            return when (facing) {
-//                0    -> !Arena.isMovable(position.x + 1, position.y)
-//                90   -> !Arena.isMovable(position.x, position.y - 1)
-//                180  -> !Arena.isMovable(position.x - 1, position.y)
-//                270  -> !Arena.isMovable(position.x, position.y + 1)
-//                else -> true
-//            }
-//        }
+        fun rightHasObstacle(): Boolean {
+            val robotX: Int = position.x
+            val robotY: Int = position.y
+
+            when (facing) {
+                0 -> {
+                    for (x in robotX + 2 .. robotX + 6) {
+                        if (Arena.isObstacle2(x, robotY)) {
+                            return true
+                        }
+                    }
+                }
+
+                180 -> {
+                    for (x in robotX - 2 downTo robotX - 6) {
+                        if (Arena.isObstacle2(x, robotY)) {
+                            return true
+                        }
+                    }
+                }
+
+                90 -> {
+                    for (y in robotY - 2 downTo robotY - 6) {
+                        if (Arena.isObstacle2(robotX, y)) {
+                            return true
+                        }
+                    }
+                }
+
+                270 -> {
+                    for (y in robotY + 2 .. robotY + 6) {
+                        if (Arena.isObstacle2(robotX, y)) {
+                            return true
+                        }
+                    }
+                }
+            }
+
+            return false
+        }
+
+        fun isRightObstructed(): Boolean {
+            return when (facing) {
+                0    -> !Arena.isMovable(position.x + 1, position.y)
+                90   -> !Arena.isMovable(position.x, position.y - 1)
+                180  -> !Arena.isMovable(position.x - 1, position.y)
+                270  -> !Arena.isMovable(position.x, position.y + 1)
+                else -> true
+            }
+        }
+
+        fun isRightCompletelyBlocked(): Boolean {
+            when (facing) {
+                0    -> {
+                    if (Arena.isObstacle(position.x + 2, position.y - 1) && Arena.isObstacle(position.x + 2, position.y) && Arena.isObstacle(position.x + 2, position.y + 1)) return true
+                }
+                90   -> {
+                    if (Arena.isObstacle(position.x - 1, position.y - 2) && Arena.isObstacle(position.x, position.y - 2) && Arena.isObstacle(position.x + 1, position.y - 2)) return true
+                }
+                180  -> {
+                    if (Arena.isObstacle(position.x - 2, position.y - 1) && Arena.isObstacle(position.x - 2, position.y) && Arena.isObstacle(position.x - 2, position.y + 1)) return true
+                }
+                270  -> {
+                    if (Arena.isObstacle(position.x - 1, position.y + 2) && Arena.isObstacle(position.x, position.y + 2) && Arena.isObstacle(position.x + 1, position.y + 2)) return true
+                }
+            }
+
+            return false
+        }
     }
 }

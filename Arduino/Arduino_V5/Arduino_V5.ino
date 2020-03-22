@@ -24,6 +24,7 @@ String inputString = "";
 boolean inputComplete = false;
 boolean fast = false;
 boolean startupAlign = false;
+boolean FP = false;
 
 Motor motor;
 Sensors sensors;
@@ -124,12 +125,18 @@ void executeCommand(char command, int moveDistance) {
             delay(100);
             startupAlign = false;
             break;
+        case 'F':
+            FP = true;
+            break;
+        case 'E':
+            FP = false;
+            break;
     }
 }
 
 void move(int direction, int distance) {    
     if (direction == FORWARD && (sensors.isObstructedFront())) {
-        align(); 
+        if (!FP) align(); 
         delay(10);
         printSensorValues(0);
         return;
@@ -205,14 +212,14 @@ void move(int direction, int distance) {
     
     motor.brake();
     moving = false;
+    if (FP) return;
+    
     if (direction <= REVERSE && (ticksLeft >= 90 || ticksRight >= 90)) moved = 1;
     delay(10);
     align(); 
-        
-    if (!fast && !startupAlign) {
-        delay(10);
-        printSensorValues(moved);
-    }
+    delay(10);
+    if (startupAlign) return;
+    printSensorValues(moved);
 }
 
 void moveAlign(int direction, boolean front, double lowerBound, double upperBound) {    

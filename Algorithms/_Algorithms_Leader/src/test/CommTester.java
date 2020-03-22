@@ -130,7 +130,7 @@ public class CommTester {
 	}
 	public boolean testReceivingMessage(String msg) {
 		if(!testConnection())return false;
-		String m = SocketMgr.getInstance().receiveMessage(false);
+		String m = SocketMgr.getInstance().receiveMessage();
 		if(msg!="") {
 			return m==msg;
 		}

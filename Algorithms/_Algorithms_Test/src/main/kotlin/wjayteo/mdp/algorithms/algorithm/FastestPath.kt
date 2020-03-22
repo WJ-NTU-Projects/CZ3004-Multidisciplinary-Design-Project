@@ -17,13 +17,16 @@ class FastestPath : Algorithm() {
     private var started: Boolean = false
     private var simulationStarted: Boolean = false
     private var delay: Long = 100L
+    private var startTime: Long = 0L
+    private var pathString: String = ""
 
     override fun messageReceived(message: String) {
         when (message) {
             "beginFastest" -> {
                 if (!started) {
                     started = true
-                    step()
+                    startTime = System.currentTimeMillis()
+                    step(pathString)
                 }
             }
 
@@ -36,44 +39,8 @@ class FastestPath : Algorithm() {
     fun start() {
         WifiSocketController.setListener(this)
         Robot.reset()
-
-        if (!ACTUAL_RUN) {
-            delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
-            simulationStarted = true
-            simulate(computeFastestPath())
-        }
-    }
-
-    fun stop() {
-        if (!started && !simulationStarted) return
-        started = false
-        simulationStarted = false
-        if (ACTUAL_RUN) WifiSocketController.write("A", "B")
-        WifiSocketController.write("D", "#fe")
-    }
-
-    private fun simulate(pathList: List<IntArray>) {
-        CoroutineScope(Dispatchers.Default).launch {
-            Robot.updateFacing(pathList[0][2])
-
-            while (simulationStarted) {
-                if (Robot.position.x == Arena.goal.x && Robot.position.y == Arena.goal.y) {
-                    stop()
-                    ControlsView.stop()
-                    return@launch
-                }
-
-                for (path in pathList) {
-                    if (!simulationStarted) return@launch
-                    delay(delay)
-                    Robot.moveAdvanced(path[0], path[1])
-                }
-            }
-        }
-    }
-
-    private fun step() {
-        val pathList = computeFastestPath()
+        WifiSocketController.write("A", "F")
+        var pathList: List<IntArray> = computeFastestPath()
         var robotFacing = 0
         var s = ""
 
@@ -108,6 +75,68 @@ class FastestPath : Algorithm() {
             else if (robotFacing >= 360) robotFacing -= 360
         }
 
+        pathString = s
+
+        if (pathString[0] == 'R') {
+            if (ACTUAL_RUN) WifiSocketController.write("A", "R")
+            Robot.turn(90)
+            pathString = pathString.substring(1)
+            pathList = pathList.subList(1, pathList.size - 1)
+        }
+
+        if (!ACTUAL_RUN) {
+            delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
+            simulationStarted = true
+            startTime = System.currentTimeMillis()
+            simulate(pathList)
+        }
+    }
+
+    fun stop() {
+        if (!started && !simulationStarted) return
+        started = false
+        simulationStarted = false
+        val endTime: Long = System.currentTimeMillis()
+
+        println("-------------")
+        val seconds: Double = (endTime - startTime) / 1000.0
+        println("TIME TAKEN: $seconds seconds")
+        println("-------------")
+
+        ControlsView.stop()
+        if (ACTUAL_RUN) {
+            WifiSocketController.write("A", "B")
+            WifiSocketController.write("D", "fe")
+        }
+    }
+
+    private fun simulate(pathList: List<IntArray>) {
+        CoroutineScope(Dispatchers.Default).launch {
+            delay(5000)
+
+            while (simulationStarted) {
+                if (Robot.position.x == Arena.goal.x && Robot.position.y == Arena.goal.y) {
+                    stop()
+                    ControlsView.stop()
+                    return@launch
+                }
+
+                for (path in pathList) {
+                    if (!simulationStarted) return@launch
+                    delay(delay / 2)
+                    Robot.moveAdvanced(path[0], path[1])
+                }
+
+                delay(delay / 2)
+                Robot.moveTemp()
+                break
+            }
+
+            stop()
+        }
+    }
+
+    private fun step(s: String) {
         WifiSocketController.write("A", s)
     }
 

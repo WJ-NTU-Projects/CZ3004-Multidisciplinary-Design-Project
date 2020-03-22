@@ -151,6 +151,7 @@ class Arena {
 
             start.x = x
             start.y = y
+            setExploredPoint(x, y)
             attachedView?.setStartPoint(x, y)
             return true
         }
@@ -169,6 +170,7 @@ class Arena {
 
             goal.x = x
             goal.y = y
+            setExploredPoint(x, y)
             attachedView?.setGoalPoint(x, y)
             return true
         }
@@ -187,8 +189,25 @@ class Arena {
 
             waypoint.x = x
             waypoint.y = y
+            setExploredPoint(x, y)
             attachedView?.setWaypoint(x, y)
             return true
+        }
+
+        fun setExploredPoint(x: Int, y: Int) {
+            for (yOffset in -1..1) {
+                for (xOffset in -1..1) {
+                    val x1: Int = x + xOffset
+                    val y1: Int = y + yOffset
+                    setExploredForced(x1, y1)
+                }
+            }
+        }
+
+        fun refreshPoints() {
+            setExploredPoint(waypoint.x, waypoint.y)
+            setExploredPoint(start.x, start.y)
+            setExploredPoint(goal.x, goal.y)
         }
 
         fun setExplored(x: Int, y: Int) {

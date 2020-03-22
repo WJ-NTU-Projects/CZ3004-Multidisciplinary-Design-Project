@@ -165,6 +165,34 @@ public class Robot extends Observable {
         return false;
     }
 
+    public boolean isWallFront2() {
+
+        for (int i = 0; i < ROBOT_SIZE; i++) {
+            if (mHeading == NORTH) {
+                // DIRECTLY IN FRONT OF ROBOT
+                if (mGrid.getIsObstacle(mPosX + i, mPosY - 2)) {
+                    return true;
+                }
+            } else if (mHeading == SOUTH) {
+                // DIRECTLY IN FRONT OF ROBOT
+                if (mGrid.getIsObstacle(mPosX + i, mPosY + 3)) {
+                    return true;
+                }
+            } else if (mHeading == EAST) {
+                // DIRECTLY IN FRONT OF ROBOT
+                if (mGrid.getIsObstacle(mPosX + 3, mPosY + i)) {
+                    return true;
+                }
+            } else if (mHeading == WEST) {
+                // DIRECTLY IN FRONT OF ROBOT
+                if (mGrid.getIsObstacle(mPosX - 1, mPosY + i)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean isObstacleRight() {
         for (int i = 0; i < ROBOT_SIZE; i++) {
             if (mHeading == NORTH) {
@@ -304,7 +332,7 @@ public class Robot extends Observable {
     }
 
     public boolean sense() {
-        String sensorData = SocketMgr.getInstance().receiveMessage(true);
+        String sensorData = SocketMgr.getInstance().receiveMessage();
         System.out.println(sensorData);
         String[] sensorReadings = sensorData.split("#", mSensors.size()+1);
         if (sensorReadings.length != 7) return false;
