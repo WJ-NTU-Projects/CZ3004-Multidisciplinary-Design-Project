@@ -38,6 +38,7 @@ class Exploration : Algorithm() {
         val x = Robot.position.x
         val y = Robot.position.y
         val facing = Robot.facing
+        WifiSocketController.write("R", "P")
         val sensor1: Int = messages[0].toInt()
         val sensor2: Int = messages[1].toInt()
         val sensor3: Int = messages[2].toInt()
