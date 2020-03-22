@@ -1,7 +1,5 @@
 package controller;
 
-import model.algorithm.AlgorithmRunner;
-import model.algorithm.TimeExplorationAlgorithmRunner;
 import model.entity.Grid;
 import model.entity.Robot;
 import view.Simulator;
@@ -40,8 +38,8 @@ public class TimeLimitedButtonListener implements ActionListener {
 
         @Override
         protected Integer doInBackground() throws Exception {
-            AlgorithmRunner algorithmRunner = new TimeExplorationAlgorithmRunner(mView.getRobotSpeed());
-            algorithmRunner.run(mGrid, mRobot, mView.getIsRealRun());
+            //AlgorithmRunner algorithmRunner = new TimeExplorationAlgorithmRunner(mView.getRobotSpeed());
+            //algorithmRunner.run(mGrid, mRobot, mView.getIsRealRun());
             return 1;
         }
 

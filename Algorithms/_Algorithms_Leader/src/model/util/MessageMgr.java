@@ -71,7 +71,7 @@ public class MessageMgr {
      * @return
      */
     public static List<Integer> parseMessage(String msg) {
-    	if(msg.contains("waypoint:")) {
+    	if (msg.contains("waypoint:")) {
     		String[] splitStringTest = msg.split(":", 2);
     		msg = splitStringTest[1];
     		System.out.println(splitStringTest[0]);
@@ -80,7 +80,7 @@ public class MessageMgr {
     		String[] splitString = msg.split(", ", 2);
             List<Integer> waypoint = new ArrayList<>();
 
-            Integer wayPointX, wayPointY;
+            int wayPointX, wayPointY;
             try {
                 wayPointX = Integer.parseInt(splitString[0]);
                 wayPointY = MAP_ROWS - Integer.parseInt(splitString[1]) - 1;
@@ -92,8 +92,8 @@ public class MessageMgr {
                 return null;
             }
     	}
+
     	return null;
-        
     }
 
     public static String ReceivingImageDataJson(){

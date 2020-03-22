@@ -223,7 +223,6 @@ public class Robot extends Observable {
      * Move robot towards the front, set robot's location to "not obstacle" and "explored"
      */
     public void move() {
-        // TODO: make sure it won't go beyond the arena
         if (mHeading == NORTH) { // Limit position to prevent wall crash
             mPosY--;
             for (int i = 0; i < 3; ++i) {
@@ -250,7 +249,6 @@ public class Robot extends Observable {
             }
         }
         setChanged();
-//        notifyObservers();
     }
 
     public void turn(int direction) {
@@ -276,7 +274,6 @@ public class Robot extends Observable {
             mHeading = (mHeading + 1) % 4;
         }
         setChanged();
-//        notifyObservers();
     }
 
     public void reset() {
@@ -284,114 +281,44 @@ public class Robot extends Observable {
         mPosY = START_POS_Y;
         mHeading = NORTH;
         setChanged();
-//        notifyObservers();
     }
 
-    /**
-     * Updates the simulator's map according to sensor reading. If the sensor reading
-     * is smaller or equal to its range, it means there is an obstacle at that distance.
-     * If the sensor reading is greater than its range, it means there is no obstacle
-     * within its detectable range.
-     * @param returnedDistance
-     * @param heading
-     * @param range
-     * @param x
-     * @param y
-     */
-    private void updateMap(int returnedDistance, int heading, int range, int x, int y, boolean realRun, int reliability) {
+    private void updateMap(int returnedDistance, int heading, int range, int x, int y, int reliability) {
         int xToUpdate = x, yToUpdate = y;
         int distance = Math.min(returnedDistance, range);
         boolean obstacleAhead = returnedDistance <= range;
 
         for (int i = 1; i <= distance; i++) {
-            if (heading == NORTH) {
-                yToUpdate = yToUpdate - 1;
-            } else if (heading == SOUTH) {
-                yToUpdate = yToUpdate + 1;
-            } else if (heading == WEST) {
-                xToUpdate = xToUpdate - 1;
-            } else if (heading == EAST) {
-                xToUpdate = xToUpdate + 1;
-            }
+            if (heading == NORTH) yToUpdate = yToUpdate - 1;
+            else if (heading == SOUTH) yToUpdate = yToUpdate + 1;
+            else if (heading == WEST) xToUpdate = xToUpdate - 1;
+            else if (heading == EAST) xToUpdate = xToUpdate + 1;
             mGrid.setExplored(xToUpdate, yToUpdate, true);
-            // if this cell is an obstacle
+
             if (i == distance && obstacleAhead) {
-                if (realRun) {
-                	System.out.println("reliability:"+Integer.toString(reliability*(range-i+1)));
-                    mGrid.setObstacleProbability(xToUpdate, yToUpdate, reliability); // increment by reliability
-                } else {
-                    mGrid.setIsObstacle(xToUpdate, yToUpdate, true);
-                }
-            } else { // if this cell is not an obstacle
-                if (realRun) {
-                	System.out.println("reliability:"+Integer.toString(reliability*(range-i+1)));
-                    mGrid.setObstacleProbability(xToUpdate, yToUpdate, -reliability); // decrement by reliability
-                } else {
-                    mGrid.setIsObstacle(xToUpdate, yToUpdate, false);
-                }
+                mGrid.setObstacleProbability(xToUpdate, yToUpdate, reliability); // increment by reliability
+            } else {
+                mGrid.setObstacleProbability(xToUpdate, yToUpdate, -reliability); // decrement by reliability
             }
         }
     }
 
-    /**
-     * Sense the robot's surrounding environment
-     * @param realRun whether it's the physical robot
-     */
-    public boolean sense(boolean realRun, String command) {
-        if (realRun) {
-//            SocketMgr.getInstance().sendMessage(TARGET_ARDUINO, "I");
-        	String sensorData;
-        	if(command.compareTo("W")==0) {
-        		sensorData = sensorV;
-        	}
-        	else { 
-        		sensorData = SocketMgr.getInstance().receiveMessage(true);
-        	}
-            int timeOutCount = 0;
-            while (sensorData == null) {
-            	timeOutCount += 1;
-            	if(timeOutCount>=2) {
-//            		SocketMgr.getInstance().sendMessage(TARGET_ARDUINO, "I");
-            		timeOutCount = 0;
-            	}
-//                SocketMgr.getInstance().sendMessage(TARGET_ARDUINO, "I");
-                sensorData = SocketMgr.getInstance().receiveMessage(true);
-            }
-            System.out.println(sensorData);
-            sensorV = sensorData;
-            String[] sensorReadings = sensorData.split("#", mSensors.size()+1);
-            System.out.println("sensor reading length:");
-            System.out.println(sensorReadings.length);
-            
-            for (int i = 0; i < mSensors.size(); i++) {
-//            	System.out.println("index: "+Integer.toString(i));
-                int returnedDistance = Integer.parseInt(sensorReadings[i]); 
-                int heading = mSensors.get(i).getActualHeading();
-                int range = mSensors.get(i).getRange();
-                int x = mSensors.get(i).getActualPosX();
-                int y = mSensors.get(i).getActualPosY();
-//                if(i==5) {
-//                	if(returnedDistance<2)continue;
-//                	if(returnedDistance>=3&&returnedDistance<=4)
-//                		setNeedToCheckRight(true);
-//                }
-                if(command.compareTo("M")!=0) {
-//                	if(i==5&&returnedDistance>=3&&returnedDistance<=4)
-//                		continue;
-                	updateMap(returnedDistance, heading, range, x, y, true, mSensors.get(i).getReliability());
-                }
-            }
-            return sensorReadings[6].compareTo("1")==0;
-        } else {
-            for (Sensor sensor : mSensors) {
-                int returnedDistance = sensor.sense(mGrid);
-                int heading = sensor.getActualHeading();
-                int range = sensor.getRange();
-                int x = sensor.getActualPosX();
-                int y = sensor.getActualPosY();
-                updateMap(returnedDistance, heading, range, x, y, false, sensor.getReliability());
-            }
-            return true;
+    public boolean sense() {
+        String sensorData = SocketMgr.getInstance().receiveMessage(true);
+        System.out.println(sensorData);
+        String[] sensorReadings = sensorData.split("#", mSensors.size()+1);
+        if (sensorReadings.length != 7) return false;
+        if (sensorReadings[6].compareTo("1") != 0) return false;
+
+        for (int i = 0; i < mSensors.size(); i++) {
+            int returnedDistance = Integer.parseInt(sensorReadings[i]);
+            int heading = mSensors.get(i).getActualHeading();
+            int range = mSensors.get(i).getRange();
+            int x = mSensors.get(i).getActualPosX();
+            int y = mSensors.get(i).getActualPosY();
+            updateMap(returnedDistance, heading, range, x, y, mSensors.get(i).getReliability());
         }
+
+        return true;
     }
 }

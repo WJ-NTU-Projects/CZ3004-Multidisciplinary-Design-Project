@@ -32,7 +32,6 @@ public class Sensor {
     int sense(Grid grid) {
         int absPosX = getActualPosX();
         int absPosY = getActualPosY();
-
         int actualDirection = getActualHeading();
 
         for (int i = 1; i <= mRange; i++) {
@@ -50,6 +49,7 @@ public class Sensor {
                     return i;
             }
         }
+
         return 100;
     }
 

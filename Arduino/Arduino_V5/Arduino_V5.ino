@@ -25,6 +25,7 @@ int moved = 0;
 String inputString = "";
 boolean inputComplete = false;
 boolean fast = false;
+boolean startupAlign = false;
 
 Motor motor;
 Sensors sensors;
@@ -36,23 +37,6 @@ void setup() {
     enableInterrupt(ENCODER_LEFT, interruptLeft, CHANGE);
     enableInterrupt(ENCODER_RIGHT, interruptRight, CHANGE);
     Serial.begin(115200);
-    //return;
-    delay(2000);
-    //move(FORWARD, 1000);
-    //return;
-    move(LEFT, 90);
-    align();
-    delay(100);
-    move(LEFT, 90);
-    align();
-    delay(100);
-    move(RIGHT, 90);
-    align();
-    delay(100);
-    move(RIGHT, 90);
-    align();
-    delay(100);
-    
     Serial.println("Ready");
 }
 
@@ -98,6 +82,8 @@ void loop() {
                     if (last) executeCommand(command, 100 * counter);
                 }
             }
+
+            Serial.println("Pfe");
         }
 
         inputComplete = false;
@@ -127,6 +113,18 @@ void executeCommand(char command, int moveDistance) {
             break; 
         case 'C': 
             align(); 
+            break;
+        case 'S':        
+            startupAlign = true;
+            move(LEFT, 90);
+            delay(100);
+            move(LEFT, 90);
+            delay(100);
+            move(RIGHT, 90);
+            delay(100);
+            move(RIGHT, 90);
+            delay(100);
+            startupAlign = false;
             break;
     }
 }
@@ -213,7 +211,7 @@ void move(int direction, int distance) {
     delay(10);
     align(); 
         
-    if (!fast) {
+    if (!fast && !startupAlign) {
         delay(10);
         printSensorValues(moved);
     }

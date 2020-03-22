@@ -6,9 +6,6 @@ import view.Simulator;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-/**
- * Button listener
- */
 public class RealRunCheckBoxListener implements ActionListener {
 
     private Simulator mView;
@@ -21,12 +18,19 @@ public class RealRunCheckBoxListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (mView.getIsRealRun()) {
+            if (!SocketMgr.getInstance().isConnected()) {
+                boolean success = SocketMgr.getInstance().openConnection();
+
+                if (!success) {
+                    mView.checkRealRun(false);
+                    return;
+                }
+            }
+
             mView.disableLoadMapButton();
             mView.disableExplorationButton();
             mView.disableFastestPathButton();
             mView.enableRealRunButton();
-            if (!SocketMgr.getInstance().isConnected())
-                SocketMgr.getInstance().openConnection();
         } else {
             mView.enableLoadMapButton();
             mView.enableExplorationButton();

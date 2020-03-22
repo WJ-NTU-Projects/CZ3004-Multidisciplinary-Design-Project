@@ -18,11 +18,7 @@ public class AppRunner {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // models
             Grid grid = new Grid();
-            //setObstaclesMap(grid);
-            //long range 15 to 60
-            //short range 5 to 35
             Sensor sensor1 = new Sensor(1, 2, 0, MIDDLE, 3);
             Sensor sensor2 = new Sensor(1, 1, 0, MIDDLE, 3);
             Sensor sensor3 = new Sensor(1, 0, 0, MIDDLE, 3); 
@@ -37,21 +33,9 @@ public class AppRunner {
             sensors.add(sensor5);
             sensors.add(sensor6);
             Robot robot = new Robot(grid, sensors);
-
-            // view
             Simulator simulator = new Simulator(grid, robot);
-
-            // controller
-            new CoverageLimitedButtonListener(simulator, grid, robot);
-            new ExplorationButtonListener(simulator, grid, robot);
-            new FastestPathButtonListener(simulator, grid, robot);
-            new LoadMapButtonListener(simulator, grid, robot);
-            new TimeLimitedButtonListener(simulator, grid, robot);
             new RealRunButtonListener(simulator, grid, robot);
             new RealRunCheckBoxListener(simulator);
-            new TestButtonListener(simulator, grid, robot);
-            new MapDescriptorButtonListener(simulator, grid, robot);
-
             simulator.setVisible(true);
             System.out.println("Simulator started.");
         });

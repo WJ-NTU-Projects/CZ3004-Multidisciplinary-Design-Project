@@ -28,17 +28,17 @@ public class SocketMgr {
         return mInstance;
     }
 
-    public void openConnection() {
+    public boolean openConnection() {
         try {
             mSocket = new Socket(ADDRESS, PORT);
-            //mSocket.setTcpNoDelay(true);
             mSocketWriter = new PrintWriter(mSocket.getOutputStream(), true);
             mSocketReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
             System.out.println("Socket connection successful");
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Socket connection failed");
-
+            return false;
         }
     }
 
@@ -62,21 +62,15 @@ public class SocketMgr {
         System.out.println("Sent message: " + dest + msg);
     }
 
-    public String receiveMessage(boolean sensor) {
+    public String receiveMessage() {
         try {
-            if (sensor)
-                mSocket.setSoTimeout(150);
-            else
-                mSocket.setSoTimeout(0);
+            mSocket.setSoTimeout(0);
         } catch (SocketException e) {
         	e.printStackTrace();
         }
+
         try {
-//        	char[] m;
-//        	m = new char[100];
         	String msg;
-//        	mSocketReader.read(m,0,100);
-//        	msg = new String(m);
         	msg = mSocketReader.readLine();
             System.out.println("Received message: " + msg);
             return msg;

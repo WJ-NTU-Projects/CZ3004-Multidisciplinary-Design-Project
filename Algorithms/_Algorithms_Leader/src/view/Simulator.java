@@ -178,6 +178,10 @@ public class Simulator extends JFrame {
         return mRealRunCheckBox.isSelected();
     }
 
+    public void checkRealRun(boolean check) {
+        mRealRunCheckBox.setSelected(check);
+    }
+
     public int getRobotSpeed() {
         return mRobotSpeedField.getText().equals("") ? 0 : Integer.parseInt(mRobotSpeedField.getText());
     }
