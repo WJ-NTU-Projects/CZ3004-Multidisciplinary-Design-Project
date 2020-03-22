@@ -20,6 +20,7 @@ class Arena {
         val obstacleArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private val gridStateArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private val visitedArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
+        private val scannedArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private var attachedView: ArenaMapView? = null
 
         fun setAttachedView(view: ArenaMapView) {
@@ -33,7 +34,21 @@ class Arena {
             attachedView?.removeWaypoint()
         }
 
+        fun setScanned(x: Int, y: Int) {
+            if (isInvalidCoordinates(x, y)) return
+            if (isObstacle(x, y)) scannedArray[y][x] = 1
+        }
+
+        fun isScanned(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y)) return true
+            if (!isObstacle(x, y)) return true
+            return (scannedArray[y][x] == 1)
+        }
+
+
+
         fun setVisited(x: Int, y: Int) {
+            if (isInvalidCoordinates(x, y)) return
             visitedArray[y][x]++
         }
 
@@ -68,6 +83,7 @@ class Arena {
         }
 
         fun isExplored(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y)) return true
             return (exploreArray[y][x] == 1)
         }
 
@@ -87,6 +103,16 @@ class Arena {
             }
 
             Robot.move(Robot.position.x, Robot.position.y)
+        }
+
+        fun isEveryObstacleScanned(): Boolean {
+            for (y in 19 downTo 0) {
+                for (x in 0..14) {
+                    if (!isScanned(x, y)) return false
+                }
+            }
+
+            return true
         }
 
         fun isEveryGridExplored(): Boolean {
@@ -177,6 +203,7 @@ class Arena {
             if (isInvalidCoordinates(x, y)) return
             gridStateArray[y][x] = GRID_EXPLORED
             exploreArray[y][x] = 1
+            obstacleArray[y][x] = 0
             attachedView?.setExplored(x, y)
         }
 
@@ -276,6 +303,8 @@ class Arena {
             gridStateArray[y][x] = GRID_UNKNOWN
             exploreArray[y][x] = 0
             obstacleArray[y][x] = 0
+            scannedArray[y][x] = 0
+            visitedArray[y][x] = 0
             attachedView?.setUnknown(x, y)
         }
 
@@ -288,6 +317,11 @@ class Arena {
 
         fun isObstacle(x: Int, y: Int): Boolean {
             if (isInvalidCoordinates(x, y, false)) return true
+            return (obstacleArray[y][x] == 1)
+        }
+
+        fun isObstacle2(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y, false)) return false
             return (obstacleArray[y][x] == 1)
         }
 
