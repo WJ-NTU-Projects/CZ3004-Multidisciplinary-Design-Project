@@ -34,9 +34,7 @@ Gradle version may be modified under File --> Project Structure... --> Project.
 
 
 ## Algorithms
-For stripped down testing of ongoing issues only. 
-
-Many functionalities were copied over from Android and may have been stripped down as well.
+ALL ABOARD THE HYPE TRAIN???!
 
 ### IDE Setup (Updated 02 Mar 2020)
 | Stuff          | Minimum Requirement |	
