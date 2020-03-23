@@ -26,7 +26,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
     private var previousMessage: String = ""
 
     fun parse(message: String) {
-        callback(MessageStatus.GARBAGE, message)
+        //callback(MessageStatus.GARBAGE, message)
 
         if (message == "exe" || message == "fe") {
             callback(MessageStatus.RUN_ENDED, message)
@@ -38,7 +38,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
         val s: ArrayList<String> = ArrayList(message.split(COMMAND_DIVIDER))
 
         if (s.size != 2) {
-            callback(MessageStatus.GARBAGE, "Something went wrong.")
+            //callback(MessageStatus.GARBAGE, "Something went wrong.")
             return
         }
 
@@ -54,7 +54,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             val strings = s[1].split(",")
 
             if (strings.size != 5) {
-                callback(MessageStatus.INFO, "Something went wrong.")
+                //callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
 
@@ -72,7 +72,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
                 callback(MessageStatus.ROBOT_POSITION, s[1])
             }  catch (e: NumberFormatException) {
                 Log.e(this::class.simpleName ?: "-", "Something went wrong.", e)
-                callback(MessageStatus.INFO, "Something went wrong.")
+                //callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
 
@@ -84,7 +84,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             val strings = s[1].split(",")
 
             if (strings.size != 2) {
-                callback(MessageStatus.INFO, "Something went wrong.")
+                //callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
 
@@ -107,14 +107,13 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
         }
 
         if (s[0] == "${COMMAND_PREFIX}${ROBOT_POSITION_IDENTIFIER}") {
-            Log.e("MESSAGE3", message)
             //if (s[1] == previousMessage) return
             previousMessage = s[1]
 
             val s1 = s[1].split(",")
 
             if (s1.size != 3) {
-                callback(MessageStatus.INFO, "Something went wrong.")
+                //callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
 
@@ -125,7 +124,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
                 s[1] = "$x, $y, $r"
             }  catch (e: NumberFormatException) {
                 Log.e(this::class.simpleName ?: "-", "Something went wrong.", e)
-                callback(MessageStatus.INFO, "Something went wrong.")
+                //callback(MessageStatus.INFO, "Something went wrong.")
                 return
             }
         }

@@ -78,8 +78,8 @@
     <string name="clear_message_log">Clear message log?</string>
     <string name="clear_arena_timer">Completely clear the arena and timer?</string>
     <string name="chat_prefix" translatable="false">[%1$s] %2$s</string>
-    <string name="prefix_robot">Robot:</string>
-    <string name="prefix_tablet">Me:</string>
+    <string name="prefix_robot">Recv:</string>
+    <string name="prefix_tablet">Sent:</string>
     <string name="started_something">Started %s</string>
     <string name="timer_minute_second" translatable="false">%1$s:%2$s</string>
     <string name="ex" translatable="false">EX</string>

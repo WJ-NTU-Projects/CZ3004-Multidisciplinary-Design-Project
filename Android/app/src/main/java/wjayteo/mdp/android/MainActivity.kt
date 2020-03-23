@@ -59,6 +59,7 @@ import kotlin.collections.ArrayList
 class MainActivity : AppCompatActivity() {
     companion object {
         var currentMode: Mode = Mode.NONE
+        const val MAX_MESSAGE_SIZE = 30
         const val APP_EXIT_CODE = 1000
         const val BLUETOOTH_NOT_SUPPORTED_CODE = 1200
         const val SAVE_REQUEST_CODE = 10000
@@ -109,6 +110,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var exploration            : Exploration
     private lateinit var fastestPath            : FastestPath
     private lateinit var sensorManager          : SensorManager
+    private lateinit var messageList            : List<String>
 
     private var gyroscopeSensor : Sensor? = null
     private var lastClickTime   : Long = 0L
@@ -161,6 +163,7 @@ class MainActivity : AppCompatActivity() {
         gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         controllerPad.setOnTouchListener(robotController.touchListener)
         messagesOutputEditText.setOnKeyListener(onEnter)
+        messageList = arrayListOf()
 
         if (gyroscopeSensor == null) {
             buttonList.remove(tiltButton)
@@ -229,7 +232,7 @@ class MainActivity : AppCompatActivity() {
             R.id.infoButton -> showMdf();
 
             R.id.plotPathButton -> {
-                if (arenaMapController.isWaypointSet()) activityUtil.sendYesNoDialog(PLOT_FASTEST_PATH_CODE, "Plot fastest path?")
+                if (arenaMapController.isWaypointSet()) arenaMapController.plotFastestPath() //activityUtil.sendYesNoDialog(PLOT_FASTEST_PATH_CODE, "Plot fastest path?")
                 else activityUtil.sendSnack(getString(R.string.set_waypoint))
             }
 
@@ -316,8 +319,24 @@ class MainActivity : AppCompatActivity() {
         val timeStamp = "${(calendar[Calendar.HOUR_OF_DAY]).toString().padStart(2, '0')}:${(calendar[Calendar.MINUTE]).toString().padStart(2, '0')}"
         val prefix: String = getString(R.string.chat_prefix, timeStamp, prefixType).trim()
         val displayMessage = "$prefix $message"
-        val previousMessages = messagesTextView?.text.toString().trim()
-        val newMessage = if (previousMessages.isNotBlank()) "$previousMessages\n$displayMessage" else displayMessage
+        val tempList: ArrayList<String> = arrayListOf()
+        tempList.addAll(messageList)
+        tempList.add(displayMessage)
+
+        messageList =
+            if (tempList.size > MAX_MESSAGE_SIZE) tempList.subList(tempList.size - MAX_MESSAGE_SIZE, tempList.size)
+            else tempList.toList()
+
+
+        var newMessage = ""
+
+        for (m in messageList) {
+            if (newMessage.isNotBlank()) newMessage += "\n"
+            newMessage += m
+        }
+
+        //val previousMessages = messagesTextView?.text.toString().trim()
+        //val newMessage = if (previousMessages.isNotBlank()) "$previousMessages\n$displayMessage" else displayMessage
         messagesTextView?.text = newMessage
 
         CoroutineScope(Dispatchers.Default).launch {
