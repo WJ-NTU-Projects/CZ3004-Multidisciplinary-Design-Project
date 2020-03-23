@@ -5,7 +5,7 @@
 #include "Sensors.h"
 
 const double TICKS_PER_MM_FAST = 3.04;
-const double TICKS_PER_MM = 2.98; //2.98
+const double TICKS_PER_MM = 2.97; //2.98
 const double TICKS_PER_ANGLE_L = 4.56; //4.53
 const double TICKS_PER_ANGLE_R_FAST = 4.56;
 const double TICKS_PER_ANGLE_R = 4.58; //4.56
@@ -77,7 +77,7 @@ void loop() {
                     executeCommand(command, 100 * counter);
                     counter = 1;                    
                     command = x;
-                    delay(10);
+                    delay(50);
                     if (last) executeCommand(command, 100 * counter);
                 }
             }
@@ -217,7 +217,7 @@ void move(int direction, int distance) {
     if (direction <= REVERSE && (ticksLeft >= 90 || ticksRight >= 90)) moved = 1;
     delay(10);
     align(); 
-    delay(10);
+    delay(50);
     if (startupAlign) return;
     printSensorValues(moved);
 }
@@ -392,9 +392,9 @@ void align() {
         } 
             
         if (smallestDistance < 4.25) {
-            moveAlignS(REVERSE, 2, 4.25, 4.75);
-        } else if (smallestDistance > 4.75) {
-            moveAlignS(FORWARD, 2, 4.25, 4.75);
+            moveAlignS(REVERSE, 2, 4.25, 4.5);
+        } else if (smallestDistance > 4.5) {
+            moveAlignS(FORWARD, 2, 4.25, 4.5);
         }
     }
     

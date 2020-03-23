@@ -20,6 +20,14 @@ class Exploration : Algorithm() {
     private var delay: Long = 100L
     private var startTime: Long = 0L
     private var moveCount: Int = 0
+    private var hugRightStartX = 1
+    private var hugRightStartY = 1
+    private var commandBeforeHugRight = LEFT
+    private var imagesFound = 0
+    private val imagesCount = 5
+    private var counter = 3
+    private var hugRight = false
+    private var justStartedHugRight = false
 
     override fun messageReceived(message: String) {
         if (!started) {
@@ -60,19 +68,26 @@ class Exploration : Algorithm() {
         val x = Robot.position.x
         val y = Robot.position.y
         val facing = Robot.facing
-        //WifiSocketController.write("R", "P")
-        val sensor1: Int = messages[0].toInt()
-        val sensor2: Int = messages[1].toInt()
-        val sensor3: Int = messages[2].toInt()
-        val sensor4: Int = messages[3].toInt()
-        val sensor5: Int = messages[4].toInt()
-        val sensor6: Int = messages[5].toInt()
-        Sensor.updateArenaSensor1(x, y, facing, sensor1)
-        Sensor.updateArenaSensor2(x, y, facing, sensor2)
-        Sensor.updateArenaSensor3(x, y, facing, sensor3)
-        Sensor.updateArenaSensor4(x, y, facing, sensor4)
-        Sensor.updateArenaSensor5(x, y, facing, sensor5)
-        Sensor.updateArenaSensor6(x, y, facing, sensor6)
+
+        for (i in 0 until 6) {
+            val sensorValue: Int = messages[i].toInt()
+            Sensor.updateArenaSensor(i + 1, x, y, facing, sensorValue)
+        }
+
+//        WifiSocketController.write("R", "P")
+//        val sensor1: Int = messages[0].toInt()
+//        val sensor2: Int = messages[1].toInt()
+//        val sensor3: Int = messages[2].toInt()
+//        val sensor4: Int = messages[3].toInt()
+//        val sensor5: Int = messages[4].toInt()
+//        val sensor6: Int = messages[5].toInt()
+//        Sensor.updateArenaSensor1(x, y, facing, sensor1)
+//        Sensor.updateArenaSensor2(x, y, facing, sensor2)
+//        Sensor.updateArenaSensor3(x, y, facing, sensor3)
+//        Sensor.updateArenaSensor4(x, y, facing, sensor4)
+//        Sensor.updateArenaSensor5(x, y, facing, sensor5)
+//        Sensor.updateArenaSensor6(x, y, facing, sensor6)
+
         if (x == Arena.start.x && y == Arena.start.y) wallHug = false
         step()
         Thread.sleep(10)
@@ -129,23 +144,6 @@ class Exploration : Algorithm() {
         Robot.turn(90)
         Thread.sleep(1000)
 
-//        when (Robot.facing) {
-//            90  -> {
-//                if (ACTUAL_RUN) WifiSocketController.write("A", "L")
-//                Robot.turn(-90)
-//            }
-//
-//            180 -> {
-//                if (ACTUAL_RUN) WifiSocketController.write("A", "T")
-//                Robot.turn(180)
-//            }
-//
-//            270 -> {
-//                if (ACTUAL_RUN) WifiSocketController.write("A", "R")
-//                Robot.turn(90)
-//            }
-//        }
-
         if (Arena.isInvalidCoordinates(Arena.waypoint)) {
             ControlsView.stop()
             return
@@ -153,28 +151,6 @@ class Exploration : Algorithm() {
 
         ControlsView.start()
         MasterView.fastestPath.start()
-
-//        val pathList: List<IntArray> = MasterView.fastestPath.computeFastestPath()
-//        if (pathList.isEmpty()) return
-//        val f = pathList[0][2]
-//
-//        when (f - Robot.facing) {
-//            90 -> {
-//                if (ACTUAL_RUN) WifiSocketController.write("A", "R")
-//                Robot.turn(90)
-//            }
-//
-//
-//            180, -180 -> {
-//                if (ACTUAL_RUN) WifiSocketController.write("A", "T")
-//                Robot.turn(180)
-//            }
-//
-//            -90 -> {
-//                if (ACTUAL_RUN) WifiSocketController.write("A", "L")
-//                Robot.turn(-90)
-//            }
-//        }
     }
 
     private fun step() {
@@ -182,6 +158,25 @@ class Exploration : Algorithm() {
         braking.set(false)
 
         if (wallHug) {
+            if (!hugRight && imagesFound < imagesCount && Robot.checkRight() && Robot.position.x > 3 && Robot.position.x < 11) {
+                hugRight = true
+                hugRightStartX = Robot.position.x
+                hugRightStartY = Robot.position.y
+                commandBeforeHugRight = previousCommand
+                justStartedHugRight = true
+                WifiSocketController.write("A", "T")
+                Robot.turn(180)
+                return
+            }
+
+            if (hugRight && !justStartedHugRight && Robot.position.x == hugRightStartX && Robot.position.y == hugRightStartY) {
+                hugRight = false
+                previousCommand = commandBeforeHugRight
+                WifiSocketController.write("A", "T")
+                Robot.turn(180)
+                return
+            }
+
             if (!Robot.isLeftObstructed() && previousCommand != LEFT) {
                 if (Robot.isFrontObstructed() && Robot.isLeftObstructed2()) {
                     previousCommand = RIGHT
@@ -205,6 +200,7 @@ class Exploration : Algorithm() {
                 }
 
                 previousCommand = FORWARD
+                if (hugRight) justStartedHugRight = false
                 val moves: Int = Robot.getContinuousMoveCount(0)
 
                 if (moves == 0) {
@@ -254,14 +250,14 @@ class Exploration : Algorithm() {
                 if (started && Robot.position.x == Arena.start.x && Robot.position.y == Arena.start.y) wallHug = false
 
                 if (wallHug) {
-//                    if (!hugRight && imagesFound < imagesCount && Robot.checkRight() && Robot.position.x > 3 && Robot.position.x < 11) {
-//                        hugRight = true
-//                        hugRightStartX = Robot.position.x
-//                        hugRightStartY = Robot.position.y
-//                        commandBeforeHugRight = previousCommand
-//                        Robot.turn(180)
-//                        delay(delay)
-//                    }
+                    if (!hugRight && imagesFound < imagesCount && Robot.checkRight() && Robot.position.x > 3 && Robot.position.x < 11) {
+                        hugRight = true
+                        hugRightStartX = Robot.position.x
+                        hugRightStartY = Robot.position.y
+                        commandBeforeHugRight = previousCommand
+                        Robot.turn(180)
+                        delay(delay)
+                    }
 
                     if (!Robot.isLeftObstructed() && previousCommand != LEFT) {
                         if (Robot.isFrontObstructed() && Robot.isLeftCompletelyBlocked2()) {
@@ -303,12 +299,12 @@ class Exploration : Algorithm() {
                         delay((delay * 1.3).toLong())
                     }
 
-//                    if (hugRight && Robot.position.x == hugRightStartX && Robot.position.y == hugRightStartY) {
-//                        hugRight = false
-//                        delay(delay)
-//                        Robot.turn(180)
-//                        previousCommand = commandBeforeHugRight
-//                    }
+                    if (hugRight && Robot.position.x == hugRightStartX && Robot.position.y == hugRightStartY) {
+                        hugRight = false
+                        delay(delay)
+                        Robot.turn(180)
+                        previousCommand = commandBeforeHugRight
+                    }
 
                     when (Robot.facing) {
                         0 -> println("Image Coordinates: ${Robot.position.x - 2}, ${Robot.position.y}")

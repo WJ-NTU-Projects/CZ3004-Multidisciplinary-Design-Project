@@ -105,16 +105,6 @@ class Arena {
             Robot.move(Robot.position.x, Robot.position.y)
         }
 
-        fun isEveryObstacleScanned(): Boolean {
-            for (y in 19 downTo 0) {
-                for (x in 0..14) {
-                    if (!isScanned(x, y)) return false
-                }
-            }
-
-            return true
-        }
-
         fun isEveryGridExplored(): Boolean {
             for (y in 19 downTo 0) {
                 for (x in 0..14) {
@@ -236,19 +226,19 @@ class Arena {
             }
         }
 
-        fun setSuspect(x: Int, y: Int) {
-            if (isInvalidCoordinates(x, y)) return
-            if (gridStateArray[y][x] >= GRID_EXPLORED) return
-
-            if (isOccupied(x, y)) {
-                setExplored(x, y)
-                return
-            }
-
-            gridStateArray[y][x] = GRID_SUSPECT
-            exploreArray[y][x] = 1
-            attachedView?.setSuspect(x, y)
-        }
+//        fun setSuspect(x: Int, y: Int) {
+//            if (isInvalidCoordinates(x, y)) return
+//            if (gridStateArray[y][x] >= GRID_EXPLORED) return
+//
+//            if (isOccupied(x, y)) {
+//                setExplored(x, y)
+//                return
+//            }
+//
+//            gridStateArray[y][x] = GRID_SUSPECT
+//            exploreArray[y][x] = 1
+//            attachedView?.setSuspect(x, y)
+//        }
 
         fun setObstacle(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return
@@ -306,10 +296,10 @@ class Arena {
             return ((1.0 * coveredCount / 300) * 100 >= COVERAGE_LIMIT)
         }
 
-        fun isSuspect(x: Int, y: Int): Boolean {
-            if (isInvalidCoordinates(x, y, false)) return true
-            return (gridStateArray[y][x] == GRID_SUSPECT)
-        }
+//        fun isSuspect(x: Int, y: Int): Boolean {
+//            if (isInvalidCoordinates(x, y, false)) return true
+//            return (gridStateArray[y][x] == GRID_SUSPECT)
+//        }
 
         private fun setFastestPath(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return

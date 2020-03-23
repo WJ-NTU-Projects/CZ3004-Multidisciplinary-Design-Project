@@ -19,15 +19,15 @@
 #define A3c 0.0005
 #define A4m 0.0434
 #define A4c -0.0043
-#define A5m 0.0092
-#define A5c 0.0032
+#define A5m 0.0017
+#define A5c 0.005
 
 #define A0r 5.77
 #define A1r 7.62
 #define A2r 5.89
 #define A3r 7.45
 #define A4r 5.37
-#define A5r 19.99
+#define A5r 99.99
 
 class Sensors {
     public:

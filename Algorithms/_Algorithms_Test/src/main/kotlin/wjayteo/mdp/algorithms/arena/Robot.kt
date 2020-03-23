@@ -409,7 +409,7 @@ class Robot {
             return false
         }
 
-        fun rightHasUnexplored(robotX: Int, robotY: Int): Boolean {
+        private fun rightHasUnexplored(robotX: Int, robotY: Int): Boolean {
             when (facing) {
                 0 -> {
                     for (x in robotX + 2 .. robotX + 6) {

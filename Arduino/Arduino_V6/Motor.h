@@ -23,13 +23,13 @@ class Motor {
         void init();
         void move(int, int, int);
         void moveFast(int, int, int);
+        void turnLeftFast(int);
+        void turnRightFast(int);
         void brake();
         void forward(int, int);
         void reverse(int, int);
         void turnLeft(int, int);
         void turnRight(int, int);
-        void turnLeftFast(int);
-        void turnRightFast(int);
         void brakeLeft();
         void brakeRight();
         void setSpeed(int, int);
