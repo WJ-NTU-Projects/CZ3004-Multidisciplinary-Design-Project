@@ -41,9 +41,7 @@ class Exploration : Algorithm() {
                         val y: Int = coords[1].toInt()
                         Arena.setWaypoint(x, y)
                         Arena.refreshPoints()
-                    } catch (e: NumberFormatException) {
-
-                    }
+                    } catch (e: NumberFormatException) {}
                 }
             }
             if (message == "exs") {
@@ -58,23 +56,45 @@ class Exploration : Algorithm() {
         if (!message.contains("#")) return
         val messages: List<String> = message.split("#")
         val moved: Int = messages[6].toInt()
-
-        if (moved >= 1) {
-            for (i in 0 until moveCount) {
-                Robot.moveTemp()
-            }
-        }
+        if (moved >= 1) for (i in 0 until moveCount) Robot.moveTemp()
 
         val x = Robot.position.x
         val y = Robot.position.y
         val facing = Robot.facing
+//        var imageX: Int = x
+//        var imageY: Int = y
+//
+//        when (facing) {
+//            0 -> {
+//                imageX = Robot.position.x - 2
+//                imageY = Robot.position.y
+//            }
+//
+//            90 -> {
+//                imageX = Robot.position.x
+//                imageY = Robot.position.y + 2
+//            }
+//
+//            180 -> {
+//                imageX = Robot.position.x + 2
+//                imageY = Robot.position.y
+//            }
+//
+//            270 -> {
+//                imageX = Robot.position.x
+//                imageY = Robot.position.y - 2
+//            }
+//        }
+//
+//        if (!Arena.isInvalidCoordinates(imageX, imageY)) {
+//            WifiSocketController.write("R", "P")
+//        }
 
         for (i in 0 until 6) {
             val sensorValue: Int = messages[i].toInt()
             Sensor.updateArenaSensor(i + 1, x, y, facing, sensorValue)
         }
 
-//        WifiSocketController.write("R", "P")
 //        val sensor1: Int = messages[0].toInt()
 //        val sensor2: Int = messages[1].toInt()
 //        val sensor3: Int = messages[2].toInt()
@@ -114,10 +134,12 @@ class Exploration : Algorithm() {
         }
     }
 
-    fun stop() {
+    fun stop(completed: Boolean = false) {
         if (!started && !simulationStarted) return
         started = false
         simulationStarted = false
+        if (!completed) return
+
         val endTime: Long = System.currentTimeMillis()
         println("-------------")
         val seconds: Double = (endTime - startTime) / 1000.0
@@ -134,15 +156,10 @@ class Exploration : Algorithm() {
         }
 
         Thread.sleep(1000)
-        if (ACTUAL_RUN) WifiSocketController.write("A", "L")
-        Robot.turn(-90)
-        Thread.sleep(3000)
         if (ACTUAL_RUN) WifiSocketController.write("A", "R")
         Robot.turn(90)
         Thread.sleep(3000)
-        if (ACTUAL_RUN) WifiSocketController.write("A", "R")
-        Robot.turn(90)
-        Thread.sleep(1000)
+        if (ACTUAL_RUN) WifiSocketController.write("A", "S")
 
         if (Arena.isInvalidCoordinates(Arena.waypoint)) {
             ControlsView.stop()
@@ -226,7 +243,7 @@ class Exploration : Algorithm() {
             return
         }
 
-        stop()
+        stop(completed = true)
         return
     }
 
@@ -234,13 +251,6 @@ class Exploration : Algorithm() {
         var hugRight = false
 
         CoroutineScope(Dispatchers.Default).launch {
-            var hugRightStartX = 1
-            var hugRightStartY = 1
-            var commandBeforeHugRight = LEFT
-            var imagesFound = 0
-            val imagesCount = 5
-            var counter = 3
-
             while (simulationStarted) {
 //                if (Arena.coverageReached() || (TIME_LIMIT > 0 && System.currentTimeMillis() - startTime >= TIME_LIMIT)) {
 //                    returnToStart()
@@ -361,14 +371,14 @@ class Exploration : Algorithm() {
         CoroutineScope(Dispatchers.Default).launch {
             while (simulationStarted) {
                 if (Robot.position.x == Arena.start.x && Robot.position.y == Arena.start.y) {
-                    stop()
+                    stop(completed = true)
                     return@launch
                 }
 
                 val pathList: List<GridNode> = AStarSearch.run(Robot.position.x, Robot.position.y, Robot.facing, Arena.start.x, Arena.start.y)
 
                 if (pathList.isEmpty()) {
-                    stop()
+                    stop(completed = true)
                     return@launch
                 }
 
