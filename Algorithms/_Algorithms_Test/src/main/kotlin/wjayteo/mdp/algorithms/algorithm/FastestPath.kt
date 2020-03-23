@@ -29,10 +29,6 @@ class FastestPath : Algorithm() {
                     step(pathString)
                 }
             }
-
-            "fe" -> {
-                stop()
-            }
         }
     }
 
@@ -84,12 +80,10 @@ class FastestPath : Algorithm() {
             pathList = pathList.subList(1, pathList.size - 1)
         }
 
-        if (!ACTUAL_RUN) {
-            delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
-            simulationStarted = true
-            startTime = System.currentTimeMillis()
-            simulate(pathList)
-        }
+//        delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
+//        simulationStarted = true
+//        startTime = System.currentTimeMillis()
+//        simulate(pathList)
     }
 
     fun stop() {
@@ -104,10 +98,63 @@ class FastestPath : Algorithm() {
         println("-------------")
 
         ControlsView.stop()
+
         if (ACTUAL_RUN) {
             WifiSocketController.write("A", "B")
             WifiSocketController.write("D", "fe")
         }
+
+        return
+        if (!ACTUAL_RUN) return
+
+        Thread.sleep(10000)
+        WifiSocketController.write("A", "T")
+        Robot.turn(180)
+        Thread.sleep(5000)
+
+        val f: Int = Robot.facing
+        val path1: ArrayList<GridNode> = AStarSearch.run(Arena.goal.x, Arena.goal.y, f, Arena.start.x, Arena.start.y)
+        val pathList: ArrayList<IntArray> = arrayListOf()
+
+        for ((x, y, facing, direction) in path1) {
+            pathList.add(intArrayOf(x, y, facing, direction))
+        }
+
+        var s = ""
+        var robotFacing = f
+        for ((i, step) in pathList.withIndex()) {
+            val direction = step[2]
+            val diff = direction - robotFacing
+
+            when (diff) {
+                90 -> {
+                    s += "R"
+                    s += "M"
+                }
+
+                -90 -> {
+                    s += "L"
+                    s += "M"
+                }
+
+                0 -> {
+                    s += "M"
+                }
+
+                180, -180 -> {
+                    s += "T"
+                    s += "M"
+                }
+            }
+
+            robotFacing += diff
+
+            if (robotFacing < 0) robotFacing += 360
+            else if (robotFacing >= 360) robotFacing -= 360
+        }
+
+        Thread.sleep(1000)
+        WifiSocketController.write("A", s)
     }
 
     private fun simulate(pathList: List<IntArray>) {

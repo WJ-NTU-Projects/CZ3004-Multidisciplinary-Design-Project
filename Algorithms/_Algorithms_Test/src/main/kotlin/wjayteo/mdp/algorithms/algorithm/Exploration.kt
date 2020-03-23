@@ -19,9 +19,25 @@ class Exploration : Algorithm() {
     private var braking: AtomicBoolean = AtomicBoolean(false)
     private var delay: Long = 100L
     private var startTime: Long = 0L
+    private var moveCount: Int = 0
 
     override fun messageReceived(message: String) {
         if (!started) {
+            if (message.contains(":")) {
+                val s: List<String> = message.split(":")
+                if (s[0] == "waypoint") {
+                    val coords: List<String> = s[1].split(", ")
+
+                    try {
+                        val x: Int = coords[0].toInt()
+                        val y: Int = coords[1].toInt()
+                        Arena.setWaypoint(x, y)
+                        Arena.refreshPoints()
+                    } catch (e: NumberFormatException) {
+
+                    }
+                }
+            }
             if (message == "exs") {
                 started = true
                 startTime = System.currentTimeMillis()
@@ -34,11 +50,17 @@ class Exploration : Algorithm() {
         if (!message.contains("#")) return
         val messages: List<String> = message.split("#")
         val moved: Int = messages[6].toInt()
-        if (moved >= 1) Robot.moveTemp()
+
+        if (moved >= 1) {
+            for (i in 0 until moveCount) {
+                Robot.moveTemp()
+            }
+        }
+
         val x = Robot.position.x
         val y = Robot.position.y
         val facing = Robot.facing
-        WifiSocketController.write("R", "P")
+        //WifiSocketController.write("R", "P")
         val sensor1: Int = messages[0].toInt()
         val sensor2: Int = messages[1].toInt()
         val sensor3: Int = messages[2].toInt()
@@ -186,6 +208,7 @@ class Exploration : Algorithm() {
                 val moves: Int = Robot.getContinuousMoveCount(0)
 
                 if (moves == 0) {
+                    moveCount = 1
                     WifiSocketController.write("A", "M")
                     return
                 }
@@ -196,6 +219,7 @@ class Exploration : Algorithm() {
                     commands += "M"
                 }
 
+                moveCount = moves + 1
                 WifiSocketController.write("A", commands)
                 return
             }

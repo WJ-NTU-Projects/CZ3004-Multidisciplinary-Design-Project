@@ -202,7 +202,7 @@ class Robot {
                 }
             }
 
-            test()
+            //test()
             attachedView?.setRobotPosition(x, y)
         }
 

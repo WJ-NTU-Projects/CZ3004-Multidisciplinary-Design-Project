@@ -222,6 +222,86 @@ void move(int direction, int distance) {
     printSensorValues(moved);
 }
 
+//void moveFast(int direction, int distance) {        
+//    Serial.println("A");
+//    ticksLeft = 0;
+//    ticksRight = 0;
+//    pid.reset();
+//    lps.reset();
+//    moved = 0;
+//    moving = true;
+//
+//    switch (direction) {
+//        case FORWARD:
+//        case REVERSE:
+//            ticksTarget = (distance - 180) * TICKS_PER_MM_FAST;
+//            break;
+//        case LEFT:
+//            ticksTarget = distance * TICKS_PER_ANGLE_L * 2;
+//            break;
+//        case RIGHT:
+//            ticksTarget = distance * TICKS_PER_ANGLE_R * 2;
+//            break;
+//        default: return;
+//    };
+//
+//    int speedLeftRef = 200;
+//    int speedRightRef = speedLeftRef - 60;
+//    motor.moveFast(direction, speedLeftRef, speedRightRef);
+//    
+//    int counter = 0;
+//    boolean accelerating = true;
+//    boolean decelerating = false;
+//    unsigned long lastLoopTime = millis();
+//
+//    while (moving) {   
+//        if (millis() - lastLoopTime < 5) continue;
+//        lastLoopTime = millis();  
+//
+//        if (direction == FORWARD) {
+//            if (sensors.isObstructedFront()) {    
+//                motor.brake();
+//                moving = false;         
+//                fast = false;
+//                return;
+//            }
+//        }
+//        
+//        //if ((ticksTarget - ticksLeft <= 150 || ticksTarget - ticksRight <= 150)) decelerating = true;    
+//        if (direction > REVERSE) continue;
+//        error = lpsFast.computeError();   
+//        double speedOffset = pid.computeOffset();   
+//        int speedLeft = round(speedLeftRef - speedOffset);
+//        speedLeft = constrain(speedLeft, speedLeftRef - 100, speedLeftRef + 100);
+//        int speedRight = round(speedRightRef + speedOffset);
+//        speedRight = constrain(speedRight, speedRightRef - 100, speedRightRef + 100);
+//        motor.setSpeed(speedLeft, speedRight);
+//
+//        if (accelerating) {
+//            if (speedLeftRef < speedMax) counter++;
+//            else accelerating = false;
+//
+//            if (counter >= 1) {
+//                counter = 0;
+//                speedLeftRef += 20;
+//                speedRightRef += 20;
+//            }
+//        } else if (decelerating) {
+//             if (speedLeftRef > 200) counter++;
+//
+//             if (counter >= 1) {
+//                 counter = 0;
+//                 speedLeftRef -= 20;
+//                 speedRightRef -= 20;
+//             }
+//        }
+//    }
+//
+//    if (direction > REVERSE) {
+//        moveFast(FORWARD, 230);
+//    }
+//}
+
 void moveAlign(int direction, boolean front, double lowerBound, double upperBound) {    
     ticksLeft = 0;
     ticksRight = 0;
