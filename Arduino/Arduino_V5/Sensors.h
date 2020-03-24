@@ -21,6 +21,8 @@
 #define A4c -0.0043
 #define A5m 0.0017
 #define A5c 0.005
+//#define A5m 0.0028
+//#define A5c 0.0066
 
 #define A0r 5.77
 #define A1r 7.62

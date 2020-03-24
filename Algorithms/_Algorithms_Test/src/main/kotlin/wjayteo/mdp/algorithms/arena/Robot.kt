@@ -67,6 +67,7 @@ class Robot {
                     x -= 2
 
                     while (true) {
+                        if (count >= 5) return count
                         if (imagesFound < imagesCount && Arena.isObstacle2(x, y)) return count
                         if (!Arena.isExplored(x, y)) return count
                         if (!isLeftObstructed(position.x, y)) return count
@@ -82,6 +83,7 @@ class Robot {
                     y += 2
 
                     while (true) {
+                        if (count >= 5) return count
                         if (imagesFound < imagesCount && Arena.isObstacle2(x, y)) return count
                         if (!Arena.isExplored(x, y)) return count
                         if (!isLeftObstructed(x, position.y)) return count
@@ -98,6 +100,7 @@ class Robot {
                     x += 2
 
                     while (true) {
+                        if (count >= 5) return count
                         if (imagesFound < imagesCount && Arena.isObstacle2(x, y)) return count
                         if (!Arena.isExplored(x, y)) return count
                         if (!isLeftObstructed(position.x, y)) return count
@@ -113,6 +116,7 @@ class Robot {
                     y -= 2
 
                     while (true) {
+                        if (count >= 5) return count
                         if (imagesFound < imagesCount && Arena.isObstacle2(x, y)) return count
                         if (!Arena.isExplored(x, y)) return count
                         if (!isLeftObstructed(x, position.y)) return count
@@ -190,6 +194,37 @@ class Robot {
             }
         }
 
+        fun test2() {
+            val x: Int = position.x
+            val y: Int = position.y
+
+            when (facing) {
+                0 -> {
+                    for (y2 in y - 1 .. y + 1 step 2) {
+                        Arena.setScanned(x - 2, y2)
+                    }
+                }
+
+                180 -> {
+                    for (y2 in y - 1 .. y + 1 step 2) {
+                        Arena.setScanned(x + 2, y2)
+                    }
+                }
+
+                90 -> {
+                    for (x2 in x - 1 .. x + 1 step 2) {
+                        Arena.setScanned(x2, y + 2)
+                    }
+                }
+
+                270 -> {
+                    for (x2 in x - 1 .. x + 1 step 2) {
+                        Arena.setScanned(x2, y - 2)
+                    }
+                }
+            }
+        }
+
         fun move(x: Int, y: Int) {
             if (!Arena.isMovable(x, y)) return
             position.x = x
@@ -202,7 +237,7 @@ class Robot {
                 }
             }
 
-            //test()
+            //test2()
             attachedView?.setRobotPosition(x, y)
         }
 

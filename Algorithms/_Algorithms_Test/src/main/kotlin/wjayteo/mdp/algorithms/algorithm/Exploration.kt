@@ -61,52 +61,49 @@ class Exploration : Algorithm() {
         val x = Robot.position.x
         val y = Robot.position.y
         val facing = Robot.facing
-//        var imageX: Int = x
-//        var imageY: Int = y
-//
-//        when (facing) {
-//            0 -> {
-//                imageX = Robot.position.x - 2
-//                imageY = Robot.position.y
-//            }
-//
-//            90 -> {
-//                imageX = Robot.position.x
-//                imageY = Robot.position.y + 2
-//            }
-//
-//            180 -> {
-//                imageX = Robot.position.x + 2
-//                imageY = Robot.position.y
-//            }
-//
-//            270 -> {
-//                imageX = Robot.position.x
-//                imageY = Robot.position.y - 2
-//            }
-//        }
-//
-//        if (!Arena.isInvalidCoordinates(imageX, imageY)) {
-//            WifiSocketController.write("R", "P")
-//        }
+        var imageX: Int = x
+        var imageY: Int = y
 
-        for (i in 0 until 6) {
-            val sensorValue: Int = messages[i].toInt()
-            Sensor.updateArenaSensor(i + 1, x, y, facing, sensorValue)
+        when (facing) {
+            0 -> {
+                imageX = Robot.position.x - 2
+                imageY = Robot.position.y
+            }
+
+            90 -> {
+                imageX = Robot.position.x
+                imageY = Robot.position.y + 2
+            }
+
+            180 -> {
+                imageX = Robot.position.x + 2
+                imageY = Robot.position.y
+            }
+
+            270 -> {
+                imageX = Robot.position.x
+                imageY = Robot.position.y - 2
+            }
         }
 
-//        val sensor1: Int = messages[0].toInt()
-//        val sensor2: Int = messages[1].toInt()
-//        val sensor3: Int = messages[2].toInt()
-//        val sensor4: Int = messages[3].toInt()
-//        val sensor5: Int = messages[4].toInt()
-//        val sensor6: Int = messages[5].toInt()
-//        Sensor.updateArenaSensor1(x, y, facing, sensor1)
-//        Sensor.updateArenaSensor2(x, y, facing, sensor2)
-//        Sensor.updateArenaSensor3(x, y, facing, sensor3)
-//        Sensor.updateArenaSensor4(x, y, facing, sensor4)
-//        Sensor.updateArenaSensor5(x, y, facing, sensor5)
-//        Sensor.updateArenaSensor6(x, y, facing, sensor6)
+        if (!Arena.isInvalidCoordinates(imageX, imageY)) {
+            Thread.sleep(10)
+            WifiSocketController.write("R", "P")
+            Thread.sleep(10)
+        }
+
+        val sensor1: Int = messages[0].toInt()
+        val sensor2: Int = messages[1].toInt()
+        val sensor3: Int = messages[2].toInt()
+        val sensor4: Int = messages[3].toInt()
+        val sensor5: Int = messages[4].toInt()
+        val sensor6: Int = messages[5].toInt()
+        Sensor.updateArenaSensor1(x, y, facing, sensor1)
+        Sensor.updateArenaSensor2(x, y, facing, sensor2)
+        Sensor.updateArenaSensor3(x, y, facing, sensor3)
+        Sensor.updateArenaSensor4(x, y, facing, sensor4)
+        Sensor.updateArenaSensor5(x, y, facing, sensor5)
+        Sensor.updateArenaSensor6(x, y, facing, sensor6)
 
         if (x == Arena.start.x && y == Arena.start.y) wallHug = false
         step()
@@ -175,24 +172,24 @@ class Exploration : Algorithm() {
         braking.set(false)
 
         if (wallHug) {
-            if (!hugRight && imagesFound < imagesCount && Robot.checkRight() && Robot.position.x > 3 && Robot.position.x < 11) {
-                hugRight = true
-                hugRightStartX = Robot.position.x
-                hugRightStartY = Robot.position.y
-                commandBeforeHugRight = previousCommand
-                justStartedHugRight = true
-                WifiSocketController.write("A", "T")
-                Robot.turn(180)
-                return
-            }
-
-            if (hugRight && !justStartedHugRight && Robot.position.x == hugRightStartX && Robot.position.y == hugRightStartY) {
-                hugRight = false
-                previousCommand = commandBeforeHugRight
-                WifiSocketController.write("A", "T")
-                Robot.turn(180)
-                return
-            }
+//            if (!hugRight && imagesFound < imagesCount && Robot.checkRight() && Robot.position.x > 3 && Robot.position.x < 11) {
+//                hugRight = true
+//                hugRightStartX = Robot.position.x
+//                hugRightStartY = Robot.position.y
+//                commandBeforeHugRight = previousCommand
+//                justStartedHugRight = true
+//                WifiSocketController.write("A", "T")
+//                Robot.turn(180)
+//                return
+//            }
+//
+//            if (hugRight && !justStartedHugRight && Robot.position.x == hugRightStartX && Robot.position.y == hugRightStartY) {
+//                hugRight = false
+//                previousCommand = commandBeforeHugRight
+//                WifiSocketController.write("A", "T")
+//                Robot.turn(180)
+//                return
+//            }
 
             if (!Robot.isLeftObstructed() && previousCommand != LEFT) {
                 if (Robot.isFrontObstructed() && Robot.isLeftObstructed2()) {

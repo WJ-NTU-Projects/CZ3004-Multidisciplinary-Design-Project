@@ -46,7 +46,6 @@ class Arena {
         }
 
 
-
         fun setVisited(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return
             visitedArray[y][x]++
@@ -221,24 +220,24 @@ class Arena {
                 for (x in 0..14) {
                     if (gridStateArray[y][x] == GRID_SUSPECT) setObstacle(x, y)
                     if (gridStateArray[y][x] == GRID_UNKNOWN) setExplored(x, y)
-                    //if (visitedArray[y][x] > 0) setExploredForced(x, y)
+                    if (visitedArray[y][x] > 0) setExploredForced(x, y)
                 }
             }
         }
 
-//        fun setSuspect(x: Int, y: Int) {
-//            if (isInvalidCoordinates(x, y)) return
-//            if (gridStateArray[y][x] >= GRID_EXPLORED) return
-//
-//            if (isOccupied(x, y)) {
-//                setExplored(x, y)
-//                return
-//            }
-//
-//            gridStateArray[y][x] = GRID_SUSPECT
-//            exploreArray[y][x] = 1
-//            attachedView?.setSuspect(x, y)
-//        }
+        fun setSuspect(x: Int, y: Int) {
+            if (isInvalidCoordinates(x, y)) return
+            if (gridStateArray[y][x] >= GRID_EXPLORED) return
+
+            if (isOccupied(x, y)) {
+                setExplored(x, y)
+                return
+            }
+
+            gridStateArray[y][x] = GRID_SUSPECT
+            exploreArray[y][x] = 1
+            attachedView?.setSuspect(x, y)
+        }
 
         fun setObstacle(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return
@@ -296,10 +295,10 @@ class Arena {
             return ((1.0 * coveredCount / 300) * 100 >= COVERAGE_LIMIT)
         }
 
-//        fun isSuspect(x: Int, y: Int): Boolean {
-//            if (isInvalidCoordinates(x, y, false)) return true
-//            return (gridStateArray[y][x] == GRID_SUSPECT)
-//        }
+        fun isSuspect(x: Int, y: Int): Boolean {
+            if (isInvalidCoordinates(x, y, false)) return true
+            return (gridStateArray[y][x] == GRID_SUSPECT)
+        }
 
         private fun setFastestPath(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return

@@ -20,7 +20,9 @@ void bubbleSort(double arr[], int n)  {
 
 int Sensors::getPrintDistance(int sensor) {
     int distance = getDistance(sensor);
-    distance = ceil(distance * 0.1 + 0.25);
+    if (sensor == 6) distance = ceil(distance * 0.1 + 0.2);
+    else if (sensor == 4) distance = ceil(distance * 0.1 - 0.1);
+    else distance = ceil(distance * 0.1 + 0.3);
     if (distance < 0) distance = 9;
     else distance = min(distance, 9);
     return distance;
@@ -66,8 +68,8 @@ double Sensors::getDistanceFast(char sensor, double m, double c, double r) {
 }
 
 double Sensors::getDistance(char sensor, double m, double c, double r) {
-    int readingsCount = 31;
-    int medianPosition = 15;
+    int readingsCount = 51;
+    int medianPosition = 25;
     double values[readingsCount];
 
     for (int i = 0; i < readingsCount; i++) {
