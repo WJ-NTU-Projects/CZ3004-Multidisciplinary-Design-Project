@@ -92,7 +92,6 @@ class Exploration : Algorithm() {
 
         if (!Arena.isInvalidCoordinates(imageX, imageY)) {
             imageCoordinatesList.add(Coordinates(imageX, imageY))
-            Thread.sleep(10)
             WifiSocketController.write("R", "P")
             Thread.sleep(10)
         }
@@ -178,24 +177,24 @@ class Exploration : Algorithm() {
         braking.set(false)
 
         if (wallHug) {
-//            if (!hugRight && imagesFound < imagesCount && Robot.checkRight() && Robot.position.x > 3 && Robot.position.x < 11) {
-//                hugRight = true
-//                hugRightStartX = Robot.position.x
-//                hugRightStartY = Robot.position.y
-//                commandBeforeHugRight = previousCommand
-//                justStartedHugRight = true
-//                WifiSocketController.write("A", "T")
-//                Robot.turn(180)
-//                return
-//            }
-//
-//            if (hugRight && !justStartedHugRight && Robot.position.x == hugRightStartX && Robot.position.y == hugRightStartY) {
-//                hugRight = false
-//                previousCommand = commandBeforeHugRight
-//                WifiSocketController.write("A", "T")
-//                Robot.turn(180)
-//                return
-//            }
+            if (!hugRight && Robot.checkRight() && Math.floorMod(Robot.facing, 180) == 0) {
+                hugRight = true
+                hugRightStartX = Robot.position.x
+                hugRightStartY = Robot.position.y
+                commandBeforeHugRight = previousCommand
+                justStartedHugRight = true
+                WifiSocketController.write("A", "T")
+                Robot.turn(180)
+                return
+            }
+
+            if (hugRight && !justStartedHugRight && Robot.position.x == hugRightStartX && Robot.position.y == hugRightStartY) {
+                hugRight = false
+                previousCommand = commandBeforeHugRight
+                WifiSocketController.write("A", "T")
+                Robot.turn(180)
+                return
+            }
 
             if (!Robot.isLeftObstructed() && previousCommand != LEFT) {
                 if (Robot.isFrontObstructed() && Robot.isLeftObstructed2()) {

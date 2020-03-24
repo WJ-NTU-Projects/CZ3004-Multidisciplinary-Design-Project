@@ -200,29 +200,37 @@ class Robot {
 
             when (facing) {
                 0 -> {
-                    for (y2 in y - 1 .. y + 1 step 2) {
+                    for (y2 in y - 1 .. y + 1) {
                         Arena.setScanned(x - 2, y2)
                     }
                 }
 
                 180 -> {
-                    for (y2 in y - 1 .. y + 1 step 2) {
+                    for (y2 in y - 1 .. y + 1) {
                         Arena.setScanned(x + 2, y2)
                     }
                 }
 
                 90 -> {
-                    for (x2 in x - 1 .. x + 1 step 2) {
+                    for (x2 in x - 1 .. x + 1) {
                         Arena.setScanned(x2, y + 2)
                     }
                 }
 
                 270 -> {
-                    for (x2 in x - 1 .. x + 1 step 2) {
+                    for (x2 in x - 1 .. x + 1) {
                         Arena.setScanned(x2, y - 2)
                     }
                 }
             }
+        }
+
+        fun turn(angle: Int) {
+            facing += angle
+            if (facing >= 360) facing -= 360
+            else if (facing < 0) facing += 360
+            attachedView?.setRobotFacing(facing)
+            setObstaclesScanned()
         }
 
         fun move(x: Int, y: Int) {
@@ -237,8 +245,8 @@ class Robot {
                 }
             }
 
-            //test2()
             attachedView?.setRobotPosition(x, y)
+            setObstaclesScanned()
         }
 
         fun moveTemp() {
@@ -295,14 +303,6 @@ class Robot {
             if (facing == angle) return
             facing = angle
             attachedView?.setRobotFacing(facing)
-        }
-
-        fun turn(angle: Int) {
-            facing += angle
-            if (facing >= 360) facing -= 360
-            else if (facing < 0) facing += 360
-            attachedView?.setRobotFacing(facing)
-            //test()
         }
 
         fun isFrontObstructed(): Boolean {
