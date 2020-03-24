@@ -1,9 +1,9 @@
-# MDP Android / Arduino Unmodular Repository
+# MDP Android / Arduino / Algorithms Unmodular Repository
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/101011101001010/MDP/blob/master/LICENSE)
 
-Project files for the Android and Arduino subsystems, MDP AY1920 Sem 2. 
+Project files for the Android, Arduino and Algorithms subsystems, MDP AY1920 Sem 2. 
 
-Files for any other subsystems are mainly used for testing purposes.
+https://blogs.ntu.edu.sg/scemdp-1920s2-g16
 
 
 ## Arduino
@@ -34,9 +34,7 @@ Gradle version may be modified under File --> Project Structure... --> Project.
 
 
 ## Algorithms
-For stripped down testing of ongoing issues only. 
-
-Many functionalities were copied over from Android and may have been stripped down as well.
+ALL ABOARD THE HYPE TRAIN???!
 
 ### IDE Setup (Updated 02 Mar 2020)
 | Stuff          | Minimum Requirement |	
