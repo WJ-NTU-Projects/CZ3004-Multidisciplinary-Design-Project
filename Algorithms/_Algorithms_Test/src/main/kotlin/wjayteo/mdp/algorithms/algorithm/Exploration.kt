@@ -7,7 +7,6 @@ import wjayteo.mdp.algorithms.uicomponent.ControlsView
 import wjayteo.mdp.algorithms.uicomponent.MasterView
 import wjayteo.mdp.algorithms.wifi.WifiSocketController
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
 
 
@@ -25,9 +24,10 @@ class Exploration : Algorithm() {
     private var commandBeforeHugRight = LEFT
     private var imagesFound = 0
     private val imagesCount = 5
-    private var counter = 3
     private var hugRight = false
     private var justStartedHugRight = false
+    private var imageCoordinatesList: ArrayList<Coordinates> = arrayListOf()
+    private var waitingForFP = false
 
     override fun messageReceived(message: String) {
         if (!started) {
@@ -41,10 +41,14 @@ class Exploration : Algorithm() {
                         val y: Int = coords[1].toInt()
                         Arena.setWaypoint(x, y)
                         Arena.refreshPoints()
+
+                        if (waitingForFP) {
+                            ControlsView.start()
+                            MasterView.fastestPath.start()
+                        }
                     } catch (e: NumberFormatException) {}
                 }
-            }
-            if (message == "exs") {
+            } else if (message == "exs" && !waitingForFP) {
                 started = true
                 startTime = System.currentTimeMillis()
                 step()
@@ -87,17 +91,18 @@ class Exploration : Algorithm() {
         }
 
         if (!Arena.isInvalidCoordinates(imageX, imageY)) {
+            imageCoordinatesList.add(Coordinates(imageX, imageY))
             Thread.sleep(10)
             WifiSocketController.write("R", "P")
             Thread.sleep(10)
         }
 
-        val sensor1: Int = messages[0].toInt()
-        val sensor2: Int = messages[1].toInt()
-        val sensor3: Int = messages[2].toInt()
-        val sensor4: Int = messages[3].toInt()
-        val sensor5: Int = messages[4].toInt()
-        val sensor6: Int = messages[5].toInt()
+        val sensor1: Int = messages[0].toInt().coerceIn(0, 2)
+        val sensor2: Int = messages[1].toInt().coerceIn(0, 2)
+        val sensor3: Int = messages[2].toInt().coerceIn(0, 2)
+        val sensor4: Int = messages[3].toInt().coerceIn(0, 2)
+        val sensor5: Int = messages[4].toInt().coerceIn(0, 2)
+        val sensor6: Int = messages[5].toInt().coerceIn(0, 6)
         Sensor.updateArenaSensor1(x, y, facing, sensor1)
         Sensor.updateArenaSensor2(x, y, facing, sensor2)
         Sensor.updateArenaSensor3(x, y, facing, sensor3)
@@ -126,7 +131,7 @@ class Exploration : Algorithm() {
         } else {
             Arena.reset()
             WifiSocketController.write("A", "E")
-            Thread.sleep(1000)
+            Thread.sleep(100)
             WifiSocketController.write("A", "S")
         }
     }
@@ -159,7 +164,8 @@ class Exploration : Algorithm() {
         if (ACTUAL_RUN) WifiSocketController.write("A", "S")
 
         if (Arena.isInvalidCoordinates(Arena.waypoint)) {
-            ControlsView.stop()
+            if (ACTUAL_RUN) waitingForFP = true
+            else ControlsView.stop()
             return
         }
 
@@ -323,43 +329,45 @@ class Exploration : Algorithm() {
                     continue
                 }
 
-                if (Arena.isEveryGridExplored()) {
-                    returnToStart()
-                    return@launch
-                }
+                returnToStart()
 
-                if (!isGridExploredFront() && !Robot.isFrontObstructed()) {
-                    previousCommand = FORWARD
-                    Robot.moveTemp()
-                    delay(delay)
-                    continue
-                }
-
-                val nearest: Coordinates = findNearestUnexploredGrid()
-
-                if (Arena.isInvalidCoordinates(nearest, true)) {
-                    returnToStart()
-                    return@launch
-                }
-
-                val pathList: List<GridNode> = AStarSearch.run(Robot.position.x, Robot.position.y, Robot.facing, nearest.x, nearest.y)
-
-                if (pathList.isEmpty()) {
-                    returnToStart()
-                    return@launch
-                }
-
-                for (path in pathList) {
-                    if (!simulationStarted) return@launch
-
-                    if (Arena.coverageReached() || (TIME_LIMIT > 0 && System.currentTimeMillis() - startTime >= TIME_LIMIT)) {
-                        returnToStart()
-                        return@launch
-                    }
-
-                    Robot.moveAdvanced(path.x, path.y)
-                    delay(delay / 2)
-                }
+//                if (Arena.isEveryGridExplored()) {
+//                    returnToStart()
+//                    return@launch
+//                }
+//
+//                if (!isGridExploredFront() && !Robot.isFrontObstructed()) {
+//                    previousCommand = FORWARD
+//                    Robot.moveTemp()
+//                    delay(delay)
+//                    continue
+//                }
+//
+//                val nearest: Coordinates = findNearestUnexploredGrid()
+//
+//                if (Arena.isInvalidCoordinates(nearest, true)) {
+//                    returnToStart()
+//                    return@launch
+//                }
+//
+//                val pathList: List<GridNode> = AStarSearch.run(Robot.position.x, Robot.position.y, Robot.facing, nearest.x, nearest.y)
+//
+//                if (pathList.isEmpty()) {
+//                    returnToStart()
+//                    return@launch
+//                }
+//
+//                for (path in pathList) {
+//                    if (!simulationStarted) return@launch
+//
+//                    if (Arena.coverageReached() || (TIME_LIMIT > 0 && System.currentTimeMillis() - startTime >= TIME_LIMIT)) {
+//                        returnToStart()
+//                        return@launch
+//                    }
+//
+//                    Robot.moveAdvanced(path.x, path.y)
+//                    delay(delay / 2)
+//                }
             }
         }
     }

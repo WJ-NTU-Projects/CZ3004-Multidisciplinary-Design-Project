@@ -19,14 +19,14 @@ import java.lang.NumberFormatException
 
 class MenuBar : View() {
     companion object {
-        private var connectMenuItem: MenuItem by singleAssign()
-        private var disconnectMenuItem: MenuItem by singleAssign()
-
-        fun connectionChanged(connected: Boolean) {
-            connectMenuItem.isDisable = connected
-            disconnectMenuItem.isDisable = !connected
-            MasterView.idleListener.listen()
-        }
+//        private var connectMenuItem: MenuItem by singleAssign()
+//        private var disconnectMenuItem: MenuItem by singleAssign()
+//
+//        fun connectionChanged(connected: Boolean) {
+//            connectMenuItem.isDisable = connected
+//            disconnectMenuItem.isDisable = !connected
+//            MasterView.idleListener.listen()
+//        }
     }
 
     override val root: Parent = menubar {
@@ -99,48 +99,50 @@ class MenuBar : View() {
             }
         }
 
-        menu("Connect") {
-            connectMenuItem = item("Connect to RPi...") {
-                action {
-                    val f = find<ConnectionView>().openModal(stageStyle = StageStyle.UTILITY)
-                    f?.isResizable = false
-                    f?.setOnCloseRequest {  if (ConnectionView.processing) it.consume() }
-                }
-            }
-
-            disconnectMenuItem = item("Disconnect") {
-                action {
-                    if (!WifiSocketController.isConnected()) return@action
-                    var success = false
-
-                    runAsync {
-                        success = WifiSocketController.disconnect()
-                    }.setOnSucceeded {
-                        if (success) {
-                            connectionChanged(false)
-                            information("Disconnected from RPi successfully.")
-                        } else {
-                            error("Disconnection failed.")
-                        }
-                    }
-                }
-            }
-        }
+//        menu("Connect") {
+//            connectMenuItem = item("Connect to RPi...") {
+//                action {
+//                    val f = find<ConnectionView>().openModal(stageStyle = StageStyle.UTILITY)
+//                    f?.isResizable = false
+//                    f?.setOnCloseRequest {  if (ConnectionView.processing) it.consume() }
+//                }
+//            }
+//
+//            disconnectMenuItem = item("Disconnect") {
+//                action {
+//                    if (!WifiSocketController.isConnected()) return@action
+//                    var success = false
+//
+//                    runAsync {
+//                        success = WifiSocketController.disconnect()
+//                    }.setOnSucceeded {
+//                        if (success) {
+//                            connectionChanged(false)
+//                            information("Disconnected from RPi successfully.")
+//                        } else {
+//                            error("Disconnection failed.")
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         menu("Arena") {
+            item("Set Coordinates...") {
+                action {
+                    val f = find<CoordinatesView>().openModal(stageStyle = StageStyle.UTILITY)
+                    f?.isResizable = false
+                }
+            }
+
+            separator()
+
             item("Plot Obstacles") {
                 action {
                     val newState: Boolean = !ArenaMapView.plotting
                     ArenaMapView.plotting = newState
                     if (newState) this.text = "Finish Plotting"
                     else this.text = "Plot Obstacles"
-                }
-            }
-
-            item("Set Coordinates...") {
-                action {
-                    val f = find<CoordinatesView>().openModal(stageStyle = StageStyle.UTILITY)
-                    f?.isResizable = false
                 }
             }
 
@@ -193,6 +195,6 @@ class MenuBar : View() {
     }
 
     init {
-        disconnectMenuItem.isDisable = true
+        //disconnectMenuItem.isDisable = true
     }
 }

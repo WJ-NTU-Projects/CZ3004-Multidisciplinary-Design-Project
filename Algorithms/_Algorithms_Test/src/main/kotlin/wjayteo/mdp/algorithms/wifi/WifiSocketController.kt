@@ -1,6 +1,7 @@
 package wjayteo.mdp.algorithms.wifi
 
 import wjayteo.mdp.algorithms.algorithm.Algorithm
+import wjayteo.mdp.algorithms.uicomponent.ControlsView
 import wjayteo.mdp.algorithms.uicomponent.MenuBar
 import java.io.IOException
 import java.net.Socket
@@ -40,7 +41,7 @@ class WifiSocketController {
 
             readThread?.finish()
             readThread = null
-            MenuBar.connectionChanged(false)
+            ControlsView.connectionChanged(false)
             return true
         }
 

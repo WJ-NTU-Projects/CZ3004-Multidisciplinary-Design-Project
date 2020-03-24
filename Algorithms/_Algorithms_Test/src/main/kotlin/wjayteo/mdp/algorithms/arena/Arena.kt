@@ -21,6 +21,7 @@ class Arena {
         private val gridStateArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private val visitedArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private val scannedArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
+        private val counterArray: Array<Array<Int>> = Array(20) { Array(15) { 0 } }
         private var attachedView: ArenaMapView? = null
 
         fun setAttachedView(view: ArenaMapView) {
@@ -36,7 +37,11 @@ class Arena {
 
         fun setScanned(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return
-            if (isObstacle(x, y)) scannedArray[y][x] = 1
+
+            if (isObstacle(x, y)) {
+                scannedArray[y][x] = 1
+                attachedView?.setScanned(x, y)
+            }
         }
 
         fun isScanned(x: Int, y: Int): Boolean {
@@ -183,7 +188,7 @@ class Arena {
             return true
         }
 
-        fun setExploredPoint(x: Int, y: Int) {
+        private fun setExploredPoint(x: Int, y: Int) {
             for (yOffset in -1..1) {
                 for (xOffset in -1..1) {
                     val x1: Int = x + xOffset
@@ -225,21 +230,25 @@ class Arena {
             }
         }
 
-        fun setSuspect(x: Int, y: Int) {
-            if (isInvalidCoordinates(x, y)) return
-            if (gridStateArray[y][x] >= GRID_EXPLORED) return
+        fun setGridState(x: Int, y: Int, value: Int) {
+            if (isInvalidCoordinates(x, y) || isGoalPoint(x, y) || isStartPoint(x, y) || isWaypoint(x, y)) return
+            counterArray[y][x] += value
 
-            if (isOccupied(x, y)) {
-                setExplored(x, y)
-                return
+            if (counterArray[y][x] > 0 && visitedArray[y][x] == 0) {
+                gridStateArray[y][x] = GRID_OBSTACLE
+                exploreArray[y][x] = 1
+                obstacleArray[y][x] = 1
+                if (scannedArray[y][x] == 1) attachedView?.setScanned(x, y)
+                else attachedView?.setObstacle(x, y)
+            } else {
+                gridStateArray[y][x] = GRID_EXPLORED
+                exploreArray[y][x] = 1
+                obstacleArray[y][x] = 0
+                attachedView?.setExplored(x, y)
             }
-
-            gridStateArray[y][x] = GRID_SUSPECT
-            exploreArray[y][x] = 1
-            attachedView?.setSuspect(x, y)
         }
 
-        fun setObstacle(x: Int, y: Int) {
+        private fun setObstacle(x: Int, y: Int) {
             if (isInvalidCoordinates(x, y)) return
             if (gridStateArray[y][x] >= GRID_OBSTACLE) return
 
@@ -293,11 +302,6 @@ class Arena {
             var coveredCount = 0
             exploreArray.forEach { it.forEach { grid -> if (grid == 1) coveredCount++ } }
             return ((1.0 * coveredCount / 300) * 100 >= COVERAGE_LIMIT)
-        }
-
-        fun isSuspect(x: Int, y: Int): Boolean {
-            if (isInvalidCoordinates(x, y, false)) return true
-            return (gridStateArray[y][x] == GRID_SUSPECT)
         }
 
         private fun setFastestPath(x: Int, y: Int) {

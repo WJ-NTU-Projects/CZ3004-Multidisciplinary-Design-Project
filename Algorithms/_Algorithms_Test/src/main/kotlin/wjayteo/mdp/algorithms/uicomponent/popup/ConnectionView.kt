@@ -3,10 +3,12 @@ package wjayteo.mdp.algorithms.uicomponent.popup
 import wjayteo.mdp.algorithms.uicomponent.MenuBar
 import javafx.geometry.Insets
 import javafx.scene.Parent
+import javafx.scene.control.Button
 import javafx.scene.control.ProgressIndicator
 import javafx.scene.control.TextField
 import wjayteo.mdp.algorithms.file.File
 import tornadofx.*
+import wjayteo.mdp.algorithms.uicomponent.ControlsView
 import wjayteo.mdp.algorithms.wifi.WifiSocketController
 import java.io.IOException
 
@@ -17,7 +19,9 @@ class ConnectionView : View("Connect to RPi") {
 
     private var ipAddressTextField: TextField by singleAssign()
     private var portTextField: TextField by singleAssign()
+    private var b: Button by singleAssign()
     private var progressIndicator: ProgressIndicator by singleAssign()
+    private var initFilled: Int = 0
 
     override val root: Parent = stackpane {
         style = "-fx-font-family: 'Verdana';"
@@ -44,7 +48,7 @@ class ConnectionView : View("Connect to RPi") {
                 }
 
                 field {
-                    button("Connect to RPi") {
+                    b = button("Connect to RPi") {
                         useMaxWidth = true
 
                         action {
@@ -66,8 +70,8 @@ class ConnectionView : View("Connect to RPi") {
                                     processing = false
 
                                     if (success) {
-                                        MenuBar.connectionChanged(true)
-                                        information("Connected to RPi successfully.")
+                                        ControlsView.connectionChanged(true)
+                                        //information("Connected to RPi successfully.")
                                         close()
                                     } else {
                                         error("Connection failed.")
@@ -101,16 +105,31 @@ class ConnectionView : View("Connect to RPi") {
         super.onBeforeShow()
         val connectionData: List<String> = File.readDataFile(File.CONNECTION)
         if (connectionData.size < 2) return
+        initFilled = 0
 
         for (i in 0..1) {
             if (!connectionData[i].contains(":")) continue
             val dataParts: List<String> = connectionData[i].split(":")
-            if (dataParts[0].trim() == "IP") ipAddressTextField.text = dataParts[1].trim()
-            else if (dataParts[0].trim() == "Port") portTextField.text = dataParts[1].trim()
+
+            if (dataParts[0].trim() == "IP") {
+                ipAddressTextField.text = dataParts[1].trim()
+                initFilled++
+            }
+
+            else if (dataParts[0].trim() == "Port") {
+                portTextField.text = dataParts[1].trim()
+                initFilled++
+            }
         }
+
+
     }
 
     init {
         progressIndicator.hide()
+
+        runLater {
+            if (initFilled >= 2) b.requestFocus()
+        }
     }
 }

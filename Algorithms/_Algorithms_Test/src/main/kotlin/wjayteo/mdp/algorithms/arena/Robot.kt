@@ -131,7 +131,7 @@ class Robot {
             return 0
         }
 
-        fun test() {
+        private fun test() {
             val x: Int = position.x
             val y: Int = position.y
 
@@ -194,7 +194,7 @@ class Robot {
             }
         }
 
-        fun test2() {
+        fun setObstaclesScanned() {
             val x: Int = position.x
             val y: Int = position.y
 
@@ -302,7 +302,7 @@ class Robot {
             if (facing >= 360) facing -= 360
             else if (facing < 0) facing += 360
             attachedView?.setRobotFacing(facing)
-            test()
+            //test()
         }
 
         fun isFrontObstructed(): Boolean {

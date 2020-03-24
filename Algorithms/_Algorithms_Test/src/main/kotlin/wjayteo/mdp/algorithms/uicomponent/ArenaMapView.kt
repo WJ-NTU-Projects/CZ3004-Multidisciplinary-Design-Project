@@ -104,6 +104,10 @@ class ArenaMapView : View() {
         gridArray[y][x].fill = Color.BLACK
     }
 
+    fun setScanned(x: Int, y: Int) {
+        gridArray[y][x].fill = Color.DARKGRAY
+    }
+
     fun setFastestPath(x: Int, y: Int) {
         gridArray[y][x].fill = Color.rgb(0, 255, 0)
     }

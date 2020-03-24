@@ -22,6 +22,20 @@ class CoordinatesView : View("Set Coordinates") {
 
         form {
             fieldset {
+                field("Waypoint") {
+                    waypointXTextField = textfield {
+                        promptText = "x"
+                        maxWidth = fieldWidth
+                        prefWidth = fieldWidth
+                    }
+
+                    waypointYTextField = textfield {
+                        promptText = "y"
+                        maxWidth = fieldWidth
+                        prefWidth = fieldWidth
+                    }
+                }
+
                 field("Start Point") {
                     startPointXTextField = textfield {
                         text = "1"
@@ -45,20 +59,6 @@ class CoordinatesView : View("Set Coordinates") {
 
                     goalPointYTextField = textfield {
                         text = "18"
-                        maxWidth = fieldWidth
-                        prefWidth = fieldWidth
-                    }
-                }
-
-                field("Waypoint") {
-                    waypointXTextField = textfield {
-                        promptText = "x"
-                        maxWidth = fieldWidth
-                        prefWidth = fieldWidth
-                    }
-
-                    waypointYTextField = textfield {
-                        promptText = "y"
                         maxWidth = fieldWidth
                         prefWidth = fieldWidth
                     }
