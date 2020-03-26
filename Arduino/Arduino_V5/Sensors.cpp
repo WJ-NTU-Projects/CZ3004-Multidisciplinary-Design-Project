@@ -68,8 +68,8 @@ double Sensors::getDistanceFast(char sensor, double m, double c, double r) {
 }
 
 double Sensors::getDistance(char sensor, double m, double c, double r) {
-    int readingsCount = 51;
-    int medianPosition = 25;
+    int readingsCount = (sensor == sensor6) ? 31 : 11;
+    int medianPosition = (sensor == sensor6) ? 15 : 5;
     double values[readingsCount];
 
     for (int i = 0; i < readingsCount; i++) {

@@ -28,6 +28,8 @@ class Exploration : Algorithm() {
     private var justStartedHugRight = false
     private var imageCoordinatesList: ArrayList<Coordinates> = arrayListOf()
     private var waitingForFP = false
+    private var uTurn = false
+    private var uTurnLeft = false
 
     override fun messageReceived(message: String) {
         if (!started) {
@@ -58,9 +60,21 @@ class Exploration : Algorithm() {
         }
 
         if (!message.contains("#")) return
+
+        if (uTurn) {
+            uTurn = false
+            if (uTurnLeft) {
+                WifiSocketController.write("A", "L")
+                Robot.turn(-90)
+            } else {
+                WifiSocketController.write("A", "R")
+                Robot.turn(90)
+            }
+            return
+        }
         val messages: List<String> = message.split("#")
         val moved: Int = messages[6].toInt()
-        if (moved >= 1) for (i in 0 until moveCount) Robot.moveTemp()
+        if (moved >= 1) for (i in 0 until moved) Robot.moveTemp()
 
         val x = Robot.position.x
         val y = Robot.position.y
@@ -91,23 +105,24 @@ class Exploration : Algorithm() {
         }
 
         if (!Arena.isInvalidCoordinates(imageX, imageY)) {
+            //Thread.sleep(500)
             imageCoordinatesList.add(Coordinates(imageX, imageY))
             WifiSocketController.write("R", "P")
-            Thread.sleep(10)
+            Thread.sleep(200)
         }
 
-        val sensor1: Int = messages[0].toInt().coerceIn(0, 2)
-        val sensor2: Int = messages[1].toInt().coerceIn(0, 2)
-        val sensor3: Int = messages[2].toInt().coerceIn(0, 2)
-        val sensor4: Int = messages[3].toInt().coerceIn(0, 2)
-        val sensor5: Int = messages[4].toInt().coerceIn(0, 2)
-        val sensor6: Int = messages[5].toInt().coerceIn(0, 6)
-        Sensor.updateArenaSensor1(x, y, facing, sensor1)
-        Sensor.updateArenaSensor2(x, y, facing, sensor2)
-        Sensor.updateArenaSensor3(x, y, facing, sensor3)
-        Sensor.updateArenaSensor4(x, y, facing, sensor4)
-        Sensor.updateArenaSensor5(x, y, facing, sensor5)
-        Sensor.updateArenaSensor6(x, y, facing, sensor6)
+        val sensor1: Int = messages[0].toInt()
+        val sensor2: Int = messages[1].toInt()
+        val sensor3: Int = messages[2].toInt()
+        val sensor4: Int = messages[3].toInt()
+        val sensor5: Int = messages[4].toInt()
+        val sensor6: Int = messages[5].toInt()
+        Sensor.updateArenaSensor1(x, y, facing, sensor1.coerceIn(0, 2))
+        Sensor.updateArenaSensor2(x, y, facing, sensor2.coerceIn(0, 2))
+        Sensor.updateArenaSensor3(x, y, facing, sensor3.coerceIn(0, 2))
+        Sensor.updateArenaSensor4(x, y, facing, sensor4.coerceIn(0, 2))
+        Sensor.updateArenaSensor5(x, y, facing, sensor5.coerceIn(0, 2))
+        Sensor.updateArenaSensor6(x, y, facing, sensor6.coerceIn(0, 6))
 
         if (x == Arena.start.x && y == Arena.start.y) wallHug = false
         step()
@@ -156,6 +171,18 @@ class Exploration : Algorithm() {
             Arena.sendArena()
         }
 
+        var ss = "["
+
+        for (coordinates in imageCoordinatesList) {
+            ss += "(${coordinates.x}, ${coordinates.y}) "
+        }
+
+        ss = ss.trim()
+        ss += "]"
+        println("-------------")
+        println(ss)
+        println("-------------")
+
         Thread.sleep(1000)
         if (ACTUAL_RUN) WifiSocketController.write("A", "R")
         Robot.turn(90)
@@ -177,27 +204,32 @@ class Exploration : Algorithm() {
         braking.set(false)
 
         if (wallHug) {
-            if (!hugRight && Robot.checkRight() && Math.floorMod(Robot.facing, 180) == 0) {
-                hugRight = true
-                hugRightStartX = Robot.position.x
-                hugRightStartY = Robot.position.y
-                commandBeforeHugRight = previousCommand
-                justStartedHugRight = true
-                WifiSocketController.write("A", "T")
-                Robot.turn(180)
-                return
-            }
-
-            if (hugRight && !justStartedHugRight && Robot.position.x == hugRightStartX && Robot.position.y == hugRightStartY) {
-                hugRight = false
-                previousCommand = commandBeforeHugRight
-                WifiSocketController.write("A", "T")
-                Robot.turn(180)
-                return
-            }
+            // Math.floorMod(Robot.facing, 180) == 0
+//            if (!hugRight && Robot.checkRight() && Robot.position.x >= 3 && Robot.position.x <= 11) {
+//                hugRight = true
+//                hugRightStartX = Robot.position.x
+//                hugRightStartY = Robot.position.y
+//                commandBeforeHugRight = previousCommand
+//                justStartedHugRight = true
+//                WifiSocketController.write("A", "R")
+//                Robot.turn(90)
+//                uTurn = true
+//                uTurnLeft = false
+//                return
+//            }
+//
+//            if (hugRight && !justStartedHugRight && Robot.position.x == hugRightStartX && Robot.position.y == hugRightStartY) {
+//                hugRight = false
+//                previousCommand = commandBeforeHugRight
+//                WifiSocketController.write("A", "L")
+//                Robot.turn(-90)
+//                uTurn = true
+//                uTurnLeft = true
+//                return
+//            }
 
             if (!Robot.isLeftObstructed() && previousCommand != LEFT) {
-                if (Robot.isFrontObstructed() && Robot.isLeftObstructed2()) {
+                if (Robot.isFrontObstructed() && Robot.isLeftCompletelyBlocked2()) {
                     previousCommand = RIGHT
                     WifiSocketController.write("A", "R")
                     Robot.turn(90)
@@ -211,12 +243,12 @@ class Exploration : Algorithm() {
             }
 
             if (!Robot.isFrontObstructed()) {
-                if (Robot.isWallFront2() && Robot.isLeftCompletelyBlocked() && Robot.isRightCompletelyBlocked()) {
-                    previousCommand = RIGHT
-                    WifiSocketController.write("A", "R")
-                    Robot.turn(90)
-                    return
-                }
+//                if (Robot.isWallFront2() && Robot.isLeftCompletelyBlocked() && Robot.isRightCompletelyBlocked()) {
+//                    previousCommand = RIGHT
+//                    WifiSocketController.write("A", "R")
+//                    Robot.turn(90)
+//                    return
+//                }
 
                 previousCommand = FORWARD
                 if (hugRight) justStartedHugRight = false

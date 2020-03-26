@@ -24,7 +24,7 @@ class ControlsView : View() {
 
         fun connectionChanged(connected: Boolean) {
             this.connected = connected
-            connectButton.text = if (connected) "Disconnect" else "Connect"
+            //connectButton.text = if (connected) "Disconnect" else "Connect"
             MasterView.idleListener.listen()
         }
 

@@ -234,7 +234,7 @@ class Arena {
             if (isInvalidCoordinates(x, y) || isGoalPoint(x, y) || isStartPoint(x, y) || isWaypoint(x, y)) return
             counterArray[y][x] += value
 
-            if (counterArray[y][x] > 0 && visitedArray[y][x] == 0) {
+            if (counterArray[y][x] > 0) {
                 gridStateArray[y][x] = GRID_OBSTACLE
                 exploreArray[y][x] = 1
                 obstacleArray[y][x] = 1

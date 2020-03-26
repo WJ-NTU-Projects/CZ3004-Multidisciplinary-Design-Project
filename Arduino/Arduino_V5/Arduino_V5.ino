@@ -5,10 +5,10 @@
 #include "Sensors.h"
 
 const double TICKS_PER_MM_FAST = 3.00;
-const double TICKS_PER_MM = 2.97; //2.98 3.04
-const double TICKS_PER_ANGLE_L = 4.56; //4.53 4.62
-const double TICKS_PER_ANGLE_R_FAST = 4.58;
-const double TICKS_PER_ANGLE_R = 4.58; //4.56 4.62
+const double TICKS_PER_MM = 3.00; //2.98 3.04
+const double TICKS_PER_ANGLE_L = 4.6; //4.53 4.62
+const double TICKS_PER_ANGLE_R_FAST = 4.615;
+const double TICKS_PER_ANGLE_R = 4.615; //4.56 4.62
 const int EXPLORE_SPEED = 320;
 const int FAST_SPEED = 360;
 
@@ -173,13 +173,14 @@ void move(int direction, int distance) {
         default: return;
     };
 
-    int speedLeftRef = 160;
-    int speedRightRef = speedLeftRef - 50;
+    int speedLeftRef = 320;
+    int speedRightRef = speedLeftRef - 100;
     motor.move(direction, speedLeftRef, speedRightRef);
     
     int counter = 0;
     boolean accelerating = true;
     boolean decelerating = false;
+    boolean interrupted = false;
     unsigned long lastLoopTime = millis();
 
     while (moving) {   
@@ -187,7 +188,14 @@ void move(int direction, int distance) {
         lastLoopTime = millis();  
 
         if (direction == FORWARD) {
-            if (sensors.isObstructedFront()) break;
+            if (sensors.isObstructedFront()) {
+                interrupted = true;
+                double d = ticksLeft / (fast ? TICKS_PER_MM_FAST : TICKS_PER_MM);
+                d = d / 100.0;
+                moved = ceil(d - 0.3);
+                break;
+            }
+            
             else if (sensors.isNearFront()) decelerating = true;            
         }
 
@@ -210,7 +218,7 @@ void move(int direction, int distance) {
                 speedRightRef += 20;
             }
         } else if (decelerating) {
-             if (speedLeftRef > 160) counter++;
+             if (speedLeftRef > 200) counter++;
 
              if (counter >= 1) {
                  counter = 0;
@@ -228,7 +236,7 @@ void move(int direction, int distance) {
         return;
     }
     
-    if (direction <= REVERSE && (ticksLeft >= 90 || ticksRight >= 90)) moved = 1;
+    if (!interrupted && direction <= REVERSE && (ticksLeft >= 90 || ticksRight >= 90)) moved = distance / 100.0 ;
     delay(10);
     align(); 
     if (startupAlign) return;
@@ -352,16 +360,16 @@ void align() {
 
 void alignLeft() {
     double error = sensors.getErrorLeft();
-    double lower = -0.4; // -0.7
-    double upper = -0.1;
+    double lower = -0.15; // -0.7
+    double upper = 0.15;
     if (error < lower) moveAlign(RIGHT, false, lower, upper);
     else if (error > upper) moveAlign(LEFT, false, lower, upper);
 }
 
 void alignFront() {   
     double error = sensors.getErrorFront();
-    double lower = -0.15;
-    double upper = 0.15;
+    double lower = -0.10;
+    double upper = 0.10;
     if (error < lower) moveAlign(RIGHT, true, lower, upper);
     else if (error > upper) moveAlign(LEFT, true, lower, upper);
 }

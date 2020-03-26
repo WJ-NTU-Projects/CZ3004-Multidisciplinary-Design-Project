@@ -5,18 +5,27 @@ import tornadofx.multi
 class Sensor {
     companion object {
 
-        private fun updateMap(x: Int, y: Int, reading: Int, reliability: Int, hasObstacle: Boolean, offsetX: Boolean, positive: Boolean) {
+        private fun updateMap(x: Int, y: Int, reading: Int, reliability: Int, hasObstacle: Boolean, offsetX: Boolean, positive: Boolean, lastSensor: Boolean = false) {
             val multiplier = if (positive) 1 else -1
 
             for (i in 1 until reading) {
-                if (offsetX) Arena.setExplored(x + (i * multiplier), y)
-                else Arena.setExplored(x, y + (i * multiplier))
+                if (offsetX) {
+                    Arena.setGridState(x + (i * multiplier), y, -reliability)
+                } else {
+                    Arena.setGridState(x, y + (i * multiplier), -reliability)
+                }
             }
 
             if (hasObstacle) {
                 if (offsetX) Arena.setGridState(x + (reading * multiplier), y, reliability)
                 else Arena.setGridState(x, y + (reading * multiplier), reliability)
             } else {
+                if (!lastSensor) {
+                    if (offsetX) Arena.setGridState(x + ((reading - 1) * multiplier), y, -reliability)
+                    else Arena.setGridState(x, y + ((reading - 1) * multiplier), -reliability)
+                    return
+                }
+
                 if (offsetX) Arena.setGridState(x + (reading * multiplier), y, -reliability)
                 else Arena.setGridState(x, y + (reading * multiplier), -reliability)
             }
@@ -186,22 +195,22 @@ class Sensor {
             when (facing) {
                 0 -> {
                     x += 1
-                    updateMap(x, y, r, 1, r <= 5, offsetX = true, positive = true)
+                    updateMap(x, y, r, 1, r <= 5, offsetX = true, positive = true, lastSensor = true)
                 }
 
                 90 -> {
                     y -= 1
-                    updateMap(x, y, r, 1, r <= 5, offsetX = false, positive = false)
+                    updateMap(x, y, r, 1, r <= 5, offsetX = false, positive = false, lastSensor = true)
                 }
 
                 180 -> {
                     x -= 1
-                    updateMap(x, y, r, 1, r <= 5, offsetX = true, positive = false)
+                    updateMap(x, y, r, 1, r <= 5, offsetX = true, positive = false, lastSensor = true)
                 }
 
                 270 -> {
                     y += 1
-                    updateMap(x, y, r, 1, r <= 5, offsetX = false, positive = true)
+                    updateMap(x, y, r, 1, r <= 5, offsetX = false, positive = true, lastSensor = true)
                 }
             }
         }

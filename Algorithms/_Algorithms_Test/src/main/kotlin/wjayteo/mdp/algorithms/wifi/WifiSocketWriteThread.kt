@@ -13,7 +13,7 @@ class WifiSocketWriteThread(private val destination: String, private val message
             return
         }
 
-        val output: ByteArray = (destination + message).toByteArray()
+        val output: ByteArray = (destination + message + "\r\n").toByteArray()
 
         try {
             outputStream.write(output)
