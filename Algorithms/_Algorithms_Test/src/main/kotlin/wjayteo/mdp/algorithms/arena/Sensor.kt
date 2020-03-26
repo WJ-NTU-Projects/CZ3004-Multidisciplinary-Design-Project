@@ -10,8 +10,10 @@ class Sensor {
 
             for (i in 1 until reading) {
                 if (offsetX) {
+                    //Arena.setExplored(x + (i * multiplier), y)
                     Arena.setGridState(x + (i * multiplier), y, -reliability)
                 } else {
+                    //Arena.setExplored(x, y + (i * multiplier))
                     Arena.setGridState(x, y + (i * multiplier), -reliability)
                 }
             }
@@ -19,16 +21,19 @@ class Sensor {
             if (hasObstacle) {
                 if (offsetX) Arena.setGridState(x + (reading * multiplier), y, reliability)
                 else Arena.setGridState(x, y + (reading * multiplier), reliability)
-            } else {
-                if (!lastSensor) {
-                    if (offsetX) Arena.setGridState(x + ((reading - 1) * multiplier), y, -reliability)
-                    else Arena.setGridState(x, y + ((reading - 1) * multiplier), -reliability)
-                    return
-                }
-
-                if (offsetX) Arena.setGridState(x + (reading * multiplier), y, -reliability)
-                else Arena.setGridState(x, y + (reading * multiplier), -reliability)
             }
+
+//            else {
+//                if (!lastSensor) {
+//                    //if (offsetX) Arena.setGridState(x + ((reading - 1) * multiplier), y, -reliability)
+//                    //else Arena.setGridState(x, y + ((reading - 1) * multiplier), -reliability)
+//                    return
+//                }
+//
+//                if (reading > 5) return
+//                if (offsetX) Arena.setGridState(x + (reading * multiplier), y, -reliability)
+//                else Arena.setGridState(x, y + (reading * multiplier), -reliability)
+//            }
         }
 
         fun updateArenaSensor1(x1: Int, y1: Int, facing: Int, r: Int) {

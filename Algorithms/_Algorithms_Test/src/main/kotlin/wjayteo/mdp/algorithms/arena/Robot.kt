@@ -104,7 +104,7 @@ class Robot {
                     x -= 2
 
                     while (true) {
-                        if (count >= 5) return count
+                        if (count >= 3) return count
                         if (imagesFound < imagesCount && Arena.isObstacle2(x, y)) return count
                         if (!Arena.isExplored(x, y)) return count
                         if (!isLeftObstructed(position.x, y)) return count
@@ -283,7 +283,7 @@ class Robot {
             }
 
             attachedView?.setRobotPosition(x, y)
-            setObstaclesScanned()
+            //setObstaclesScanned()
         }
 
         fun moveTemp() {
@@ -372,6 +372,25 @@ class Robot {
             }
         }
 
+        fun isFrontCompletelyBlocked(): Boolean {
+            when (facing) {
+                0    -> {
+                    if (Arena.isObstacle(position.x - 1, position.y + 2) && Arena.isObstacle(position.x, position.y + 2) && Arena.isObstacle(position.x + 1, position.y + 2)) return true
+                }
+                90   -> {
+                    if (Arena.isObstacle(position.x + 2, position.y - 1) && Arena.isObstacle(position.x + 2, position.y) && Arena.isObstacle(position.x + 2, position.y + 1)) return true
+                }
+                180  -> {
+                    if (Arena.isObstacle(position.x - 1, position.y - 2) && Arena.isObstacle(position.x, position.y - 2) && Arena.isObstacle(position.x + 1, position.y - 2)) return true
+                }
+                270  -> {
+                    if (Arena.isObstacle(position.x - 2, position.y - 1) && Arena.isObstacle(position.x - 2, position.y) && Arena.isObstacle(position.x - 2, position.y + 1)) return true
+                }
+            }
+
+            return false
+        }
+
         fun isLeftCompletelyBlocked(): Boolean {
             when (facing) {
                 0    -> {
@@ -394,16 +413,16 @@ class Robot {
         fun isLeftCompletelyBlocked2(): Boolean {
             when (facing) {
                 0    -> {
-                    if (Arena.isObstacle(position.x - 3, position.y - 1) && Arena.isObstacle(position.x - 3, position.y) && Arena.isObstacle(position.x - 3, position.y + 1)) return true
+                    if (Arena.isObstacle2(position.x - 3, position.y - 1) && Arena.isObstacle2(position.x - 3, position.y) && Arena.isObstacle2(position.x - 3, position.y + 1)) return true
                 }
                 90   -> {
-                    if (Arena.isObstacle(position.x - 1, position.y + 3) && Arena.isObstacle(position.x, position.y + 3) && Arena.isObstacle(position.x + 1, position.y + 3)) return true
+                    if (Arena.isObstacle2(position.x - 1, position.y + 3) && Arena.isObstacle2(position.x, position.y + 3) && Arena.isObstacle2(position.x + 1, position.y + 3)) return true
                 }
                 180  -> {
-                    if (Arena.isObstacle(position.x + 3, position.y - 1) && Arena.isObstacle(position.x + 3, position.y) && Arena.isObstacle(position.x + 3, position.y + 1)) return true
+                    if (Arena.isObstacle2(position.x + 3, position.y - 1) && Arena.isObstacle2(position.x + 3, position.y) && Arena.isObstacle2(position.x + 3, position.y + 1)) return true
                 }
                 270  -> {
-                    if (Arena.isObstacle(position.x - 1, position.y - 3) && Arena.isObstacle(position.x, position.y - 3) && Arena.isObstacle(position.x + 1, position.y - 3)) return true
+                    if (Arena.isObstacle2(position.x - 1, position.y - 3) && Arena.isObstacle2(position.x, position.y - 3) && Arena.isObstacle2(position.x + 1, position.y - 3)) return true
                 }
             }
 

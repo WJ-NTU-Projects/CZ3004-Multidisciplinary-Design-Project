@@ -238,12 +238,14 @@ class Arena {
                 gridStateArray[y][x] = GRID_OBSTACLE
                 exploreArray[y][x] = 1
                 obstacleArray[y][x] = 1
-                if (scannedArray[y][x] == 1) attachedView?.setScanned(x, y)
-                else attachedView?.setObstacle(x, y)
+                attachedView?.setObstacle(x, y)
+//                if (scannedArray[y][x] == 1) attachedView?.setScanned(x, y)
+//                else attachedView?.setObstacle(x, y)
             } else {
                 gridStateArray[y][x] = GRID_EXPLORED
                 exploreArray[y][x] = 1
                 obstacleArray[y][x] = 0
+                scannedArray[y][x] = 0
                 attachedView?.setExplored(x, y)
             }
         }

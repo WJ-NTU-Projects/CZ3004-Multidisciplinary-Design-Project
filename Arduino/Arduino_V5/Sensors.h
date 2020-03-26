@@ -19,8 +19,8 @@
 #define A3c 0.0005
 #define A4m 0.0434
 #define A4c -0.0043
-#define A5m 0.0017
-#define A5c 0.005
+#define A5m 0.0028
+#define A5c 0.0065
 //#define A5m 0.0028
 //#define A5c 0.0066
 
@@ -38,6 +38,7 @@ class Sensors {
         double getDistanceFast(int);
         double getDistance(char, double, double, double);
         double getDistance(int);
+        double getDistanceLog(char, double, double, double);;
         int getPrintDistance(int);
         double getErrorLeft();
         double getErrorFront();

@@ -15,6 +15,7 @@ import wjayteo.mdp.algorithms.wifi.WifiSocketController
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.lang.Exception
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
@@ -43,6 +44,7 @@ class Exploration : Algorithm() {
     private var waitingForFP = false
     private var uTurn = false
     private var uTurnLeft = false
+    private var forceMove = false
 
     override fun messageReceived(message: String) {
         if (!started) {
@@ -63,12 +65,35 @@ class Exploration : Algorithm() {
                         }
                     } catch (e: NumberFormatException) {}
                 }
-            } else if (message == "exs" && !waitingForFP) {
+
+                return
+            }
+
+            if (message == "exs" && !waitingForFP) {
                 started = true
                 startTime = System.currentTimeMillis()
                 step()
+                return
             }
 
+            if (waitingForFP) return
+            if (!message.contains("#")) return
+            val messages: List<String> = message.split("#")
+            val x = Robot.position.x
+            val y = Robot.position.y
+            val facing = Robot.facing
+            val sensor1: Int = messages[0].toInt()
+            val sensor2: Int = messages[1].toInt()
+            val sensor3: Int = messages[2].toInt()
+            val sensor4: Int = messages[3].toInt()
+            val sensor5: Int = messages[4].toInt()
+            val sensor6: Int = messages[5].toInt()
+            Sensor.updateArenaSensor1(x, y, facing, sensor1.coerceIn(0, 2))
+            Sensor.updateArenaSensor2(x, y, facing, sensor2.coerceIn(0, 2))
+            Sensor.updateArenaSensor3(x, y, facing, sensor3.coerceIn(0, 2))
+            Sensor.updateArenaSensor4(x, y, facing, sensor4.coerceIn(0, 2))
+            Sensor.updateArenaSensor5(x, y, facing, sensor5.coerceIn(0, 2))
+            Sensor.updateArenaSensor6(x, y, facing, sensor6.coerceIn(0, 6))
             return
         }
 
@@ -90,9 +115,13 @@ class Exploration : Algorithm() {
             }
             return
         }
+
         val messages: List<String> = message.split("#")
-        val moved: Int = messages[6].toInt()
-        if (moved >= 1) for (i in 0 until moved) Robot.moveTemp()
+
+        if (!forceMove) {
+            val moved: Int = messages[6].toInt()
+            if (moved >= 1) for (i in 0 until moved) Robot.moveTemp()
+        }
 
         val x = Robot.position.x
         val y = Robot.position.y
@@ -122,7 +151,7 @@ class Exploration : Algorithm() {
             }
         }
 
-        if (Robot.checkLeft()) { //!Arena.isInvalidCoordinates(imageX, imageY)) {
+        if (!forceMove && Robot.checkLeft()) { //!Arena.isInvalidCoordinates(imageX, imageY)) {
             //Thread.sleep(500)
             imageCoordinatesList.add(Coordinates(imageX, imageY))
             facingList.add(Robot.facing)
@@ -143,7 +172,16 @@ class Exploration : Algorithm() {
         Sensor.updateArenaSensor5(x, y, facing, sensor5.coerceIn(0, 2))
         Sensor.updateArenaSensor6(x, y, facing, sensor6.coerceIn(0, 6))
 
+        if (!forceMove && Robot.isFrontCompletelyBlocked()) {
+            forceMove = true
+            WifiSocketController.write("A", "M")
+            Thread.sleep(10)
+            Arena.sendArena()
+            return
+        }
+
         if (x == Arena.start.x && y == Arena.start.y) wallHug = false
+        forceMove = false
         step()
         Thread.sleep(10)
         Arena.sendArena()
@@ -155,7 +193,7 @@ class Exploration : Algorithm() {
             val url = URL("http://192.168.16.133:8123/end")
             val con: HttpURLConnection = url.openConnection() as HttpURLConnection
             con.requestMethod = "GET"
-            val `in` = BufferedReader(InputStreamReader(con.getInputStream()))
+            val `in` = BufferedReader(InputStreamReader(con.inputStream))
             var inputLine: String?
             while (`in`.readLine().also { inputLine = it } != null) {
                 content.append(inputLine)
@@ -167,7 +205,7 @@ class Exploration : Algorithm() {
 
         val s = content.toString()
 
-        val arr1: List<String> = content.split(";")
+        val arr1: List<String> = s.split(";")
         val arr: ArrayList<String> = arrayListOf()
         arr.addAll(arr1)
         arr[0] = arr[0].replace("\\[|\\]".toRegex(), "")
@@ -190,7 +228,7 @@ class Exploration : Algorithm() {
         if (classIndex.isEmpty()) return
         val positions = arr[1].split(", ").toTypedArray()
 
-        for (i in 1 .. classIndex.size) {
+        for (i in 0 until classIndex.size) {
             val p = positions[i].toLowerCase()
 
             when (p) {
@@ -217,8 +255,8 @@ class Exploration : Algorithm() {
         println(classIndex)
         println(coords)
 
-        var ss = "#im"
-        for (i in 1..classIndex.size) ss += "(${classIndex[i]},${coords[i].x},${coords[i].y})"
+        var ss = "#im:"
+        for (i in 0 until classIndex.size) ss += "(${classIndex[i]},${coords[i].x},${coords[i].y})"
         WifiSocketController.write("D", ss)
     }
 
@@ -253,7 +291,7 @@ class Exploration : Algorithm() {
         println("TIME TAKEN: $seconds seconds")
         println("-------------")
 
-        if (ACTUAL_RUN) WifiSocketController.write("D", "#exe")
+        if (ACTUAL_RUN) WifiSocketController.write("D", "exe")
         Arena.refreshPoints()
 
         if (ACTUAL_RUN && !braking.get()) {
@@ -273,7 +311,10 @@ class Exploration : Algorithm() {
         println("-------------")
         println(ss)
         println("-------------")
-        getImages()
+
+        try {
+            getImages()
+        } catch (e: Exception) {}
 
         if (!completed) return
         Thread.sleep(1000)
@@ -321,13 +362,32 @@ class Exploration : Algorithm() {
 //                return
 //            }
 
+//            if (!checked1 && Robot.position.x == 9 && Robot.position.y == 5 && Robot.facing == 180) {
+//                WifiSocketController.write("A", "R")
+//                Robot.turn(90)
+//                uTurn = true
+//                uTurnLeft = false
+//                testttt = true
+//                checked1 = true
+//                return
+//            }
+//
+//            if (testttt) {
+//                WifiSocketController.write("A", "L")
+//                Robot.turn(90)
+//                uTurn = true
+//                uTurnLeft = true
+//                testttt = false
+//                return
+//            }
+
             if (!Robot.isLeftObstructed() && previousCommand != LEFT) {
-                if (Robot.isFrontObstructed() && Robot.isLeftCompletelyBlocked2()) {
-                    previousCommand = RIGHT
-                    WifiSocketController.write("A", "R")
-                    Robot.turn(90)
-                    return
-                }
+//                if (Robot.isFrontObstructed() && Robot.isLeftCompletelyBlocked2()) {
+//                    previousCommand = RIGHT
+//                    WifiSocketController.write("A", "R")
+//                    Robot.turn(90)
+//                    return
+//                }
 
                 previousCommand = LEFT
                 WifiSocketController.write("A", "L")

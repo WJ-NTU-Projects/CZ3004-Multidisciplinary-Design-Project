@@ -6,10 +6,10 @@
 
 const double TICKS_PER_MM_FAST = 3.00;
 const double TICKS_PER_MM = 2.98; //2.98 3.04
-const double TICKS_PER_ANGLE_L = 4.58; //4.53 4.62
-const double TICKS_PER_ANGLE_R_FAST = 4.615;
-const double TICKS_PER_ANGLE_R = 4.615; //4.56 4.62
-const int EXPLORE_SPEED = 320;
+const double TICKS_PER_ANGLE_L = 4.56; //4.56 4.62
+const double TICKS_PER_ANGLE_R_FAST = 4.6; // 4.615
+const double TICKS_PER_ANGLE_R = 4.6; //4.56 4.62
+const int EXPLORE_SPEED = 340;
 const int FAST_SPEED = 360;
 
 volatile boolean moving = false;
@@ -129,6 +129,7 @@ void executeCommand(char command, int moveDistance) {
             move(RIGHT, 90);
             delay(100);
             startupAlign = false;
+            printSensorValues(0);
             break;
         case 'F':
             FP = true;
@@ -150,11 +151,8 @@ void move(int direction, int distance) {
     ticksLeft = 0;
     ticksRight = 0;
     
-    if (direction > REVERSE) {
-       
-    }
-     pid.reset();
-        lps.reset();
+    pid.reset();
+    lps.reset();
     moved = 0;
     moving = true;
 
@@ -173,7 +171,7 @@ void move(int direction, int distance) {
     };
 
     int speedLeftRef = 320;
-    int speedRightRef = speedLeftRef - 100;
+    int speedRightRef = speedLeftRef - (fast ? 92 : 102); // 95
     motor.move(direction, speedLeftRef, speedRightRef);
     
     int counter = 0;
@@ -238,6 +236,8 @@ void move(int direction, int distance) {
     if (!interrupted && direction <= REVERSE && (ticksLeft >= 90 || ticksRight >= 90)) moved = distance / 100.0 ;
     delay(10);
     align(); 
+    align();
+    align();
     if (startupAlign) return;
     delay(10);
     printSensorValues(moved);
@@ -329,13 +329,12 @@ void align() {
 
         if (distanceFront <= 12 && abs(sensors.getErrorFront()) <= 3) {
             alignFront();
-            alignFront();
         } 
             
-        if (smallestDistance < 4.25) {
-            moveAlignS(REVERSE, 2, 4.25, 4.5);
-        } else if (smallestDistance > 4.5) {
-            moveAlignS(FORWARD, 2, 4.25, 4.5);
+        if (smallestDistance < 4) {
+            moveAlignS(REVERSE, 2, 4, 4.3);
+        } else if (smallestDistance > 4.3) {
+            moveAlignS(FORWARD, 2, 4, 4.3);
         }
     }
     
@@ -346,12 +345,10 @@ void align() {
 
     if (distance4 <= 12 && distance5 <= 12 && abs(distance4 - distance5) <= 3) {
         alignLeft();  
-        alignLeft();  
         return;
     }
 
     if (distance1 <= 12 && distance3 <= 12 && abs(distance1 - distance3) <= 3) {
-        alignFront();
         alignFront();
         return;
     }
@@ -359,8 +356,8 @@ void align() {
 
 void alignLeft() {
     double error = sensors.getErrorLeft();
-    double lower = -0.15; // -0.7
-    double upper = 0.15;
+    double lower = -0.2; // -0.7
+    double upper = 0.1;
     if (error < lower) moveAlign(RIGHT, false, lower, upper);
     else if (error > upper) moveAlign(LEFT, false, lower, upper);
 }

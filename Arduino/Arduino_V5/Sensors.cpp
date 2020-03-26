@@ -19,19 +19,26 @@ void bubbleSort(double arr[], int n)  {
 } 
 
 int Sensors::getPrintDistance(int sensor) {
-    int distance = printProcess(sensor);
-    int distance1 = printProcess(sensor);
-    if (distance == distance1) return distance;
-    
-    int distance2 = printProcess(sensor);
-    if (distance2 == distance || distance2 == distance1) return distance2;
-    
-    return printProcess(sensor);
+
+//    if (sensor == 6) {
+        int distance = printProcess(sensor);
+        int distance1 = printProcess(sensor);
+        if (distance == distance1)
+        return distance;
+        else {
+            int distance2 = printProcess(sensor);
+            if (distance2 == distance || distance2 == distance1)
+            return distance2;
+        }
+        return printProcess(sensor);
+//    } else {
+//        return printProcess(sensor);   
+//    }
 }
 
 int Sensors::printProcess(int sensor) {
     int distance = getDistance(sensor);
-    if (sensor == 6) distance = ceil(distance * 0.1 - 0.1);
+    if (sensor == 6) distance = ceil(distance * 0.1 + 0.2);
     else if (sensor == 4) distance = ceil(distance * 0.1 - 0.1);
     else distance = ceil(distance * 0.1 + 0.3);
     if (distance < 0) distance = 9;
@@ -39,23 +46,13 @@ int Sensors::printProcess(int sensor) {
     return distance;
 }
 
-//int Sensors::getPrintDistance(int sensor) {
-//    int distance = getDistance(sensor);
-//    if (sensor == 6) distance = ceil(distance * 0.1 + 0.2);
-//    else if (sensor == 4) distance = ceil(distance * 0.1 - 0.1);
-//    else distance = ceil(distance * 0.1 + 0.3);
-//    if (distance < 0) distance = 9;
-//    else distance = min(distance, 9);
-//    return distance;
-//} 
-
 double Sensors::getDistanceFast(int sensor) {
     if (sensor == 1) return getDistanceFast(sensor1, A0m, A0c, A0r);
     if (sensor == 2) return getDistanceFast(sensor2, A1m, A1c, A1r);
     if (sensor == 3) return getDistanceFast(sensor3, A2m, A2c, A2r);
     if (sensor == 4) return getDistanceFast(sensor4, A3m, A3c, A3r);
     if (sensor == 5) return getDistanceFast(sensor5, A4m, A4c, A4r);
-    if (sensor == 6) return getDistanceFast(sensor6, A5m, A5c, A5r);
+    if (sensor == 6) return getDistanceLog(sensor6, A5m, A5c, A5r);
 }
 
 double Sensors::getDistance(int sensor) {
@@ -64,7 +61,7 @@ double Sensors::getDistance(int sensor) {
     if (sensor == 3) return getDistance(sensor3, A2m, A2c, A2r);
     if (sensor == 4) return getDistance(sensor4, A3m, A3c, A3r);
     if (sensor == 5) return getDistance(sensor5, A4m, A4c, A4r);
-    if (sensor == 6) return getDistance(sensor6, A5m, A5c, A5r);
+    if (sensor == 6) return getDistanceLog(sensor6, A5m, A5c, A5r);
 }
 
 double Sensors::getDistanceFast(char sensor, double m, double c, double r) {
@@ -89,8 +86,8 @@ double Sensors::getDistanceFast(char sensor, double m, double c, double r) {
 }
 
 double Sensors::getDistance(char sensor, double m, double c, double r) {
-    int readingsCount = (sensor == sensor6) ? 31 : 7;
-    int medianPosition = (sensor == sensor6) ? 15 : 3;
+    int readingsCount = 11;
+    int medianPosition = 5;
     double values[readingsCount];
 
     for (int i = 0; i < readingsCount; i++) {
@@ -98,6 +95,27 @@ double Sensors::getDistance(char sensor, double m, double c, double r) {
         int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
         double volts = voltsFromRaw * 0.001;
         double distance = (1 / ((volts * m) + c)) - r;
+        //if (sensor == sensor6) distance -= 8;
+        values[i] = distance;
+    }
+
+    bubbleSort(values, readingsCount);
+    double median = values[medianPosition];
+    if (median > 70) median = 70;
+    if (median < 0) median = 70;
+    return median;    
+}
+
+double Sensors::getDistanceLog(char sensor, double m, double c, double r) {
+    int readingsCount = 31;
+    int medianPosition = 15;
+    double values[readingsCount];
+
+    for (int i = 0; i < readingsCount; i++) {
+        int raw = analogRead(sensor);
+        int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
+        double volts = voltsFromRaw * 0.001;
+        double distance = (1/(log(volts)*m + c))-r;
         //if (sensor == sensor6) distance -= 8;
         values[i] = distance;
     }
