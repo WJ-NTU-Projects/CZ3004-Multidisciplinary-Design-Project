@@ -31,24 +31,28 @@ class Robot {
                     if (Arena.isInvalidCoordinates(x - 2, y)) return false
                     if (Arena.isObstacle2(x - 2, y)) return true
                     if (isFrontObstructed() && Arena.isObstacle2(x - 2, y + 1)) return true
+                    if (isBackObstructed() && Arena.isObstacle2(x - 2, y - 1)) return true
                 }
 
                 180 -> {
                     if (Arena.isInvalidCoordinates(x + 2, y)) return false
                     if (Arena.isObstacle2(x + 2, y)) return true
                     if (isFrontObstructed() && Arena.isObstacle2(x + 2, y - 1)) return true
+                    if (isBackObstructed() && Arena.isObstacle2(x + 2, y + 1)) return true
                 }
 
                 90 -> {
                     if (Arena.isInvalidCoordinates(x, y + 2)) return false
                     if (Arena.isObstacle2(x, y + 2)) return true
                     if (isFrontObstructed() && Arena.isObstacle2(x + 1, y + 2)) return true
+                    if (isBackObstructed() && Arena.isObstacle2(x - 1, y + 2)) return true
                 }
 
                 270 -> {
                     if (Arena.isInvalidCoordinates(x, y - 2)) return false
                     if (Arena.isObstacle2(x, y - 2)) return true
                     if (isFrontObstructed() && Arena.isObstacle2(x - 1, y - 2)) return true
+                    if (isBackObstructed() && Arena.isObstacle2(x + 1, y - 2)) return true
                 }
             }
 
@@ -344,6 +348,16 @@ class Robot {
                 90   -> !Arena.isMovable(position.x + 1, position.y)
                 180  -> !Arena.isMovable(position.x, position.y - 1)
                 270  -> !Arena.isMovable(position.x - 1, position.y)
+                else -> true
+            }
+        }
+
+        fun isBackObstructed(): Boolean {
+            return when (facing) {
+                0    -> !Arena.isMovable(position.x, position.y - 1)
+                90   -> !Arena.isMovable(position.x - 1, position.y)
+                180  -> !Arena.isMovable(position.x, position.y + 1)
+                270  -> !Arena.isMovable(position.x + 1, position.y)
                 else -> true
             }
         }

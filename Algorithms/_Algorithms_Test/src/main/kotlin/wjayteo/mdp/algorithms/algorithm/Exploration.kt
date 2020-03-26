@@ -1,11 +1,23 @@
 package wjayteo.mdp.algorithms.algorithm
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import wjayteo.mdp.algorithms.algorithm.AStarSearch.Companion.GridNode
-import wjayteo.mdp.algorithms.arena.*
+import wjayteo.mdp.algorithms.arena.Arena
+import wjayteo.mdp.algorithms.arena.Coordinates
+import wjayteo.mdp.algorithms.arena.Robot
+import wjayteo.mdp.algorithms.arena.Sensor
 import wjayteo.mdp.algorithms.uicomponent.ControlsView
 import wjayteo.mdp.algorithms.uicomponent.MasterView
 import wjayteo.mdp.algorithms.wifi.WifiSocketController
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 
@@ -27,6 +39,7 @@ class Exploration : Algorithm() {
     private var hugRight = false
     private var justStartedHugRight = false
     private var imageCoordinatesList: ArrayList<Coordinates> = arrayListOf()
+    private var facingList: ArrayList<Int> = arrayListOf()
     private var waitingForFP = false
     private var uTurn = false
     private var uTurnLeft = false
@@ -56,6 +69,11 @@ class Exploration : Algorithm() {
                 step()
             }
 
+            return
+        }
+
+        if (message == "terminate") {
+            stop()
             return
         }
 
@@ -104,9 +122,10 @@ class Exploration : Algorithm() {
             }
         }
 
-        if (Robot.checkLeft()) {
+        if (Robot.checkLeft()) { //!Arena.isInvalidCoordinates(imageX, imageY)) {
             //Thread.sleep(500)
             imageCoordinatesList.add(Coordinates(imageX, imageY))
+            facingList.add(Robot.facing)
             WifiSocketController.write("R", "P")
             Thread.sleep(200)
         }
@@ -128,6 +147,79 @@ class Exploration : Algorithm() {
         step()
         Thread.sleep(10)
         Arena.sendArena()
+    }
+
+    fun getImages() {
+        val content = StringBuilder()
+        try {
+            val url = URL("http://192.168.16.133:8123/end")
+            val con: HttpURLConnection = url.openConnection() as HttpURLConnection
+            con.requestMethod = "GET"
+            val `in` = BufferedReader(InputStreamReader(con.getInputStream()))
+            var inputLine: String?
+            while (`in`.readLine().also { inputLine = it } != null) {
+                content.append(inputLine)
+            }
+            `in`.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        val s = content.toString()
+
+        val arr1: List<String> = content.split(";")
+        val arr: ArrayList<String> = arrayListOf()
+        arr.addAll(arr1)
+        arr[0] = arr[0].replace("\\[|\\]".toRegex(), "")
+        arr[1] = arr[1].replace("\\[|\\]|\"".toRegex(), "")
+
+        val rawIndex = arr[0].split(", ").toTypedArray()
+        val classIndex = ArrayList<Int>()
+        val coords = ArrayList<Coordinates>()
+        val facings = ArrayList<Int>()
+        for ((i, raw) in rawIndex.withIndex()) {
+            val index = raw.toInt()
+
+            if (index != -1) {
+                classIndex.add(index)
+                coords.add(imageCoordinatesList[i])
+                facings.add(facingList[i])
+            }
+        }
+
+        if (classIndex.isEmpty()) return
+        val positions = arr[1].split(", ").toTypedArray()
+
+        for (i in 1 .. classIndex.size) {
+            val p = positions[i].toLowerCase()
+
+            when (p) {
+                "l" -> {
+                    when (facings[i]) {
+                        0 -> coords[i].y -= 1
+                        90 -> coords[i].x -= 1
+                        180 -> coords[i].y += 1
+                        270 -> coords[i].x += 1
+                    }
+                }
+
+                "r" -> {
+                    when (facings[i]) {
+                        0 -> coords[i].y += 1
+                        90 -> coords[i].x += 1
+                        180 -> coords[i].y -= 1
+                        270 -> coords[i].x -= 1
+                    }
+                }
+            }
+        }
+
+        println(classIndex)
+        println(coords)
+
+        var ss = "#im"
+        for (i in 1..classIndex.size) ss += "(${classIndex[i]},${coords[i].x},${coords[i].y})"
+        WifiSocketController.write("D", ss)
     }
 
     fun start() {
@@ -154,7 +246,6 @@ class Exploration : Algorithm() {
         if (!started && !simulationStarted) return
         started = false
         simulationStarted = false
-        if (!completed) return
 
         val endTime: Long = System.currentTimeMillis()
         println("-------------")
@@ -175,14 +266,16 @@ class Exploration : Algorithm() {
 
         for ((index, coordinates) in imageCoordinatesList.withIndex()) {
             ss += "(${index}: ${coordinates.x}, ${coordinates.y}) "
-            if (index >= 9 && index != imageCoordinatesList.size - 1) ss += "\n"
+            if (index != imageCoordinatesList.size - 1) ss += "\n"
         }
 
         ss = ss.trim()
         println("-------------")
         println(ss)
         println("-------------")
+        getImages()
 
+        if (!completed) return
         Thread.sleep(1000)
         if (ACTUAL_RUN) WifiSocketController.write("A", "R")
         Robot.turn(90)

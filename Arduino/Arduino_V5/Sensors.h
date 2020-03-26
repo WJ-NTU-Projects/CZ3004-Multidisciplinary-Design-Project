@@ -47,4 +47,5 @@ class Sensors {
         boolean isNearFront();
         double getDistanceAverageFront();
         double getDistanceAverageLeft();
+        int printProcess(int);
 };

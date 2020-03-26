@@ -5,8 +5,8 @@
 #include "Sensors.h"
 
 const double TICKS_PER_MM_FAST = 3.00;
-const double TICKS_PER_MM = 3.00; //2.98 3.04
-const double TICKS_PER_ANGLE_L = 4.6; //4.53 4.62
+const double TICKS_PER_MM = 2.98; //2.98 3.04
+const double TICKS_PER_ANGLE_L = 4.58; //4.53 4.62
 const double TICKS_PER_ANGLE_R_FAST = 4.615;
 const double TICKS_PER_ANGLE_R = 4.615; //4.56 4.62
 const int EXPLORE_SPEED = 320;
@@ -98,8 +98,7 @@ void executeCommand(char command, int moveDistance) {
             printSensorValues(moved);         
             break;
         case 'K':
-            Serial.println(sensors.getDistance(4));
-            Serial.println(sensors.getDistance(5));
+            Serial.println(sensors.getDistance(6));
             break;  
         case 'M': 
             move(FORWARD, moveDistance); 

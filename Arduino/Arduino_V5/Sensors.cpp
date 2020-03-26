@@ -19,14 +19,35 @@ void bubbleSort(double arr[], int n)  {
 } 
 
 int Sensors::getPrintDistance(int sensor) {
+    int distance = printProcess(sensor);
+    int distance1 = printProcess(sensor);
+    if (distance == distance1) return distance;
+    
+    int distance2 = printProcess(sensor);
+    if (distance2 == distance || distance2 == distance1) return distance2;
+    
+    return printProcess(sensor);
+}
+
+int Sensors::printProcess(int sensor) {
     int distance = getDistance(sensor);
-    if (sensor == 6) distance = ceil(distance * 0.1 + 0.2);
+    if (sensor == 6) distance = ceil(distance * 0.1 - 0.1);
     else if (sensor == 4) distance = ceil(distance * 0.1 - 0.1);
     else distance = ceil(distance * 0.1 + 0.3);
     if (distance < 0) distance = 9;
     else distance = min(distance, 9);
     return distance;
-} 
+}
+
+//int Sensors::getPrintDistance(int sensor) {
+//    int distance = getDistance(sensor);
+//    if (sensor == 6) distance = ceil(distance * 0.1 + 0.2);
+//    else if (sensor == 4) distance = ceil(distance * 0.1 - 0.1);
+//    else distance = ceil(distance * 0.1 + 0.3);
+//    if (distance < 0) distance = 9;
+//    else distance = min(distance, 9);
+//    return distance;
+//} 
 
 double Sensors::getDistanceFast(int sensor) {
     if (sensor == 1) return getDistanceFast(sensor1, A0m, A0c, A0r);
@@ -68,8 +89,8 @@ double Sensors::getDistanceFast(char sensor, double m, double c, double r) {
 }
 
 double Sensors::getDistance(char sensor, double m, double c, double r) {
-    int readingsCount = (sensor == sensor6) ? 31 : 11;
-    int medianPosition = (sensor == sensor6) ? 15 : 5;
+    int readingsCount = (sensor == sensor6) ? 31 : 7;
+    int medianPosition = (sensor == sensor6) ? 15 : 3;
     double values[readingsCount];
 
     for (int i = 0; i < readingsCount; i++) {
