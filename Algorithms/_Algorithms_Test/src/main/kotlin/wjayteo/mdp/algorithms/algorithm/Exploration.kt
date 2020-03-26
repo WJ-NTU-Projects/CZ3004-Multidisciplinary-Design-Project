@@ -104,7 +104,7 @@ class Exploration : Algorithm() {
             }
         }
 
-        if (!Arena.isInvalidCoordinates(imageX, imageY)) {
+        if (Robot.checkLeft()) {
             //Thread.sleep(500)
             imageCoordinatesList.add(Coordinates(imageX, imageY))
             WifiSocketController.write("R", "P")
@@ -171,14 +171,14 @@ class Exploration : Algorithm() {
             Arena.sendArena()
         }
 
-        var ss = "["
+        var ss = ""
 
-        for (coordinates in imageCoordinatesList) {
-            ss += "(${coordinates.x}, ${coordinates.y}) "
+        for ((index, coordinates) in imageCoordinatesList.withIndex()) {
+            ss += "(${index}: ${coordinates.x}, ${coordinates.y}) "
+            if (index >= 9 && index != imageCoordinatesList.size - 1) ss += "\n"
         }
 
         ss = ss.trim()
-        ss += "]"
         println("-------------")
         println(ss)
         println("-------------")

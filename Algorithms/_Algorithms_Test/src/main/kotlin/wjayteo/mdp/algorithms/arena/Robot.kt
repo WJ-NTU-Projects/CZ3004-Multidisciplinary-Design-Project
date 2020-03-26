@@ -22,6 +22,39 @@ class Robot {
             updateFacing(0)
         }
 
+        fun checkLeft(): Boolean {
+            val x: Int = position.x
+            val y: Int = position.y
+
+            when (facing) {
+                0 -> {
+                    if (Arena.isInvalidCoordinates(x - 2, y)) return false
+                    if (Arena.isObstacle2(x - 2, y)) return true
+                    if (isFrontObstructed() && Arena.isObstacle2(x - 2, y + 1)) return true
+                }
+
+                180 -> {
+                    if (Arena.isInvalidCoordinates(x + 2, y)) return false
+                    if (Arena.isObstacle2(x + 2, y)) return true
+                    if (isFrontObstructed() && Arena.isObstacle2(x + 2, y - 1)) return true
+                }
+
+                90 -> {
+                    if (Arena.isInvalidCoordinates(x, y + 2)) return false
+                    if (Arena.isObstacle2(x, y + 2)) return true
+                    if (isFrontObstructed() && Arena.isObstacle2(x + 1, y + 2)) return true
+                }
+
+                270 -> {
+                    if (Arena.isInvalidCoordinates(x, y - 2)) return false
+                    if (Arena.isObstacle2(x, y - 2)) return true
+                    if (isFrontObstructed() && Arena.isObstacle2(x - 1, y - 2)) return true
+                }
+            }
+
+            return false
+        }
+
         fun checkRight(): Boolean {
             val x: Int = position.x
             val y: Int = position.y
@@ -59,7 +92,7 @@ class Robot {
             var x: Int = position.x
             var y: Int = position.y
             var count = 0
-            var imagesCount = 5
+            val imagesCount = 5
 
             when (facing) {
                 0 -> {
@@ -194,7 +227,7 @@ class Robot {
             }
         }
 
-        fun setObstaclesScanned() {
+        private fun setObstaclesScanned() {
             val x: Int = position.x
             val y: Int = position.y
 
@@ -296,7 +329,7 @@ class Robot {
             move(x, y)
         }
 
-        fun updateFacing(angle1: Int) {
+        private fun updateFacing(angle1: Int) {
             var angle: Int = angle1
             if (angle >= 360) angle -= 360
             else if (angle < 0) angle += 360
@@ -383,7 +416,7 @@ class Robot {
             }
         }
 
-        fun isFrontObstructed(x: Int, y: Int): Boolean {
+        private fun isFrontObstructed(x: Int, y: Int): Boolean {
             return when (facing) {
                 0    -> !Arena.isMovable(x, y + 1)
                 90   -> !Arena.isMovable(x + 1, y)
@@ -393,7 +426,7 @@ class Robot {
             }
         }
 
-        fun isLeftObstructed(x: Int, y: Int): Boolean {
+        private fun isLeftObstructed(x: Int, y: Int): Boolean {
             return when (facing) {
                 0    -> !Arena.isMovable(x - 1, y)
                 90   -> !Arena.isMovable(x, y + 1)
