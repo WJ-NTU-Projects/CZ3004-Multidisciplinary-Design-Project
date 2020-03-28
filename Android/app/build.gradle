@@ -13,8 +13,8 @@ android {
         applicationId "wjayteo.mdp.android"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 1001004
-        versionName "1.1.4"
+        versionCode 1002000
+        versionName "1.2.0"
         resConfigs "en", "zh"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

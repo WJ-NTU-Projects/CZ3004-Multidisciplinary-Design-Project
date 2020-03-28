@@ -5,10 +5,10 @@
 #include "Sensors.h"
 
 const double TICKS_PER_MM_FAST = 3.00;
-const double TICKS_PER_MM = 2.98; //2.98 3.04
-const double TICKS_PER_ANGLE_L = 4.56; //4.56 4.62
-const double TICKS_PER_ANGLE_R_FAST = 4.6; // 4.615
-const double TICKS_PER_ANGLE_R = 4.6; //4.56 4.62
+const double TICKS_PER_MM = 2.98; 
+const double TICKS_PER_ANGLE_L = 4.56; 
+const double TICKS_PER_ANGLE_R_FAST = 4.6; 
+const double TICKS_PER_ANGLE_R = 4.6; 
 const int EXPLORE_SPEED = 340;
 const int FAST_SPEED = 360;
 
@@ -30,7 +30,6 @@ Motor motor;
 Sensors sensors;
 LPS lps(&ticksLeft, &ticksRight, TICKS_PER_MM);
 PID pid(&error, &setpoint, 80.0, 10.0, 700.0);
-//PID pid(&error, &setpoint, 60.0, 10.0, 500.0);
 
 void setup() {   
     motor.init();
@@ -84,7 +83,7 @@ void loop() {
                 }
             }
 
-            //Serial.println("Pfe");
+            if (FP) Serial.println("Pfe");
         }
 
         inputComplete = false;
@@ -171,7 +170,7 @@ void move(int direction, int distance) {
     };
 
     int speedLeftRef = 320;
-    int speedRightRef = speedLeftRef - (fast ? 92 : 102); // 95
+    int speedRightRef = speedLeftRef - (fast ? 92 : 102);
     motor.move(direction, speedLeftRef, speedRightRef);
     
     int counter = 0;
@@ -326,16 +325,9 @@ void align() {
         }
         
         double distanceFront = sensors.getDistanceAverageFront();
-
-        if (distanceFront <= 12 && abs(sensors.getErrorFront()) <= 3) {
-            alignFront();
-        } 
-            
-        if (smallestDistance < 4) {
-            moveAlignS(REVERSE, 2, 4, 4.3);
-        } else if (smallestDistance > 4.3) {
-            moveAlignS(FORWARD, 2, 4, 4.3);
-        }
+        if (distanceFront <= 12 && abs(sensors.getErrorFront()) <= 3) alignFront();
+        if (smallestDistance < 4) moveAlignS(REVERSE, 2, 4, 4.3);
+        else if (smallestDistance > 4.3) moveAlignS(FORWARD, 2, 4, 4.3);
     }
     
     double distance1 = sensors.getDistance(1);
@@ -356,7 +348,7 @@ void align() {
 
 void alignLeft() {
     double error = sensors.getErrorLeft();
-    double lower = -0.2; // -0.7
+    double lower = -0.2;
     double upper = 0.1;
     if (error < lower) moveAlign(RIGHT, false, lower, upper);
     else if (error > upper) moveAlign(LEFT, false, lower, upper);

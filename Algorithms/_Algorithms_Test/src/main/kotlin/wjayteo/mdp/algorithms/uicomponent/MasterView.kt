@@ -14,7 +14,7 @@ import wjayteo.mdp.algorithms.file.File
 import wjayteo.mdp.algorithms.wifi.IdleListener
 import java.lang.NumberFormatException
 
-class MasterView : View("Algorithms Test") {
+class MasterView : View("Algorithms Test - Version 1.2.0") {
     companion object {
         lateinit var idleListener: IdleListener
         lateinit var exploration: Exploration

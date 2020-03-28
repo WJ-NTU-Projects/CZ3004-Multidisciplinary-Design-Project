@@ -40,8 +40,8 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             return
         }
 
-        // Integration use only
-        if ((App.AUTO_UPDATE_ARENA || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}r") {
+        // FOR INTEGRATION USE
+        if ((App.AUTO_UPDATE_ARENA || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}${GRID_IDENTIFIER}") {
             ArenaMap.isWaitingUpdate = false
             val strings = s[1].split(",")
             if (strings.size != 5) return
@@ -66,27 +66,28 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
             return
         }
 
-        if ((App.AUTO_UPDATE_ARENA || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}${GRID_IDENTIFIER}") {
-            ArenaMap.isWaitingUpdate = false
-            val strings = s[1].split(",")
-            if (strings.size != 2) return
-            val exploreDescriptor: String = strings[0]
-            val obstacleDescriptor: String = strings[1]
-            val s2 = "${exploreDescriptor}${DESCRIPTOR_DIVIDER}${obstacleDescriptor}"
-            callback(MessageStatus.ARENA, s2)
-
-//            if (usingAmd) {
-//                var s2: String = "f".padEnd(75, 'f')
-//                s2 = "${s2}${DESCRIPTOR_DIVIDER}${s[1]}"
-//                Log.e("TEST", s[1])
-//                Log.e("TEST", s2)
-//                callback(MessageStatus.ARENA, s2)
-//            } else {
-//                callback(MessageStatus.ARENA, s[1])
-//            }
-
-            return
-        }
+        // FOR CHECKLIST / AMDTOOL
+//        if ((App.AUTO_UPDATE_ARENA || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}${GRID_IDENTIFIER}") {
+//            ArenaMap.isWaitingUpdate = false
+//            val strings = s[1].split(",")
+//            if (strings.size != 2) return
+//            val exploreDescriptor: String = strings[0]
+//            val obstacleDescriptor: String = strings[1]
+//            val s2 = "${exploreDescriptor}${DESCRIPTOR_DIVIDER}${obstacleDescriptor}"
+//            callback(MessageStatus.ARENA, s2)
+//
+////            if (usingAmd) {
+////                var s2: String = "f".padEnd(75, 'f')
+////                s2 = "${s2}${DESCRIPTOR_DIVIDER}${s[1]}"
+////                Log.e("TEST", s[1])
+////                Log.e("TEST", s2)
+////                callback(MessageStatus.ARENA, s2)
+////            } else {
+////                callback(MessageStatus.ARENA, s[1])
+////            }
+//
+//            return
+//        }
 
         if (s[0] == "${COMMAND_PREFIX}${ROBOT_POSITION_IDENTIFIER}") {
             // AMDTool cheap fix

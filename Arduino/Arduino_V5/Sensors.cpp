@@ -12,28 +12,19 @@ void swap(double *xp, double *yp)  {
 void bubbleSort(double arr[], int n)  {  
     int i, j;  
     for (i = 0; i < n-1; i++)      
-        // Last i elements are already in place  
         for (j = 0; j < n-i-1; j++)  
             if (arr[j] > arr[j+1])  
                 swap(&arr[j], &arr[j+1]);  
 } 
 
 int Sensors::getPrintDistance(int sensor) {
-
-//    if (sensor == 6) {
-        int distance = printProcess(sensor);
-        int distance1 = printProcess(sensor);
-        if (distance == distance1)
-        return distance;
-        else {
-            int distance2 = printProcess(sensor);
-            if (distance2 == distance || distance2 == distance1)
-            return distance2;
-        }
-        return printProcess(sensor);
-//    } else {
-//        return printProcess(sensor);   
-//    }
+    int distance = printProcess(sensor);
+    int distance1 = printProcess(sensor);
+    if (distance == distance1) return distance;
+    int distance2 = printProcess(sensor);
+    if (distance2 == distance || distance2 == distance1)
+    return distance2;
+    return printProcess(sensor);
 }
 
 int Sensors::printProcess(int sensor) {
@@ -74,7 +65,6 @@ double Sensors::getDistanceFast(char sensor, double m, double c, double r) {
         int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
         double volts = voltsFromRaw * 0.001;
         double distance = (1 / ((volts * m) + c)) - r;
-        //if (sensor == sensor6) distance -= 8;
         values[i] = distance;
     }
 
@@ -115,8 +105,7 @@ double Sensors::getDistanceLog(char sensor, double m, double c, double r) {
         int raw = analogRead(sensor);
         int voltsFromRaw = map(raw, 0, 1023, 0, 5000);
         double volts = voltsFromRaw * 0.001;
-        double distance = (1/(log(volts)*m + c))-r;
-        //if (sensor == sensor6) distance -= 8;
+        double distance = (1 / (log(volts) * m + c)) - r;
         values[i] = distance;
     }
 
@@ -129,7 +118,6 @@ double Sensors::getDistanceLog(char sensor, double m, double c, double r) {
 
 double Sensors::getDistanceAverageFront() {
     double distance1 = getDistance(1);
-    //double distance2 = getDistance(2);  
     double distance3 = getDistance(3);  
     return (distance1 + distance3) * 0.5;
 }

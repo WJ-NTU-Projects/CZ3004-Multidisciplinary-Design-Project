@@ -5,8 +5,8 @@
 #define sensor1 A0 // PS1 S
 #define sensor2 A1 // PS2 L
 #define sensor3 A2 // PS3 S
-#define sensor4 A3 // PS4 S       // >7
-#define sensor5 A4 // PS5 S       // >7
+#define sensor4 A3 // PS4 S       
+#define sensor5 A4 // PS5 S       
 #define sensor6 A5 // PS6 L       
 
 #define A0m 0.0427
@@ -21,8 +21,6 @@
 #define A4c -0.0043
 #define A5m 0.0028
 #define A5c 0.0065
-//#define A5m 0.0028
-//#define A5c 0.0066
 
 #define A0r 5.77
 #define A1r 7.62

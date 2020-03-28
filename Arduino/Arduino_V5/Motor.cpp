@@ -34,7 +34,6 @@ void Motor::move(int direction, int speedLeft, int speedRight) {
 
 void Motor::brake() {
     brakeRight();
-    //delay(1);
     brakeLeft();
 }
 
