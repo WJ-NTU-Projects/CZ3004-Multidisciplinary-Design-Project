@@ -74,7 +74,7 @@
     <string name="turn_right">向右转</string>
     <string name="restore_defaults">恢复默认设置</string>
     <string name="receive_information_identifiers">接受情报的识别号</string>
-    <string name="grid_descriptor">网格描述符</string>
+    <string name="grid_identifier">网格描述符</string>
     <string name="descriptor_divider">描述符分频器：</string>
     <string name="set_image">图片位置</string>
     <string name="robot_position">机器位置</string>

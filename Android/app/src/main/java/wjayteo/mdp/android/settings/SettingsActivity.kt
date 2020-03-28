@@ -246,7 +246,7 @@ class SettingsActivity : AppCompatActivity() {
 
             10003 -> {
                 if (resultCode == Activity.RESULT_CANCELED) return
-                GRID_IDENTIFIER = getString(R.string.grid_descriptor_default)
+                GRID_IDENTIFIER = getString(R.string.grid_identifier_default)
                 SET_IMAGE_IDENTIFIER = getString(R.string.set_image_default)
                 ROBOT_POSITION_IDENTIFIER = getString(R.string.robot_position_default)
                 ROBOT_STATUS_IDENTIFIER = getString(R.string.robot_status_default)

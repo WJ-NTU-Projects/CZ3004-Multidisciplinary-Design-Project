@@ -238,7 +238,7 @@ class SettingsFragmentIdentifier : Fragment() {
         commandPrefixEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_command_prefix), getString(R.string.command_prefix_default))
         stringDividerEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_command_divider), getString(R.string.string_divider_default))
         descriptorDividerEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_descriptor_divider), getString(R.string.descriptor_divider_default))
-        gridDescriptorEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_grid_identifier), getString(R.string.grid_descriptor_default))
+        gridDescriptorEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_grid_identifier), getString(R.string.grid_identifier_default))
         setImageEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_set_image_identifier), getString(R.string.set_image_default))
         robotPositionEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_robot_position_identifier), getString(R.string.robot_position_default))
         //robotStatusEditText.hint = sharedPreferences.getString(getString(R.string.app_pref_robot_status_identifier), getString(R.string.robot_status_default))

@@ -256,6 +256,7 @@ class MainActivity : AppCompatActivity() {
 
             R.id.exploreButton -> {
                 val mode = if (currentMode == Mode.NONE) Mode.EXPLORATION else Mode.NONE
+                if (mode == Mode.NONE) sendCommand("${PC_PREFIX}terminate")
                 onStartClicked(mode)
             }
 
@@ -387,8 +388,6 @@ class MainActivity : AppCompatActivity() {
                 sendCommand("$PC_PREFIX$EXPLORATION_COMMAND")
             } else if (mode == Mode.FASTEST_PATH) {
                 sendCommand("$PC_PREFIX$FASTEST_PATH_COMMAND")
-            } else {
-                sendCommand("${PC_PREFIX}terminate")
             }
         }
 
@@ -487,8 +486,8 @@ class MainActivity : AppCompatActivity() {
 
             BluetoothController.Status.CONNECTED -> {
                 arenaMapController.showTKL(false)
-                //ArenaMap.isWaitingUpdate = true
-                //sendCommand(SEND_ARENA_COMMAND)
+//                ArenaMap.isWaitingUpdate = true
+//                sendCommand(SEND_ARENA_COMMAND)
             }
 
             else -> {}
@@ -506,6 +505,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateImage(data: String) {
         arenaMapController.updateImages(data)
+        showMdf()
     }
 
     private fun updateRobot(data: String) {

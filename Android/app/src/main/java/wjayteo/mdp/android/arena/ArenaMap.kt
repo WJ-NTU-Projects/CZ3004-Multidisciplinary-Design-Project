@@ -84,12 +84,6 @@ open class ArenaMap (private val context: Context, private val callback: (status
         TURN_COMPLETE
     }
 
-    enum class Visibility {
-        UNEXPLORED,
-        EXPLORED
-    }
-
-    var currentVisibility       : Visibility = Visibility.UNEXPLORED
     private val scale           : Double = if (context.resources.getBoolean(R.bool.isTablet)) 0.745 else 0.68
     private val displayPixels   : Int = (context.resources.displayMetrics.widthPixels * scale).toInt()
     private val gridSize        : Int = ((displayPixels - 30) / 15)
@@ -237,8 +231,6 @@ open class ArenaMap (private val context: Context, private val callback: (status
     }
 
     fun setAllExplored(yes: Boolean) {
-        currentVisibility = if (yes) Visibility.EXPLORED else Visibility.UNEXPLORED
-
         for (y in 19 downTo 0) {
             for (x in 0..14) {
                 if (yes) setExplored(x, y)
@@ -924,7 +916,7 @@ open class ArenaMap (private val context: Context, private val callback: (status
     fun updateImages(data: String) {
         val strings = data.split(")")
         clearImages()
-// #im:(6,0,10)(1,3,10)(2,6,11)(15,0,11)(4,3,16)(14,6,19)(3,13,14)(7,14,11)(12,14,10)(5,13,6)
+
         val wrongImages: ArrayList<IntArray> = arrayListOf()
 
         for (str in strings) {
@@ -958,8 +950,8 @@ open class ArenaMap (private val context: Context, private val callback: (status
 
         for (im in wrongImages) {
             val id = im[2]
-            var x = im[0]
-            var y = im[1]
+            val x = im[0]
+            val y = im[1]
             setImage(x, y, id)
         }
     }
@@ -974,8 +966,6 @@ open class ArenaMap (private val context: Context, private val callback: (status
             x = valid[0]
             y = valid[1]
         }
-
-        //#im:(5,0,11)(1,5,21)(4,8,9)
 
         if (!isObstacle2(x, y) || isImage(x, y)) {
             var shortestDistance: Int = Integer.MAX_VALUE

@@ -365,12 +365,12 @@
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/AppTextView.Settings"
                             android:layout_weight="0.5"
-                            android:text="@string/grid_descriptor"/>
+                            android:text="@string/grid_identifier"/>
 
                         <EditText
                             style="?attr/appEditText"
                             android:id="@+id/gridDescriptorEditText"
-                            android:hint="@string/grid_descriptor_default"
+                            android:hint="@string/grid_identifier_default"
                             android:layout_weight="1.0"
                             android:inputType="text"
                             android:importantForAutofill="no" />

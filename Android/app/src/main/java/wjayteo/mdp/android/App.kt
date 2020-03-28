@@ -39,21 +39,21 @@ class App: Application() {
         @Volatile var EXPLORATION_COMMAND = "exs"
         @Volatile var FASTEST_PATH_COMMAND = "beginFastest"
         @Volatile var SEND_ARENA_COMMAND = "sendArena"
-        @Volatile var FORWARD_COMMAND = "f"
-        @Volatile var REVERSE_COMMAND = "r"
-        @Volatile var TURN_LEFT_COMMAND = "tl"
-        @Volatile var TURN_RIGHT_COMMAND = "tr"
-        @Volatile var START_POINT_COMMAND = "startPoint"
+        @Volatile var FORWARD_COMMAND = "M"
+        @Volatile var REVERSE_COMMAND = "V"
+        @Volatile var TURN_LEFT_COMMAND = "L"
+        @Volatile var TURN_RIGHT_COMMAND = "R"
+        @Volatile var START_POINT_COMMAND = "startpoint"
         @Volatile var WAYPOINT_COMMAND = "waypoint"
-        @Volatile var GOAL_POINT_COMMAND = "goalPoint"
+        @Volatile var GOAL_POINT_COMMAND = "goalpoint"
 
         @Volatile var ARDUINO_PREFIX = "A"
         @Volatile var PC_PREFIX = "P"
         @Volatile var COMMAND_PREFIX = "#"
         @Volatile var COMMAND_DIVIDER = ":"
-        @Volatile var GRID_IDENTIFIER = "grid"
+        @Volatile var GRID_IDENTIFIER = "r"
         @Volatile var DESCRIPTOR_DIVIDER = "/"
-        @Volatile var SET_IMAGE_IDENTIFIER = "setImage"
+        @Volatile var SET_IMAGE_IDENTIFIER = "im"
         @Volatile var ROBOT_POSITION_IDENTIFIER = "robotPosition"
         @Volatile var ROBOT_STATUS_IDENTIFIER = "robotStatus"
 
@@ -75,7 +75,6 @@ class App: Application() {
         sharedPreferences.edit().putBoolean(getString(R.string.app_pref_using_amd), false).apply()
         sharedPreferences.edit().putBoolean(getString(R.string.app_pref_simulation_mode), false).apply()
 
-
         EXPLORATION_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_exploration), getString(R.string.exploration_default))!!
         FASTEST_PATH_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_fastest), getString(R.string.fastest_path_default))!!
         SEND_ARENA_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_send_arena), getString(R.string.send_arena_default))!!
@@ -83,12 +82,19 @@ class App: Application() {
         REVERSE_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_reverse), getString(R.string.reverse_default))!!
         TURN_LEFT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_turn_left), getString(R.string.turn_left_default))!!
         TURN_RIGHT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_turn_right), getString(R.string.turn_right_default))!!
-        SET_IMAGE_IDENTIFIER = sharedPreferences.getString(getString(R.string.app_pref_set_image_identifier), getString(R.string.set_image_default))!!
-        //START_POINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_start_point), getString(R.string.start_point_default))!!
-        //GOAL_POINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_goal_point), getString(R.string.goal_point_default))!!
+        START_POINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_start_point), getString(R.string.start_point_default))!!
+        GOAL_POINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_goal_point), getString(R.string.goal_point_default))!!
         WAYPOINT_COMMAND = sharedPreferences.getString(getString(R.string.app_pref_command_waypoint), getString(R.string.waypoint_default))!!
         ARDUINO_PREFIX = sharedPreferences.getString(getString(R.string.app_pref_arduino_prefix), getString(R.string.arduino_prefix_default))!!
         PC_PREFIX = sharedPreferences.getString(getString(R.string.app_pref_pc_prefix), getString(R.string.pc_prefix_default))!!
+
+        COMMAND_PREFIX = sharedPreferences.getString(getString(R.string.app_pref_command_prefix), getString(R.string.command_prefix_default))!!
+        COMMAND_DIVIDER = sharedPreferences.getString(getString(R.string.app_pref_command_divider), getString(R.string.string_divider_default))!!
+        GRID_IDENTIFIER = sharedPreferences.getString(getString(R.string.app_pref_grid_identifier), getString(R.string.grid_identifier_default))!!
+        DESCRIPTOR_DIVIDER = sharedPreferences.getString(getString(R.string.app_pref_descriptor_divider), getString(R.string.descriptor_divider_default))!!
+        SET_IMAGE_IDENTIFIER = sharedPreferences.getString(getString(R.string.app_pref_set_image_identifier), getString(R.string.set_image_default))!!
+        ROBOT_POSITION_IDENTIFIER = sharedPreferences.getString(getString(R.string.app_pref_robot_position_identifier), getString(R.string.robot_position_default))!!
+        ROBOT_STATUS_IDENTIFIER = sharedPreferences.getString(getString(R.string.app_pref_robot_status_identifier), getString(R.string.robot_status_default))!!
 
         DARK_MODE = sharedPreferences.getBoolean(getString(R.string.app_pref_dark_mode), false)
 
