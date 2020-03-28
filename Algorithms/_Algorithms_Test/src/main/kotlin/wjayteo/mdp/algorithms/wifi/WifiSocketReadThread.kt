@@ -12,6 +12,7 @@ class WifiSocketReadThread : Thread() {
     override fun run() {
         if (inputStream == null) {
             println("Socket input stream is null.")
+            WifiSocketController.disconnect()
             return
         }
 

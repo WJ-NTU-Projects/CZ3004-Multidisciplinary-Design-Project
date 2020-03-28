@@ -12,6 +12,7 @@ import wjayteo.mdp.algorithms.algorithm.Algorithm.Companion.ACTUAL_RUN
 import wjayteo.mdp.algorithms.arena.Arena
 import wjayteo.mdp.algorithms.uicomponent.popup.ConnectionView
 import wjayteo.mdp.algorithms.wifi.WifiSocketController
+import java.lang.Exception
 
 class ControlsView : View() {
     companion object {
@@ -24,7 +25,15 @@ class ControlsView : View() {
 
         fun connectionChanged(connected: Boolean) {
             this.connected = connected
-            //connectButton.text = if (connected) "Disconnect" else "Connect"
+
+            runLater {
+                try {
+                    connectButton.text = if (connected) "Disconnect" else "Connect"
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
             MasterView.idleListener.listen()
         }
 
@@ -64,23 +73,20 @@ class ControlsView : View() {
 
             action {
                 if (connected) {
-                    if (!WifiSocketController.isConnected()) return@action
-                    var success = false
+                    if (!WifiSocketController.isConnected()) {
+                        connectionChanged(false)
+                        return@action
+                    }
 
                     runAsync {
-                        success = WifiSocketController.disconnect()
+                        WifiSocketController.disconnect()
                     }.setOnSucceeded {
-                        if (success) {
-                            connectionChanged(false)
-                            information("Disconnected from RPi successfully.")
-                        } else {
-                            error("Disconnection failed.")
-                        }
+                        connectionChanged(false)
                     }
                 } else {
                     val f = find<ConnectionView>().openModal(stageStyle = StageStyle.UTILITY)
                     f?.isResizable = false
-                    f?.setOnCloseRequest {  if (ConnectionView.processing) it.consume() }
+                    f?.setOnCloseRequest { if (ConnectionView.processing) it.consume() }
                 }
             }
         }

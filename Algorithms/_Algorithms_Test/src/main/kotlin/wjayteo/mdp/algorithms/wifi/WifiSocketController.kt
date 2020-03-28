@@ -28,21 +28,17 @@ class WifiSocketController {
         }
 
         @Synchronized
-        fun disconnect(): Boolean {
-            if (socket == null) return false
-
+        fun disconnect() {
             try {
                 socket?.close()
-                socket = null
             } catch (e: IOException) {
                 e.printStackTrace()
-                return false
             }
 
+            socket = null
             readThread?.finish()
             readThread = null
             ControlsView.connectionChanged(false)
-            return true
         }
 
         @Synchronized

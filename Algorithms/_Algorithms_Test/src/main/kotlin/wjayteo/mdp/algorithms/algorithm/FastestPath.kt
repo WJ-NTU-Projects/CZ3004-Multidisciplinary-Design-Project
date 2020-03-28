@@ -11,6 +11,7 @@ import wjayteo.mdp.algorithms.arena.Robot
 import wjayteo.mdp.algorithms.uicomponent.ControlsView
 import wjayteo.mdp.algorithms.wifi.WifiSocketController
 import java.util.*
+import kotlin.math.floor
 
 
 class FastestPath : Algorithm() {
@@ -35,14 +36,14 @@ class FastestPath : Algorithm() {
     fun start() {
         WifiSocketController.setListener(this)
         Robot.reset()
-        WifiSocketController.write("A", "F")
+        if (ACTUAL_RUN) WifiSocketController.write("A", "F")
         var pathList: List<IntArray> = computeFastestPath()
         var robotFacing = 0
         var s = ""
 
         for ((i, step) in pathList.withIndex()) {
-            val direction = step[2]
-            val diff = direction - robotFacing
+            val diff = step[3] - robotFacing
+            //println("$i: ${step[3]}, $robotFacing, $diff")
 
             when (diff) {
                 90 -> {
@@ -50,7 +51,7 @@ class FastestPath : Algorithm() {
                     s += "M"
                 }
 
-                -90 -> {
+                -90, 270 -> {
                     s += "L"
                     s += "M"
                 }
@@ -60,13 +61,12 @@ class FastestPath : Algorithm() {
                 }
 
                 180, -180 -> {
-                    s += "T"
-                    s += "M"
+                    s += "V"
                 }
             }
 
+            if (diff == 180 || diff == -180) continue
             robotFacing += diff
-
             if (robotFacing < 0) robotFacing += 360
             else if (robotFacing >= 360) robotFacing -= 360
         }
@@ -80,10 +80,14 @@ class FastestPath : Algorithm() {
             pathList = pathList.subList(1, pathList.size - 1)
         }
 
-//        delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
-//        simulationStarted = true
-//        startTime = System.currentTimeMillis()
-//        simulate(pathList)
+        println("Commands: $pathString")
+
+        if (!ACTUAL_RUN) {
+            delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
+            simulationStarted = true
+            startTime = System.currentTimeMillis()
+            simulate(pathList)
+        }
     }
 
     fun stop() {
@@ -94,7 +98,7 @@ class FastestPath : Algorithm() {
 
         println("-------------")
         val seconds: Double = (endTime - startTime) / 1000.0
-        println("TIME TAKEN: $seconds seconds")
+        println("TIME TAKEN: ${floor(seconds).toInt()} seconds")
         println("-------------")
 
         ControlsView.stop()

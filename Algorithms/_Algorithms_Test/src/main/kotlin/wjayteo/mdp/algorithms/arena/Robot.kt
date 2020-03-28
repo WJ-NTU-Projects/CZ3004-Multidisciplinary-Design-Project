@@ -9,6 +9,7 @@ import kotlin.math.abs
 
 class Robot {
     companion object {
+        var ACTUAL_RUN = true
         val position = Coordinates(1, 1)
         var facing: Int = 0
         private var attachedView: ArenaMapView? = null
@@ -168,7 +169,7 @@ class Robot {
             return 0
         }
 
-        private fun test() {
+        private fun simulateSensors() {
             val x: Int = position.x
             val y: Int = position.y
 
@@ -268,6 +269,7 @@ class Robot {
             else if (facing < 0) facing += 360
             attachedView?.setRobotFacing(facing)
             setObstaclesScanned()
+            if (!ACTUAL_RUN) simulateSensors()
         }
 
         fun move(x: Int, y: Int) {
@@ -283,7 +285,8 @@ class Robot {
             }
 
             attachedView?.setRobotPosition(x, y)
-            //setObstaclesScanned()
+            setObstaclesScanned()
+            if (!ACTUAL_RUN) simulateSensors()
         }
 
         fun moveTemp() {
@@ -352,7 +355,7 @@ class Robot {
             }
         }
 
-        fun isBackObstructed(): Boolean {
+        private fun isBackObstructed(): Boolean {
             return when (facing) {
                 0    -> !Arena.isMovable(position.x, position.y - 1)
                 90   -> !Arena.isMovable(position.x - 1, position.y)

@@ -71,7 +71,6 @@ class ConnectionView : View("Connect to RPi") {
 
                                     if (success) {
                                         ControlsView.connectionChanged(true)
-                                        //information("Connected to RPi successfully.")
                                         close()
                                     } else {
                                         error("Connection failed.")

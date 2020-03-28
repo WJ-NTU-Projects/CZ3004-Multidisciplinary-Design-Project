@@ -21,6 +21,7 @@ import java.net.URL
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
+import kotlin.math.floor
 
 
 class Exploration : Algorithm() {
@@ -45,6 +46,7 @@ class Exploration : Algorithm() {
     private var uTurn = false
     private var uTurnLeft = false
     private var forceMove = false
+    private var completed = false
 
     override fun messageReceived(message: String) {
         if (!started) {
@@ -76,7 +78,7 @@ class Exploration : Algorithm() {
                 return
             }
 
-            if (waitingForFP) return
+            if (waitingForFP || completed) return
             if (!message.contains("#")) return
             val messages: List<String> = message.split("#")
             val x = Robot.position.x
@@ -151,8 +153,7 @@ class Exploration : Algorithm() {
             }
         }
 
-        if (!forceMove && Robot.checkLeft()) { //!Arena.isInvalidCoordinates(imageX, imageY)) {
-            //Thread.sleep(500)
+        if (!forceMove && Robot.checkLeft()) {
             imageCoordinatesList.add(Coordinates(imageX, imageY))
             facingList.add(Robot.facing)
             WifiSocketController.write("R", "P")
@@ -187,7 +188,7 @@ class Exploration : Algorithm() {
         Arena.sendArena()
     }
 
-    fun getImages() {
+    private fun getImages() {
         val content = StringBuilder()
         try {
             val url = URL("http://192.168.16.133:8123/end")
@@ -200,7 +201,8 @@ class Exploration : Algorithm() {
             }
             `in`.close()
         } catch (e: IOException) {
-            e.printStackTrace()
+            println("Failed to connect to Image-Rec endpoint...")
+            return
         }
 
         val s = content.toString()
@@ -266,6 +268,7 @@ class Exploration : Algorithm() {
         Arena.setAllUnknown()
         Arena.refreshPoints()
         wallHug = true
+        Robot.ACTUAL_RUN = ACTUAL_RUN
 
         if (!ACTUAL_RUN) {
             delay = (1000.0 / ACTIONS_PER_SECOND).toLong()
@@ -284,37 +287,44 @@ class Exploration : Algorithm() {
         if (!started && !simulationStarted) return
         started = false
         simulationStarted = false
+        this.completed = completed
 
         val endTime: Long = System.currentTimeMillis()
         println("-------------")
         val seconds: Double = (endTime - startTime) / 1000.0
-        println("TIME TAKEN: $seconds seconds")
+        println("TIME TAKEN: ${floor(seconds).toInt()} seconds")
         println("-------------")
 
-        if (ACTUAL_RUN) WifiSocketController.write("D", "exe")
-        Arena.refreshPoints()
+        if (ACTUAL_RUN) {
+            WifiSocketController.write("D", "exe")
 
-        if (ACTUAL_RUN && !braking.get()) {
-            braking.set(true)
-            Arena.endHug()
-            Arena.sendArena()
+            if (!braking.get()) {
+                braking.set(true)
+                Arena.refreshPoints()
+                Arena.endHug()
+                Arena.sendArena()
+            }
+
+            var ss = ""
+
+            for ((index, coordinates) in imageCoordinatesList.withIndex()) {
+                ss += "(${index}: ${coordinates.x}, ${coordinates.y}) "
+                if (index != imageCoordinatesList.size - 1) ss += "\n"
+            }
+
+            ss = ss.trim()
+            println("-------------")
+            println(ss)
+            println("-------------")
+
+            try {
+                getImages()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                println()
+                println("An error occurred while attempting to process image coordinates. See stack trace above.")
+            }
         }
-
-        var ss = ""
-
-        for ((index, coordinates) in imageCoordinatesList.withIndex()) {
-            ss += "(${index}: ${coordinates.x}, ${coordinates.y}) "
-            if (index != imageCoordinatesList.size - 1) ss += "\n"
-        }
-
-        ss = ss.trim()
-        println("-------------")
-        println(ss)
-        println("-------------")
-
-        try {
-            getImages()
-        } catch (e: Exception) {}
 
         if (!completed) return
         Thread.sleep(1000)
@@ -338,8 +348,8 @@ class Exploration : Algorithm() {
         braking.set(false)
 
         if (wallHug) {
-            // Math.floorMod(Robot.facing, 180) == 0
-//            if (!hugRight && Robot.checkRight() && Robot.position.x >= 3 && Robot.position.x <= 11) {
+            // Alternative: Robot.position.x >= 3 && Robot.position.x <= 11
+//            if (!hugRight && Robot.checkRight() && Math.floorMod(Robot.facing, 180) == 0) {
 //                hugRight = true
 //                hugRightStartX = Robot.position.x
 //                hugRightStartY = Robot.position.y
@@ -362,25 +372,6 @@ class Exploration : Algorithm() {
 //                return
 //            }
 
-//            if (!checked1 && Robot.position.x == 9 && Robot.position.y == 5 && Robot.facing == 180) {
-//                WifiSocketController.write("A", "R")
-//                Robot.turn(90)
-//                uTurn = true
-//                uTurnLeft = false
-//                testttt = true
-//                checked1 = true
-//                return
-//            }
-//
-//            if (testttt) {
-//                WifiSocketController.write("A", "L")
-//                Robot.turn(90)
-//                uTurn = true
-//                uTurnLeft = true
-//                testttt = false
-//                return
-//            }
-
             if (!Robot.isLeftObstructed() && previousCommand != LEFT) {
                 if (Robot.isFrontObstructed() && Robot.isLeftCompletelyBlocked2()) {
                     previousCommand = RIGHT
@@ -396,12 +387,12 @@ class Exploration : Algorithm() {
             }
 
             if (!Robot.isFrontObstructed()) {
-//                if (Robot.isWallFront2() && Robot.isLeftCompletelyBlocked() && Robot.isRightCompletelyBlocked()) {
-//                    previousCommand = RIGHT
-//                    WifiSocketController.write("A", "R")
-//                    Robot.turn(90)
-//                    return
-//                }
+                if (Robot.isWallFront2() && Robot.isLeftCompletelyBlocked() && Robot.isRightCompletelyBlocked()) {
+                    previousCommand = RIGHT
+                    WifiSocketController.write("A", "R")
+                    Robot.turn(90)
+                    return
+                }
 
                 previousCommand = FORWARD
                 if (hugRight) justStartedHugRight = false
@@ -503,12 +494,12 @@ class Exploration : Algorithm() {
                         previousCommand = commandBeforeHugRight
                     }
 
-                    when (Robot.facing) {
-                        0 -> println("Image Coordinates: ${Robot.position.x - 2}, ${Robot.position.y}")
-                        90 -> println("Image Coordinates: ${Robot.position.x}, ${Robot.position.y + 2}")
-                        180 -> println("Image Coordinates: ${Robot.position.x + 2}, ${Robot.position.y}")
-                        270 -> println("Image Coordinates: ${Robot.position.x}, ${Robot.position.y - 2}")
-                    }
+//                    when (Robot.facing) {
+//                        0 -> println("Image Coordinates: ${Robot.position.x - 2}, ${Robot.position.y}")
+//                        90 -> println("Image Coordinates: ${Robot.position.x}, ${Robot.position.y + 2}")
+//                        180 -> println("Image Coordinates: ${Robot.position.x + 2}, ${Robot.position.y}")
+//                        270 -> println("Image Coordinates: ${Robot.position.x}, ${Robot.position.y - 2}")
+//                    }
 
                     continue
                 }
