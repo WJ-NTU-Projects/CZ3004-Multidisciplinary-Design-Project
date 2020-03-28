@@ -15,7 +15,7 @@ https://blogs.ntu.edu.sg/scemdp-1920s2-g16
 
 
 ## Android
-[![Download](https://img.shields.io/badge/APK%20Download-1.1.2-blue)](https://github.com/101011101001010/MDP/releases/tag/1.1.1)
+[![Download](https://img.shields.io/badge/APK%20Download-1.2.0-blue)](https://github.com/101011101001010/MDP/releases/tag/1.2.0)
 
 [Full Changelog](https://github.com/101011101001010/MDP/wiki/Android-Changelog)
 
