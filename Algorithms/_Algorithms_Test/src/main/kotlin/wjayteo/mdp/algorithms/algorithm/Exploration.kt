@@ -382,12 +382,12 @@ class Exploration : Algorithm() {
 //            }
 
             if (!Robot.isLeftObstructed() && previousCommand != LEFT) {
-//                if (Robot.isFrontObstructed() && Robot.isLeftCompletelyBlocked2()) {
-//                    previousCommand = RIGHT
-//                    WifiSocketController.write("A", "R")
-//                    Robot.turn(90)
-//                    return
-//                }
+                if (Robot.isFrontObstructed() && Robot.isLeftCompletelyBlocked2()) {
+                    previousCommand = RIGHT
+                    WifiSocketController.write("A", "R")
+                    Robot.turn(90)
+                    return
+                }
 
                 previousCommand = LEFT
                 WifiSocketController.write("A", "L")
