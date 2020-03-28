@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity() {
             BluetoothController.startClient(device, bluetoothCallback)
             return
 
-            // FOR AMDTOOL ONLY
+            // FOR CHECKLIST / AMDTOOL ONLY
 //            BluetoothController.startServer(bluetoothCallback)
 //            return
         }
@@ -229,7 +229,7 @@ class MainActivity : AppCompatActivity() {
             R.id.loadMapButton -> onMapLoadClicked()
             R.id.clearArenaButton -> clearArena()
             R.id.visibilityButton -> activityUtil.sendYesNoDialog(TOGGLE_VISIBILITY_CODE, getString(R.string.set_arena_as), getString(R.string.explored), getString(R.string.unexplored))
-            R.id.infoButton -> showMdf();
+            R.id.infoButton -> showMdf()
 
             R.id.plotPathButton -> {
                 if (arenaMapController.isWaypointSet()) arenaMapController.plotFastestPath() //activityUtil.sendYesNoDialog(PLOT_FASTEST_PATH_CODE, "Plot fastest path?")

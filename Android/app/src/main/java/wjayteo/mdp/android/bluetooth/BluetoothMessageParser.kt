@@ -42,7 +42,7 @@ class BluetoothMessageParser(private val callback: (status: MessageStatus, messa
 
         // Integration use only
         if ((App.AUTO_UPDATE_ARENA || ArenaMap.isWaitingUpdate) && s[0] == "${COMMAND_PREFIX}r") {
-            ArenaMap.isWaitingUpdate = false;
+            ArenaMap.isWaitingUpdate = false
             val strings = s[1].split(",")
             if (strings.size != 5) return
 

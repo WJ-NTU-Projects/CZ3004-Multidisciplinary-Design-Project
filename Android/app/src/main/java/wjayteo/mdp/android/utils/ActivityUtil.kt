@@ -1,7 +1,5 @@
 package wjayteo.mdp.android.utils
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -10,21 +8,12 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
-import wjayteo.mdp.android.App
 import wjayteo.mdp.android.App.Companion.DARK_MODE
 import wjayteo.mdp.android.R
 import java.io.Serializable
 import java.util.*
 
-
 class ActivityUtil(private val context: Context) {
-    /**
-     * Starts an activity.
-     * @param c Activity class for the activity to be started.
-     * @param extras Extras to be appended to the intent. Supports almost every supported type except Parcelable and Serializable array lists. Use traditional way for these two types.
-     * @param fade Flag to use fade animation.
-     * @param startNew Flag to start the activity as a new task at the top of the stack.
-     */
     fun startActivity(c: Class<*>, extras: HashMap<String, Any> = hashMapOf(), fade: Boolean = false, startNew: Boolean = false) {
         val intent = Intent(context, c)
 
@@ -60,25 +49,16 @@ class ActivityUtil(private val context: Context) {
         if (fade || startNew) context.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
-    /**
-     * Finishes an activity.
-     * @param fade Flag to use fade animation.
-     */
     fun finishActivity(fade: Boolean = false) {
         (context as Activity).finish()
         if (fade) context.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
-    /**
-     * Sends a snackbar message.
-     * @param message Message to be displayed.
-     */
     fun sendSnack(message: String?) {
         if (message == null) return
         val windowLayout: View = (context as Activity).findViewById(R.id.window_layout)
         val snackBar: Snackbar = Snackbar.make(windowLayout, message, Snackbar.LENGTH_LONG)
         snackBar.show()
-        //Log.e(this::class.simpleName ?: "-", "Broadcasted from ${context::class.simpleName}")
     }
 
     fun sendSnackIndefinite(message: String?) {
@@ -97,7 +77,6 @@ class ActivityUtil(private val context: Context) {
         textView.maxLines = 99
         textView.textSize = context.resources.getDimension(R.dimen.text_size_snack)
         snackBar.show()
-        //Log.e(this::class.simpleName ?: "-", "Broadcasted from ${context::class.simpleName}")
     }
 
     fun setTitle(title: String) {
@@ -120,53 +99,5 @@ class ActivityUtil(private val context: Context) {
         intent.putExtra("rightLabel", rightLabel)
         intent.putExtra("title", title)
         (context as Activity).startActivityForResult(intent, requestCode)
-
-        /*
-        val builder: AlertDialog.Builder? = AlertDialog.Builder(context)
-
-        builder?.setMessage(message)
-        builder?.setPositiveButton(rightLabel) { dialog, _ ->
-            dialog.dismiss()
-            callback(false)
-        }
-
-        builder?.setNegativeButton(leftLabel) { dialog, _ ->
-            dialog.dismiss()
-            callback(true)
-        }
-
-        val dialog: AlertDialog? = builder?.create()
-        dialog?.show()
-
-         */
-    }
-
-    /**
-     * Toggles the view state of the progress bar and tint to the visibility specified.
-     * @param visibility Visibility state to toggle to.
-     * @param opaque If visibility is View.VISIBLE, flag whether to set the alpha value to 1.0f or 0.5f (opaque or translucent).
-     */
-    fun toggleProgressBar(visibility: Int, opaque: Boolean = true, instant: Boolean = false, endCallback: () -> Unit = {}) {
-        val windowTint: View = (context as Activity).findViewById(R.id.window_tint)
-
-        val animatorListener: AnimatorListenerAdapter = object: AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
-                super.onAnimationEnd(animation)
-                windowTint.visibility = visibility
-                endCallback()
-            }
-        }
-
-        if (visibility == View.VISIBLE) {
-            windowTint.visibility = View.VISIBLE
-            if (instant) {
-                windowTint.alpha = if (opaque) 1.0f else 0.5f
-                return
-            }
-            val end = if (opaque) 1.0f else 0.5f
-            windowTint.animate().alpha(end).setDuration(App.ANIMATOR_DURATION).setListener(animatorListener)
-        } else {
-            windowTint.animate().alpha(0.0f).setDuration(App.ANIMATOR_DURATION).setListener(animatorListener)
-        }
     }
 }

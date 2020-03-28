@@ -8,16 +8,10 @@ import androidx.viewpager.widget.ViewPager
 
 class ViewPagerNoTouch(context: Context, attributes: AttributeSet): ViewPager(context, attributes) {
     @SuppressLint("ClickableViewAccessibility")
-    /**
-     * Overrides the default touch event to ignore all touches.
-     */
     override fun onTouchEvent(ev: MotionEvent?): Boolean {
         return false
     }
 
-    /**
-     * Overrides the default touch intercept event to ignore all touches.
-     */
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
         return false
     }

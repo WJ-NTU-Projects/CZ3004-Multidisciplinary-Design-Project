@@ -40,7 +40,7 @@ class YesNoDialog : AppCompatActivity() {
     }
 
     override fun applyOverrideConfiguration(overrideConfiguration: Configuration) {
-        super.applyOverrideConfiguration(baseContext.resources.configuration);
+        super.applyOverrideConfiguration(baseContext.resources.configuration)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

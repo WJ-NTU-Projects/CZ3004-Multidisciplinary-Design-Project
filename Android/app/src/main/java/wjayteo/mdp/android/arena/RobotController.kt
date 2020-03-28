@@ -134,11 +134,6 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
     }
 
     private fun checkTouchIntersect(event: MotionEvent) {
-        /*
-        for ((i, b) in buttonList.withIndex()) {
-            Log.e("CTI $i", "${b?.left?.minus(10)}, ${b?.top?.minus(10)}, ${b?.right?.plus(10)}, ${b?.bottom?.plus(10)}")
-        }
-        */
         val forwardRect = Rect(buttonList[0].left.minus(10), buttonList[0].top.minus(10), buttonList[0].right.plus(10), buttonList[0].bottom.plus(10))
         val reverseRect = Rect(buttonList[1].left.minus(10), buttonList[1].top.minus(10), buttonList[1].right.plus(10), buttonList[1].bottom.plus(10))
         val leftRect = Rect(buttonList[2].left.minus(10), buttonList[2].top.minus(10), buttonList[2].right.plus(10), buttonList[2].bottom.plus(10))
@@ -217,6 +212,7 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
                         else -> arenaMapController.cancelLast()
                     }
 
+                    // MIGHT WANNA USE THIS FOR CHECKLIST / AMDTOOL
 //                    val facing = when (currentDirection) {
 //                        ArenaMap.Direction.FORWARD -> 0
 //                        ArenaMap.Direction.REVERSE -> 180
@@ -238,7 +234,6 @@ class RobotController(private val context: Context, binding: ActivityMainBinding
 //                    } else if (facingOffset == -90 || facingOffset == 270) {
 //                        arenaMapController.turnRobot(Math.floorMod(currentFacing + 90, 360))
 //                    }
-                    //if (BluetoothController.isSocketConnected()) delay(App.simulationDelay)
                 }
             }
         }
