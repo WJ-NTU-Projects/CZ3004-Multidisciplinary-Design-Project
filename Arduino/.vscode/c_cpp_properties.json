@@ -3,6 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
+                "D:\\Personal\\Documents\\Arduino\\libraries\\MedianFilterLib\\src",
                 "D:\\Personal\\Documents\\Arduino\\libraries\\digitalWriteFast",
                 "D:\\Personal\\Documents\\Arduino\\libraries\\EnableInterrupt",
                 "C:\\Users\\User\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\**",
