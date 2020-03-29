@@ -30,6 +30,10 @@ class FastestPath : Algorithm() {
                     step(pathString)
                 }
             }
+
+            "fe" -> {
+                stop()
+            }
         }
     }
 
@@ -41,11 +45,13 @@ class FastestPath : Algorithm() {
         var robotFacing = 0
         var s = ""
 
-        for ((i, step) in pathList.withIndex()) {
+        for (step in pathList) {
             val diff = step[3] - robotFacing
-            //println("$i: ${step[3]}, $robotFacing, $diff")
 
             when (diff) {
+                0 -> s += "M"
+                180, -180 -> s += "V"
+
                 90 -> {
                     s += "R"
                     s += "M"
@@ -54,14 +60,6 @@ class FastestPath : Algorithm() {
                 -90, 270 -> {
                     s += "L"
                     s += "M"
-                }
-
-                0 -> {
-                    s += "M"
-                }
-
-                180, -180 -> {
-                    s += "V"
                 }
             }
 
@@ -101,63 +99,8 @@ class FastestPath : Algorithm() {
         println("TIME TAKEN: ${floor(seconds).toInt()} seconds")
         println("-------------")
 
+        if (ACTUAL_RUN) WifiSocketController.write("D", "fe")
         ControlsView.stop()
-
-        if (ACTUAL_RUN) {
-            WifiSocketController.write("D", "fe")
-        }
-
-        return
-//        if (!ACTUAL_RUN) return
-//
-//        Thread.sleep(10000)
-//        WifiSocketController.write("A", "T")
-//        Robot.turn(180)
-//        Thread.sleep(5000)
-//
-//        val f: Int = Robot.facing
-//        val path1: ArrayList<GridNode> = AStarSearch.run(Arena.goal.x, Arena.goal.y, f, Arena.start.x, Arena.start.y)
-//        val pathList: ArrayList<IntArray> = arrayListOf()
-//
-//        for ((x, y, facing, direction) in path1) {
-//            pathList.add(intArrayOf(x, y, facing, direction))
-//        }
-//
-//        var s = ""
-//        var robotFacing = f
-//        for ((i, step) in pathList.withIndex()) {
-//            val direction = step[2]
-//            val diff = direction - robotFacing
-//
-//            when (diff) {
-//                90 -> {
-//                    s += "R"
-//                    s += "M"
-//                }
-//
-//                -90 -> {
-//                    s += "L"
-//                    s += "M"
-//                }
-//
-//                0 -> {
-//                    s += "M"
-//                }
-//
-//                180, -180 -> {
-//                    s += "T"
-//                    s += "M"
-//                }
-//            }
-//
-//            robotFacing += diff
-//
-//            if (robotFacing < 0) robotFacing += 360
-//            else if (robotFacing >= 360) robotFacing -= 360
-//        }
-//
-//        Thread.sleep(1000)
-//        WifiSocketController.write("A", s)
     }
 
     private fun simulate(pathList: List<IntArray>) {
@@ -249,8 +192,8 @@ class FastestPath : Algorithm() {
 
                 for (node in goalPath) {
                     pathCost += node.f
-                    if (node.facing != previousFacing) pathCost += 500;
-                    previousFacing = node.facing;
+                    if (node.facing != previousFacing) pathCost += 500
+                    previousFacing = node.facing
                 }
 
                 if (pathCost <= previousGoalCost) {
@@ -259,14 +202,14 @@ class FastestPath : Algorithm() {
                 }
             }
 
-            path1.addAll(finalGoalPath);
+            path1.addAll(finalGoalPath)
             var cost1 = 0.0
             var previousFacing = path1[0].facing
 
             for (node in path1) {
-                cost1 += node.f;
-                if (node.facing != previousFacing) cost1 += 500;
-                previousFacing = node.facing;
+                cost1 += node.f
+                if (node.facing != previousFacing) cost1 += 500
+                previousFacing = node.facing
             }
 
             val path2: ArrayList<GridNode> = AStarSearch.run(startX, startY, startFacing2, waypointEntrance.x, waypointEntrance.y)
@@ -288,14 +231,14 @@ class FastestPath : Algorithm() {
                 previousFacing = goalPath[0].facing
 
                 for (node in goalPath) {
-                    pathCost += node.f;
-                    if (node.facing != previousFacing) pathCost += 500;
-                    previousFacing = node.facing;
+                    pathCost += node.f
+                    if (node.facing != previousFacing) pathCost += 500
+                    previousFacing = node.facing
                 }
 
                 if (pathCost <= previousGoalCost) {
-                    finalGoalPath = goalPath;
-                    previousGoalCost = pathCost;
+                    finalGoalPath = goalPath
+                    previousGoalCost = pathCost
                 }
             }
 
@@ -305,9 +248,9 @@ class FastestPath : Algorithm() {
             previousFacing = path2[0].facing
 
             for (node in path2) {
-                cost2 += node.f;
-                if (node.facing != previousFacing) cost2 += 500;
-                previousFacing = node.facing;
+                cost2 += node.f
+                if (node.facing != previousFacing) cost2 += 500
+                previousFacing = node.facing
             }
 
             var path: ArrayList<GridNode>

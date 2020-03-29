@@ -63,6 +63,7 @@ class Exploration : Algorithm() {
 
                         if (waitingForFP) {
                             ControlsView.start()
+                            MasterView.fastestPath = FastestPath()
                             MasterView.fastestPath.start()
                         }
                     } catch (e: NumberFormatException) {}
@@ -108,6 +109,7 @@ class Exploration : Algorithm() {
 
         if (uTurn) {
             uTurn = false
+
             if (uTurnLeft) {
                 WifiSocketController.write("A", "L")
                 Robot.turn(-90)
@@ -115,6 +117,7 @@ class Exploration : Algorithm() {
                 WifiSocketController.write("A", "R")
                 Robot.turn(90)
             }
+            
             return
         }
 
@@ -340,6 +343,7 @@ class Exploration : Algorithm() {
         }
 
         ControlsView.start()
+        MasterView.fastestPath = FastestPath()
         MasterView.fastestPath.start()
     }
 

@@ -9,6 +9,8 @@ import javafx.stage.StageStyle
 import tornadofx.*
 import wjayteo.mdp.algorithms.algorithm.Algorithm
 import wjayteo.mdp.algorithms.algorithm.Algorithm.Companion.ACTUAL_RUN
+import wjayteo.mdp.algorithms.algorithm.Exploration
+import wjayteo.mdp.algorithms.algorithm.FastestPath
 import wjayteo.mdp.algorithms.arena.Arena
 import wjayteo.mdp.algorithms.uicomponent.popup.ConnectionView
 import wjayteo.mdp.algorithms.wifi.WifiSocketController
@@ -104,6 +106,7 @@ class ControlsView : View() {
                 }
 
                 start()
+                MasterView.exploration = Exploration()
                 MasterView.exploration.start()
             }
         }
@@ -126,6 +129,7 @@ class ControlsView : View() {
                 }
 
                 start()
+                MasterView.fastestPath = FastestPath()
                 MasterView.fastestPath.start()
             }
         }
