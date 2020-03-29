@@ -1,3 +1,0 @@
-MAPDESC:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-OBSDESC:00000000000000007061c0400080010001e000400000000200044438f840000000000000080
-WP:5,12
