@@ -3,12 +3,10 @@
 
 Project files for the Android, Arduino and Algorithms subsystems, MDP AY1920 Sem 2. 
 
-https://blogs.ntu.edu.sg/scemdp-1920s2-g16
+**PLEASE READ THIS FIRST: [Important Information](https://github.com/101011101001010/MDP/wiki#important-information)**
 
 
 ## Arduino
-[Sketch Rundowns and Module Documentations](https://github.com/101011101001010/MDP/wiki)
-
 ### External Libraries
 * [digitalWriteFast (external download only)](https://code.google.com/archive/p/digitalwritefast/downloads)
 * [EnableInterrupt](https://github.com/GreyGnome/EnableInterrupt)
