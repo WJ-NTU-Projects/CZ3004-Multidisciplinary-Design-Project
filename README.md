@@ -1,4 +1,4 @@
-# MDP Android / Arduino / Algorithms Unmodular Repository
+# CZ3004 MDP Android / Arduino / Algorithms Unmodular Repository
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/101011101001010/MDP/blob/master/LICENSE)
 
 Project files for the Android, Arduino and Algorithms subsystems, MDP AY1920 Sem 2. 
